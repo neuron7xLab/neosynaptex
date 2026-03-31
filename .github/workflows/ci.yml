@@ -1,0 +1,82 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4e8f18426e50392f2a2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest test_neosynaptex.py -v --tb=short
+      - name: Integration check
+        run: |
+          python -c "
+          from neosynaptex import Neosynaptex, MockBnSynAdapter, MockMfnAdapter, MockPsycheCoreAdapter, MockMarketAdapter
+          ns = Neosynaptex(window=16)
+          ns.register(MockBnSynAdapter())
+          ns.register(MockMfnAdapter())
+          ns.register(MockPsycheCoreAdapter())
+          ns.register(MockMarketAdapter())
+          for t in range(40):
+              s = ns.observe()
+          assert s.phase == 'METASTABLE', f'Expected METASTABLE, got {s.phase}'
+          assert 0.5 < s.gamma_mean < 1.5, f'gamma out of range: {s.gamma_mean}'
+          print(f'PASS: gamma={s.gamma_mean:.3f} sr={s.spectral_radius:.3f} phase={s.phase}')
+          "
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4e8f18426e50392f2a2
+        with:
+          python-version: "3.11"
+      - run: pip install ruff mypy numpy scipy
+      - run: ruff check neosynaptex.py test_neosynaptex.py demo.py
+      - run: mypy neosynaptex.py --ignore-missing-imports
+
+  invariants:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4e8f18426e50392f2a2
+        with:
+          python-version: "3.11"
+      - name: Check gamma never stored
+        run: |
+          python -c "
+          import ast, pathlib
+          src = pathlib.Path('neosynaptex.py').read_text()
+          tree = ast.parse(src)
+          for node in ast.walk(tree):
+              if isinstance(node, ast.ClassDef) and node.name == 'Neosynaptex':
+                  for item in ast.walk(node):
+                      if isinstance(item, ast.Attribute) and item.attr == 'gamma':
+                          if isinstance(item.ctx, ast.Store):
+                              raise AssertionError(f'INV-1 VIOLATED: gamma stored at line {item.lineno}')
+          print('INV-1 OK: gamma never stored as attribute')
+          "
+      - name: Check no Cyrillic in identifiers
+        run: |
+          python -c "
+          src = open('neosynaptex.py').read()
+          for i, line in enumerate(src.splitlines(), 1):
+              for char in line:
+                  if ord(char) > 127 and char not in '# ':
+                      if not line.strip().startswith('#'):
+                          raise AssertionError(f'Non-ASCII at line {i}: {char!r}')
+          print('INV-5 OK: all identifiers ASCII')
+          "
