@@ -1,0 +1,323 @@
+{
+  "trajectory": [
+    {
+      "kuramoto_r": 0.1763694512198903,
+      "gamma_estimate": 2.0252120665586477,
+      "regime": "incoherent",
+      "confidence": 0.6657179115421676,
+      "timestamp": 50.0
+    },
+    {
+      "kuramoto_r": 0.1618114570317809,
+      "gamma_estimate": 2.0257195842594813,
+      "regime": "incoherent",
+      "confidence": 0.6774091520166452,
+      "timestamp": 60.0
+    },
+    {
+      "kuramoto_r": 0.13782549091144197,
+      "gamma_estimate": 2.0188702550439723,
+      "regime": "incoherent",
+      "confidence": 0.7333891693681968,
+      "timestamp": 70.0
+    },
+    {
+      "kuramoto_r": 0.13582444157027598,
+      "gamma_estimate": 2.000422436124484,
+      "regime": "incoherent",
+      "confidence": 0.6910870916340732,
+      "timestamp": 80.0
+    },
+    {
+      "kuramoto_r": 0.08437867351951249,
+      "gamma_estimate": 1.987650030129927,
+      "regime": "incoherent",
+      "confidence": 0.7491711748895807,
+      "timestamp": 90.0
+    },
+    {
+      "kuramoto_r": 0.26384492433802026,
+      "gamma_estimate": 1.9779009535790322,
+      "regime": "incoherent",
+      "confidence": 0.7146011994721815,
+      "timestamp": 100.0
+    },
+    {
+      "kuramoto_r": 0.2726975244978605,
+      "gamma_estimate": 1.960575743693997,
+      "regime": "incoherent",
+      "confidence": 0.6216753235991698,
+      "timestamp": 110.0
+    },
+    {
+      "kuramoto_r": 0.15991637024612326,
+      "gamma_estimate": 1.9483216215800752,
+      "regime": "incoherent",
+      "confidence": 0.7108338556098127,
+      "timestamp": 120.0
+    },
+    {
+      "kuramoto_r": 0.13935424508691643,
+      "gamma_estimate": 1.953335651853053,
+      "regime": "incoherent",
+      "confidence": 0.6876374166523866,
+      "timestamp": 130.0
+    },
+    {
+      "kuramoto_r": 0.23681672263902845,
+      "gamma_estimate": 1.9686628924230094,
+      "regime": "incoherent",
+      "confidence": 0.7001248327733417,
+      "timestamp": 140.0
+    },
+    {
+      "kuramoto_r": 0.13790427111524137,
+      "gamma_estimate": 1.9885521552206233,
+      "regime": "incoherent",
+      "confidence": 0.6763262766068611,
+      "timestamp": 150.0
+    },
+    {
+      "kuramoto_r": 0.08860710974863126,
+      "gamma_estimate": 1.9910059838181193,
+      "regime": "incoherent",
+      "confidence": 0.703171560604493,
+      "timestamp": 160.0
+    },
+    {
+      "kuramoto_r": 0.0887735634494031,
+      "gamma_estimate": 1.984832003097257,
+      "regime": "incoherent",
+      "confidence": 0.7591317254024006,
+      "timestamp": 170.0
+    },
+    {
+      "kuramoto_r": 0.02640960622101048,
+      "gamma_estimate": 1.9998820583115808,
+      "regime": "incoherent",
+      "confidence": 0.7429032257448331,
+      "timestamp": 180.0
+    },
+    {
+      "kuramoto_r": 0.17109723447769903,
+      "gamma_estimate": 2.024867763922911,
+      "regime": "incoherent",
+      "confidence": 0.6814153250393216,
+      "timestamp": 190.0
+    },
+    {
+      "kuramoto_r": 0.14583034614222717,
+      "gamma_estimate": 2.0442540361864143,
+      "regime": "incoherent",
+      "confidence": 0.6578430530318216,
+      "timestamp": 200.0
+    },
+    {
+      "kuramoto_r": 0.0602077460599068,
+      "gamma_estimate": 2.032911580524905,
+      "regime": "incoherent",
+      "confidence": 0.7310170846914097,
+      "timestamp": 210.0
+    },
+    {
+      "kuramoto_r": 0.09101669782290142,
+      "gamma_estimate": 1.9684550517443271,
+      "regime": "incoherent",
+      "confidence": 0.6691319932326991,
+      "timestamp": 220.0
+    },
+    {
+      "kuramoto_r": 0.0586940012108649,
+      "gamma_estimate": 1.9390239446149424,
+      "regime": "incoherent",
+      "confidence": 0.7197533989291608,
+      "timestamp": 230.0
+    },
+    {
+      "kuramoto_r": 0.13897105380441868,
+      "gamma_estimate": 1.9518054956021271,
+      "regime": "incoherent",
+      "confidence": 0.6490973975682548,
+      "timestamp": 240.0
+    },
+    {
+      "kuramoto_r": 0.21220355701252283,
+      "gamma_estimate": 1.98529073069637,
+      "regime": "incoherent",
+      "confidence": 0.6222457538189855,
+      "timestamp": 250.0
+    },
+    {
+      "kuramoto_r": 0.11736738314519982,
+      "gamma_estimate": 2.027159293597089,
+      "regime": "incoherent",
+      "confidence": 0.6960343882987285,
+      "timestamp": 260.0
+    },
+    {
+      "kuramoto_r": 0.07075130999500968,
+      "gamma_estimate": 2.0264835938442953,
+      "regime": "incoherent",
+      "confidence": 0.745008708909811,
+      "timestamp": 270.0
+    },
+    {
+      "kuramoto_r": 0.19314597462595126,
+      "gamma_estimate": 2.017029818084527,
+      "regime": "incoherent",
+      "confidence": 0.6937979507446791,
+      "timestamp": 280.0
+    },
+    {
+      "kuramoto_r": 0.2018271097051204,
+      "gamma_estimate": 1.9929201322622399,
+      "regime": "incoherent",
+      "confidence": 0.6565239876682134,
+      "timestamp": 290.0
+    },
+    {
+      "kuramoto_r": 0.2572400402178174,
+      "gamma_estimate": 1.952397272310609,
+      "regime": "incoherent",
+      "confidence": 0.6209973205397612,
+      "timestamp": 300.0
+    },
+    {
+      "kuramoto_r": 0.10615287918033406,
+      "gamma_estimate": 1.9482053907874959,
+      "regime": "incoherent",
+      "confidence": 0.6900997728710456,
+      "timestamp": 310.0
+    },
+    {
+      "kuramoto_r": 0.14024438090928457,
+      "gamma_estimate": 1.981183579354827,
+      "regime": "incoherent",
+      "confidence": 0.6457977443676748,
+      "timestamp": 320.0
+    },
+    {
+      "kuramoto_r": 0.07042789188032583,
+      "gamma_estimate": 2.0524575940121466,
+      "regime": "incoherent",
+      "confidence": 0.6787510535498782,
+      "timestamp": 330.0
+    },
+    {
+      "kuramoto_r": 0.09654564096174158,
+      "gamma_estimate": 2.071978348379834,
+      "regime": "incoherent",
+      "confidence": 0.7193735856522439,
+      "timestamp": 340.0
+    },
+    {
+      "kuramoto_r": 0.23599168069283188,
+      "gamma_estimate": 2.0394067775913918,
+      "regime": "incoherent",
+      "confidence": 0.6822619169575517,
+      "timestamp": 350.0
+    },
+    {
+      "kuramoto_r": 0.09052361118352137,
+      "gamma_estimate": 2.007381479621035,
+      "regime": "incoherent",
+      "confidence": 0.6838136385622615,
+      "timestamp": 360.0
+    },
+    {
+      "kuramoto_r": 0.06537454961394594,
+      "gamma_estimate": 2.003418703464094,
+      "regime": "incoherent",
+      "confidence": 0.757052207206405,
+      "timestamp": 370.0
+    },
+    {
+      "kuramoto_r": 0.23938734106235188,
+      "gamma_estimate": 2.024933443909707,
+      "regime": "incoherent",
+      "confidence": 0.6662651300566056,
+      "timestamp": 380.0
+    },
+    {
+      "kuramoto_r": 0.21901623075227397,
+      "gamma_estimate": 2.0323316622613112,
+      "regime": "incoherent",
+      "confidence": 0.5791728264701324,
+      "timestamp": 390.0
+    },
+    {
+      "kuramoto_r": 0.21373315552943617,
+      "gamma_estimate": 2.0113682273275715,
+      "regime": "incoherent",
+      "confidence": 0.6247979345358117,
+      "timestamp": 400.0
+    },
+    {
+      "kuramoto_r": 0.2429001031575393,
+      "gamma_estimate": 1.9985209028330502,
+      "regime": "incoherent",
+      "confidence": 0.5724934444975431,
+      "timestamp": 410.0
+    },
+    {
+      "kuramoto_r": 0.19003217134135905,
+      "gamma_estimate": 1.9653979114105082,
+      "regime": "incoherent",
+      "confidence": 0.6545033544231595,
+      "timestamp": 420.0
+    },
+    {
+      "kuramoto_r": 0.09474912718483616,
+      "gamma_estimate": 1.9652820631346946,
+      "regime": "incoherent",
+      "confidence": 0.6797186726374502,
+      "timestamp": 430.0
+    },
+    {
+      "kuramoto_r": 0.08255998307385085,
+      "gamma_estimate": 1.964747548462657,
+      "regime": "incoherent",
+      "confidence": 0.716677890485609,
+      "timestamp": 440.0
+    },
+    {
+      "kuramoto_r": 0.18883490083094925,
+      "gamma_estimate": 1.96110269290985,
+      "regime": "incoherent",
+      "confidence": 0.6892966393394295,
+      "timestamp": 450.0
+    },
+    {
+      "kuramoto_r": 0.10153335620534157,
+      "gamma_estimate": 1.9966929359876502,
+      "regime": "incoherent",
+      "confidence": 0.7186503871921768,
+      "timestamp": 460.0
+    },
+    {
+      "kuramoto_r": 0.08923538895590392,
+      "gamma_estimate": 2.004732360448622,
+      "regime": "incoherent",
+      "confidence": 0.6894622523689622,
+      "timestamp": 470.0
+    },
+    {
+      "kuramoto_r": 0.14044330936558838,
+      "gamma_estimate": 2.0143316976074654,
+      "regime": "incoherent",
+      "confidence": 0.6762467726847389,
+      "timestamp": 480.0
+    },
+    {
+      "kuramoto_r": 0.16303561173294126,
+      "gamma_estimate": 2.026176768413862,
+      "regime": "incoherent",
+      "confidence": 0.6928143942997356,
+      "timestamp": 490.0
+    }
+  ],
+  "mean_gamma": 1.9969598274889289,
+  "std_gamma": 0.03166897027031065,
+  "critical_windows": 0,
+  "total_windows": 45
+}
