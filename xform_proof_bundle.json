@@ -1,0 +1,81 @@
+{
+  "version": "0.2.0",
+  "title": "X-Form Gamma Scaling Proof Bundle",
+  "author": "Yaroslav Vasylenko / neuron7xLab",
+  "date": "2026-03-31",
+  "substrates": {
+    "zebrafish": {
+      "gamma": 1.043,
+      "ci": [0.91, 1.18],
+      "n": 47,
+      "r2": 0.82,
+      "ci_contains_unity": true,
+      "source": "zebrafish morphogenesis d=47"
+    },
+    "mfn_reaction_diffusion": {
+      "gamma": 0.865,
+      "ci": [0.72, 1.01],
+      "n": 986,
+      "r2": 0.47,
+      "ci_contains_unity": true,
+      "source": "MFN v4.1.0 reaction-diffusion PDE"
+    },
+    "bnsyn_criticality": {
+      "gamma": 0.950,
+      "ci": [0.83, 1.07],
+      "n": 200,
+      "r2": 0.71,
+      "ci_contains_unity": true,
+      "source": "BN-Syn AdEx spiking neural network"
+    },
+    "market_kuramoto": {
+      "gamma": 1.081,
+      "ci": [0.95, 1.21],
+      "n": 120,
+      "r2": 0.61,
+      "ci_contains_unity": true,
+      "source": "MarketGammaProbe Kuramoto coherence"
+    },
+    "neosynaptex_cross": {
+      "gamma": 1.030,
+      "ci": [0.89, 1.17],
+      "n": 40,
+      "r2": 0.85,
+      "ci_contains_unity": true,
+      "source": "Neosynaptex cross-domain integrating mirror"
+    },
+    "cns_ai_productive": {
+      "gamma": 1.138,
+      "ci": [1.0548, 1.2198],
+      "n": 6873,
+      "r2": 0.12,
+      "ci_contains_unity": false,
+      "source": "3-year human-AI session archive (productive)"
+    },
+    "cns_ai_nonproductive": {
+      "gamma": -0.557,
+      "ci": [-0.6521, -0.4629],
+      "n": 1398,
+      "r2": -0.10,
+      "ci_contains_unity": false,
+      "source": "3-year human-AI session archive (non-productive)"
+    }
+  },
+  "universal_gamma": {
+    "mean_physical_5": 0.9938,
+    "std_physical_5": 0.0773,
+    "all_physical_ci_contain_unity": true,
+    "gamma_all_8273": 1.059,
+    "ci_all_8273": [0.985, 1.131],
+    "ci_all_contains_unity": true
+  },
+  "methodology": {
+    "regression": "Theil-Sen robust (scipy.stats.theilslopes)",
+    "ci": "Bootstrap 500 iterations, 2.5-97.5 percentile",
+    "complexity_metric": "Shannon entropy * log(unique_words) * type_token_ratio",
+    "cost_metric": "total_words / complexity",
+    "artifact_classification": "code markers (>=2) OR science terms (>=3) OR engineering terms (>=3)"
+  },
+  "verdict": "COHERENT",
+  "verdict_reason": "All 5 physical substrates CI contain gamma=1.0. CNS-AI productive gamma=1.138 is closest cognitive substrate to unity. Non-productive gamma=-0.557 shows anti-scaling."
+}
