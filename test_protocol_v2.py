@@ -69,9 +69,14 @@ class TestTransferEntropy:
     def test_te_directed(self):
         from bn_syn.transfer_entropy import transfer_entropy
         rng = np.random.default_rng(0)
-        X = rng.standard_normal(3000)
-        Y = 0.9 * X[:-1] + 0.1 * rng.standard_normal(2999)
-        assert transfer_entropy(X[:-1], Y) > transfer_entropy(Y, X[:-1])
+        T = 5000
+        X = rng.standard_normal(T)
+        # Temporal causal: Y[t] = 0.7*X[t-1] + noise (proper lag structure)
+        Y = np.empty(T)
+        Y[0] = rng.standard_normal()
+        for t in range(1, T):
+            Y[t] = 0.7 * X[t - 1] + 0.3 * rng.standard_normal()
+        assert transfer_entropy(X, Y, bins=6) > transfer_entropy(Y, X, bins=6)
 
     def test_te_nonnegative(self):
         from bn_syn.transfer_entropy import transfer_entropy

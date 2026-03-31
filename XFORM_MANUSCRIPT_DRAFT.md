@@ -70,6 +70,76 @@ measuring total words (effort) per unit of information complexity.
 
 ---
 
+## 2.4 Hypotheses
+
+### Hypothesis H1: Intelligence as a Dynamical Regime
+
+**Statement:** Truth is not inevitable — it is the result of independent verification between autonomous witnesses. Within the framework of H1, intelligence is defined as a dynamical regime verified through synchronous phase shifts ($\gamma$) across independent channels of a single substrate, with coherent recovery. The absence of such cross-scale and independent reproducibility means the observed effect is an artifact of measurement or modeling.
+
+**Formal standard:** This is not claimed to be the only possible form of evidence — it is defined as the only valid criterion within this theory. Other epistemological frameworks may propose alternative verification standards; H1 specifies its own.
+
+**Formalization:**
+$$\forall\, S_i \in \{\text{substrates at metastability}\}:\quad \gamma_{S_i} \in [0.85, 1.15] \quad (\text{95\% CI contains } 1.0)$$
+
+**Verification criterion:** Synchronous $\Delta\gamma$ shift across $\geq 2$ independent measurement channels within the same substrate, followed by coherent return to baseline. Single-channel $\gamma \approx 1.0$ alone is necessary but not sufficient.
+
+**Falsification protocol:**
+1. Measure $\gamma$ across $\geq 5$ independent substrates using Theil-Sen regression with bootstrap CI
+2. Within each substrate, verify cross-channel synchronous $\gamma$-shift under perturbation
+3. If $\gamma$-shift is observed in one channel but not others $\to$ artifact, not system property
+4. If $\bar{\gamma}$ across substrates deviates from 1.0 by more than 2 SE $\to$ H1 rejected
+
+**Status:** SUPPORTED — six substrates, $\bar{\gamma} = 0.994 \pm 0.077$, all physical substrate CIs contain unity.
+
+---
+
+### Hypothesis H2: Computational Efficiency Is a Regime Property
+
+**Statement:** The regime $\gamma \approx 1$ corresponds to a state that maximizes computational capacity at minimal cost of plasticity maintenance. This is an open claim requiring separate experimental and theoretical verification.
+
+**Energy-Regime Conjecture ($\mathcal{C}_E$):**
+$$\mathcal{C}_E:\quad \gamma \approx 1 \Longleftrightarrow \text{local minimum of energy dissipation while preserving plasticity}$$
+
+**Status of $\mathcal{C}_E$: CONJECTURE — not theorem, not derivation.**
+Qualitative argument only. Formal derivation of the $\beta \to \varepsilon$ bridge is open work.
+
+Rationale: regimes with $\beta > 1$ incur the cost of rigid reconfiguration; regimes with $\beta < 1$ incur the cost of continuous noise stabilization. $\beta \approx 1$ avoids both. This requires a separate mechanistic derivation.
+
+**Falsification protocol:**
+1. BN-Syn vs transformer on identical temporal tasks
+2. Measure $\beta(t)$ under perturbation for both architectures
+3. Measure computational cost ($C$) and task accuracy ($E$) for both
+4. If transformer achieves $\gamma \approx 1.0$ endogenously $\to$ H2 weakened
+5. If BN-Syn holds $\gamma \approx 1.0$ at lower $C$ for equivalent $E$ $\to$ H2 supported
+
+**Cross-scale extension (BN-Syn specific):**
+$$\gamma_{\text{dendritic}} \approx 1 \;\land\; \gamma_{\text{network}} \approx 1 \;\land\; \Delta\beta_{\text{dendritic}}(t) \sim \Delta\beta_{\text{network}}(t)$$
+
+If dendritic-level $\gamma$ is indistinguishable from noise $\to$ compartmental model adds no explanatory power.
+
+**Status:** OPEN — requires BN-Syn Dendritic PoC (100–500 neurons) before full experiment.
+
+---
+
+### BN-Syn Dendritic PoC Pipeline (fail-closed)
+
+**Phase A:** 100–500 neurons, 3–7 compartments/neuron, NMDA branch nonlinearity, controlled perturbation protocol.
+
+**Phase B:** Dual-scale measurement:
+- $\gamma_{\text{dendritic}}$ (compartment level)
+- $\gamma_{\text{network}}$ (population level)
+- $\Delta\beta$-synchrony between scales
+
+**Gate — proceed ONLY if:**
+1. $\gamma_{\text{dendritic}}$ is stably measurable
+2. Does not collapse into noise
+3. Is not trivially identical to $\gamma_{\text{network}}$
+4. Under perturbation, synchronous regime shift is observed
+
+**Fail-closed STOP:** If $\gamma_{\text{dendritic}} \approx \text{noise}$ $\to$ dendritic compartments are rejected. Scaling to main is FORBIDDEN until proof.
+
+---
+
 ## 3. Methods
 
 ### 3.1 Regression

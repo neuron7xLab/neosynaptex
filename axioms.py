@@ -29,6 +29,18 @@ AXIOM_0_SPECIFICATION = {
     "in_motion": "convergence_slope = -0.0016 < 0 (empirical confirmation)",
 }
 
+POSITION = {
+    "architecture": AXIOM_0_MINIMAL,
+    "instrument": (
+        "gamma -- indicator of plasticity. "
+        "Not health. Not correctness. Changeability."
+    ),
+    "purpose": (
+        "Advantage is the ability to remain in a regime "
+        "where the system has not yet decided, but is already able to decide."
+    ),
+}
+
 CONSEQUENCES = {
     "INVARIANT_I":   "gamma derived only -- gamma is regime signature, not metric",
     "INVARIANT_II":  "STATE != PROOF -- system is not independent witness of itself",
