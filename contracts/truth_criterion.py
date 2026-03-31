@@ -66,6 +66,19 @@ class ShiftEvent:
     channel: str
 
 
+def calibrate_epsilon(baseline_betas: np.ndarray, k: float = 2.0) -> float:
+    """Calibrate epsilon as k * sigma of baseline beta distribution.
+
+    Default k=2.0 (2-sigma threshold).
+    Must be called on baseline data BEFORE perturbation sessions.
+    """
+    sigma = float(np.std(baseline_betas))
+    eps = k * sigma
+    # Floor: never below 0.05 (noise floor)
+    # Ceiling: never above 0.50 (would miss real shifts)
+    return float(np.clip(eps, 0.05, 0.50))
+
+
 def detect_shift_events(
     betas: np.ndarray,
     t_centers: np.ndarray,
@@ -75,6 +88,7 @@ def detect_shift_events(
     """Detect points where |beta - 1.0| > epsilon.
 
     Events are local departures from metastability.
+    Epsilon should be calibrated via calibrate_epsilon() on baseline data.
     """
     delta = betas - 1.0
     events = []
