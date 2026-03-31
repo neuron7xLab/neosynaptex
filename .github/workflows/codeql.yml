@@ -1,0 +1,21 @@
+name: CodeQL
+
+on:
+  schedule:
+    - cron: '27 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: github/codeql-action/init@fca7ace96b7d713c71338f0bc9d5b3c87f5cbcfd
+        with:
+          languages: python
+          build-mode: none
+      - uses: github/codeql-action/analyze@45775bd8e8d28e77c3b7ebf5b73c9ab3b6a4dce1
