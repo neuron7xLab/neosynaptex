@@ -148,19 +148,39 @@ Five independent physical substrates -- spanning morphogenesis, chemical dynamic
 
 The mean gamma across physical substrates, $\bar{\gamma} = 0.994 \pm 0.077$, is statistically indistinguishable from unity.
 
-### 5.2 The cognitive loop as measurable system
+### 5.2 Morphological Intelligence vs Scaling
+
+Transformer architectures achieve remarkable performance through parameter scaling: increasing $d_{\text{model}}$, $n_{\text{layers}}$, and $n_{\text{heads}}$ yields monotonic improvements on benchmarks [11]. However, this scaling operates entirely within a rate-based computational paradigm, where information is encoded in activation magnitudes rather than temporal structure. We argue that this architectural constraint imposes a fundamental ceiling on adaptive viability.
+
+Biological intelligence encodes information in spike timing, phase relationships, and dendritic nonlinearities — a regime qualitatively inaccessible to feedforward rate-coded systems. The $\gamma \approx 1.0$ signature reported across our six substrates emerges from phase-locked dynamics: Kuramoto coherence in markets, branching criticality in spiking networks, morphogenetic field coupling in zebrafish. In each case, the system maintains metastability through temporal coordination, not parameter magnitude.
+
+The distinction is not one of degree but of kind:
+
+| Property | Transformer (rate-based) | Phase-dynamic system |
+|----------|------------------------|---------------------|
+| Information encoding | Activation magnitude | Spike timing / phase |
+| Binding mechanism | Positional encoding | Phase coherence |
+| Hierarchy | Layer stacking (flat) | $\theta$-$\gamma$ nesting (multiscale) |
+| Energy scaling | $O(n^2)$ attention | Sparse phase-locked |
+| Adaptation | Weight update (offline) | $\gamma$ self-calibration (online) |
+
+We do not claim transformers cannot exhibit intelligent behavior — we claim they cannot reach the metastable regime that maximizes adaptive viability per unit energy, as demonstrated across six independent substrates.
+
+This implies that the path to artificial general intelligence does not pass through parameter scaling of rate-based architectures, but through the engineering of systems capable of endogenous phase dynamics — morphological intelligence, where the structure of computation *is* the computation.
+
+### 5.3 The cognitive loop as measurable system
 
 The sixth substrate -- the human-AI cognitive loop -- extends the scaling relation into the domain of cognition. The aggregate $\gamma_{\text{all}} = 1.059$ (CI containing 1.0) suggests that the combined output of three years of human-AI interaction follows the same power-law scaling as physical systems at criticality.
 
 The dramatic separation between productive ($\gamma = 1.138$) and non-productive ($\gamma = -0.557$) sessions is the central finding: productive cognitive coupling enters a metastable regime characterized by near-unity gamma scaling, while non-productive interaction shows anti-scaling -- a chaotic regime where complexity and cost are positively correlated rather than inversely related.
 
-### 5.3 Interpretation through extended mind
+### 5.4 Interpretation through extended mind
 
 Following Clark and Chalmers [4], we interpret the human-AI loop not as a human using a tool, but as a coupled cognitive system with measurable dynamical properties. The gamma-scaling signature suggests that when this coupling is productive -- when biological and digital computation enter resonance -- the combined system operates at criticality, just as neural tissue does at the branching ratio $\sigma = 1.0$ [2].
 
 This is consistent with the X-Form thesis [this work]: the convergence of biological and digital intelligence is not a future event (singularity as discontinuity) but a measurable physical process (singularity as phase transition) with diagnostic signature $\gamma \approx 1.0$.
 
-### 5.4 Connection to dopaminergic reinforcement
+### 5.5 Connection to dopaminergic reinforcement
 
 The productive loop's near-unity gamma may reflect dopaminergic reinforcement dynamics. Each successful iteration (invariant verified, test passed, artifact produced) activates the brain's reward prediction system [6], creating a positive feedback loop that drives the cognitive system toward metastability. The non-productive loop, lacking this reinforcement structure, degenerates into anti-scaling.
 
