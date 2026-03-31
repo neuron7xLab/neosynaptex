@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="280" viewBox="0 0 700 280">
+  <defs>
+    <filter id="gl">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="gl2">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#8b949e" stroke-width="0.8"/>
+    </marker>
+    <marker id="arrCyan" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#00e5ff" stroke-width="0.8"/>
+    </marker>
+    <marker id="arrRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#ff6b6b" stroke-width="0.8"/>
+    </marker>
+    <marker id="arrGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#00ff41" stroke-width="0.8"/>
+    </marker>
+    <marker id="arrViolet" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#b388ff" stroke-width="0.8"/>
+    </marker>
+    <marker id="arrAmber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#ffab00" stroke-width="0.8"/>
+    </marker>
+  </defs>
+
+  <rect width="700" height="280" fill="#0d1117" rx="8"/>
+
+  <!-- INITIALIZING -->
+  <rect x="40" y="110" width="120" height="36" rx="6" fill="none" stroke="#8b949e" stroke-width="1" opacity="0.6"/>
+  <text x="100" y="133" text-anchor="middle" font-family="monospace" font-size="11" fill="#8b949e">INITIALIZING</text>
+
+  <!-- Arrow: INIT -> META -->
+  <line x1="160" y1="128" x2="220" y2="128" stroke="#8b949e" stroke-width="0.8" marker-end="url(#arr)" opacity="0.5"/>
+
+  <!-- METASTABLE (main node, glowing) -->
+  <rect x="225" y="100" width="140" height="54" rx="8" fill="none" stroke="#00e5ff" stroke-width="1.5" filter="url(#gl)">
+    <animate attributeName="stroke-opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
+  </rect>
+  <text x="295" y="123" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#00e5ff" filter="url(#gl)">METASTABLE</text>
+  <text x="295" y="143" text-anchor="middle" font-family="monospace" font-size="9" fill="#00e5ff" opacity="0.6">sr in [0.85, 1.25]</text>
+
+  <!-- CONVERGING -->
+  <rect x="440" y="40" width="120" height="36" rx="6" fill="none" stroke="#00ff41" stroke-width="1" opacity="0.7"/>
+  <text x="500" y="63" text-anchor="middle" font-family="monospace" font-size="11" fill="#00ff41">CONVERGING</text>
+
+  <!-- META <-> CONVERGING -->
+  <line x1="355" y1="110" x2="438" y2="68" stroke="#00ff41" stroke-width="0.8" marker-end="url(#arrGreen)" opacity="0.5"/>
+  <line x1="445" y1="76" x2="360" y2="118" stroke="#00e5ff" stroke-width="0.8" marker-end="url(#arrCyan)" opacity="0.5"/>
+
+  <!-- DIVERGING -->
+  <rect x="440" y="110" width="120" height="36" rx="6" fill="none" stroke="#ff6b6b" stroke-width="1" opacity="0.7"/>
+  <text x="500" y="133" text-anchor="middle" font-family="monospace" font-size="11" fill="#ff6b6b">DIVERGING</text>
+  <text x="500" y="157" text-anchor="middle" font-family="monospace" font-size="8" fill="#ff6b6b" opacity="0.5">sr > 1.25</text>
+
+  <!-- META -> DIVERGING -->
+  <line x1="365" y1="128" x2="438" y2="128" stroke="#ff6b6b" stroke-width="0.8" marker-end="url(#arrRed)" opacity="0.5"/>
+
+  <!-- DEGENERATE -->
+  <rect x="620" y="110" width="55" height="36" rx="6" fill="none" stroke="#ff3333" stroke-width="1" opacity="0.5"/>
+  <text x="647" y="133" text-anchor="middle" font-family="monospace" font-size="9" fill="#ff3333" opacity="0.8">DEGEN</text>
+
+  <!-- DIVERGING -> DEGENERATE -->
+  <line x1="560" y1="128" x2="618" y2="128" stroke="#ff3333" stroke-width="0.8" marker-end="url(#arrRed)" opacity="0.4"/>
+  <text x="590" y="122" text-anchor="middle" font-family="monospace" font-size="7" fill="#ff3333" opacity="0.4">3x sr>1.5</text>
+
+  <!-- COLLAPSING -->
+  <rect x="440" y="185" width="120" height="36" rx="6" fill="none" stroke="#b388ff" stroke-width="1" opacity="0.7"/>
+  <text x="500" y="208" text-anchor="middle" font-family="monospace" font-size="11" fill="#b388ff">COLLAPSING</text>
+  <text x="500" y="228" text-anchor="middle" font-family="monospace" font-size="8" fill="#b388ff" opacity="0.5">sr &lt; 0.80</text>
+
+  <!-- META -> COLLAPSING -->
+  <line x1="340" y1="154" x2="448" y2="188" stroke="#b388ff" stroke-width="0.8" marker-end="url(#arrViolet)" opacity="0.5"/>
+
+  <!-- DRIFTING -->
+  <rect x="250" y="210" width="100" height="36" rx="6" fill="none" stroke="#ffab00" stroke-width="1" opacity="0.6"/>
+  <text x="300" y="233" text-anchor="middle" font-family="monospace" font-size="11" fill="#ffab00">DRIFTING</text>
+
+  <!-- META -> DRIFTING -->
+  <line x1="295" y1="154" x2="300" y2="208" stroke="#ffab00" stroke-width="0.8" marker-end="url(#arrAmber)" opacity="0.5"/>
+
+  <!-- Hysteresis label -->
+  <text x="100" y="200" text-anchor="middle" font-family="monospace" font-size="8" fill="#8b949e" opacity="0.5">hysteresis = 3 ticks</text>
+
+  <!-- Pulsing dot on METASTABLE -->
+  <circle cx="235" cy="110" r="3" fill="#00e5ff" opacity="0.8">
+    <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
