@@ -1,11 +1,23 @@
-.PHONY: verify demo report clean install
+.PHONY: verify test lint format demo report clean install typecheck
 
 install:
 	pip install -e ".[dev]" --quiet
 
-verify: install
-	python3 -m pytest tests/ -v --tb=short
-	python3 core/axioms.py
+test: install
+	python3 -m pytest tests/ -v --tb=short --timeout=300
+
+lint:
+	ruff check neosynaptex.py core/ contracts/ evl/ tests/
+	ruff format --check neosynaptex.py core/ contracts/ evl/ tests/
+
+format:
+	ruff format neosynaptex.py core/ contracts/ evl/ tests/
+
+typecheck:
+	mypy core/ contracts/ --ignore-missing-imports
+
+verify: install lint test
+	python3 -c "from core.axioms import SUBSTRATE_GAMMA, gamma_psd, verify_axiom_consistency; gammas=[v[0] for v in SUBSTRATE_GAMMA.values()]; state={'gamma':sum(gammas)/len(gammas),'substrates':list(SUBSTRATE_GAMMA.keys()),'convergence_slope':-0.0016}; assert verify_axiom_consistency(state); print('AXIOM_0: CONSISTENT |', len(SUBSTRATE_GAMMA), 'substrates | γ=' + f'{state[\"gamma\"]:.4f}')"
 
 demo:
 	python3 -c "\
@@ -33,3 +45,4 @@ print(f'Motion: slope={state[\"convergence_slope\"]}')"
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -name "*.pyc" -delete 2>/dev/null || true
+	rm -rf .pytest_cache .mypy_cache .ruff_cache *.egg-info dist build .coverage

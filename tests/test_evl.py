@@ -26,7 +26,7 @@ class TestTaskDeterminism:
     def test_arithmetic_reproducible(self):
         import random
 
-        from collector import gen_arithmetic
+        from evl.collector import gen_arithmetic
 
         random.seed(42)
         t1 = gen_arithmetic(2)
@@ -38,7 +38,7 @@ class TestTaskDeterminism:
     def test_all_generators_produce_valid_tasks(self):
         import random
 
-        from collector import GENERATORS, Task
+        from evl.collector import GENERATORS, Task
 
         random.seed(0)
         for gen in GENERATORS:
@@ -52,7 +52,7 @@ class TestTaskDeterminism:
     def test_ground_truth_correctness_arithmetic(self):
         import random
 
-        from collector import gen_arithmetic
+        from evl.collector import gen_arithmetic
 
         random.seed(99)
         for _ in range(50):
@@ -71,7 +71,7 @@ class TestTaskDeterminism:
     def test_ground_truth_correctness_modular(self):
         import random
 
-        from collector import gen_modular
+        from evl.collector import gen_modular
 
         random.seed(99)
         for _ in range(30):
@@ -87,7 +87,7 @@ class TestTaskDeterminism:
     def test_logic_ground_truth(self):
         import random
 
-        from collector import gen_logic
+        from evl.collector import gen_logic
 
         random.seed(42)
         for _ in range(20):
@@ -100,7 +100,7 @@ class TestTaskDeterminism:
 # ===================================================================
 class TestRegimeIntegration:
     def test_psd_regime_labels(self):
-        from analyze import compute_psd_slope
+        from evl.analyze import compute_psd_slope
 
         # White noise -> beta ~ 0
         rng = np.random.default_rng(42)
@@ -154,7 +154,7 @@ class TestEVLPipeline:
         return decisions
 
     def test_quality_gates_pass(self):
-        from analyze import check_quality
+        from evl.analyze import check_quality
 
         decisions = self._make_session(30)
         gates = check_quality(decisions)
@@ -163,13 +163,13 @@ class TestEVLPipeline:
         assert gates["has_timestamps"] is True
 
     def test_quality_gates_fail_insufficient(self):
-        from analyze import check_quality
+        from evl.analyze import check_quality
 
         gates = check_quality(self._make_session(5))
         assert gates["sufficient_data"] is False
 
     def test_compute_stats(self):
-        from analyze import compute_stats
+        from evl.analyze import compute_stats
 
         stats = compute_stats(self._make_session(30))
         assert stats["n_tasks"] == 30
@@ -178,7 +178,7 @@ class TestEVLPipeline:
         assert stats["latency_cv"] is not None
 
     def test_phase_contrast(self):
-        from analyze import compute_phase_contrast
+        from evl.analyze import compute_phase_contrast
 
         contrast = compute_phase_contrast(self._make_session(30, perturbation=True))
         assert "baseline" in contrast
@@ -186,7 +186,7 @@ class TestEVLPipeline:
         assert "recovery" in contrast
 
     def test_psd_slope_on_synthetic(self):
-        from analyze import compute_psd_slope
+        from evl.analyze import compute_psd_slope
 
         rng = np.random.default_rng(42)
         # 1/f noise (beta ~ 1.0)
@@ -197,7 +197,12 @@ class TestEVLPipeline:
         assert r["beta"] > 0.5  # should be brownian-ish
 
     def test_full_analyze_pipeline(self):
-        from analyze import check_quality, compute_phase_contrast, compute_psd_slope, compute_stats
+        from evl.analyze import (
+            check_quality,
+            compute_phase_contrast,
+            compute_psd_slope,
+            compute_stats,
+        )
 
         decisions = self._make_session(40, perturbation=True)
         gates = check_quality(decisions)
@@ -216,7 +221,7 @@ class TestEVLPipeline:
 class TestDFA:
     def test_dfa_white_noise(self):
         """White noise: H ~ 0.5."""
-        from evl_dfa import dfa_exponent
+        from evl.dfa import dfa_exponent
 
         rng = np.random.default_rng(42)
         signal = rng.standard_normal(1024)
@@ -225,7 +230,7 @@ class TestDFA:
 
     def test_dfa_brownian(self):
         """Brownian (cumsum of white): H ~ 1.5 (or after detrending ~1.0+)."""
-        from evl_dfa import dfa_exponent
+        from evl.dfa import dfa_exponent
 
         rng = np.random.default_rng(42)
         signal = np.cumsum(rng.standard_normal(1024))
@@ -233,13 +238,13 @@ class TestDFA:
         assert H > 0.8, f"Brownian H={H}, expected >0.8"
 
     def test_dfa_short_signal(self):
-        from evl_dfa import dfa_exponent
+        from evl.dfa import dfa_exponent
 
         assert dfa_exponent(np.array([1.0, 2.0, 3.0])) is None
 
     def test_dfa_gamma_conversion(self):
         """gamma_PSD = 2H + 1 verified through DFA."""
-        from evl_dfa import dfa_exponent
+        from evl.dfa import dfa_exponent
 
         rng = np.random.default_rng(42)
         signal = rng.standard_normal(2048)
@@ -253,7 +258,7 @@ class TestDFA:
 # ===================================================================
 class TestPhaseEffectSize:
     def test_cohens_d_computation(self):
-        from evl_effect_size import cohens_d
+        from evl.effect_size import cohens_d
 
         a = np.array([100, 110, 105, 95, 108])
         b = np.array([200, 210, 195, 205, 198])
@@ -261,14 +266,14 @@ class TestPhaseEffectSize:
         assert d < -2.0  # large effect: b much larger than a
 
     def test_cohens_d_zero(self):
-        from evl_effect_size import cohens_d
+        from evl.effect_size import cohens_d
 
         a = np.array([100, 100, 100])
         b = np.array([100, 100, 100])
         assert abs(cohens_d(a, b)) < 0.01
 
     def test_phase_contrast_with_effect(self):
-        from evl_effect_size import phase_contrast_effect
+        from evl.effect_size import phase_contrast_effect
 
         rng = np.random.default_rng(42)
         baseline_lat = rng.lognormal(7.0, 0.3, 20)
@@ -331,7 +336,7 @@ class TestTruthCriterionIntegration:
 # ===================================================================
 class TestCrossSession:
     def test_aggregate_sessions(self):
-        from evl_aggregator import aggregate_sessions
+        from evl.aggregator import aggregate_sessions
 
         sessions = [
             {"beta": 0.95, "accuracy_pct": 85, "n_tasks": 30, "session": "s1"},
@@ -344,7 +349,7 @@ class TestCrossSession:
         assert "beta_trajectory" in agg
 
     def test_convergence_detection(self):
-        from evl_aggregator import detect_convergence
+        from evl.aggregator import detect_convergence
 
         betas = [1.5, 1.3, 1.2, 1.1, 1.05, 1.02, 1.01]
         result = detect_convergence(betas)

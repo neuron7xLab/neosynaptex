@@ -8,8 +8,12 @@ Usage:
     python analyze.py evidence/sessions/session_YYYYMMDD_HHMM/
 """
 
-import json, sys, numpy as np
+import json
+import sys
 from pathlib import Path
+
+import numpy as np
+
 
 def check_quality(decisions):
     gates = {
@@ -26,14 +30,16 @@ def check_quality(decisions):
     gates["all_pass"] = all(gates.values())
     return gates
 
+
 def compute_psd_slope(series, fs=1.0):
     if len(series) < 16:
         return {"status": "INSUFFICIENT_DATA", "n": len(series)}
     from scipy import signal
     from scipy.stats import theilslopes
+
     series = np.asarray(series, dtype=np.float64)
     nperseg = min(len(series), max(16, len(series) // 4))
-    freqs, psd = signal.welch(series, fs=fs, nperseg=nperseg, detrend='linear')
+    freqs, psd = signal.welch(series, fs=fs, nperseg=nperseg, detrend="linear")
     mask = freqs > 0
     freqs, psd = freqs[mask], psd[mask]
     if len(freqs) < 4:
@@ -50,6 +56,7 @@ def compute_psd_slope(series, fs=1.0):
         "n_freqs": len(freqs),
         "n_samples": len(series),
     }
+
 
 def compute_stats(decisions):
     lat = np.array([d["latency_ms"] for d in decisions])
@@ -77,13 +84,17 @@ def compute_stats(decisions):
         stats[f"phase_{key}_latency_mean"] = round(float(pl.mean()), 1) if len(pl) > 0 else None
     return stats
 
+
 def compute_phase_contrast(decisions):
     phases = {"baseline": [], "perturbation": [], "recovery": []}
     for d in decisions:
         p = d.get("phase", "baseline")
-        if "perturbation" in p: phases["perturbation"].append(d)
-        elif "recovery" in p: phases["recovery"].append(d)
-        else: phases["baseline"].append(d)
+        if "perturbation" in p:
+            phases["perturbation"].append(d)
+        elif "recovery" in p:
+            phases["recovery"].append(d)
+        else:
+            phases["baseline"].append(d)
     result = {}
     for name, data in phases.items():
         if len(data) < 3:
@@ -99,38 +110,44 @@ def compute_phase_contrast(decisions):
         }
     return result
 
+
 def analyze(session_dir):
     sp = Path(session_dir)
     df = sp / "decisions.jsonl"
     if not df.exists():
-        print(f"ERROR: {df} not found."); sys.exit(1)
+        print(f"ERROR: {df} not found.")
+        sys.exit(1)
     with open(df) as f:
         decisions = [json.loads(l) for l in f if l.strip()]
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"  NFI v2.1 — Channel B Analysis: {sp.name}")
     print(f"  Records: {len(decisions)}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
     gates = check_quality(decisions)
     print("  QUALITY GATES:")
     for g, p in gates.items():
         print(f"    {'V' if p else 'X'} {g}")
     print()
     if not gates["has_correct_field"] or not gates["has_timestamps"]:
-        print("  FATAL: Missing required fields."); sys.exit(1)
+        print("  FATAL: Missing required fields.")
+        sys.exit(1)
     stats = compute_stats(decisions)
     print("  STATISTICS:")
     for k, v in stats.items():
-        if not k.startswith("phase_"): print(f"    {k}: {v}")
+        if not k.startswith("phase_"):
+            print(f"    {k}: {v}")
     print()
     pk = [k for k in stats if k.startswith("phase_")]
     if pk:
         print("  PHASE BREAKDOWN:")
-        for k in pk: print(f"    {k}: {stats[k]}")
+        for k in pk:
+            print(f"    {k}: {stats[k]}")
         print()
     contrast = compute_phase_contrast(decisions)
     if any(v.get("n", 0) >= 3 for v in contrast.values()):
         print("  PHASE CONTRAST:")
-        for ph, d in contrast.items(): print(f"    {ph}: {d}")
+        for ph, d in contrast.items():
+            print(f"    {ph}: {d}")
         print()
     lat = np.array([d["latency_ms"] for d in decisions])
     if len(decisions) >= 2:
@@ -140,27 +157,44 @@ def analyze(session_dir):
         fs = 1.0
     psd = compute_psd_slope(lat, fs)
     print("  PSD ANALYSIS (latency):")
-    for k, v in psd.items(): print(f"    {k}: {v}")
+    for k, v in psd.items():
+        print(f"    {k}: {v}")
     if psd.get("status") == "OK":
         b = psd["beta"]
         print(f"\n    beta = {b}")
-        if b < 0.3: print("      ~white noise (uncorrelated)")
-        elif b < 0.7: print("      ~pink-ish (emerging structure)")
-        elif b < 1.3: print("      ~1/f (metastable regime)")
-        elif b < 1.7: print("      ~Brownian (inertia)")
-        else: print("      >1.7 strong persistence (rigidity)")
+        if b < 0.3:
+            print("      ~white noise (uncorrelated)")
+        elif b < 0.7:
+            print("      ~pink-ish (emerging structure)")
+        elif b < 1.3:
+            print("      ~1/f (metastable regime)")
+        elif b < 1.7:
+            print("      ~Brownian (inertia)")
+        else:
+            print("      >1.7 strong persistence (rigidity)")
     print()
-    output = {"session": sp.name, "quality_gates": gates, "statistics": stats,
-              "phase_contrast": contrast, "psd_latency": psd, "fs_hz": round(fs, 4)}
+    output = {
+        "session": sp.name,
+        "quality_gates": gates,
+        "statistics": stats,
+        "phase_contrast": contrast,
+        "psd_latency": psd,
+        "fs_hz": round(fs, 4),
+    }
     of = sp / "analysis.json"
-    with open(of, "w") as f: json.dump(output, f, indent=2, default=str)
+    with open(of, "w") as f:
+        json.dump(output, f, indent=2, default=str)
     print(f"  Saved: {of}\n")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         ss = sorted(Path("evidence/sessions").glob("session_*"))
-        if not ss: print("No sessions."); sys.exit(1)
-        sd = str(ss[-1]); print(f"  Auto: {sd}")
+        if not ss:
+            print("No sessions.")
+            sys.exit(1)
+        sd = str(ss[-1])
+        print(f"  Auto: {sd}")
     else:
         sd = sys.argv[1]
     analyze(sd)

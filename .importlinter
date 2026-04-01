@@ -2,11 +2,12 @@
 root_packages =
     core
     contracts
+    evl
 include_external_packages = False
 
-# === Layer 1: Core must not depend on substrates or agents ===
+# === Layer 1: Core must not depend on substrates, agents, or evl ===
 [importlinter:contract:core_isolation]
-name = Core must not depend on substrates or agents
+name = Core must not depend on substrates, agents, or evl
 type = forbidden
 source_modules =
     core.axioms
@@ -14,18 +15,29 @@ source_modules =
 forbidden_modules =
     substrates
     agents
-    tradepulse
-    bn_syn
+    evl
 
-# === Layer 2: Contracts must not depend on substrates ===
+# === Layer 2: Contracts must not depend on substrates or evl ===
 [importlinter:contract:contracts_isolation]
-name = Contracts must not depend on substrates
+name = Contracts must not depend on substrates or evl
 type = forbidden
 source_modules =
     contracts.invariants
-    contracts.truth_criterion
 forbidden_modules =
     substrates
     agents
-    tradepulse
-    bn_syn
+    evl
+
+# === Layer 3: EVL must not depend on substrates ===
+[importlinter:contract:evl_isolation]
+name = EVL must not depend on substrates
+type = forbidden
+source_modules =
+    evl.analyze
+    evl.collector
+    evl.dfa
+    evl.effect_size
+    evl.aggregator
+forbidden_modules =
+    substrates
+    agents
