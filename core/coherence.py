@@ -4,6 +4,7 @@ TE(X->Y) = H(Y_future|Y_past) - H(Y_future|Y_past, X_past)
 Estimation via KSG-style binning (histogram-based for robustness).
 Significance: IAAFT surrogate test.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -14,7 +15,7 @@ def _embed(x: np.ndarray, k: int) -> np.ndarray:
     n = len(x)
     if n <= k:
         return np.empty((0, k + 1))
-    return np.column_stack([x[i:n - k + i] for i in range(k + 1)])
+    return np.column_stack([x[i : n - k + i] for i in range(k + 1)])
 
 
 def _entropy_hist(x: np.ndarray, bins: int = 16) -> float:
@@ -105,8 +106,8 @@ def transfer_entropy_gamma(
 
     # Compute TE
     y_future = target[k:]
-    y_past = target[:n - k]
-    x_past = source[:n - k]
+    y_past = target[: n - k]
+    x_past = source[: n - k]
 
     # H(Y_future | Y_past)
     h_y_given_ypast = _conditional_entropy(y_future, y_past, bins)
@@ -121,7 +122,7 @@ def transfer_entropy_gamma(
     te_surrogates = []
     for _ in range(n_surrogate):
         source_surr = _iaaft_surrogate(source, rng)
-        x_past_surr = source_surr[:n - k]
+        x_past_surr = source_surr[: n - k]
         combined_surr = y_past + x_past_surr * 1e3
         h_surr = _conditional_entropy(y_future, combined_surr, bins)
         te_surr = max(0.0, h_y_given_ypast - h_surr)

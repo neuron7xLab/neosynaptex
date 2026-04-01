@@ -13,7 +13,10 @@ Author: Yaroslav Vasylenko / neuron7xLab
 License: AGPL-3.0-or-later
 """
 
+import importlib.util
+
 import numpy as np
+import pytest
 
 
 # ===================================================================
@@ -277,8 +280,12 @@ class TestPhaseEffectSize:
 
 
 # ===================================================================
-# 6. Truth criterion integration
+# 6. Truth criterion integration (requires bn_syn.transfer_entropy)
 # ===================================================================
+@pytest.mark.skipif(
+    not importlib.util.find_spec("bn_syn.transfer_entropy"),
+    reason="bn_syn root stubs removed — truth criterion requires transfer_entropy",
+)
 class TestTruthCriterionIntegration:
     def test_synchronized_channels(self):
         from contracts.truth_criterion import evaluate_truth_criterion

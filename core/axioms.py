@@ -57,6 +57,7 @@ def classify_regime(gamma: float) -> str:
 # INV-1: gamma DERIVED ONLY. All values come from GammaRegistry.
 from core.gamma_registry import GammaRegistry as _GR
 
+
 def _load_substrate_gamma():
     """Load SUBSTRATE_GAMMA from the canonical ledger, not hardcoded."""
     _map = {
@@ -74,6 +75,7 @@ def _load_substrate_gamma():
         method = entry.get("derivation_method", "")
         result[name] = (gamma, method)
     return result
+
 
 SUBSTRATE_GAMMA = _load_substrate_gamma()
 

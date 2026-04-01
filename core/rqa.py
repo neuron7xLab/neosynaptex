@@ -9,6 +9,7 @@ Metrics:
 Takens embedding: embed_dim >= 2*D+1 (D = estimated dimension).
 Auto-selects tau via Average Mutual Information (AMI) if not provided.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -24,7 +25,7 @@ def _ami_tau(signal: np.ndarray, max_tau: int = 20, bins: int = 16) -> int:
     prev_ami = float("inf")
 
     for tau in range(1, min(max_tau + 1, n // 3)):
-        x = signal[:n - tau]
+        x = signal[: n - tau]
         y = signal[tau:]
 
         # Joint histogram
@@ -59,7 +60,7 @@ def _embed_nd(signal: np.ndarray, dim: int, tau: int) -> np.ndarray:
         return np.empty((0, dim))
     embedded = np.empty((m, dim))
     for d in range(dim):
-        embedded[:, d] = signal[d * tau:d * tau + m]
+        embedded[:, d] = signal[d * tau : d * tau + m]
     return embedded
 
 

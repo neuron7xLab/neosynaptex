@@ -3,6 +3,7 @@
 Extends the single-lag Granger in neosynaptex.py to automatic lag
 selection via Bayesian Information Criterion (BIC).
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -70,8 +71,8 @@ def granger_multilag(
         y_target = y[lag:]
         cols = []
         for l in range(1, lag + 1):
-            cols.append(y[lag - l:n - l])
-            cols.append(x[lag - l:n - l])
+            cols.append(y[lag - l : n - l])
+            cols.append(x[lag - l : n - l])
 
         X_full = np.column_stack(cols)
         n_obs = len(y_target)
@@ -106,14 +107,14 @@ def granger_multilag(
     n_obs = len(y_target)
 
     # Restricted model: y[t] ~ y[t-1..t-L]
-    cols_r = [y[lag - l:n - l] for l in range(1, lag + 1)]
+    cols_r = [y[lag - l : n - l] for l in range(1, lag + 1)]
     X_r = np.column_stack(cols_r) if cols_r else np.ones((n_obs, 1))
 
     # Full model: y[t] ~ y[t-1..t-L] + x[t-1..t-L]
     cols_f = []
     for l in range(1, lag + 1):
-        cols_f.append(y[lag - l:n - l])
-        cols_f.append(x[lag - l:n - l])
+        cols_f.append(y[lag - l : n - l])
+        cols_f.append(x[lag - l : n - l])
     X_f = np.column_stack(cols_f)
 
     try:
@@ -148,8 +149,8 @@ def granger_multilag(
         x_perm = rng.permutation(x)
         cols_perm = []
         for l in range(1, lag + 1):
-            cols_perm.append(y[lag - l:n - l])
-            cols_perm.append(x_perm[lag - l:n - l])
+            cols_perm.append(y[lag - l : n - l])
+            cols_perm.append(x_perm[lag - l : n - l])
         X_perm = np.column_stack(cols_perm)
         try:
             b_p, _, _, _ = scipy_lstsq(X_perm, y_target)
