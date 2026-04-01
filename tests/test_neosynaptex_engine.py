@@ -13,19 +13,16 @@ import numpy as np
 import pytest
 
 from neosynaptex import (
-    COLLAPSING,
     CONVERGING,
     DEGENERATE,
     DIVERGING,
     DRIFTING,
     INITIALIZING,
-    METASTABLE,
     MockBnSynAdapter,
     MockMarketAdapter,
     MockMfnAdapter,
     MockPsycheCoreAdapter,
     Neosynaptex,
-    NeosynaptexState,
 )
 
 
@@ -152,7 +149,10 @@ class _SustainedDivergentAdapter:
         self._t += 1
         self._x *= 2.0
         self._y *= 1.8
-        return {"x": self._x + self._rng.normal(0, 0.001), "y": self._y + self._rng.normal(0, 0.001)}
+        return {
+            "x": self._x + self._rng.normal(0, 0.001),
+            "y": self._y + self._rng.normal(0, 0.001),
+        }
 
     def topo(self):
         return max(0.01, 5.0 + 3.0 * abs(math.sin(0.04 * self._t)))
@@ -594,7 +594,8 @@ class TestEdge:
 
     def test_all_ascii(self):
         import pathlib
-        src = pathlib.Path(__file__).parent / "neosynaptex.py"
+
+        src = pathlib.Path(__file__).parent.parent / "neosynaptex.py"
         text = src.read_text(encoding="utf-8")
         for i, line in enumerate(text.split("\n"), 1):
             code = line.split("#")[0]

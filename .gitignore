@@ -33,3 +33,4 @@ migration_manifest.json
 *.pt
 *.pth
 *.weights
+.coverage

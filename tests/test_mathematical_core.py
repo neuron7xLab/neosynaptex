@@ -11,24 +11,23 @@ Functions under test:
 All tests import from neosynaptex module directly.
 INV-1: gamma derived only, never assigned.
 """
+
 from __future__ import annotations
 
-import math
 import sys
 from pathlib import Path
 
 import numpy as np
-import pytest
 
 # Ensure repo root is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from neosynaptex import (
+    _anomaly_isolation,
+    _granger_causality,
     _per_domain_gamma,
     _per_domain_jacobian,
     _permutation_test_universal,
-    _granger_causality,
-    _anomaly_isolation,
     _phase_portrait,
 )
 
@@ -96,7 +95,6 @@ class TestPerDomainGamma:
 
     def test_nan_in_input(self):
         """NaN values in input are handled."""
-        rng = np.random.default_rng(5)
         topo = np.linspace(1.0, 30.0, 20)
         cost = topo ** (-1.0)
         topo[3] = np.nan
@@ -113,10 +111,12 @@ class TestPerDomainJacobian:
         """Stable oscillation: sr should be near or below 1.0."""
         rng = np.random.default_rng(42)
         n = 30
-        states = np.column_stack([
-            np.sin(np.linspace(0, 4 * np.pi, n)) + rng.normal(0, 0.01, n),
-            np.cos(np.linspace(0, 4 * np.pi, n)) + rng.normal(0, 0.01, n),
-        ])
+        states = np.column_stack(
+            [
+                np.sin(np.linspace(0, 4 * np.pi, n)) + rng.normal(0, 0.01, n),
+                np.cos(np.linspace(0, 4 * np.pi, n)) + rng.normal(0, 0.01, n),
+            ]
+        )
         sr, cond = _per_domain_jacobian(states)
         if np.isfinite(sr):
             assert sr < 1.5, f"Expected stable sr, got {sr}"
@@ -125,10 +125,12 @@ class TestPerDomainJacobian:
         """Exponentially growing states: sr > 1."""
         n = 20
         t = np.arange(n, dtype=float)
-        states = np.column_stack([
-            np.exp(0.1 * t),
-            np.exp(0.12 * t),
-        ])
+        states = np.column_stack(
+            [
+                np.exp(0.1 * t),
+                np.exp(0.12 * t),
+            ]
+        )
         sr, cond = _per_domain_jacobian(states)
         if np.isfinite(sr):
             assert sr > 1.0, f"Expected divergent sr, got {sr}"
@@ -144,10 +146,12 @@ class TestPerDomainJacobian:
         """NaN rows are masked out."""
         rng = np.random.default_rng(11)
         n = 30
-        states = np.column_stack([
-            np.sin(np.linspace(0, 4 * np.pi, n)),
-            np.cos(np.linspace(0, 4 * np.pi, n)),
-        ]) + rng.normal(0, 0.01, (n, 2))
+        states = np.column_stack(
+            [
+                np.sin(np.linspace(0, 4 * np.pi, n)),
+                np.cos(np.linspace(0, 4 * np.pi, n)),
+            ]
+        ) + rng.normal(0, 0.01, (n, 2))
         states[5, :] = np.nan
         states[15, :] = np.nan
         sr, cond = _per_domain_jacobian(states)
@@ -356,7 +360,8 @@ class TestPhasePortrait:
         gamma_trace = list(1.0 + 0.02 * rng.standard_normal(n))
         sr_trace = list(1.0 + 0.02 * rng.standard_normal(n))
         p = _phase_portrait(gamma_trace, sr_trace)
-        assert p["distance_to_ideal"] < 0.2, f"Near ideal should have low distance: {p['distance_to_ideal']}"
+        dist = p["distance_to_ideal"]
+        assert dist < 0.2, f"Near ideal should have low distance: {dist}"
 
     def test_wide_trajectory_large_area(self):
         """Widely spread trajectory -> larger area."""
@@ -390,8 +395,7 @@ class TestPropertyBased:
             cost = topo ** (-gamma_true) * (1.0 + 0.02 * rng.standard_normal(50))
             g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost, seed=42)
             if g is not None and np.isfinite(g):
-                assert abs(g - gamma_true) < 0.3, \
-                    f"gamma_true={gamma_true}, recovered={g}"
+                assert abs(g - gamma_true) < 0.3, f"gamma_true={gamma_true}, recovered={g}"
 
     def test_gamma_recovery_varied_sizes(self):
         """Property holds for different sample sizes."""
@@ -413,8 +417,7 @@ class TestWhiteNoise:
         g, r2, ci_lo, ci_hi = _per_domain_gamma(noise_topo, noise_cost, seed=42)
         # Either NaN (range gate / R2 gate) or gamma far from 1.0
         if np.isfinite(g):
-            assert abs(g - 1.0) > 0.3, \
-                f"White noise produced suspicious gamma={g:.3f}"
+            assert abs(g - 1.0) > 0.3, f"White noise produced suspicious gamma={g:.3f}"
 
     def test_white_noise_jacobian_not_metastable(self):
         """White noise states should not appear stable."""
