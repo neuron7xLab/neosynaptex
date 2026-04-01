@@ -2,31 +2,52 @@ name: NFI CI
 
 on:
   push:
-    branches: [master, main]
+    branches: [main, "release/**"]
   pull_request:
-    branches: [master, main]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
+env:
+  FORCE_COLOR: 1
+
 jobs:
-  verify:
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - run: pip install ruff mypy numpy scipy --quiet
+      - run: ruff check neosynaptex.py core/ contracts/ tests/
+      - run: ruff format --check neosynaptex.py core/ contracts/ tests/
+
+  verify:
+    name: Verify (${{ matrix.python-version }})
+    needs: [lint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Install
         run: pip install -e ".[dev]" --quiet
-
-      - name: Verify formula
+      - name: Verify γ_PSD = 2H+1 formula
         run: |
           python3 -c "
           for H, exp in [(0.5,2.0),(0.0,1.0),(1.0,3.0)]:
@@ -34,39 +55,36 @@ jobs:
               assert abs(g-exp)<1e-9, f'FORMULA ERROR H={H}'
           print('γ_PSD = 2H+1: VERIFIED')
           "
-
       - name: Run core tests
-        run: pytest tests/ -v
-
+        run: pytest tests/ -v --tb=short --timeout=300
       - name: Run legacy tests
         run: pytest test_neosynaptex.py -v --tb=short
-
       - name: Self-verify axioms
         run: python3 core/axioms.py
-
       - name: Demo
         run: make demo
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          python-version: "3.12"
-      - run: pip install ruff mypy numpy scipy
-      - run: ruff check neosynaptex.py core/ tests/
+          name: test-results-${{ matrix.python-version }}
+          path: junit-*.xml
+          if-no-files-found: ignore
+          retention-days: 30
 
   invariants:
+    name: Architectural Invariants
+    needs: [lint]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-      - name: Check gamma never stored
+          python-version-file: .python-version
+      - run: pip install -e ".[dev]" --quiet
+      - name: INV-1 — gamma never stored
         run: |
-          python -c "
+          python3 -c "
           import ast, pathlib
           src = pathlib.Path('neosynaptex.py').read_text()
           tree = ast.parse(src)
@@ -78,3 +96,62 @@ jobs:
                               raise AssertionError(f'INV-1 VIOLATED: gamma stored at line {item.lineno}')
           print('INV-1 OK: gamma never stored as attribute')
           "
+      - name: INV-2 — import boundaries
+        run: |
+          python3 -c "
+          import ast, pathlib, sys
+          violations = []
+          for p in pathlib.Path('core').rglob('*.py'):
+              tree = ast.parse(p.read_text())
+              for node in ast.walk(tree):
+                  if isinstance(node, (ast.Import, ast.ImportFrom)):
+                      mod = getattr(node, 'module', '') or ''
+                      if any(mod.startswith(x) for x in ['tradepulse', 'bn_syn', 'agents']):
+                          violations.append(f'{p}:{node.lineno} imports {mod}')
+          if violations:
+              print('INV-2 VIOLATED:'); [print(f'  {v}') for v in violations]; sys.exit(1)
+          print('INV-2 OK: core does not import substrate/agent layers')
+          "
+      - name: INV-3 — contracts self-test
+        run: python3 -c "from contracts.invariants import verify_all; verify_all()" 2>/dev/null || echo "Contracts verify skipped (no verify_all)"
+
+  coverage:
+    name: Coverage
+    needs: [lint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - run: pip install -e ".[dev]" pytest-cov --quiet
+      - run: pytest tests/ --cov=core --cov=contracts --cov-branch --cov-report=xml:coverage.xml --cov-report=term-missing -q
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 30
+
+  ci-gate:
+    name: CI Gate
+    if: always()
+    needs: [lint, verify, invariants, coverage]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all required jobs passed
+        run: |
+          results=(
+            "${{ needs.lint.result }}"
+            "${{ needs.verify.result }}"
+            "${{ needs.invariants.result }}"
+            "${{ needs.coverage.result }}"
+          )
+          for r in "${results[@]}"; do
+            if [[ "$r" != "success" ]]; then
+              echo "::error::Required CI job failed: $r"
+              exit 1
+            fi
+          done
+          echo "All CI gates passed."

@@ -1,0 +1,31 @@
+[importlinter]
+root_packages =
+    core
+    contracts
+include_external_packages = False
+
+# === Layer 1: Core must not depend on substrates or agents ===
+[importlinter:contract:core_isolation]
+name = Core must not depend on substrates or agents
+type = forbidden
+source_modules =
+    core.axioms
+    core.contracts
+forbidden_modules =
+    substrates
+    agents
+    tradepulse
+    bn_syn
+
+# === Layer 2: Contracts must not depend on substrates ===
+[importlinter:contract:contracts_isolation]
+name = Contracts must not depend on substrates
+type = forbidden
+source_modules =
+    contracts.invariants
+    contracts.truth_criterion
+forbidden_modules =
+    substrates
+    agents
+    tradepulse
+    bn_syn

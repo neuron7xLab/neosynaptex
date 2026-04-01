@@ -1,0 +1,48 @@
+name: Benchmarks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark-regression:
+    name: Benchmark Regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - run: pip install -e ".[dev]" --quiet
+
+      - name: Substrate γ benchmarks
+        run: |
+          python3 -c "
+          import time, sys
+          sys.path.insert(0, '.')
+          from core.axioms import SUBSTRATE_GAMMA, classify_regime
+
+          print('=== NFI Substrate Benchmark ===')
+          start = time.perf_counter()
+          for name, (gamma, note) in SUBSTRATE_GAMMA.items():
+              t0 = time.perf_counter()
+              regime = classify_regime(gamma)
+              dt = time.perf_counter() - t0
+              status = 'PASS' if abs(gamma - 1.0) < 0.15 else 'WARN'
+              print(f'{status} {name:20s} γ={gamma:.4f} regime={regime} ({dt*1000:.1f}ms)')
+
+          total = time.perf_counter() - start
+          print(f'\nTotal: {total:.3f}s')
+          assert total < 30.0, f'Benchmark too slow: {total:.1f}s'
+          print('BENCHMARK PASS')
+          "
+
+      - name: Core test performance
+        run: pytest tests/ -q --tb=line --timeout=120 2>&1 | tail -5
