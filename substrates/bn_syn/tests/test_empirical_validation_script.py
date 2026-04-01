@@ -54,6 +54,7 @@ def test_summarize_rejects_missing_required_field() -> None:
         ("performance_wall_time_sec_mean", -1.0, r"must be >= 0"),
         ("stability_nan_rate_mean", float("nan"), "must be finite"),
         ("stability_divergence_rate_mean", float("inf"), "must be finite"),
+        ("reproducibility_bitwise_delta_mean", True, "must be numeric"),
     ],
 )
 def test_summarize_rejects_invalid_numeric_values(field: str, value: object, error: str) -> None:

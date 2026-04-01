@@ -63,6 +63,8 @@ def _require_field(row: dict[str, object], field: str, row_index: int) -> object
 
 
 def _require_nonnegative_finite_float(value: object, *, field: str, row_index: int) -> float:
+    if isinstance(value, bool):
+        raise ValueError(f"field '{field}' in row {row_index} must be numeric")
     try:
         parsed = float(cast(Any, value))
     except (TypeError, ValueError) as exc:
