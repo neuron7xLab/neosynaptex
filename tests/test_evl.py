@@ -13,12 +13,7 @@ Author: Yaroslav Vasylenko / neuron7xLab
 License: AGPL-3.0-or-later
 """
 
-import json
-import tempfile
-from pathlib import Path
-
 import numpy as np
-import pytest
 
 
 # ===================================================================
@@ -27,7 +22,9 @@ import pytest
 class TestTaskDeterminism:
     def test_arithmetic_reproducible(self):
         import random
+
         from collector import gen_arithmetic
+
         random.seed(42)
         t1 = gen_arithmetic(2)
         random.seed(42)
@@ -37,7 +34,9 @@ class TestTaskDeterminism:
 
     def test_all_generators_produce_valid_tasks(self):
         import random
+
         from collector import GENERATORS, Task
+
         random.seed(0)
         for gen in GENERATORS:
             for diff in range(1, 6):
@@ -49,21 +48,28 @@ class TestTaskDeterminism:
 
     def test_ground_truth_correctness_arithmetic(self):
         import random
+
         from collector import gen_arithmetic
+
         random.seed(99)
         for _ in range(50):
             t = gen_arithmetic(2)
             # Parse and verify
             parts = t.prompt.replace("Compute: ", "").split()
             a, op, b = int(parts[0]), parts[1], int(parts[2])
-            if op == "+": expected = a + b
-            elif op == "-": expected = a - b
-            else: expected = a * b
+            if op == "+":
+                expected = a + b
+            elif op == "-":
+                expected = a - b
+            else:
+                expected = a * b
             assert str(expected) == t.ground_truth, f"{t.prompt} -> {t.ground_truth} != {expected}"
 
     def test_ground_truth_correctness_modular(self):
         import random
+
         from collector import gen_modular
+
         random.seed(99)
         for _ in range(30):
             t = gen_modular(2)
@@ -77,7 +83,9 @@ class TestTaskDeterminism:
 
     def test_logic_ground_truth(self):
         import random
+
         from collector import gen_logic
+
         random.seed(42)
         for _ in range(20):
             t = gen_logic(2)
@@ -90,6 +98,7 @@ class TestTaskDeterminism:
 class TestRegimeIntegration:
     def test_psd_regime_labels(self):
         from analyze import compute_psd_slope
+
         # White noise -> beta ~ 0
         rng = np.random.default_rng(42)
         white = rng.standard_normal(200).tolist()
@@ -99,6 +108,7 @@ class TestRegimeIntegration:
 
     def test_regime_from_gamma_thresholds(self):
         from contracts.invariants import gamma_regime
+
         # These are the canonical thresholds
         assert gamma_regime(1.0) == "METASTABLE"
         assert gamma_regime(0.55) == "CRITICAL"
@@ -121,25 +131,28 @@ class TestEVLPipeline:
                 phase = "perturbation:time_pressure"
             elif perturbation and i >= 20:
                 phase = "recovery"
-            decisions.append({
-                "t_ns": t,
-                "utc_ns": t,
-                "session_id": "test_session",
-                "task_id": f"t_{i:03d}",
-                "task_type": "arithmetic",
-                "difficulty": 2,
-                "phase": phase,
-                "latency_ms": round(float(rng.lognormal(8.0, 0.5)), 2),
-                "correct": int(rng.random() > 0.2),
-                "timed_out": 0,
-                "prompt": f"Compute: {rng.integers(100,999)} + {rng.integers(100,999)}",
-                "expected": str(rng.integers(200, 1998)),
-                "given": str(rng.integers(200, 1998)),
-            })
+            decisions.append(
+                {
+                    "t_ns": t,
+                    "utc_ns": t,
+                    "session_id": "test_session",
+                    "task_id": f"t_{i:03d}",
+                    "task_type": "arithmetic",
+                    "difficulty": 2,
+                    "phase": phase,
+                    "latency_ms": round(float(rng.lognormal(8.0, 0.5)), 2),
+                    "correct": int(rng.random() > 0.2),
+                    "timed_out": 0,
+                    "prompt": f"Compute: {rng.integers(100, 999)} + {rng.integers(100, 999)}",
+                    "expected": str(rng.integers(200, 1998)),
+                    "given": str(rng.integers(200, 1998)),
+                }
+            )
         return decisions
 
     def test_quality_gates_pass(self):
         from analyze import check_quality
+
         decisions = self._make_session(30)
         gates = check_quality(decisions)
         assert gates["sufficient_data"] is True
@@ -148,11 +161,13 @@ class TestEVLPipeline:
 
     def test_quality_gates_fail_insufficient(self):
         from analyze import check_quality
+
         gates = check_quality(self._make_session(5))
         assert gates["sufficient_data"] is False
 
     def test_compute_stats(self):
         from analyze import compute_stats
+
         stats = compute_stats(self._make_session(30))
         assert stats["n_tasks"] == 30
         assert 0 <= stats["accuracy_pct"] <= 100
@@ -161,6 +176,7 @@ class TestEVLPipeline:
 
     def test_phase_contrast(self):
         from analyze import compute_phase_contrast
+
         contrast = compute_phase_contrast(self._make_session(30, perturbation=True))
         assert "baseline" in contrast
         assert "perturbation" in contrast
@@ -168,6 +184,7 @@ class TestEVLPipeline:
 
     def test_psd_slope_on_synthetic(self):
         from analyze import compute_psd_slope
+
         rng = np.random.default_rng(42)
         # 1/f noise (beta ~ 1.0)
         white = rng.standard_normal(256)
@@ -177,12 +194,13 @@ class TestEVLPipeline:
         assert r["beta"] > 0.5  # should be brownian-ish
 
     def test_full_analyze_pipeline(self):
-        from analyze import check_quality, compute_stats, compute_psd_slope, compute_phase_contrast
+        from analyze import check_quality, compute_phase_contrast, compute_psd_slope, compute_stats
+
         decisions = self._make_session(40, perturbation=True)
         gates = check_quality(decisions)
         stats = compute_stats(decisions)
         lat = [d["latency_ms"] for d in decisions]
-        psd = compute_psd_slope(lat, fs=0.1)
+        compute_psd_slope(lat, fs=0.1)
         contrast = compute_phase_contrast(decisions)
         assert gates["sufficient_data"]
         assert stats["n_tasks"] == 40
@@ -196,6 +214,7 @@ class TestDFA:
     def test_dfa_white_noise(self):
         """White noise: H ~ 0.5."""
         from evl_dfa import dfa_exponent
+
         rng = np.random.default_rng(42)
         signal = rng.standard_normal(1024)
         H = dfa_exponent(signal)
@@ -204,6 +223,7 @@ class TestDFA:
     def test_dfa_brownian(self):
         """Brownian (cumsum of white): H ~ 1.5 (or after detrending ~1.0+)."""
         from evl_dfa import dfa_exponent
+
         rng = np.random.default_rng(42)
         signal = np.cumsum(rng.standard_normal(1024))
         H = dfa_exponent(signal)
@@ -211,11 +231,13 @@ class TestDFA:
 
     def test_dfa_short_signal(self):
         from evl_dfa import dfa_exponent
+
         assert dfa_exponent(np.array([1.0, 2.0, 3.0])) is None
 
     def test_dfa_gamma_conversion(self):
         """gamma_PSD = 2H + 1 verified through DFA."""
         from evl_dfa import dfa_exponent
+
         rng = np.random.default_rng(42)
         signal = rng.standard_normal(2048)
         H = dfa_exponent(signal)
@@ -229,6 +251,7 @@ class TestDFA:
 class TestPhaseEffectSize:
     def test_cohens_d_computation(self):
         from evl_effect_size import cohens_d
+
         a = np.array([100, 110, 105, 95, 108])
         b = np.array([200, 210, 195, 205, 198])
         d = cohens_d(a, b)
@@ -236,12 +259,14 @@ class TestPhaseEffectSize:
 
     def test_cohens_d_zero(self):
         from evl_effect_size import cohens_d
+
         a = np.array([100, 100, 100])
         b = np.array([100, 100, 100])
         assert abs(cohens_d(a, b)) < 0.01
 
     def test_phase_contrast_with_effect(self):
         from evl_effect_size import phase_contrast_effect
+
         rng = np.random.default_rng(42)
         baseline_lat = rng.lognormal(7.0, 0.3, 20)
         stress_lat = rng.lognormal(7.5, 0.5, 15)
@@ -257,6 +282,7 @@ class TestPhaseEffectSize:
 class TestTruthCriterionIntegration:
     def test_synchronized_channels(self):
         from contracts.truth_criterion import evaluate_truth_criterion
+
         rng = np.random.default_rng(42)
         T = 500
         base = np.cumsum(rng.standard_normal(T))
@@ -271,6 +297,7 @@ class TestTruthCriterionIntegration:
 
     def test_independent_rejected(self):
         from contracts.truth_criterion import evaluate_truth_criterion
+
         rng = np.random.default_rng(99)
         ch1 = np.cumsum(rng.standard_normal(500))
         ch2 = np.cumsum(rng.standard_normal(500))
@@ -279,6 +306,7 @@ class TestTruthCriterionIntegration:
 
     def test_epsilon_calibration(self):
         from contracts.truth_criterion import calibrate_epsilon
+
         betas = np.array([0.9, 1.1, 0.95, 1.05, 1.0, 0.98, 1.02])
         eps = calibrate_epsilon(betas, k=2.0)
         assert 0.05 <= eps <= 0.50
@@ -290,6 +318,7 @@ class TestTruthCriterionIntegration:
 class TestCrossSession:
     def test_aggregate_sessions(self):
         from evl_aggregator import aggregate_sessions
+
         sessions = [
             {"beta": 0.95, "accuracy_pct": 85, "n_tasks": 30, "session": "s1"},
             {"beta": 1.05, "accuracy_pct": 80, "n_tasks": 25, "session": "s2"},
@@ -302,6 +331,7 @@ class TestCrossSession:
 
     def test_convergence_detection(self):
         from evl_aggregator import detect_convergence
+
         betas = [1.5, 1.3, 1.2, 1.1, 1.05, 1.02, 1.01]
         result = detect_convergence(betas)
         assert bool(result["converging"]) is True
