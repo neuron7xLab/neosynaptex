@@ -14,7 +14,7 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Detect dependency graph availability
         id: depgraph
@@ -22,42 +22,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          python - <<'PY'
-          from __future__ import annotations
+          status_code="$(curl -sS -o /tmp/sbom.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GH_REPO}/dependency-graph/sbom")"
 
-          import json
-          import os
-          import subprocess
-
-          repo = os.environ.get("GH_REPO", "")
-          token = os.environ.get("GH_TOKEN", "")
-          enabled = False
-
-          if repo and token:
-              cmd = [
-                  "curl",
-                  "-sSfL",
-                  "-H",
-                  f"Authorization: Bearer {token}",
-                  "-H",
-                  "Accept: application/vnd.github+json",
-                  f"https://api.github.com/repos/{repo}",
-              ]
-              try:
-                  payload = json.loads(subprocess.check_output(cmd, text=True))
-                  sec = payload.get("security_and_analysis") or {}
-                  dep = sec.get("dependency_graph") or {}
-                  enabled = dep.get("status") == "enabled"
-              except Exception as exc:  # pragma: no cover - runtime fallback
-                  print(f"WARNING: unable to query dependency_graph status: {exc}")
-
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-              fh.write(f"enabled={'true' if enabled else 'false'}\n")
-          PY
+          if [ "${status_code}" = "200" ]; then
+            echo "enabled=true" >> "${GITHUB_OUTPUT}"
+            echo "Dependency graph endpoint is available (HTTP 200)."
+          else
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "Dependency graph endpoint unavailable (HTTP ${status_code}); skipping dependency review."
+          fi
 
       - name: Dependency Review
         if: steps.depgraph.outputs.enabled == 'true'
-        uses: actions/dependency-review-action@v4
+        uses: actions/dependency-review-action@3c4e3dcb1aa7874d2c16be7d79418e9b7efd6261
         with:
           fail-on-severity: high
           comment-summary-in-pr: on-failure
