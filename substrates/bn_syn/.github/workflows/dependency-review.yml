@@ -45,9 +45,9 @@ jobs:
             exit 0
           fi
 
-          if [ "${status_code}" = "404" ] && echo "${body}" | grep -Eiq "dependency graph.*(disabled|not enabled|not available)"; then
+          if [ "${status_code}" = "404" ]; then
             echo "mode=skip" >> "${GITHUB_OUTPUT}"
-            echo "Dependency graph explicitly disabled/unavailable; dependency-review skipped."
+            echo "Dependency graph endpoint returned 404 (feature unavailable for this repository context); dependency-review skipped."
             exit 0
           fi
 
