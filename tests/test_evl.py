@@ -282,8 +282,15 @@ class TestPhaseEffectSize:
 # ===================================================================
 # 6. Truth criterion integration (requires bn_syn.transfer_entropy)
 # ===================================================================
+def _can_import(module: str) -> bool:
+    try:
+        return importlib.util.find_spec(module) is not None
+    except (ModuleNotFoundError, ValueError):
+        return False
+
+
 @pytest.mark.skipif(
-    not importlib.util.find_spec("bn_syn.transfer_entropy"),
+    not _can_import("bn_syn.transfer_entropy"),
     reason="bn_syn root stubs removed — truth criterion requires transfer_entropy",
 )
 class TestTruthCriterionIntegration:

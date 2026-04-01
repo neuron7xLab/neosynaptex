@@ -74,12 +74,19 @@ class TestInvariantIV:
 # ===================================================================
 # TASK 2: TRANSFER ENTROPY (requires bn_syn root stubs)
 # ===================================================================
+def _can_import(module: str) -> bool:
+    try:
+        return importlib.util.find_spec(module) is not None
+    except (ModuleNotFoundError, ValueError):
+        return False
+
+
 _skip_bn_syn = pytest.mark.skipif(
-    not importlib.util.find_spec("bn_syn.transfer_entropy"),
+    not _can_import("bn_syn.transfer_entropy"),
     reason="bn_syn root stubs removed — modules live in substrates/bn_syn/",
 )
 _skip_tradepulse = pytest.mark.skipif(
-    not importlib.util.find_spec("tradepulse.coherence_bridge"),
+    not _can_import("tradepulse.coherence_bridge"),
     reason="tradepulse root stubs removed",
 )
 
