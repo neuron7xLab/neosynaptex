@@ -1,0 +1,168 @@
+# CANONICAL_OWNERSHIP.yaml
+# NeoSynaptex — Single Canonical R&D Repository
+# Generated: 2026-04-01
+
+schema_version: "1.0"
+repository: neosynaptex
+authority: neuron7xLab
+root_license: AGPL-3.0-or-later
+
+subsystems:
+  neosynaptex-core:
+    owner: Yaroslav Vasylenko
+    scope: "NFI integration runtime, contracts, axioms, truth interface"
+    authoritative_paths:
+      - core/
+      - contracts/
+      - tests/test_contracts.py
+      - tests/test_gamma_invariant.py
+      - tests/test_gray_scott_real.py
+      - tests/test_kuramoto_real.py
+      - tests/test_zebrafish_real.py
+    license: AGPL-3.0-or-later
+    status: canonical
+
+  bn-syn:
+    owner: Yaroslav Vasylenko
+    scope: "AdEx SNN simulator + transfer entropy + Φ-proxy + assembly detection"
+    authoritative_paths:
+      - substrates/bn_syn/
+    deprecated_paths:
+      - bn_syn/
+    license: AGPL-3.0-or-later
+    status: canonical
+    conflict_resolution: "Conflict A: substrates/bn_syn/ survives"
+
+  mfn:
+    owner: Yaroslav Vasylenko
+    scope: "Mycelium Fractal Net — morphogenetic integrity + γ-scaling"
+    authoritative_paths:
+      - substrates/mfn/
+    deprecated_paths:
+      - substrates/mfn_plus/
+      - substrates/mycelium/
+    license: AGPL-3.0-or-later
+    status: pending_merge
+    conflict_resolution: "Conflict B: merge into substrates/mfn/"
+
+  kuramoto:
+    owner: Yaroslav Vasylenko
+    scope: "TradePulse/Kuramoto + curvature + OFI microstructure"
+    authoritative_paths:
+      - substrates/kuramoto/
+    license: TBD
+    status: canonical
+
+  mlsdm:
+    owner: Yaroslav Vasylenko
+    scope: "ML-SDM neurobiological memory stack"
+    authoritative_paths:
+      - substrates/mlsdm/
+    license: AGPL-3.0-or-later
+    status: canonical
+
+  ca1:
+    owner: Yaroslav Vasylenko
+    scope: "CA1-LAM hippocampal temporal memory"
+    authoritative_paths:
+      - substrates/ca1/
+    deprecated_paths:
+      - substrates/hippocampal_ca1/
+    license: AGPL-3.0-or-later
+    status: canonical
+
+  zebrafish:
+    owner: Yaroslav Vasylenko
+    authoritative_paths:
+      - substrates/zebrafish/
+    type: thin_adapter
+    license: AGPL-3.0-or-later
+    status: canonical
+
+  gray-scott:
+    owner: Yaroslav Vasylenko
+    authoritative_paths:
+      - substrates/gray_scott/
+    type: thin_adapter
+    license: AGPL-3.0-or-later
+    status: canonical
+
+  cns-ai-loop:
+    owner: Yaroslav Vasylenko
+    authoritative_paths:
+      - substrates/cns_ai_loop/
+    type: thin_adapter
+    license: AGPL-3.0-or-later
+    status: canonical
+
+  agents:
+    owner: Yaroslav Vasylenko
+    scope: "neuron7x-agents package"
+    authoritative_paths:
+      - agents/
+    license: MIT
+    status: canonical
+    license_boundary: "MIT applies only within agents/ path prefix"
+
+  verification:
+    owner: Yaroslav Vasylenko
+    scope: "Shared kriterion verification schemas"
+    authoritative_paths:
+      - verification/
+    migrated_from:
+      - agents/src/neuron7x_agents/verification/kriterion/
+    license: AGPL-3.0-or-later
+    status: pending_migration
+
+shared_surfaces:
+  documentation:
+    authoritative_paths:
+      - docs/
+  formal_methods:
+    authoritative_paths:
+      - formal/
+  golden_data:
+    authoritative_paths:
+      - data/golden/
+  evidence_registry:
+    authoritative_paths:
+      - evidence/registry.json
+  governance:
+    authoritative_paths:
+      - governance/
+
+root_files:
+  - path: pyproject.toml
+    owner: neosynaptex-core
+  - path: README.md
+    owner: neosynaptex-core
+  - path: CONTRACT.md
+    owner: neosynaptex-core
+  - path: PROTOCOL.md
+    owner: neosynaptex-core
+  - path: CANONICAL_OWNERSHIP.yaml
+    owner: governance
+  - path: LICENSE
+    owner: governance
+  - path: LICENSE_BOUNDARIES.md
+    owner: governance
+  - path: REPO_TOPOLOGY.md
+    owner: governance
+  - path: Makefile
+    owner: neosynaptex-core
+
+root_tests:
+  owner: neosynaptex-core
+  scope: "Integration tests only"
+  paths:
+    - tests/test_contracts.py
+    - tests/test_gamma_invariant.py
+    - tests/test_gray_scott_real.py
+    - tests/test_kuramoto_real.py
+    - tests/test_zebrafish_real.py
+
+required_checks:
+  - ownership_conflict_scan
+  - evidence_registry_integrity
+  - license_boundary_validation
+  - subsystem_ci_partition
