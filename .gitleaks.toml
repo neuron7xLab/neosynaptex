@@ -1,0 +1,11 @@
+title = "Gitleaks config for neosynaptex"
+
+[allowlist]
+description = "Allow test fixtures and mock API keys"
+paths = [
+    '''tests/.*''',
+    '''substrates/.*/tests/.*''',
+    '''.*test_.*\.py''',
+    '''.*conftest\.py''',
+    '''.*fixtures/.*''',
+]
