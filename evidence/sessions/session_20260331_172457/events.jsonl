@@ -1,0 +1,2 @@
+{"t_ns": 23260030664421, "utc_ns": 1774967097523600896, "event": "session_start", "meta": {"duration_min": 20}}
+{"t_ns": 23396577225761, "utc_ns": 1774967234070479616, "event": "session_end", "meta": {"total_tasks": 1, "correct": 0, "accuracy_pct": 0.0, "duration_actual_s": 136.5}}

@@ -16,7 +16,7 @@ import json
 import logging
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Protocol, Tuple
+from typing import Protocol
 
 import numpy as np
 from scipy.linalg import lstsq as scipy_lstsq
@@ -82,9 +82,9 @@ class DomainAdapter(Protocol):
     def domain(self) -> str: ...
 
     @property
-    def state_keys(self) -> List[str]: ...
+    def state_keys(self) -> list[str]: ...
 
-    def state(self) -> Dict[str, float]: ...
+    def state(self) -> dict[str, float]: ...
 
     def topo(self) -> float: ...
 
@@ -105,47 +105,47 @@ class NeosynaptexState:
 
     t: int
     phi: np.ndarray
-    phi_per_domain: Dict[str, np.ndarray]
+    phi_per_domain: dict[str, np.ndarray]
 
     # --- Gamma ---
-    gamma_per_domain: Dict[str, float]
-    gamma_ci_per_domain: Dict[str, Tuple[float, float]]
+    gamma_per_domain: dict[str, float]
+    gamma_ci_per_domain: dict[str, tuple[float, float]]
     gamma_mean: float
     gamma_std: float
     cross_coherence: float
 
     # --- Gamma dynamics ---
     dgamma_dt: float
-    gamma_ema_per_domain: Dict[str, float]
+    gamma_ema_per_domain: dict[str, float]
 
     # --- Universal scaling test ---
     universal_scaling_p: float
 
     # --- Jacobian ---
-    sr_per_domain: Dict[str, float]
-    cond_per_domain: Dict[str, float]
+    sr_per_domain: dict[str, float]
+    cond_per_domain: dict[str, float]
     spectral_radius: float
 
     # --- Phase ---
     phase: str
 
     # --- Anomaly isolation ---
-    anomaly_score: Dict[str, float]
+    anomaly_score: dict[str, float]
 
     # --- Granger causality ---
-    granger_graph: Dict[str, Dict[str, float]]
+    granger_graph: dict[str, dict[str, float]]
 
     # --- Phase portrait ---
-    portrait: Dict[str, float]
+    portrait: dict[str, float]
 
     # --- Resilience ---
     resilience_score: float
 
     # --- Modulation signal ---
-    modulation: Dict[str, float]
+    modulation: dict[str, float]
 
     # --- Full diagnostic ---
-    diagnostic: Dict
+    diagnostic: dict
 
     class _Cfg:
         arbitrary_types_allowed = True
@@ -158,9 +158,15 @@ class _DomainBuffer:
     """Per-domain circular buffer for state, topo, and cost histories."""
 
     __slots__ = (
-        "domain", "n", "capacity",
-        "_state_buf", "_topo_buf", "_cost_buf",
-        "_idx", "_full", "_total",
+        "domain",
+        "n",
+        "capacity",
+        "_state_buf",
+        "_topo_buf",
+        "_cost_buf",
+        "_idx",
+        "_full",
+        "_total",
     )
 
     def __init__(self, domain: str, n: int, capacity: int) -> None:
@@ -197,7 +203,7 @@ class _DomainBuffer:
         """Return buffer contents in chronological order."""
         n = self.length
         if self._full:
-            return np.concatenate([buf[self._idx:], buf[:self._idx]])
+            return np.concatenate([buf[self._idx :], buf[: self._idx]])
         return buf[:n].copy()
 
     def states_array(self) -> np.ndarray:
@@ -221,7 +227,7 @@ class _DomainBuffer:
 # ---------------------------------------------------------------------------
 # Jacobian helper
 # ---------------------------------------------------------------------------
-def _per_domain_jacobian(states: np.ndarray) -> Tuple[float, float]:
+def _per_domain_jacobian(states: np.ndarray) -> tuple[float, float]:
     """Estimate spectral radius and condition number from per-domain state history.
 
     Formula:
@@ -268,7 +274,7 @@ def _per_domain_jacobian(states: np.ndarray) -> Tuple[float, float]:
 # ---------------------------------------------------------------------------
 def _per_domain_gamma(
     topos: np.ndarray, costs: np.ndarray, seed: int = 0
-) -> Tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]:
     """Estimate gamma scaling exponent with bootstrap confidence interval.
 
     Formula:
@@ -326,9 +332,7 @@ def _per_domain_gamma(
 # ---------------------------------------------------------------------------
 # Permutation test for universal scaling
 # ---------------------------------------------------------------------------
-def _permutation_test_universal(
-    gamma_bootstraps: Dict[str, np.ndarray], seed: int = 0
-) -> float:
+def _permutation_test_universal(gamma_bootstraps: dict[str, np.ndarray], seed: int = 0) -> float:
     """Test H0: all domains share the same gamma.
 
     Uses permutation of bootstrap distributions. Returns p-value.
@@ -362,8 +366,8 @@ def _permutation_test_universal(
 # Granger causality (pairwise, lag-1)
 # ---------------------------------------------------------------------------
 def _granger_causality(
-    gamma_history: Dict[str, List[float]], min_len: int = 10
-) -> Dict[str, Dict[str, float]]:
+    gamma_history: dict[str, list[float]], min_len: int = 10
+) -> dict[str, dict[str, float]]:
     """Pairwise Granger causality F-statistic between domain gamma series.
 
     For each pair (i, j): does gamma_i(t-1) improve prediction of gamma_j(t)
@@ -371,7 +375,7 @@ def _granger_causality(
 
     Returns dict[source][target] = F-statistic. Higher F = stronger causal link.
     """
-    graph: Dict[str, Dict[str, float]] = {}
+    graph: dict[str, dict[str, float]] = {}
     domains = sorted(gamma_history.keys())
 
     for source in domains:
@@ -432,13 +436,13 @@ def _granger_causality(
 # ---------------------------------------------------------------------------
 # Anomaly isolation (leave-one-out)
 # ---------------------------------------------------------------------------
-def _anomaly_isolation(gamma_per_domain: Dict[str, float]) -> Dict[str, float]:
+def _anomaly_isolation(gamma_per_domain: dict[str, float]) -> dict[str, float]:
     """Leave-one-out coherence test. Score = how much coherence improves without domain d.
 
     anomaly_score near 1.0 = domain d is the outlier dragging coherence down.
     anomaly_score near 0.0 = domain d is consistent with the group.
     """
-    scores: Dict[str, float] = {}
+    scores: dict[str, float] = {}
     valid = {k: v for k, v in gamma_per_domain.items() if np.isfinite(v)}
 
     if len(valid) < 3:
@@ -456,10 +460,14 @@ def _anomaly_isolation(gamma_per_domain: Dict[str, float]) -> Dict[str, float]:
         if len(remaining) < 2:
             scores[d] = float("nan")
             continue
-        loo_cv = np.std(remaining) / abs(np.mean(remaining)) if abs(np.mean(remaining)) > 1e-10 else 0.0
+        loo_cv = (
+            np.std(remaining) / abs(np.mean(remaining)) if abs(np.mean(remaining)) > 1e-10 else 0.0
+        )
         loo_coherence = 1.0 - loo_cv
         improvement = loo_coherence - full_coherence
-        scores[d] = round(float(max(0.0, min(1.0, improvement / max(1.0 - full_coherence, 1e-6)))), 4)
+        scores[d] = round(
+            float(max(0.0, min(1.0, improvement / max(1.0 - full_coherence, 1e-6)))), 4
+        )
 
     return scores
 
@@ -467,9 +475,7 @@ def _anomaly_isolation(gamma_per_domain: Dict[str, float]) -> Dict[str, float]:
 # ---------------------------------------------------------------------------
 # Phase portrait
 # ---------------------------------------------------------------------------
-def _phase_portrait(
-    gamma_trace: List[float], sr_trace: List[float]
-) -> Dict[str, float]:
+def _phase_portrait(gamma_trace: list[float], sr_trace: list[float]) -> dict[str, float]:
     """Compute phase portrait metrics from (gamma, sr) trajectory.
 
     - area: convex hull area (small = fixed point, large = wandering)
@@ -477,8 +483,7 @@ def _phase_portrait(
     - distance_to_ideal: mean distance to (1.0, 1.0)
     """
     valid_pairs = [
-        (g, s) for g, s in zip(gamma_trace, sr_trace)
-        if np.isfinite(g) and np.isfinite(s)
+        (g, s) for g, s in zip(gamma_trace, sr_trace) if np.isfinite(g) and np.isfinite(s)
     ]
     if len(valid_pairs) < 4:
         return {"area": float("nan"), "recurrence": float("nan"), "distance_to_ideal": float("nan")}
@@ -545,8 +550,8 @@ class Neosynaptex:
         if window < 8:
             raise ValueError(f"window must be >= 8, got {window}")
         self._window = window
-        self._adapters: Dict[str, DomainAdapter] = {}
-        self._buffers: Dict[str, _DomainBuffer] = {}
+        self._adapters: dict[str, DomainAdapter] = {}
+        self._buffers: dict[str, _DomainBuffer] = {}
         self._tick = 0
 
         # Phase hysteresis
@@ -556,13 +561,13 @@ class Neosynaptex:
         self._degenerate_count = 0
 
         # History
-        self._history: List[NeosynaptexState] = []
-        self._gamma_history: Dict[str, List[float]] = {}
-        self._gamma_trace: List[float] = []
-        self._sr_trace: List[float] = []
+        self._history: list[NeosynaptexState] = []
+        self._gamma_history: dict[str, list[float]] = {}
+        self._gamma_trace: list[float] = []
+        self._sr_trace: list[float] = []
 
         # EMA state
-        self._gamma_ema: Dict[str, float] = {}
+        self._gamma_ema: dict[str, float] = {}
 
         # Resilience tracking
         self._departures = 0
@@ -570,7 +575,7 @@ class Neosynaptex:
         self._was_metastable = False
 
         # Bootstrap cache for permutation test
-        self._gamma_bootstraps: Dict[str, np.ndarray] = {}
+        self._gamma_bootstraps: dict[str, np.ndarray] = {}
 
     def register(self, adapter: DomainAdapter) -> None:
         """Register a domain adapter. Max 4 state variables per adapter."""
@@ -600,16 +605,14 @@ class Neosynaptex:
         domain_order = sorted(self._adapters.keys())
 
         # === Layer 1: Collect ===
-        phi_parts: List[np.ndarray] = []
-        phi_per_domain: Dict[str, np.ndarray] = {}
+        phi_parts: list[np.ndarray] = []
+        phi_per_domain: dict[str, np.ndarray] = {}
 
         for name in domain_order:
             adapter = self._adapters[name]
             buf = self._buffers[name]
             s = adapter.state()
-            vec = np.array(
-                [s.get(k, float("nan")) for k in adapter.state_keys], dtype=np.float64
-            )
+            vec = np.array([s.get(k, float("nan")) for k in adapter.state_keys], dtype=np.float64)
             t_val = adapter.topo()
             c_val = adapter.thermo_cost()
             if np.isfinite(t_val) and t_val < _TOPO_FLOOR:
@@ -623,8 +626,8 @@ class Neosynaptex:
         phi = np.concatenate(phi_parts)
 
         # === Layer 2: Per-domain Jacobian with condition number ===
-        sr_per_domain: Dict[str, float] = {}
-        cond_per_domain: Dict[str, float] = {}
+        sr_per_domain: dict[str, float] = {}
+        cond_per_domain: dict[str, float] = {}
 
         for name in domain_order:
             buf = self._buffers[name]
@@ -640,9 +643,9 @@ class Neosynaptex:
         spectral_radius = float(np.median(sr_valid)) if sr_valid else float("nan")
 
         # === Layer 3: Per-domain gamma with bootstrap CI ===
-        gamma_per_domain: Dict[str, float] = {}
-        gamma_ci_per_domain: Dict[str, Tuple[float, float]] = {}
-        r2_per_domain: Dict[str, float] = {}
+        gamma_per_domain: dict[str, float] = {}
+        gamma_ci_per_domain: dict[str, tuple[float, float]] = {}
+        r2_per_domain: dict[str, float] = {}
 
         for i, name in enumerate(domain_order):
             buf = self._buffers[name]
@@ -704,19 +707,14 @@ class Neosynaptex:
         self._sr_trace.append(spectral_radius)
         dgamma_dt = float("nan")
         if len(self._gamma_trace) >= 5:
-            recent = [
-                g for g in self._gamma_trace[-self._window:]
-                if np.isfinite(g)
-            ]
+            recent = [g for g in self._gamma_trace[-self._window :] if np.isfinite(g)]
             if len(recent) >= 5:
                 x_t = np.arange(len(recent), dtype=np.float64)
                 slope_g, _, _, _ = theilslopes(recent, x_t)
                 dgamma_dt = float(slope_g)
 
         # === Permutation test for universal scaling ===
-        universal_scaling_p = _permutation_test_universal(
-            self._gamma_bootstraps, seed=self._tick
-        )
+        universal_scaling_p = _permutation_test_universal(self._gamma_bootstraps, seed=self._tick)
 
         # === Granger causality ===
         granger_graph = _granger_causality(self._gamma_history)
@@ -752,20 +750,20 @@ class Neosynaptex:
             self._returns += 1
         self._was_metastable = is_meta
         resilience_score = (
-            float(self._returns / self._departures)
-            if self._departures > 0
-            else float("nan")
+            float(self._returns / self._departures) if self._departures > 0 else float("nan")
         )
 
         # === Reflexive modulation signal ===
-        modulation: Dict[str, float] = {}
+        modulation: dict[str, float] = {}
         gamma_target = 1.0
         alpha_mod = 0.05
         for name in domain_order:
             g = gamma_per_domain[name]
             dg = dgamma_dt
             if np.isfinite(g) and np.isfinite(dg):
-                raw_mod = -alpha_mod * (g - gamma_target) * (1.0 if dg > 0 else -1.0 if dg < 0 else 0.0)
+                raw_mod = (
+                    -alpha_mod * (g - gamma_target) * (1.0 if dg > 0 else -1.0 if dg < 0 else 0.0)
+                )
                 modulation[name] = round(float(np.clip(raw_mod, -0.05, 0.05)), 6)
             else:
                 modulation[name] = 0.0
@@ -849,10 +847,12 @@ class Neosynaptex:
         # SR is in metastable band -- check gamma dynamics
         if np.isfinite(dgamma_dt) and np.isfinite(gamma_mean):
             dist_from_one = gamma_mean - 1.0
-            moving_toward = (dist_from_one > 0 and dgamma_dt < -0.003) or \
-                            (dist_from_one < 0 and dgamma_dt > 0.003)
-            moving_away = (dist_from_one > 0 and dgamma_dt > 0.005) or \
-                          (dist_from_one < 0 and dgamma_dt < -0.005)
+            moving_toward = (dist_from_one > 0 and dgamma_dt < -0.003) or (
+                dist_from_one < 0 and dgamma_dt > 0.003
+            )
+            moving_away = (dist_from_one > 0 and dgamma_dt > 0.005) or (
+                dist_from_one < 0 and dgamma_dt < -0.005
+            )
 
             if moving_toward and abs(dist_from_one) > 0.05:
                 return CONVERGING
@@ -865,7 +865,7 @@ class Neosynaptex:
         """Placeholder for v2. Returns None."""
         return None
 
-    def history(self) -> List[NeosynaptexState]:
+    def history(self) -> list[NeosynaptexState]:
         """Return list of past snapshots (oldest first)."""
         return list(self._history)
 
@@ -888,7 +888,7 @@ class Neosynaptex:
         self._returns = 0
         self._was_metastable = False
 
-    def export_proof(self, path: Optional[str] = None) -> Dict:
+    def export_proof(self, path: str | None = None) -> dict:
         """Export proof bundle as JSON-serializable dict.
 
         Contains all evidence: gamma values, CIs, R^2, spectral radii,
@@ -905,7 +905,10 @@ class Neosynaptex:
                 "per_domain": {
                     k: {
                         "value": round(v, 4) if np.isfinite(v) else None,
-                        "ci": [round(c, 4) if np.isfinite(c) else None for c in s.gamma_ci_per_domain[k]],
+                        "ci": [
+                            round(c, 4) if np.isfinite(c) else None
+                            for c in s.gamma_ci_per_domain[k]
+                        ],
                         "r2": round(s.diagnostic["r2_per_domain"][k], 4)
                         if np.isfinite(s.diagnostic["r2_per_domain"].get(k, float("nan")))
                         else None,
@@ -941,10 +944,15 @@ class Neosynaptex:
             "resilience": round(s.resilience_score, 4) if np.isfinite(s.resilience_score) else None,
             "modulation": {k: v for k, v in s.modulation.items()},
             "coherence": round(s.cross_coherence, 4) if np.isfinite(s.cross_coherence) else None,
-            "verdict": "COHERENT" if (
-                np.isfinite(s.cross_coherence) and s.cross_coherence > 0.85
+            "verdict": "COHERENT"
+            if (
+                np.isfinite(s.cross_coherence)
+                and s.cross_coherence > 0.85
                 and s.phase in (METASTABLE, CONVERGING)
-            ) else "INCOHERENT" if s.phase in (DEGENERATE, DIVERGING) else "PARTIAL",
+            )
+            else "INCOHERENT"
+            if s.phase in (DEGENERATE, DIVERGING)
+            else "PARTIAL",
         }
 
         if path:
@@ -972,10 +980,10 @@ class MockBnSynAdapter:
         return "spike"
 
     @property
-    def state_keys(self) -> List[str]:
+    def state_keys(self) -> list[str]:
         return ["sigma", "firing_rate", "coherence"]
 
-    def state(self) -> Dict[str, float]:
+    def state(self) -> dict[str, float]:
         self._t += 1
         t = self._t
         return {
@@ -1009,10 +1017,10 @@ class MockMfnAdapter:
         return "morpho"
 
     @property
-    def state_keys(self) -> List[str]:
+    def state_keys(self) -> list[str]:
         return ["d_box", "beta0", "beta1", "delta_h"]
 
-    def state(self) -> Dict[str, float]:
+    def state(self) -> dict[str, float]:
         self._t += 1
         t = self._t
         tb = max(0.5, 1.0 + 10.0 * abs(math.sin(0.2 * t)))
@@ -1048,10 +1056,10 @@ class MockPsycheCoreAdapter:
         return "psyche"
 
     @property
-    def state_keys(self) -> List[str]:
+    def state_keys(self) -> list[str]:
         return ["free_energy", "kuramoto_r"]
 
-    def state(self) -> Dict[str, float]:
+    def state(self) -> dict[str, float]:
         self._t += 1
         t = self._t
         return {
@@ -1084,10 +1092,10 @@ class MockMarketAdapter:
         return "market"
 
     @property
-    def state_keys(self) -> List[str]:
+    def state_keys(self) -> list[str]:
         return ["regime", "w1_distance", "ricci_curvature"]
 
-    def state(self) -> Dict[str, float]:
+    def state(self) -> dict[str, float]:
         self._t += 1
         t = self._t
         return {

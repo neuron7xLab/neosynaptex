@@ -2,17 +2,19 @@
 NFI Contracts — Invariant enforcement.
 Import these in every module that touches NFI boundaries.
 """
+
 from enum import Enum
 
 
 class InvariantViolation(Exception):
     """Raised when any NFI invariant is violated. Hard stop."""
+
     pass
 
 
 class SSIDomain(Enum):
-    EXTERNAL = "external"   # valid — market, multi-agent
-    INTERNAL = "internal"   # FORBIDDEN — violates INVARIANT_IV
+    EXTERNAL = "external"  # valid — market, multi-agent
+    INTERNAL = "internal"  # FORBIDDEN — violates INVARIANT_IV
 
 
 def ssi_apply(signal, domain: SSIDomain):

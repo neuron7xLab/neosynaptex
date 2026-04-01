@@ -13,7 +13,6 @@ License: AGPL-3.0-or-later
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Tuple
 
 import numpy as np
 from scipy.signal import welch
@@ -28,7 +27,7 @@ def rolling_beta(
     fs: float = 1.0,
     window: int = 64,
     step: int = 8,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute rolling PSD slope beta over time.
 
     Returns:
@@ -61,6 +60,7 @@ def rolling_beta(
 @dataclass
 class ShiftEvent:
     """A detected beta-shift event in one channel."""
+
     t_index: int
     delta_beta: float
     channel: str
@@ -104,8 +104,9 @@ def detect_shift_events(
 @dataclass
 class SyncResult:
     """Result of synchronicity check between two channels."""
+
     synchronized: bool
-    dt: Optional[float]  # time difference between nearest shift events
+    dt: float | None  # time difference between nearest shift events
     delta_t_threshold: float
     channel_1_events: int
     channel_2_events: int
@@ -122,8 +123,11 @@ def check_synchronicity(
     """
     if not events_1 or not events_2:
         return SyncResult(
-            synchronized=False, dt=None, delta_t_threshold=delta_t,
-            channel_1_events=len(events_1), channel_2_events=len(events_2),
+            synchronized=False,
+            dt=None,
+            delta_t_threshold=delta_t,
+            channel_1_events=len(events_1),
+            channel_2_events=len(events_2),
         )
 
     # Find closest pair
@@ -165,14 +169,16 @@ def wavelet_coherence_window(
         return 0.0
 
     # Cross-spectral density approach
-    from scipy.signal import csd, welch as welch_fn
+    from scipy.signal import csd
+    from scipy.signal import welch as welch_fn
+
     nperseg = min(len(s1), max(8, len(s1) // 2))
     f, pxy = csd(s1, s2, nperseg=nperseg)
     _, pxx = welch_fn(s1, nperseg=nperseg)
     _, pyy = welch_fn(s2, nperseg=nperseg)
 
     denom = np.sqrt(pxx * pyy + 1e-30)
-    coh = np.abs(pxy) ** 2 / (denom ** 2 + 1e-30)
+    coh = np.abs(pxy) ** 2 / (denom**2 + 1e-30)
 
     mask = f > 0
     if mask.sum() < 2:
@@ -213,7 +219,7 @@ def surrogate_test(
     observed_coherence: float,
     n_surrogates: int = 99,
     seed: int = 42,
-) -> Tuple[float, bool]:
+) -> tuple[float, bool]:
     """Test observed coherence against IAAFT surrogates.
 
     Returns (p_value, significant_at_005).
@@ -240,12 +246,13 @@ def surrogate_test(
 @dataclass
 class TruthCriterionResult:
     """Full evaluation of the truth criterion for two channels."""
+
     # Event detection
     events_ch1: int
     events_ch2: int
     # Synchronicity
     synchronized: bool
-    dt: Optional[float]
+    dt: float | None
     # Coherence
     wcoh: float
     wcoh_above_threshold: bool
@@ -287,10 +294,16 @@ def evaluate_truth_criterion(
 
     if len(b1) < 4 or len(b2) < 4:
         return TruthCriterionResult(
-            events_ch1=0, events_ch2=0, synchronized=False, dt=None,
-            wcoh=0.0, wcoh_above_threshold=False,
-            te_max=0.0, te_above_threshold=False,
-            surrogate_p=1.0, surrogate_significant=False,
+            events_ch1=0,
+            events_ch2=0,
+            synchronized=False,
+            dt=None,
+            wcoh=0.0,
+            wcoh_above_threshold=False,
+            te_max=0.0,
+            te_above_threshold=False,
+            surrogate_p=1.0,
+            surrogate_significant=False,
             verdict="INSUFFICIENT_DATA",
         )
 

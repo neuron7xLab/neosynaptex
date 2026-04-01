@@ -179,14 +179,15 @@ class ZebrafishAdapter:
         }
 
     def topo(self) -> float:
-        """Cell density = total_cells / boundary_area.
+        """Cell density = total_cells / boundary_area, scaled ×1000.
 
+        Scaling preserves γ (log-slope invariant under multiplicative constant)
+        but ensures values exceed engine _TOPO_FLOOR (0.01).
         Increases monotonically as pattern develops.
-        Good log-range (>2 decades) for robust Theil-Sen fit.
         """
         self._ensure_loaded()
         d = self._day()
-        return max(_TOPO_FLOOR, float(self._densities[d]))
+        return max(_TOPO_FLOOR, float(self._densities[d]) * 1000.0)
 
     def thermo_cost(self) -> float:
         """CV of melanocyte NN distances (pattern disorder).

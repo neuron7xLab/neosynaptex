@@ -113,9 +113,12 @@ class KuramotoAdapter:
         }
 
     def topo(self) -> float:
-        """Running volatility (complexity of price dynamics)."""
+        """Running volatility (complexity of price dynamics), scaled ×100.
+
+        Scaling preserves γ (log-slope invariant) but ensures topo > engine floor (0.01).
+        """
         vol, _, _ = self._window_stats()
-        return max(_TOPO_FLOOR, vol)
+        return max(_TOPO_FLOOR, vol * 100.0)
 
     def thermo_cost(self) -> float:
         """1/mean(|returns|) — inverse return magnitude.

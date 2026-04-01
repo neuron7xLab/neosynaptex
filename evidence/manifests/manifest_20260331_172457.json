@@ -1,0 +1,46 @@
+{
+  "session_id": "20260331_172457",
+  "start_utc_ns": 1774967097523600896,
+  "duration_target_min": 20,
+  "perturbation_enabled": true,
+  "perturbation_schedule": [
+    [
+      "baseline",
+      4
+    ],
+    [
+      "perturbation:time_pressure",
+      1
+    ],
+    [
+      "recovery",
+      3
+    ],
+    [
+      "baseline",
+      3
+    ],
+    [
+      "perturbation:time_pressure",
+      2
+    ],
+    [
+      "recovery",
+      4
+    ],
+    [
+      "baseline",
+      4
+    ]
+  ],
+  "task_generators": [
+    "gen_arithmetic",
+    "gen_modular",
+    "gen_sequence",
+    "gen_bitwise",
+    "gen_pattern",
+    "gen_logic"
+  ],
+  "python_version": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]",
+  "platform": "linux"
+}

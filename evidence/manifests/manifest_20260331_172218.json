@@ -1,0 +1,17 @@
+{
+  "session_id": "20260331_172218",
+  "start_utc_ns": 1774966938358258176,
+  "duration_target_min": 1,
+  "perturbation_enabled": false,
+  "perturbation_schedule": [],
+  "task_generators": [
+    "gen_arithmetic",
+    "gen_modular",
+    "gen_sequence",
+    "gen_bitwise",
+    "gen_pattern",
+    "gen_logic"
+  ],
+  "python_version": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]",
+  "platform": "linux"
+}

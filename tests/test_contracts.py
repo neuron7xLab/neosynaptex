@@ -2,8 +2,10 @@
 NFI Contract enforcement tests.
 INVARIANT_IV: SSI must never operate on internal domain.
 """
+
 import pytest
-from core.contracts import ssi_apply, SSIDomain, InvariantViolation
+
+from core.contracts import InvariantViolation, SSIDomain, ssi_apply
 
 
 def test_ssi_internal_raises_invariant_violation():

@@ -11,12 +11,14 @@ License: AGPL-3.0-or-later
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Optional
+from typing import Any
 
 
 class SSIDomain(Enum):
     """SSI operational domain."""
+
     EXTERNAL = "external"  # valid: market, multi-agent, boundary
     INTERNAL = "internal"  # FORBIDDEN: corrupts observe() -> gamma_fake
 
@@ -28,6 +30,7 @@ class InvariantViolation(Exception):
     It indicates architectural corruption that invalidates
     all downstream gamma derivations.
     """
+
     pass
 
 
@@ -54,8 +57,7 @@ def ssi_enforce_domain(domain: SSIDomain) -> None:
         )
 
 
-def ssi_apply(signal: Any, domain: SSIDomain,
-              transform: Optional[Callable] = None) -> Any:
+def ssi_apply(signal: Any, domain: SSIDomain, transform: Callable | None = None) -> Any:
     """Apply SSI transformation to signal with domain enforcement.
 
     Args:
@@ -130,8 +132,8 @@ def enforce_bounded_modulation(modulation: float) -> float:
 # ---------------------------------------------------------------------------
 GAMMA_THRESHOLDS = {
     "metastable": (0.85, 1.15),
-    "warning":    (0.70, 1.30),
-    "critical":   (0.50, 1.50),
+    "warning": (0.70, 1.30),
+    "critical": (0.50, 1.50),
 }
 
 
@@ -186,10 +188,10 @@ INVARIANTS = {
 }
 
 SUBSTRATE_GAMMA = {
-    "zebrafish":       0.967,
-    "gray_scott":      1.000,
+    "zebrafish": 0.967,
+    "gray_scott": 1.000,
     "kuramoto_market": 1.081,
-    "bn_syn":          0.959,
-    "nfi_unified":     0.8993,
-    "cns_ai_loop":     1.059,
+    "bn_syn": 0.959,
+    "nfi_unified": 0.8993,
+    "cns_ai_loop": 1.059,
 }
