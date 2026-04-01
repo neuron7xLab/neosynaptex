@@ -30,11 +30,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version-file: .python-version
-      - run: pip install ruff --quiet
+      - run: pip install ruff import-linter --quiet
       - name: Ruff lint
-        run: ruff check neosynaptex.py core/ contracts/ tests/
+        run: ruff check neosynaptex.py core/ contracts/ evl/ tests/
       - name: Ruff format
-        run: ruff format --check neosynaptex.py core/ contracts/ tests/
+        run: ruff format --check neosynaptex.py core/ contracts/ evl/ tests/
+      - name: Import boundaries
+        run: lint-imports || true
 
   # ── Type Check ────────────────────────────────────────────────────────
   typecheck:
@@ -159,7 +161,7 @@ jobs:
             --cov=core --cov=contracts --cov=neosynaptex --cov-branch \
             --cov-report=xml:coverage.xml \
             --cov-report=term-missing \
-            --cov-fail-under=30 \
+            --cov-fail-under=50 \
             -q
       - uses: actions/upload-artifact@v4
         if: always()

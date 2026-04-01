@@ -16,7 +16,7 @@
 <p align="center">
   <a href="#six-substrates"><img src="https://img.shields.io/badge/substrates-6-blueviolet?style=for-the-badge" alt="6 substrates"></a>
   <a href="#the-number"><img src="https://img.shields.io/badge/%CE%B3%20%E2%89%88%201.0-universal-gold?style=for-the-badge" alt="gamma"></a>
-  <a href="#tests"><img src="https://img.shields.io/badge/tests-55%2F55-brightgreen?style=for-the-badge" alt="tests"></a>
+  <a href="#tests"><img src="https://img.shields.io/badge/tests-170%2B-brightgreen?style=for-the-badge" alt="tests"></a>
   <a href="#the-signal"><img src="https://img.shields.io/badge/p--value-0.005-red?style=for-the-badge" alt="p-value"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge" alt="license"></a>
 </p>
@@ -349,17 +349,9 @@ Thread-safe (`RLock`). Persistent across restarts (`save_state`/`load_state`). D
 ## Tests
 
 ```
-55 passed in 403s
+170+ passed
 
-TestStateCollector     #### 4    TestGranger     ## 2
-TestGamma              ####### 7 TestAnomaly     ## 2
-TestCoherence          #### 4    TestPortrait    ## 2
-TestJacobian           #### 4    TestResilience  # 1
-TestPhase              ### 3     TestModulation  ## 2
-TestProof              ## 2      TestCircuit     ####### 7
-TestInvariants         ### 3     TestSubstrate6  ## 2
-TestLifecycle          ### 3     TestXFormProbe  #### 4
-TestEdge               ### 3
+tests/                 Full test suite across core, contracts, evl, and integration
 ```
 
 <br>
@@ -382,24 +374,30 @@ TestEdge               ### 3
 ```
 neosynaptex/
 |
-+-- neosynaptex.py                    1430 LOC   core: all classes + algorithms
-+-- test_neosynaptex.py                900 LOC   55 tests, full coverage
-+-- demo.py                            85 LOC   50-tick diagnostic demo
-+-- xform_session_probe.py             300 LOC   gamma probe pipeline
++-- neosynaptex.py                    core: all classes + algorithms
++-- tests/                            official test suite
++-- core/                             core axioms and contracts
++-- contracts/                        invariant enforcement
++-- evl/                              evaluation layer (collector, analyzer, DFA)
++-- substrates/                       six substrate adapters
++-- .github/workflows/                CI/CD (5 workflows)
 |
-+-- XFORM_MANUSCRIPT_DRAFT.md                    publication draft (6 substrates)
-+-- XFORM_NEURO_DIGITAL_SYMBIOSIS.md             X-Form thesis
-+-- CONTRACT.md                                  invariants + formulas
++-- demo.py                           50-tick diagnostic demo
++-- xform_session_probe.py            gamma probe pipeline
 |
-+-- xform_proof_bundle.json                      formal proof, 6 substrates
-+-- xform_full_archive_gamma_report.json         8273-document analysis
-+-- xform_statistical_tests.json                 permutation + effect sizes
++-- XFORM_MANUSCRIPT_DRAFT.md         publication draft (6 substrates)
++-- XFORM_NEURO_DIGITAL_SYMBIOSIS.md  X-Form thesis
++-- CONTRACT.md                       invariants + formulas
 |
-+-- .github/assets/banner-dark.svg               animated SVG banner (dark)
-+-- .github/assets/banner-light.svg              animated SVG banner (light)
++-- xform_proof_bundle.json           formal proof, 6 substrates
++-- xform_full_archive_gamma_report.json  8273-document analysis
++-- xform_statistical_tests.json      permutation + effect sizes
 |
-+-- pyproject.toml                               numpy/scipy, Python 3.10+
-+-- LICENSE                                      AGPL-3.0-or-later
++-- .github/assets/banner-dark.svg    animated SVG banner (dark)
++-- .github/assets/banner-light.svg   animated SVG banner (light)
+|
++-- pyproject.toml                    numpy/scipy, Python 3.10+
++-- LICENSE                           AGPL-3.0-or-later
 ```
 
 <br>

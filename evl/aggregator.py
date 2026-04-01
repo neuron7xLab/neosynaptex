@@ -9,13 +9,11 @@ License: AGPL-3.0-or-later
 
 from __future__ import annotations
 
-from typing import Dict, List
-
 import numpy as np
 from scipy.stats import theilslopes
 
 
-def aggregate_sessions(sessions: List[Dict]) -> Dict:
+def aggregate_sessions(sessions: list[dict]) -> dict:
     """Aggregate beta values across multiple sessions.
 
     Args:
@@ -43,9 +41,9 @@ def aggregate_sessions(sessions: List[Dict]) -> Dict:
 
 
 def detect_convergence(
-    betas: List[float],
+    betas: list[float],
     target: float = 1.0,
-) -> Dict:
+) -> dict:
     """Detect if beta trajectory converges toward target.
 
     Uses Theil-Sen slope on |beta - target| over session index.
@@ -81,22 +79,26 @@ def detect_convergence(
     }
 
 
-def load_all_sessions(evidence_dir: str = "evidence/sessions") -> List[Dict]:
+def load_all_sessions(evidence_dir: str = "evidence/sessions") -> list[dict]:
     """Load analysis.json from all session directories."""
     from pathlib import Path
+
     sessions = []
     base = Path(evidence_dir)
     for session_dir in sorted(base.glob("session_*")):
         analysis_file = session_dir / "analysis.json"
         if analysis_file.exists():
             import json
+
             data = json.loads(analysis_file.read_text())
             psd = data.get("psd_latency", {})
             if psd.get("status") == "OK":
-                sessions.append({
-                    "session": data.get("session", session_dir.name),
-                    "beta": psd["beta"],
-                    "accuracy_pct": data.get("statistics", {}).get("accuracy_pct", 0),
-                    "n_tasks": data.get("statistics", {}).get("n_tasks", 0),
-                })
+                sessions.append(
+                    {
+                        "session": data.get("session", session_dir.name),
+                        "beta": psd["beta"],
+                        "accuracy_pct": data.get("statistics", {}).get("accuracy_pct", 0),
+                        "n_tasks": data.get("statistics", {}).get("n_tasks", 0),
+                    }
+                )
     return sessions

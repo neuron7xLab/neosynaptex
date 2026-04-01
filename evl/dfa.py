@@ -38,7 +38,7 @@ def dfa_exponent(
     """
     signal = np.asarray(signal, dtype=np.float64).ravel()
     N = len(signal)
-    if N < 4 * min_box:
+    if 4 * min_box > N:
         return None
 
     max_box = int(N * max_box_ratio)
@@ -49,9 +49,7 @@ def dfa_exponent(
     profile = np.cumsum(signal - signal.mean())
 
     # Log-spaced box sizes
-    scales = np.unique(np.logspace(
-        np.log10(min_box), np.log10(max_box), n_scales
-    ).astype(int))
+    scales = np.unique(np.logspace(np.log10(min_box), np.log10(max_box), n_scales).astype(int))
     scales = scales[scales >= min_box]
     if len(scales) < 4:
         return None
@@ -75,7 +73,7 @@ def dfa_exponent(
         else:
             fluctuations.append(np.nan)
 
-    scales_valid = scales[:len(fluctuations)]
+    scales_valid = scales[: len(fluctuations)]
     fluct = np.array(fluctuations)
 
     # Remove NaN/zero
