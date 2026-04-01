@@ -32,24 +32,45 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          status_code="$(curl -sS -o /tmp/sbom.json -w '%{http_code}' \
+          tmp_dir="$(mktemp -d)"
+          status_code="$(curl -sS -D "${tmp_dir}/headers.txt" -o "${tmp_dir}/body.json" -w '%{http_code}' \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${GH_REPO}/dependency-graph/sbom")"
+          body="$(cat "${tmp_dir}/body.json")"
 
           if [ "${status_code}" = "200" ]; then
-            echo "enabled=true" >> "${GITHUB_OUTPUT}"
+            echo "mode=run" >> "${GITHUB_OUTPUT}"
             echo "Dependency graph endpoint is available (HTTP 200)."
-          else
-            echo "enabled=false" >> "${GITHUB_OUTPUT}"
-            echo "Dependency graph endpoint unavailable (HTTP ${status_code}); dependency-review skipped."
+            exit 0
           fi
 
+          if [ "${status_code}" = "404" ] && echo "${body}" | grep -Eiq "dependency graph.*(disabled|not enabled|not available)"; then
+            echo "mode=skip" >> "${GITHUB_OUTPUT}"
+            echo "Dependency graph explicitly disabled/unavailable; dependency-review skipped."
+            exit 0
+          fi
+
+          if [ "${status_code}" = "403" ] && grep -qi '^x-ratelimit-remaining: 0' "${tmp_dir}/headers.txt"; then
+            echo "::error::GitHub API rate limit exceeded while checking dependency graph availability."
+            exit 1
+          fi
+
+          if [ "${status_code}" = "401" ] || [ "${status_code}" = "403" ]; then
+            echo "::error::Authentication/authorization failure (${status_code}) while checking dependency graph availability."
+            echo "::error::Response body: ${body}"
+            exit 1
+          fi
+
+          echo "::error::Unexpected response (${status_code}) from dependency graph availability probe."
+          echo "::error::Response body: ${body}"
+          exit 1
+
       - name: Dependency Review
-        if: steps.depgraph.outputs.enabled == 'true'
+        if: steps.depgraph.outputs.mode == 'run'
         uses: actions/dependency-review-action@3c4e3dcb1aa7874d2c16be7d79418e9b7efd6261
 
       - name: Dependency Review skipped notice
-        if: steps.depgraph.outputs.enabled != 'true'
+        if: steps.depgraph.outputs.mode == 'skip'
         run: |
-          echo "Dependency graph is disabled or unavailable; skipping dependency-review action."
+          echo "Dependency graph is explicitly unavailable/disabled; skipping dependency-review action."
