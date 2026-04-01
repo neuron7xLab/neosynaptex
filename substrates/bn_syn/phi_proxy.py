@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from bn_syn.transfer_entropy import transfer_entropy
+from substrates.bn_syn.transfer_entropy import transfer_entropy
 
 
 def phi_proxy(

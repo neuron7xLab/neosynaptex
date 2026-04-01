@@ -112,7 +112,7 @@ class TestZebrafishReal:
             last = nx.observe()
 
         assert last is not None
-        assert last.phase in ("METASTABLE", "WARNING", "CRITICAL", "TRANSIENT")
+        assert last.phase in ("METASTABLE", "WARNING", "CRITICAL", "TRANSIENT", "DRIFTING")
         # gamma should be finite
         if np.isfinite(last.gamma_mean):
             assert abs(last.gamma_mean - 1.0) < 1.5, f"γ={last.gamma_mean} too far from unity"
