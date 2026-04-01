@@ -1,0 +1,20 @@
+name: Bad Workflow Major Version
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unsafe-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Third-party action pinned to major-only version (mutable)
+      # This SHOULD be blocked by the mutable-ref policy because
+      # @v2 is in the prohibited_mutable_refs list
+      - name: Third-party major version action
+        uses: example/unsafe-action@v2

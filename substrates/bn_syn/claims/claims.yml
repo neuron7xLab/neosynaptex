@@ -1,0 +1,474 @@
+version: 1
+generated_utc: 2026-01-23 00:00:00+00:00
+schema:
+  required_fields:
+  - id
+  - statement
+  - status
+  - tier
+  - normative
+  - source
+  - locator
+  - action
+  - notes
+  - bibkey
+  - spec_section
+  - implementation_paths
+  - verification_paths
+claims:
+- id: CLM-0001
+  statement: AdEx predicts 96% of spikes within ±2 ms compared to a conductance-based
+    Hodgkin–Huxley model.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Brette & Gerstner (2005) J Neurophysiol 94:3637–3642
+  locator: Abstract + results summary near p.3637 (verify exact sentence in paper
+    PDF)
+  action: KEEP
+  notes: 'Use exact phrasing: 96% within ±2 ms (not ''±2 ms always'').' 
+  bibkey: brette2005adaptive
+  spec_section: P0-1 AdEx neuron model
+  implementation_paths:
+  - src/bnsyn/neuron/adex.py
+  - src/bnsyn/sim/network.py
+  verification_paths:
+  - tests/test_adex_smoke.py
+  - tests/test_network_smoke.py
+- id: CLM-0002
+  statement: The AdEx neuron model combines leaky integrate-and-fire dynamics with an
+    exponential spike initiation term and an adaptation variable w.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Brette & Gerstner (2005) J Neurophysiol 94:3637–3642
+  locator: Model equations describing exponential term and adaptation variable w.
+  action: KEEP
+  notes: Core AdEx structure for BN-Syn neuron dynamics.
+  bibkey: brette2005adaptive
+  spec_section: P0-1 AdEx model
+  implementation_paths:
+  - src/bnsyn/neuron/adex.py
+  - src/bnsyn/sim/network.py
+  benchmark_paths:
+  - benchmarks/bench_adex.py
+  performance_metrics:
+  - adex_steps_per_sec
+  - memory_per_neuron_mb
+  verification_paths:
+  - tests/test_adex_smoke.py
+  - tests/test_network_smoke.py
+- id: CLM-0003
+  statement: NMDA Mg²⁺ block uses B(V)=1/(1+[Mg]/3.57*exp(-0.062*V)) with [Mg] in
+    mM and V in mV.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Jahr & Stevens (1990) J Neurosci 10(9):3178–3182
+  locator: Equation for Mg block coefficients (3.57 mM, -0.062 mV⁻¹), DOI:10.1523/JNEUROSCI.10-09-03178.1990
+  action: KEEP
+  notes: Ensure units are stated explicitly.
+  bibkey: jahr1990voltage
+  spec_section: P0-2 NMDA block
+  implementation_paths:
+  - src/bnsyn/synapse/conductance.py
+  benchmark_paths:
+  - benchmarks/bench_synapses.py
+  performance_metrics:
+  - synapse_update_cost_ms
+  verification_paths:
+  - tests/test_synapse_smoke.py
+- id: CLM-0004
+  statement: Three-factor learning rules update weights proportional to eligibility
+    traces and a modulatory signal.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Frémaux & Gerstner (2016) Front Neural Circuits 9:85
+  locator: Formal definition of three-factor learning rules with eligibility traces.
+  action: KEEP
+  notes: Aligns with BN-Syn three-factor plasticity implementation.
+  bibkey: fremaux2016neuromodulated
+  spec_section: P0-3 Three-factor learning
+  implementation_paths:
+  - src/bnsyn/plasticity/three_factor.py
+  benchmark_paths:
+  - benchmarks/bench_plasticity.py
+  performance_metrics:
+  - plasticity_update_cost_ms
+  verification_paths:
+  - tests/test_plasticity_smoke.py
+- id: CLM-0005
+  statement: Eligibility traces allow spike-timing-dependent plasticity to be modulated
+    by delayed reward signals.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Izhikevich (2007) Cerebral Cortex 17(10):2443–2452
+  locator: Reward-modulated STDP with eligibility trace formalism.
+  action: KEEP
+  notes: Supports neuromodulator × eligibility design.
+  bibkey: izhikevich2007solving
+  spec_section: P0-3 Neuromodulated STDP
+  implementation_paths:
+  - src/bnsyn/plasticity/three_factor.py
+  verification_paths:
+  - tests/test_plasticity_smoke.py
+- id: CLM-0006
+  statement: Neuronal avalanche sizes in cortical circuits exhibit scale-free (power-law)
+    distributions consistent with critical dynamics.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Beggs & Plenz (2003) J Neurosci 23(35):11167–11177
+  locator: Avalanche size distributions and criticality discussion.
+  action: KEEP
+  notes: Criticality motivation for σ tracking.
+  bibkey: beggs2003neuronal
+  spec_section: P0-4 Avalanche exponents
+  implementation_paths:
+  - src/bnsyn/criticality/branching.py
+  benchmark_paths:
+  - benchmarks/bench_criticality.py
+  performance_metrics:
+  - criticality_sigma_drift
+  verification_paths:
+  - tests/test_criticality_smoke.py
+- id: CLM-0007
+  statement: Branching ratio σ is defined by the ratio of activity in successive
+    time bins during avalanche propagation.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Beggs & Plenz (2003) J Neurosci 23(35):11167–11177
+  locator: Definition of branching parameter in avalanche analysis.
+  action: KEEP
+  notes: Basis for σ estimator in BN-Syn.
+  bibkey: beggs2003neuronal
+  spec_section: P0-4 Branching parameter σ
+  implementation_paths:
+  - src/bnsyn/criticality/branching.py
+  verification_paths:
+  - tests/test_criticality_smoke.py
+- id: CLM-0008
+  statement: The multistep regression (MR) estimator provides a subsampling-corrected
+    estimate of branching ratio in neural systems.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Wilting & Priesemann (2018) Nat Commun 9:2325
+  locator: MR estimator section for subsampling-corrected σ.
+  action: KEEP
+  notes: Used for offline criticality validation.
+  bibkey: wilting2018inferring
+  spec_section: P0-4 MR estimator
+  implementation_paths:
+  - src/bnsyn/criticality/analysis.py
+  verification_paths:
+  - tests/validation/test_criticality_validation.py
+- id: CLM-0009
+  statement: Clauset et al. define statistical procedures for fitting and validating
+    power-law distributions.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Clauset et al. (2009) SIAM Review 51(4):661–703
+  locator: Power-law fitting and goodness-of-fit methodology.
+  action: KEEP
+  notes: Power-law validation reference for criticality checks.
+  bibkey: clauset2009power
+  spec_section: P0-4 Power-law fitting
+  implementation_paths:
+  - src/bnsyn/criticality/analysis.py
+  verification_paths:
+  - tests/validation/test_criticality_validation.py
+- id: CLM-0010
+  statement: Synaptic tagging and capture supports consolidation of transient synaptic
+    changes into long-term modifications.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Frey & Morris (1997) Nature 385(6616):533–536
+  locator: Synaptic tagging and capture mechanism description.
+  action: KEEP
+  notes: Supports dual-weight consolidation rationale.
+  bibkey: frey1997synaptic
+  spec_section: P1-6 Synaptic tagging
+  implementation_paths:
+  - src/bnsyn/consolidation/dual_weight.py
+  verification_paths:
+  - tests/test_consolidation_smoke.py
+- id: CLM-0019
+  statement: Simulated annealing uses a temperature schedule that is gradually reduced
+    to transition from exploration toward convergence.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Kirkpatrick et al. (1983) Science 220(4598):671–680
+  locator: Temperature schedule description in simulated annealing method.
+  action: KEEP
+  notes: Supports BN-Syn temperature-gated exploration/consolidation framing.
+  bibkey: kirkpatrick1983annealing
+  spec_section: P1-5 Temperature schedule
+  implementation_paths:
+  - src/bnsyn/temperature/schedule.py
+  verification_paths:
+  - tests/test_temperature_smoke.py
+- id: CLM-0020
+  statement: Synaptic consolidation models use fast and slow weight components with
+    tagging/capture mechanisms to stabilize long-term memory traces.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Benna & Fusi (2016) Nat Neurosci 19:1697–1706
+  locator: Multiple timescale consolidation model with fast/slow components and capture.
+  action: KEEP
+  notes: Supports dual-weight consolidation dynamics and tag-based capture.
+  bibkey: benna2016synaptic
+  spec_section: P1-6 Dual-weight consolidation
+  implementation_paths:
+  - src/bnsyn/consolidation/dual_weight.py
+  verification_paths:
+  - tests/test_consolidation_smoke.py
+  - tests/validation/test_consolidation_validation.py
+- id: CLM-0021
+  statement: Energy-based neural models define a quadratic energy function that
+    penalizes large firing rates and weights.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Hopfield (1982) PNAS 79(8):2554–2558
+  locator: Energy function definition for neural network states.
+  action: KEEP
+  notes: Grounds BN-Syn energy regularization objective.
+  bibkey: hopfield1982neural
+  spec_section: P1-7 Energy regularization
+  implementation_paths:
+  - src/bnsyn/energy/regularization.py
+  verification_paths:
+  - tests/test_energy_smoke.py
+  - tests/validation/test_energy_validation.py
+- id: CLM-0022
+  statement: Explicit Euler and second-order Runge–Kutta methods are standard
+    deterministic integrators for ordinary differential equations.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Hairer, Nørsett & Wanner (1993) Solving ODEs I
+  locator: Chapter on explicit Runge–Kutta methods (Euler/RK2).
+  action: KEEP
+  notes: Validates BN-Syn numerical integration choices and dt-invariance checks.
+  bibkey: hairer1993solving
+  spec_section: P2-8 Numerical methods
+  implementation_paths:
+  - src/bnsyn/numerics/integrators.py
+  benchmark_paths:
+  - benchmarks/bench_dt_invariance.py
+  performance_metrics:
+  - dt_invariance_drift
+  verification_paths:
+  - tests/test_dt_invariance.py
+  - tests/validation/test_numerics_validation.py
+- id: CLM-0023
+  statement: Deterministic pseudorandom number generation is achieved through explicit
+    seeding of a well-defined generator.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Matsumoto & Nishimura (1998) ACM TOMACS 8(1):3–30
+  locator: Definition of a reproducible, seed-driven RNG (Mersenne Twister).
+  action: KEEP
+  notes: Supports explicit RNG injection in BN-Syn determinism protocol.
+  bibkey: matsumoto1998mersenne
+  spec_section: P2-9 Determinism protocol
+  implementation_paths:
+  - src/bnsyn/rng.py
+  - src/bnsyn/sim/network.py
+  verification_paths:
+  - tests/test_determinism.py
+  - tests/validation/test_determinism_validation.py
+- id: CLM-0024
+  statement: Least-squares regression provides a deterministic linear fit for
+    calibration of response curves.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Björck (1996) Numerical Methods for Least Squares Problems
+  locator: Linear least-squares formulation and solution methods.
+  action: KEEP
+  notes: Grounds deterministic f–I calibration utilities.
+  bibkey: bjorck1996least
+  spec_section: P2-10 Calibration utilities
+  implementation_paths:
+  - src/bnsyn/calibration/fit.py
+  verification_paths:
+  - tests/test_calibration_smoke.py
+  - tests/validation/test_calibration_validation.py
+- id: CLM-0025
+  statement: Reduced spiking neuron models support efficient small-N network
+    simulations for verification and analysis.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Izhikevich (2003) IEEE TNN 14(6):1569–1572
+  locator: Simple spiking neuron model enabling efficient network simulation.
+  action: KEEP
+  notes: Supports reference simulator expectations in BN-Syn.
+  bibkey: izhikevich2003simple
+  spec_section: P2-11 Reference network simulator
+  implementation_paths:
+  - src/bnsyn/sim/network.py
+  benchmark_paths:
+  - benchmarks/bench_adex.py
+  performance_metrics:
+  - memory_per_neuron_mb
+  verification_paths:
+  - tests/test_network_smoke.py
+  - tests/validation/test_network_validation.py
+- id: CLM-0026
+  statement: Command-line benchmark harnesses should expose deterministic metrics and
+    documented interfaces for reproducible evaluation.
+  status: PROVEN
+  tier: Tier-S
+  normative: false
+  source: Command Line Interface Guidelines (2024)
+  locator: Guidance on consistent CLI interfaces and outputs.
+  action: KEEP
+  notes: Documents CLI expectations for BN-Syn bench harness.
+  bibkey: cliguidelines2024
+  spec_section: P2-12 Bench harness contract
+  implementation_paths:
+  - src/bnsyn/cli.py
+  verification_paths:
+  - tests/test_cli_smoke.py
+  - tests/validation/test_cli_validation.py
+- id: CLM-0011
+  statement: FAIR principles define data management requirements for Findability,
+    Accessibility, Interoperability, and Reuse.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Wilkinson et al. (2016) Scientific Data 3:160018
+  locator: FAIR principles definition section.
+  action: KEEP
+  notes: Process and documentation guidance; enforceable when cited.
+  bibkey: wilkinson2016fair
+  spec_section: P2-8..12 FAIR principles
+  implementation_paths:
+  - scripts/validate_bibliography.py
+  - scripts/validate_claims.py
+  - scripts/scan_normative_tags.py
+  verification_paths:
+  - scripts/validate_bibliography.py
+  - scripts/validate_claims.py
+  - scripts/scan_normative_tags.py
+- id: CLM-0012
+  statement: The NeurIPS paper checklist provides reproducibility guidance for machine
+    learning research artifacts.
+  status: PROVEN
+  tier: Tier-S
+  normative: false
+  source: NeurIPS Paper Checklist Guidelines (2026)
+  locator: Official checklist documentation.
+  action: KEEP
+  notes: Process checklist reference.
+  bibkey: neurips2026checklist
+  spec_section: P2-8..12 Reproducibility checklist
+  implementation_paths:
+  - scripts/validate_claims.py
+  verification_paths:
+  - scripts/validate_claims.py
+- id: CLM-0013
+  statement: ACM artifact badging defines criteria for artifact evaluation and badges.
+  status: PROVEN
+  tier: Tier-S
+  normative: false
+  source: ACM Artifact Review and Badging v1.1 (2020)
+  locator: Official ACM badging policy.
+  action: KEEP
+  notes: Process compliance reference.
+  bibkey: acm2020badges
+  spec_section: P2-8..12 Artifact badges
+  implementation_paths:
+  - scripts/validate_claims.py
+  verification_paths:
+  - scripts/validate_claims.py
+- id: CLM-0014
+  statement: PyTorch determinism notes document reproducible computation practices.
+  status: PROVEN
+  tier: Tier-S
+  normative: false
+  source: PyTorch Notes on Randomness and Determinism (2026)
+  locator: Official documentation.
+  action: KEEP
+  notes: Process guidance for determinism.
+  bibkey: pytorch2026randomness
+  spec_section: P2-8..12 Determinism docs
+  implementation_paths:
+  - scripts/validate_claims.py
+  verification_paths:
+  - scripts/validate_claims.py
+- id: CLM-0015
+  statement: Reciprocal altruism can be favored by natural selection when interactions
+    are repeated and contingent on observed outcomes.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Trivers (1971) The Quarterly Review of Biology 46(1):35–57
+  locator: DOI:10.1086/406755
+  action: KEEP
+  notes: Use as biological foundation for result-based reciprocity gating.
+  bibkey: trivers1971reciprocal
+  spec_section: GOV-1 Result-based reciprocity (foundation)
+  implementation_paths:
+  - src/bnsyn/vcg.py
+  verification_paths:
+  - tests/test_vcg_smoke.py
+- id: CLM-0016
+  statement: In iterated dilemmas, contingent reciprocity strategies (e.g., tit-for-tat)
+    can stabilize cooperation under suitable conditions.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Axelrod & Hamilton (1981) Science 211(4489):1390–1396
+  locator: DOI:10.1126/science.7466396
+  action: KEEP
+  notes: Use as algorithmic justification for symmetric response to prior outcomes.
+  bibkey: axelrod1981cooperation
+  spec_section: GOV-1 Symmetric reciprocity (tit-for-tat)
+  implementation_paths:
+  - src/bnsyn/vcg.py
+  verification_paths:
+  - tests/test_vcg_smoke.py
+- id: CLM-0017
+  statement: Indirect reciprocity based on reputation (image scoring) can promote
+    cooperation without repeated pairwise encounters.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Nowak & Sigmund (1998) Nature 393(6685):573–577
+  locator: DOI:10.1038/31225
+  action: KEEP
+  notes: Use for group-level 'social verification' via public outcome signals.
+  bibkey: nowak1998imagescoring
+  spec_section: GOV-1 Reputation / indirect reciprocity
+  implementation_paths:
+  - src/bnsyn/vcg.py
+  verification_paths:
+  - tests/test_vcg_smoke.py
+- id: CLM-0018
+  statement: Costly sanctioning (altruistic punishment) can sustain cooperation in
+    human groups and suppress free-riding.
+  status: PROVEN
+  tier: Tier-A
+  normative: true
+  source: Fehr & Gächter (2002) Nature 415(6868):137–140
+  locator: DOI:10.1038/415137a
+  action: KEEP
+  notes: Use to justify resource withdrawal / sanction analogs as cooperation stabilizers.
+  bibkey: fehr2002punishment
+  spec_section: GOV-1 Costly sanctioning / defector suppression
+  implementation_paths:
+  - src/bnsyn/vcg.py
+  verification_paths:
+  - tests/test_vcg_smoke.py

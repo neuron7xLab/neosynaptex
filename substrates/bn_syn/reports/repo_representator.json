@@ -1,0 +1,82 @@
+{
+  "repo_path": "/workspace/bnsyn-phase-controlled-emergent-dynamics",
+  "summary": {
+    "project": "BN-Syn Thermostated Bio-AI System",
+    "primary_language": "Python",
+    "top_level_key_dirs": [
+      "src",
+      "tests",
+      "docs",
+      "scripts",
+      ".github/workflows",
+      "quality",
+      "proof_bundle",
+      "reports"
+    ]
+  },
+  "manifests": {
+    "python": [
+      "pyproject.toml",
+      "requirements-lock.txt"
+    ],
+    "docker": [
+      "Dockerfile",
+      "docker-compose.yml"
+    ],
+    "ci_workflows": [
+      ".github/workflows/_reusable_benchmarks.yml",
+      ".github/workflows/_reusable_chaos_tests.yml",
+      ".github/workflows/_reusable_formal_science.yml",
+      ".github/workflows/_reusable_gate_profile.yml",
+      ".github/workflows/_reusable_property_tests.yml",
+      ".github/workflows/_reusable_pytest.yml",
+      ".github/workflows/_reusable_quality.yml",
+      ".github/workflows/_reusable_ssot.yml",
+      ".github/workflows/_reusable_validation_tests.yml",
+      ".github/workflows/benchmarks.yml",
+      ".github/workflows/ci-benchmarks-elite.yml",
+      ".github/workflows/ci-benchmarks.yml",
+      ".github/workflows/ci-pr-atomic.yml",
+      ".github/workflows/ci-pr.yml",
+      ".github/workflows/ci-smoke.yml",
+      ".github/workflows/ci-validation.yml",
+      ".github/workflows/codecov-health.yml",
+      ".github/workflows/codeql.yml",
+      ".github/workflows/dependency-review.yml",
+      ".github/workflows/dependency-watch.yml",
+      ".github/workflows/docs.yml",
+      ".github/workflows/formal-coq.yml",
+      ".github/workflows/formal-tla.yml",
+      ".github/workflows/math-quality-gate.yml",
+      ".github/workflows/physics-equivalence.yml",
+      ".github/workflows/quality-mutation.yml",
+      ".github/workflows/release-pipeline.yml",
+      ".github/workflows/science.yml",
+      ".github/workflows/workflow-integrity.yml"
+    ]
+  },
+  "entrypoints": {
+    "cli_script": "bnsyn = bnsyn.cli:main",
+    "canonical_commands": {
+      "install": "python -m pip install -e \".[dev]\"",
+      "primary_cli": "python -m bnsyn.cli --help",
+      "primary_run": "bnsyn sleep-stack --seed 123 --steps-wake 800 --steps-sleep 600 --out results/demo1",
+      "tests": "python -m pytest -m \"not validation\" -q",
+      "lint": "ruff check . && pylint src/bnsyn",
+      "typecheck": "mypy src --strict --config-file pyproject.toml",
+      "build": "python -m build"
+    },
+    "sources": [
+      "AGENTS.md",
+      "README.md",
+      "docs/usage_workflows.md",
+      ".github/workflows/ci-pr-atomic.yml",
+      "Makefile"
+    ]
+  },
+  "lockfile_and_pinning": {
+    "lockfile_present": true,
+    "dependencies_pinned_in_pyproject": true,
+    "build_tool_in_dev_extras": false
+  }
+}

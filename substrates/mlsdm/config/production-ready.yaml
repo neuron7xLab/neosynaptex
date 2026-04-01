@@ -1,0 +1,188 @@
+# ====================================================
+# Production-Ready Configuration for MLSDM
+# ====================================================
+# This configuration template includes all settings for
+# production deployment with proper defaults and documentation.
+#
+# Usage:
+#   1. Copy this file to your deployment location
+#   2. Update values as needed for your environment
+#   3. Set CONFIG_PATH environment variable to point to this file
+#   4. Override specific values via environment variables (MLSDM_*)
+#
+# Environment Variable Overrides:
+#   MLSDM_DIMENSION=768
+#   MLSDM_CAPACITY=50000
+#   MLSDM_MORAL_FILTER__INITIAL_THRESHOLD=0.60
+#
+# ====================================================
+
+# Core Configuration
+# ====================================================
+dimension: 384              # Vector dimension (384, 768, 1024, etc.)
+capacity: 20000            # Maximum memory capacity (hard limit)
+
+# Cognitive Rhythm Configuration
+# ====================================================
+# Controls wake/sleep cycles for memory consolidation
+cognitive_rhythm:
+  wake_duration: 8         # Wake phase duration (processing events)
+  sleep_duration: 3        # Sleep phase duration (consolidation)
+  enable_consolidation: true  # Enable memory consolidation during sleep
+
+# Moral Filter Configuration
+# ====================================================
+# Adaptive moral homeostasis without RLHF
+moral_filter:
+  initial_threshold: 0.50  # Starting moral threshold (0.0-1.0)
+  min_threshold: 0.30      # Minimum threshold (prevents over-permissiveness)
+  max_threshold: 0.90      # Maximum threshold (prevents over-restriction)
+  ema_alpha: 0.10         # Exponential moving average smoothing factor
+  adaptation_rate: 0.05    # Threshold adaptation speed
+
+# Multi-Level Synaptic Memory Configuration
+# ====================================================
+# Three-level memory with different decay rates
+memory:
+  level1:
+    decay_lambda: 0.990    # L1 decay factor (short-term, fast decay)
+  level2:
+    decay_lambda: 0.995    # L2 decay factor (medium-term)
+  level3:
+    decay_lambda: 0.999    # L3 decay factor (long-term, slow decay)
+
+# QILM v2 Configuration
+# ====================================================
+# Quantum-inspired latent memory with phase entanglement
+qilm:
+  phase_tolerance: 0.1     # Phase matching tolerance for retrieval
+  enable_corruption_detection: true  # Detect and recover from corruption
+  checksum_validation: true  # Validate memory integrity
+
+# Security Configuration
+# ====================================================
+security:
+  # Rate Limiting
+  rate_limiting:
+    enabled: true          # Enable rate limiting
+    requests_per_second: 5.0  # Max requests per second per client
+    burst_capacity: 10     # Burst capacity (token bucket)
+    cleanup_interval: 300  # Client cleanup interval (seconds)
+
+  # Authentication (if needed)
+  auth:
+    enabled: false         # Enable API key authentication
+    # api_key: "set-via-API_KEY-env-var"  # Never hardcode in config
+
+  # Input Validation
+  validation:
+    max_vector_size: 100000  # Maximum vector elements
+    max_moral_value: 1.0     # Maximum moral value
+    min_moral_value: 0.0     # Minimum moral value
+    allow_nan: false         # Reject NaN values
+    allow_inf: false         # Reject Inf values
+
+# Observability Configuration
+# ====================================================
+observability:
+  # Logging
+  logging:
+    level: "INFO"          # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    format: "json"         # json or text
+    structured: true       # Enable structured logging
+    include_request_id: true  # Include request IDs in logs
+
+  # Metrics
+  metrics:
+    enabled: true          # Enable Prometheus metrics
+    port: 9090            # Metrics endpoint port (if separate)
+    include_histograms: true  # Include latency histograms
+    include_counters: true    # Include event counters
+
+  # Tracing (if using distributed tracing)
+  tracing:
+    enabled: false         # Enable distributed tracing
+    # provider: "jaeger"   # jaeger, zipkin, etc.
+    # endpoint: "http://jaeger:14268/api/traces"
+
+# Performance Configuration
+# ====================================================
+performance:
+  # Concurrency
+  max_workers: 4           # Max concurrent workers (if applicable)
+  worker_timeout: 30       # Worker timeout (seconds)
+
+  # Caching (if implemented)
+  cache:
+    enabled: false         # Enable response caching
+    ttl: 300              # Cache TTL (seconds)
+    max_size: 1000        # Maximum cache entries
+
+  # Connection Pooling (if using external services)
+  connection_pool:
+    max_connections: 100   # Maximum connections
+    min_connections: 10    # Minimum connections
+    connection_timeout: 5  # Connection timeout (seconds)
+
+# Resource Limits
+# ====================================================
+resources:
+  # Memory Limits
+  max_memory_mb: 2048      # Maximum memory usage (MB)
+  memory_warning_threshold: 0.85  # Warn at 85% usage
+
+  # CPU Limits
+  cpu_limit_percent: 80    # Target CPU usage limit
+
+  # Graceful Shutdown
+  shutdown_timeout: 30     # Graceful shutdown timeout (seconds)
+  drain_period: 5          # Period to drain requests (seconds)
+
+# Feature Flags
+# ====================================================
+features:
+  enable_sleep_consolidation: true  # Memory consolidation
+  enable_phase_retrieval: true      # Phase-based retrieval
+  enable_corruption_recovery: true  # Auto-recovery from corruption
+  enable_metrics_export: true       # Export metrics
+  enable_health_checks: true        # Health/readiness probes
+  enable_graceful_shutdown: true    # Graceful shutdown
+
+# Environment-Specific Overrides
+# ====================================================
+# Development settings (override via MLSDM_ENV=development)
+development:
+  logging:
+    level: "DEBUG"
+  security:
+    rate_limiting:
+      enabled: false       # Disable rate limiting in dev
+  observability:
+    metrics:
+      enabled: true
+
+# Production settings (override via MLSDM_ENV=production)
+production:
+  logging:
+    level: "INFO"
+  security:
+    rate_limiting:
+      enabled: true
+    auth:
+      enabled: true
+  observability:
+    metrics:
+      enabled: true
+    tracing:
+      enabled: true
+
+# Staging settings (override via MLSDM_ENV=staging)
+staging:
+  logging:
+    level: "INFO"
+  security:
+    rate_limiting:
+      enabled: true
+  observability:
+    metrics:
+      enabled: true

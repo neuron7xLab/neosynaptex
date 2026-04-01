@@ -1,0 +1,54 @@
+{
+  "wild_type": {
+    "phenotype": "wild_type",
+    "gamma_b0": -0.2427,
+    "r_squared": 0.489616,
+    "ci95_lo": -0.2779,
+    "ci95_hi": -0.2097,
+    "p_value": 0.001,
+    "n_scale_points": 139,
+    "valid": true,
+    "is_organized": false,
+    "abs_gamma": 0.2427,
+    "label_real": true,
+    "notes": [
+      "# Series: 23 frames x 8 scales = 139 points"
+    ]
+  },
+  "random_control": {
+    "phenotype": "random_control",
+    "gamma_b0": -0.1245,
+    "r_squared": 0.112488,
+    "ci95_lo": -0.396,
+    "ci95_hi": -0.2279,
+    "p_value": 0.001,
+    "n_scale_points": 184,
+    "valid": false,
+    "is_organized": false,
+    "abs_gamma": 0.1245,
+    "label_real": true,
+    "notes": [
+      "# Series: 23 frames x 8 scales = 184 points"
+    ]
+  },
+  "mutant": {
+    "phenotype": "mutant",
+    "gamma_b0": -0.2123,
+    "r_squared": 0.524958,
+    "ci95_lo": -0.2516,
+    "ci95_hi": -0.2001,
+    "p_value": 0.001,
+    "n_scale_points": 304,
+    "valid": true,
+    "is_organized": false,
+    "abs_gamma": 0.2123,
+    "label_real": true,
+    "notes": [
+      "# Series: 38 frames x 8 scales = 304 points"
+    ]
+  },
+  "separation_ratio": 1.9493975903614458,
+  "verdict": "INCONCLUSIVE",
+  "label_real": true,
+  "timestamp": "2026-03-29T00:33:07.094205+00:00"
+}

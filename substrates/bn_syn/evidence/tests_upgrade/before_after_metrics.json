@@ -1,0 +1,17 @@
+{
+  "mutation_pipeline": {
+    "status": "blocked",
+    "reason": "mutmut binary not installed in execution environment"
+  },
+  "determinism_triple_run": {
+    "script": "python -m scripts.generate_tests_inventory",
+    "runs": 3,
+    "stable_hash": "7338d0bc3990680e400d595d0daa08fd03b951e443e131894509df84b4812cb2"
+  },
+  "entropy_gate_diff": {
+    "changed_metrics": 0
+  },
+  "pytest": {
+    "full_suite": "pass"
+  }
+}

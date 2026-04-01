@@ -1,0 +1,25 @@
+{
+  "priority_order": [
+    {
+      "risk": "runtime_critical",
+      "items": [
+        "PH-0001"
+      ]
+    },
+    {
+      "risk": "library_core",
+      "items": []
+    },
+    {
+      "risk": "tests",
+      "items": [
+        "PH-0002",
+        "PH-0003"
+      ]
+    },
+    {
+      "risk": "docs",
+      "items": []
+    }
+  ]
+}

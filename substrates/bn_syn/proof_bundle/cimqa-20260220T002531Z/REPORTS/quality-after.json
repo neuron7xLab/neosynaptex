@@ -1,0 +1,22 @@
+{
+  "command_list": [
+    "python -m ruff check . --output-format json",
+    "python -m pylint src/bnsyn",
+    "python -m pytest -m not (validation or property) -q",
+    "python -m mypy src --strict --config-file pyproject.toml",
+    "python -m build",
+    "python -m bandit -q -r src -f json"
+  ],
+  "report_paths": [
+    "REPORTS/quality/docs.json",
+    "REPORTS/quality/lint.json",
+    "REPORTS/quality/maintainability.json",
+    "REPORTS/quality/perf.json",
+    "REPORTS/quality/security.json",
+    "REPORTS/quality/tests.json",
+    "REPORTS/checks.json"
+  ],
+  "tool_versions": {
+    "python": "Python 3.12.12"
+  }
+}

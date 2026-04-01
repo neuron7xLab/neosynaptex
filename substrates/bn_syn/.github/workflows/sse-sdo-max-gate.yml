@@ -1,0 +1,44 @@
+name: sse-sdo-max-gate
+
+on:
+  schedule:
+    - cron: '0 3 * * 5'  # Weekly -- Friday 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sse_sdo_max_gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-lock.txt
+      - name: Run SSE-SDO-MAX gate runner
+        run: |
+          python scripts/sse_gate_runner.py
+          python scripts/sse_proof_index.py
+      - name: Upload SSE-SDO artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sse-sdo-artifacts
+          path: artifacts/sse_sdo/**
+      - name: Enforce PASS verdict
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          quality = json.loads(Path('artifacts/sse_sdo/07_quality/quality.json').read_text(encoding='utf-8'))
+          if quality['verdict'] != 'PASS' or quality['contradictions'] != 0:
+              raise SystemExit(1)
+          PY

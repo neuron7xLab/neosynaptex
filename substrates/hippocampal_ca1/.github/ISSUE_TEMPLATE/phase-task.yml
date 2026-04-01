@@ -1,0 +1,79 @@
+name: 🎯 Phase Task
+description: Task from v3.0 Evolution Plan
+title: "[PHASE-X.Y] "
+labels: ["roadmap", "evolution-plan"]
+body:
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      description: Which phase is this task from?
+      options:
+        - "Phase 0: Foundation Audit"
+        - "Phase 1: Atomic Primitives"
+        - "Phase 2: Fractal Regions"
+        - "Phase 3: AI Memory Engine"
+        - "Phase 4: Performance & Scale"
+        - "Phase 5: Biological Fidelity"
+        - "Phase 6: Framework Layer"
+        - "Phase 7: Quality & Release"
+        - "Phase 8: Community & Impact"
+    validations:
+      required: true
+
+  - type: input
+    id: section
+    attributes:
+      label: Section
+      description: "Section number (e.g., 1.2, 3.5)"
+      placeholder: "X.Y"
+    validations:
+      required: true
+
+  - type: input
+    id: agent
+    attributes:
+      label: Agent Role
+      description: "Who handles this (e.g., Code Auditor, Memory Engineer)"
+      placeholder: "Agent Name"
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      description: "Checkboxes of specific tasks"
+      placeholder: |
+        - [ ] Task 1
+        - [ ] Task 2
+        - [ ] Task 3
+    validations:
+      required: true
+
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Deliverables
+      description: "Expected outputs"
+      placeholder: |
+        - [ ] Deliverable 1
+        - [ ] Deliverable 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: exit_criteria
+    attributes:
+      label: Exit Criteria
+      description: "How do we know this is complete?"
+      placeholder: "What must be true for this section to be marked complete?"
+    validations:
+      required: true
+
+  - type: input
+    id: plan_link
+    attributes:
+      label: Evolution Plan Link
+      description: "Direct link to section in docs/EVOLUTION_PLAN.md"
+      placeholder: "https://github.com/neuron7xLab/Hippocampal-CA1-LAM/blob/main/docs/EVOLUTION_PLAN.md#..."

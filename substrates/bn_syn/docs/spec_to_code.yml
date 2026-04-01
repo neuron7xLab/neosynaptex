@@ -1,0 +1,118 @@
+P0-1:
+  spec_section: "P0-1"
+  implementation_paths:
+    - src/bnsyn/neuron/adex.py
+    - src/bnsyn/sim/network.py
+  test_paths:
+    - tests/test_adex_smoke.py
+    - tests/validation/test_adex_validation.py
+  claim_ids:
+    - CLM-0001
+    - CLM-0002
+P0-2:
+  spec_section: "P0-2"
+  implementation_paths:
+    - src/bnsyn/synapse/conductance.py
+    - src/bnsyn/sim/network.py
+  test_paths:
+    - tests/test_synapse_smoke.py
+    - tests/validation/test_synapse_validation.py
+  claim_ids:
+    - CLM-0003
+P0-3:
+  spec_section: "P0-3"
+  implementation_paths:
+    - src/bnsyn/plasticity/three_factor.py
+  test_paths:
+    - tests/test_plasticity_smoke.py
+    - tests/validation/test_plasticity_validation.py
+  claim_ids:
+    - CLM-0004
+    - CLM-0005
+P0-4:
+  spec_section: "P0-4"
+  implementation_paths:
+    - src/bnsyn/criticality/branching.py
+    - src/bnsyn/criticality/analysis.py
+  test_paths:
+    - tests/test_criticality_smoke.py
+    - tests/validation/test_criticality_validation.py
+  claim_ids:
+    - CLM-0006
+    - CLM-0007
+    - CLM-0008
+    - CLM-0009
+P1-5:
+  spec_section: "P1-5"
+  implementation_paths:
+    - src/bnsyn/temperature/schedule.py
+  test_paths:
+    - tests/test_temperature_smoke.py
+    - tests/validation/test_temperature_validation.py
+  claim_ids:
+    - CLM-0019
+P1-6:
+  spec_section: "P1-6"
+  implementation_paths:
+    - src/bnsyn/consolidation/dual_weight.py
+  test_paths:
+    - tests/test_consolidation_smoke.py
+    - tests/validation/test_consolidation_validation.py
+  claim_ids:
+    - CLM-0010
+    - CLM-0020
+P1-7:
+  spec_section: "P1-7"
+  implementation_paths:
+    - src/bnsyn/energy/regularization.py
+  test_paths:
+    - tests/test_energy_smoke.py
+    - tests/validation/test_energy_validation.py
+  claim_ids:
+    - CLM-0021
+P2-8:
+  spec_section: "P2-8"
+  implementation_paths:
+    - src/bnsyn/numerics/integrators.py
+  test_paths:
+    - tests/test_dt_invariance.py
+    - tests/validation/test_numerics_validation.py
+  claim_ids:
+    - CLM-0022
+P2-9:
+  spec_section: "P2-9"
+  implementation_paths:
+    - src/bnsyn/rng.py
+    - src/bnsyn/sim/network.py
+  test_paths:
+    - tests/test_determinism.py
+    - tests/validation/test_determinism_validation.py
+  claim_ids:
+    - CLM-0023
+P2-10:
+  spec_section: "P2-10"
+  implementation_paths:
+    - src/bnsyn/calibration/fit.py
+  test_paths:
+    - tests/test_calibration_smoke.py
+    - tests/validation/test_calibration_validation.py
+  claim_ids:
+    - CLM-0024
+P2-11:
+  spec_section: "P2-11"
+  implementation_paths:
+    - src/bnsyn/sim/network.py
+  test_paths:
+    - tests/test_network_smoke.py
+    - tests/validation/test_network_validation.py
+  claim_ids:
+    - CLM-0025
+P2-12:
+  spec_section: "P2-12"
+  implementation_paths:
+    - src/bnsyn/cli.py
+  test_paths:
+    - tests/test_cli_smoke.py
+    - tests/validation/test_cli_validation.py
+  claim_ids:
+    - CLM-0026

@@ -1,0 +1,38 @@
+protocol:
+  version: "2026.02.99"
+  mode: "strict"
+  maturity:
+    slsa_level: 1
+    ossf_scorecard_min: 7
+  stacks:
+    - name: "python"
+      roots: ["./"]
+  monorepo:
+    kind: "none"
+    affected: false
+  services:
+    enabled: false
+    roots: []
+  gates:
+    soft_launch_allow: ["lint", "typecheck"]
+  external_services:
+    codecov: true
+    sonarcloud: false
+    snyk: false
+  humans:
+    security_paths:
+      - ".github/CODEOWNERS"
+      - "SECURITY.md"
+      - ".github/dependabot.yml"
+      - ".github/workflows/**"
+      - ".github/actions/**"
+      - ".repo-governor/**"
+    required_label: "needs-human-review"
+  flake_quarantine:
+    window_days: 30
+    fail_rate_threshold: 0.05
+  ai_assist:
+    enabled: false
+    generate_unit_tests: false
+    autofix_lint: false
+    generate_docs: false

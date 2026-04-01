@@ -1,0 +1,94 @@
+name: Trusted PR Auto-Approval
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  actions: write
+  pull-requests: write
+
+jobs:
+  approve-trusted:
+    name: Approve trusted fork workflows
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+    steps:
+      - name: Approve workflow runs for trusted PRs
+        uses: actions/github-script@v8
+        env:
+          TRUSTED_ACTORS: ${{ vars.TRUSTED_PR_ACTORS }}
+        with:
+          script: |
+            const trustedAssociations = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+            const trustedActors = (process.env.TRUSTED_ACTORS || '')
+              .split(',')
+              .map((actor) => actor.trim())
+              .filter(Boolean);
+
+            const pr = context.payload.pull_request;
+            const actor = pr.user.login;
+            const association = pr.author_association;
+            const isTrustedAssociation = trustedAssociations.includes(association);
+            const isTrustedActor = trustedActors.includes(actor);
+
+            if (!isTrustedAssociation && !isTrustedActor) {
+              core.info(
+                `Skipping auto-approval for untrusted actor ${actor} (${association}).`
+              );
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const headSha = pr.head.sha;
+
+            const runsResponse = await github.request(
+              'GET /repos/{owner}/{repo}/actions/runs',
+              {
+                owner,
+                repo,
+                event: 'pull_request',
+                head_sha: headSha,
+                per_page: 100,
+              }
+            );
+
+            const runs = runsResponse.data.workflow_runs || [];
+            const pending = runs.filter(
+              (run) =>
+                run.status === 'action_required' ||
+                run.conclusion === 'action_required'
+            );
+
+            if (pending.length === 0) {
+              core.info('No action_required workflow runs found.');
+              return;
+            }
+
+            for (const run of pending) {
+              core.info(`Approving workflow run ${run.id} (${run.name}).`);
+              await github.request(
+                'POST /repos/{owner}/{repo}/actions/runs/{run_id}/approve',
+                {
+                  owner,
+                  repo,
+                  run_id: run.id,
+                }
+              );
+
+              if (run.conclusion === 'action_required') {
+                core.info(`Re-running workflow run ${run.id}.`);
+                await github.request(
+                  'POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun',
+                  {
+                    owner,
+                    repo,
+                    run_id: run.id,
+                  }
+                );
+              }
+            }
+
+            core.info(`Approved ${pending.length} workflow run(s).`);

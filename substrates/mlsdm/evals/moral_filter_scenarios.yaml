@@ -1,0 +1,405 @@
+# Moral Filter Evaluation Scenarios
+# =================================
+# Tests for MoralFilterV2 adaptive threshold behavior, boundary conditions,
+# and invariant properties as specified in MORAL_FILTER_SPEC.md.
+#
+# Each scenario has:
+#   - id: Unique identifier
+#   - description: Human-readable description
+#   - input: Parameters for the test
+#   - expected: Properties that must hold
+#
+# Scenario types:
+#   - threshold_bounds: Test that threshold stays within [MIN, MAX]
+#   - evaluation_behavior: Test accept/reject decisions
+#   - adaptation_behavior: Test threshold adaptation logic
+#   - drift_resistance: Test stability under adversarial inputs
+#   - edge_cases: Test boundary conditions
+
+---
+# =========================================================================
+# THRESHOLD BOUNDS SCENARIOS (INV-MF-1)
+# Verify: ∀t: MIN_THRESHOLD ≤ threshold(t) ≤ MAX_THRESHOLD
+# =========================================================================
+
+- id: "TH_BOUNDS_001"
+  description: "Initial threshold should be within valid range"
+  input:
+    initial_threshold: null  # Default (0.50)
+    moral_values: []
+  expected:
+    properties:
+      - "threshold >= 0.30"
+      - "threshold <= 0.90"
+    labels:
+      test_type: "threshold_bounds"
+
+- id: "TH_BOUNDS_002"
+  description: "Threshold remains bounded after sustained accepts (upward drift attempt)"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95]
+    iterations: 100
+  expected:
+    properties:
+      - "threshold <= 0.90"
+      - "threshold >= 0.30"
+    labels:
+      test_type: "threshold_bounds"
+      drift_direction: "up"
+
+- id: "TH_BOUNDS_003"
+  description: "Threshold remains bounded after sustained rejects (downward drift attempt)"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    iterations: 100
+  expected:
+    properties:
+      - "threshold >= 0.30"
+      - "threshold <= 0.90"
+    labels:
+      test_type: "threshold_bounds"
+      drift_direction: "down"
+
+- id: "TH_BOUNDS_004"
+  description: "Initial threshold is clamped if given out-of-range value (too low)"
+  input:
+    initial_threshold: 0.10
+    moral_values: []
+  expected:
+    properties:
+      - "threshold >= 0.30"
+    labels:
+      test_type: "threshold_bounds"
+      clamp_direction: "up"
+
+- id: "TH_BOUNDS_005"
+  description: "Initial threshold is clamped if given out-of-range value (too high)"
+  input:
+    initial_threshold: 0.99
+    moral_values: []
+  expected:
+    properties:
+      - "threshold <= 0.90"
+    labels:
+      test_type: "threshold_bounds"
+      clamp_direction: "down"
+
+# =========================================================================
+# EVALUATION BEHAVIOR SCENARIOS
+# Verify correct accept/reject decisions based on moral values
+# =========================================================================
+
+- id: "EVAL_001"
+  description: "High moral value (>= MAX_THRESHOLD) should always be accepted"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.95]
+  expected:
+    properties:
+      - "last_decision == true"
+    labels:
+      test_type: "evaluation_behavior"
+      category: "always_accept"
+
+- id: "EVAL_002"
+  description: "Low moral value (< MIN_THRESHOLD) should always be rejected"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.25]
+  expected:
+    properties:
+      - "last_decision == false"
+    labels:
+      test_type: "evaluation_behavior"
+      category: "always_reject"
+
+- id: "EVAL_003"
+  description: "Moral value just below MIN_THRESHOLD (0.30) should be rejected"
+  input:
+    initial_threshold: 0.50
+    # 0.29 is below MIN_THRESHOLD=0.30 as per MORAL_FILTER_SPEC.md
+    moral_values: [0.29]
+  expected:
+    properties:
+      - "last_decision == false"
+    labels:
+      test_type: "evaluation_behavior"
+      category: "boundary_reject"
+
+- id: "EVAL_004"
+  description: "Moral value at exactly MAX_THRESHOLD boundary should be accepted"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.90]  # Exactly MAX_THRESHOLD
+  expected:
+    properties:
+      - "last_decision == true"
+    labels:
+      test_type: "evaluation_behavior"
+      category: "boundary_accept"
+
+- id: "EVAL_005"
+  description: "Value above threshold but below MAX should be accepted"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.60]
+  expected:
+    properties:
+      - "last_decision == true"
+    labels:
+      test_type: "evaluation_behavior"
+      category: "above_threshold"
+
+- id: "EVAL_006"
+  description: "Value below threshold but above MIN should be rejected"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.40]
+  expected:
+    properties:
+      - "last_decision == false"
+    labels:
+      test_type: "evaluation_behavior"
+      category: "below_threshold"
+
+# =========================================================================
+# ADAPTATION BEHAVIOR SCENARIOS (INV-MF-2)
+# Verify: ∀t: |threshold(t+1) - threshold(t)| ≤ 0.05
+# =========================================================================
+
+- id: "ADAPT_001"
+  description: "Single adaptation step should change threshold by at most 0.05 (with tolerance for floating point)"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.95]  # This will accept and adapt
+  expected:
+    properties:
+      - "delta_threshold <= 0.0501"  # Tolerance for floating point
+    labels:
+      test_type: "adaptation_behavior"
+      category: "single_step"
+
+- id: "ADAPT_002"
+  description: "Threshold should increase after sustained high-value accepts"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95]
+  expected:
+    properties:
+      - "threshold > initial_threshold"
+    labels:
+      test_type: "adaptation_behavior"
+      category: "upward_adaptation"
+
+- id: "ADAPT_003"
+  description: "Threshold should decrease after sustained low-value rejects"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10]
+  expected:
+    properties:
+      - "threshold < initial_threshold"
+    labels:
+      test_type: "adaptation_behavior"
+      category: "downward_adaptation"
+
+- id: "ADAPT_004"
+  description: "Balanced accept/reject sequence limits drift magnitude"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.95, 0.25, 0.95, 0.25, 0.95, 0.25, 0.95, 0.25]  # Alternating accept/reject
+  expected:
+    properties:
+      - "abs(threshold - initial_threshold) < 0.15"  # Limited drift from balanced inputs
+    labels:
+      test_type: "adaptation_behavior"
+      category: "balanced_inputs"
+
+# =========================================================================
+# DRIFT RESISTANCE SCENARIOS
+# Verify stability under adversarial or biased inputs
+# =========================================================================
+
+- id: "DRIFT_001"
+  description: "Threshold remains bounded after 1000 all-accept inputs"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.95]
+    iterations: 1000
+  expected:
+    properties:
+      - "threshold <= 0.90"
+      - "threshold >= 0.30"
+    labels:
+      test_type: "drift_resistance"
+      attack_type: "saturation_accept"
+
+- id: "DRIFT_002"
+  description: "Threshold remains bounded after 1000 all-reject inputs"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.05]
+    iterations: 1000
+  expected:
+    properties:
+      - "threshold >= 0.30"
+      - "threshold <= 0.90"
+    labels:
+      test_type: "drift_resistance"
+      attack_type: "saturation_reject"
+
+- id: "DRIFT_003"
+  description: "Alternating inputs should not cause unbounded drift"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.95, 0.05]  # Alternating accept/reject
+    iterations: 500
+  expected:
+    properties:
+      - "threshold >= 0.30"
+      - "threshold <= 0.90"
+      - "abs(threshold - initial_threshold) < 0.2"  # Limited drift
+    labels:
+      test_type: "drift_resistance"
+      attack_type: "oscillation"
+
+- id: "DRIFT_004"
+  description: "Random inputs within valid range maintain bounded threshold"
+  input:
+    initial_threshold: 0.50
+    moral_values: "random_uniform_0_1"  # Special marker for random generation
+    iterations: 1000
+  expected:
+    properties:
+      - "threshold >= 0.30"
+      - "threshold <= 0.90"
+    labels:
+      test_type: "drift_resistance"
+      attack_type: "random_noise"
+
+# =========================================================================
+# EDGE CASE SCENARIOS
+# Verify correct handling of boundary and unusual inputs
+# =========================================================================
+
+- id: "EDGE_001"
+  description: "Exact 0.0 moral value should be rejected"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.0]
+  expected:
+    properties:
+      - "last_decision == false"
+    labels:
+      test_type: "edge_case"
+      category: "minimum_value"
+
+- id: "EDGE_002"
+  description: "Exact 1.0 moral value should be accepted"
+  input:
+    initial_threshold: 0.50
+    moral_values: [1.0]
+  expected:
+    properties:
+      - "last_decision == true"
+    labels:
+      test_type: "edge_case"
+      category: "maximum_value"
+
+- id: "EDGE_003"
+  description: "Value exactly at current threshold should be accepted"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.50]
+  expected:
+    properties:
+      - "last_decision == true"
+    labels:
+      test_type: "edge_case"
+      category: "threshold_boundary"
+
+- id: "EDGE_004"
+  description: "Value just below current threshold should be rejected"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.499]
+  expected:
+    properties:
+      - "last_decision == false"
+    labels:
+      test_type: "edge_case"
+      category: "just_below_threshold"
+
+- id: "EDGE_005"
+  description: "Empty moral values sequence should leave state unchanged"
+  input:
+    initial_threshold: 0.50
+    moral_values: []
+  expected:
+    properties:
+      - "threshold == initial_threshold"
+      - "ema == 0.5"  # Initial EMA
+    labels:
+      test_type: "edge_case"
+      category: "empty_sequence"
+
+# =========================================================================
+# EMA STABILITY SCENARIOS (INV-MF-3)
+# Verify: ∀t: 0.0 ≤ ema_accept_rate(t) ≤ 1.0
+# =========================================================================
+
+- id: "EMA_001"
+  description: "EMA stays in [0, 1] range after all accepts"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.95]
+    iterations: 100
+  expected:
+    properties:
+      - "ema >= 0.0"
+      - "ema <= 1.0"
+    labels:
+      test_type: "ema_stability"
+      pattern: "all_accepts"
+
+- id: "EMA_002"
+  description: "EMA stays in [0, 1] range after all rejects"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.05]
+    iterations: 100
+  expected:
+    properties:
+      - "ema >= 0.0"
+      - "ema <= 1.0"
+    labels:
+      test_type: "ema_stability"
+      pattern: "all_rejects"
+
+- id: "EMA_003"
+  description: "EMA converges toward 1.0 under sustained accepts"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.95]
+    iterations: 100
+  expected:
+    properties:
+      - "ema > 0.9"
+    labels:
+      test_type: "ema_stability"
+      pattern: "convergence_high"
+
+- id: "EMA_004"
+  description: "EMA converges toward 0.0 under sustained rejects"
+  input:
+    initial_threshold: 0.50
+    moral_values: [0.05]
+    iterations: 100
+  expected:
+    properties:
+      - "ema < 0.1"
+    labels:
+      test_type: "ema_stability"
+      pattern: "convergence_low"

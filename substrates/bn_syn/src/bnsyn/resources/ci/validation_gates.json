@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.4.0",
+  "registry": [
+    {
+      "id": "G1_active_spiking",
+      "description": "Canonical proof path reports non-zero spike events.",
+      "status": "wired",
+      "threshold": {
+        "metric": "spike_events",
+        "op": ">",
+        "value": 0
+      },
+      "evidence": {
+        "artifact": "population_rate_trace.npy + raw spike npz",
+        "source": "recomputed_metrics.spike_events"
+      },
+      "on_fail": "FAIL"
+    },
+    {
+      "id": "G2_rate_in_bounds",
+      "description": "Canonical proof path mean firing rate stays in acceptable operational bounds.",
+      "status": "wired",
+      "threshold": {
+        "metric": "rate_mean_hz",
+        "op": "between",
+        "value": [
+          0.0,
+          200.0
+        ]
+      },
+      "evidence": {
+        "artifact": "population_rate_trace.npy",
+        "source": "recomputed_metrics.rate_mean_hz"
+      },
+      "on_fail": "FAIL"
+    },
+    {
+      "id": "G3_sigma_in_range",
+      "description": "Canonical proof path sigma_mean remains in admissible range.",
+      "status": "wired",
+      "threshold": {
+        "metric": "sigma_mean",
+        "op": "between",
+        "value": [
+          0.7,
+          1.3
+        ]
+      },
+      "evidence": {
+        "artifact": "sigma_trace.npy",
+        "source": "recomputed_metrics.sigma_mean"
+      },
+      "on_fail": "FAIL"
+    },
+    {
+      "id": "G4_core_artifacts_complete",
+      "description": "Canonical proof artifact contract is complete.",
+      "status": "wired",
+      "threshold": {
+        "required_artifacts_by_mode": {
+          "canonical-base": [
+            "emergence_plot.png",
+            "summary_metrics.json",
+            "criticality_report.json",
+            "avalanche_report.json",
+            "phase_space_report.json",
+            "avalanche_fit_report.json",
+            "robustness_report.json",
+            "envelope_report.json",
+            "run_manifest.json"
+          ],
+          "canonical-export-proof": [
+            "emergence_plot.png",
+            "summary_metrics.json",
+            "criticality_report.json",
+            "avalanche_report.json",
+            "phase_space_report.json",
+            "avalanche_fit_report.json",
+            "robustness_report.json",
+            "envelope_report.json",
+            "run_manifest.json",
+            "proof_report.json"
+          ]
+        }
+      },
+      "evidence": {
+        "artifact": "run_manifest.json",
+        "source": "artifacts"
+      },
+      "on_fail": "FAIL"
+    },
+    {
+      "id": "G5_manifest_valid",
+      "description": "Canonical run manifest validation against run-manifest schema and hash integrity.",
+      "status": "wired",
+      "threshold": {
+        "schema_ref": "schemas/run-manifest.schema.json",
+        "hash_integrity": true,
+        "self_entry": "sha256(canonical-manifest-with-placeholder)"
+      },
+      "evidence": {
+        "artifact": "run_manifest.json",
+        "source": "manifest"
+      },
+      "on_fail": "FAIL"
+    },
+    {
+      "id": "G6_determinism_replay",
+      "description": "Replay with identical seed reproduces canonical verdict inputs.",
+      "status": "wired",
+      "threshold": {
+        "report": "robustness_report.json",
+        "field": "replay_check.identical",
+        "equals": true
+      },
+      "evidence": {
+        "artifact": "proof_report.json",
+        "source": "gates.G6_determinism_replay"
+      },
+      "on_fail": "FAIL"
+    },
+    {
+      "id": "G7_avalanche_evidence_sufficient",
+      "description": "Avalanche evidence passes minimum sample and fit thresholds.",
+      "status": "wired",
+      "threshold": {
+        "report": "avalanche_fit_report.json",
+        "field": "validity.verdict",
+        "equals": "PASS"
+      },
+      "evidence": {
+        "artifact": "proof_report.json",
+        "source": "gates.G7_avalanche_evidence_sufficient"
+      },
+      "on_fail": "FAIL"
+    },
+    {
+      "id": "G8_reproducibility_envelope",
+      "description": "Cross-run variability remains inside canonical admissibility band (sanity envelope).",
+      "status": "wired",
+      "threshold": {
+        "report": "envelope_report.json",
+        "field": "verdict",
+        "equals": "PASS"
+      },
+      "evidence": {
+        "artifact": "proof_report.json",
+        "source": "gates.G8_reproducibility_envelope"
+      },
+      "on_fail": "FAIL"
+    },
+    {
+      "id": "G9_metrics_trace_consistency",
+      "description": "Summary metrics must match deterministic recompute from canonical traces/raw spikes.",
+      "status": "wired",
+      "threshold": {
+        "policy": "summary_is_secondary_snapshot",
+        "metrics": {
+          "spike_events": {
+            "tolerance": 0.0,
+            "policy": "exact_match",
+            "policy_by_source": {
+              "raw_npz": "exact_match",
+              "rate_trace_reconstruction": "exact_reconstruction_after_integer_check",
+              "unverifiable": "unverifiable_fails_closed",
+              "canonical_raw_npz_malformed": "malformed_raw_fails_closed"
+            }
+          },
+          "rate_mean_hz": {
+            "tolerance": 1e-12,
+            "policy": "abs_delta <= tolerance"
+          },
+          "sigma_mean": {
+            "tolerance": 1e-12,
+            "policy": "abs_delta <= tolerance"
+          }
+        },
+        "recompute_policy": {
+          "spike_events": {
+            "canonical_raw_artifact": "traces.npz",
+            "fallback": "rate_trace_reconstruction_from_manifest_metadata_only",
+            "manifest_metadata_required": [
+              "dt_ms",
+              "N"
+            ],
+            "manifest_steps_validation": "if_present_must_match_trace_length",
+            "rounding_tolerance": 1e-06,
+            "on_malformed_canonical_raw": "fail_closed_no_fallback"
+          }
+        }
+      },
+      "evidence": {
+        "artifact": "population_rate_trace.npy + sigma_trace.npy + raw spike npz + summary_metrics.json",
+        "source": "gates.G9_metrics_trace_consistency"
+      },
+      "on_fail": "FAIL"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+protocol: "SSE-SDO-2026.04"
+toolchain:
+  python: "3.11"
+  pip: "26.0"
+policy:
+  evidence_required_ratio_P0: 1.0
+  contradictions_required: 0
+  stable_ordering_required: 1.0
+tests:
+  strategy: ["unit", "integration", "contract", "property_optional"]
+  coverage:
+    line_pct_min: 0.90
+    branch_pct_min: 0.80
+perf:
+  baseline_required: true
+  regression_threshold_pct: 3.0
+flags:
+  required_for: ["behavior_change", "cross_boundary_change"]
+  registry_path: "artifacts/sse_sdo/architecture/FLAGS.md"
+contracts:
+  required_for: ["public_api", "cli", "schema", "workflow"]
+ci:
+  required_checks_contract: true
+  pinned_actions: true
+  least_privilege: true

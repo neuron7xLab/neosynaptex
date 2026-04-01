@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-03-24T18:01:36Z",
+  "python": "3.13.12",
+  "tests_collected": 224,
+  "tests_require_optional_deps": "~200 (fastapi, pandas)",
+  "bio_modules": 15,
+  "analytics_modules": 10,
+  "import_contracts": "8/8",
+  "canonical_reproduce": "PASS",
+  "adversarial_validation": "6/6 PASS",
+  "ci_workflow": "ci.yml with verify job",
+  "known_limitations": [
+    "Tests requiring fastapi/pandas skip without [api]/[data] extras",
+    "Benchmark gates are hardware-dependent (calibrated baselines)",
+    "TDA persistent homology returns zero features for low-contrast fields",
+    "GitHub Actions may require manual permissions enable"
+  ],
+  "tests_note": "Core verified suite (bio + Levin + fractal + unified + math frontier + benchmarks)"
+}

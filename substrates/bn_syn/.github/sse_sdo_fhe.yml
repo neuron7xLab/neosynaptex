@@ -1,0 +1,23 @@
+protocol: "SSE-SDO-FHE-2026.06"
+toolchain:
+  python: "3.11"
+  pip: "26.0"
+determinism:
+  stable_ordering_required: true
+  seed_required: true
+  nondeterminism_whitelist: []
+evidence:
+  required_ratio_P0: 1.0
+policy:
+  law_without_police_forbidden: true
+ci:
+  required_checks_contract: true
+  pinned_actions: true
+  least_privilege: true
+tests:
+  required_suites: ["unit", "integration", "contract"]
+perf:
+  baseline_required: true
+  regression_threshold_pct: 3.0
+flags:
+  required_for: ["behavior_change", "cross_boundary_change"]

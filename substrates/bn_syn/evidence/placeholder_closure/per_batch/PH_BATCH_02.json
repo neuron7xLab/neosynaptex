@@ -1,0 +1,17 @@
+{
+  "batch_id": "PH_BATCH_02",
+  "changed_files": [
+    "docs/PLACEHOLDER_REGISTRY.md",
+    "tests/test_scan_placeholders.py",
+    "plan.md",
+    "acceptance_map.yaml",
+    "worklist.json"
+  ],
+  "tests_executed": [
+    "tests/test_coverage_gate.py::test_read_coverage_percent_missing_file_fails",
+    "tests/validation/test_chaos_integration.py::test_adex_bounds_enforcement",
+    "tests/test_scan_placeholders.py::test_registry_covers_all_scan_findings"
+  ],
+  "exit_code": 0,
+  "log": "evidence/placeholder_closure/ph_regression_tests.log"
+}

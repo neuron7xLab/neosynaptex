@@ -1,0 +1,9 @@
+version: '1'
+required_checks:
+  - workflow_file: ci-pr-atomic.yml
+  - workflow_file: workflow-integrity.yml
+  - workflow_file: math-quality-gate.yml
+  - workflow_file: scientific_product_gate.yml
+  - workflow_file: dependency-review.yml
+  - workflow_file: pr_gate.yml
+  - workflow_file: canonical-proof-spine.yml

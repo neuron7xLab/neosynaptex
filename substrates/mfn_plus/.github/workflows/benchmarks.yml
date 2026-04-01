@@ -1,0 +1,39 @@
+name: Benchmarks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark-regression:
+    name: Benchmark Regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v4
+      - run: uv sync --group dev --frozen
+
+      - name: Core benchmarks
+        run: uv run python benchmarks/benchmark_core.py
+
+      - name: Quality benchmarks
+        run: uv run python benchmarks/benchmark_quality.py
+
+      - name: Scalability benchmarks
+        run: uv run python benchmarks/benchmark_scalability.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-results
+          path: benchmarks/results/
+          retention-days: 90

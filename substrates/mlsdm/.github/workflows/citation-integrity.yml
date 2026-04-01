@@ -1,0 +1,69 @@
+name: Citation & Bibliography Integrity
+
+on:
+  push:
+    paths:
+      - 'CITATION.cff'
+      - 'CITATION.bib'
+      - 'docs/bibliography/**'
+      - 'docs/NEURO_FOUNDATIONS.md'
+      - 'docs/APHASIA_SPEC.md'
+      - 'docs/APHASIA_OBSERVABILITY.md'
+      - 'scripts/validate_bibliography.py'
+      - 'scripts/check_bidi.py'
+      - 'scripts/docs/validate_literature_map.py'
+      - 'scripts/docs/validate_doc_citations.py'
+  pull_request:
+    paths:
+      - 'CITATION.cff'
+      - 'CITATION.bib'
+      - 'docs/bibliography/**'
+      - 'docs/NEURO_FOUNDATIONS.md'
+      - 'docs/APHASIA_SPEC.md'
+      - 'docs/APHASIA_OBSERVABILITY.md'
+      - 'scripts/validate_bibliography.py'
+      - 'scripts/check_bidi.py'
+      - 'scripts/docs/validate_literature_map.py'
+      - 'scripts/docs/validate_doc_citations.py'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-citation:
+    name: Validate Citation & Bibliography
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install validation tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install cffconvert==2.0.0 bibtexparser==1.4.3
+
+      - name: Check for bidi/control Unicode characters
+        run: |
+          python scripts/check_bidi.py
+
+      - name: Validate CITATION.cff
+        run: |
+          cffconvert --validate -i CITATION.cff
+
+      - name: Validate bibliography
+        run: |
+          python scripts/validate_bibliography.py
+
+      - name: Validate literature map
+        run: |
+          python scripts/docs/validate_literature_map.py
+
+      - name: Validate documentation citations
+        run: |
+          python scripts/docs/validate_doc_citations.py

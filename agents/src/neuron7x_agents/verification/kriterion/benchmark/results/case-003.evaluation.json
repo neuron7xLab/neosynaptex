@@ -1,0 +1,399 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "GPT5.4-AUDIT-HARDENING-PROTOCOL-2026",
+    "protocol_version": "2026.2",
+    "target_protocol_id": "ESA-SECURITY-ARCHITECT-PROTOCOL-2026.1",
+    "execution_mode": "MODE_STRICT_AUDIT",
+    "evaluation_timestamp": "1970-01-01T00:00:00Z",
+    "model_identifier": "reference-runner-1.0",
+    "artifact_count": 2,
+    "evaluation_hash": "b1e1c66c0dad047db62d11c89af82087bdc6d2f31a82f0d7df2ea691991d2b7e"
+  },
+  "artifact_validation_results": [
+    {
+      "artifact_id": "ART.C1",
+      "schema_status": "VALID",
+      "integrity_status": "VALID",
+      "admissible": true,
+      "reason_codes": []
+    },
+    {
+      "artifact_id": "ART.C2",
+      "schema_status": "VALID",
+      "integrity_status": "VALID",
+      "admissible": true,
+      "reason_codes": []
+    }
+  ],
+  "task_scores": [
+    {
+      "protocol_id": "ESA-SECURITY-ARCHITECT-PROTOCOL-2026.1",
+      "domain_id": "ESA.ARCH",
+      "task_id": "T1",
+      "task_weight": 50,
+      "evidence_artifact_ids": [
+        "ART.C1"
+      ],
+      "raw_score": 4.0,
+      "evidence_cap": 5.0,
+      "penalties_applied": [],
+      "final_score": 4.0,
+      "reason_codes": []
+    },
+    {
+      "protocol_id": "ESA-SECURITY-ARCHITECT-PROTOCOL-2026.1",
+      "domain_id": "ESA.GOV",
+      "task_id": "T2",
+      "task_weight": 50,
+      "evidence_artifact_ids": [
+        "ART.C2"
+      ],
+      "raw_score": 5.0,
+      "evidence_cap": 5.0,
+      "penalties_applied": [],
+      "final_score": 5.0,
+      "reason_codes": []
+    }
+  ],
+  "domain_scores": [
+    {
+      "domain_id": "ESA.ARCH",
+      "domain_name": "Architecture",
+      "must_have": true,
+      "weighted_score": 2.0,
+      "evidence_class_distribution": {
+        "LOW": 0,
+        "MED": 0,
+        "HIGH": 1
+      },
+      "domain_cap": 5.0,
+      "final_domain_score": 2.0
+    },
+    {
+      "domain_id": "ESA.GOV",
+      "domain_name": "Governance",
+      "must_have": true,
+      "weighted_score": 2.5,
+      "evidence_class_distribution": {
+        "LOW": 0,
+        "MED": 0,
+        "HIGH": 1
+      },
+      "domain_cap": 5.0,
+      "final_domain_score": 2.5
+    }
+  ],
+  "gate_results": [
+    {
+      "gate_id": "G0_INTEGRITY",
+      "status": "PASS",
+      "blocking": false,
+      "reason_codes": [],
+      "affected_artifact_ids": []
+    },
+    {
+      "gate_id": "G1_MINIMUM_READINESS",
+      "status": "FAIL",
+      "blocking": true,
+      "reason_codes": [
+        "MUST_HAVE_DOMAIN_BELOW_THRESHOLD"
+      ],
+      "affected_artifact_ids": []
+    },
+    {
+      "gate_id": "G2_EVIDENCE_SUFFICIENCY",
+      "status": "PASS",
+      "blocking": false,
+      "reason_codes": [],
+      "affected_artifact_ids": []
+    }
+  ],
+  "final_classification": {
+    "status": "FAIL",
+    "classification_label": "NOT_READY",
+    "composite_score": 2.25,
+    "integrity_hash": "b1e1c66c0dad047db62d11c89af82087bdc6d2f31a82f0d7df2ea691991d2b7e"
+  },
+  "execution_chain_format_version": "execution_chain.v1",
+  "execution_state_chain": [
+    {
+      "phase_index": 0,
+      "phase_id": "artifact_validation",
+      "previous_step_hash": "80a6d90b44d94dfb181897f2ce590bb47b3a1df7747ee8c76b61b0b24b655f70",
+      "step_hash": "fdc9ba217f666b6bbea263decd462079f3acbfba62da335ba3d777601b00c7a0",
+      "contract_version": "2026.2",
+      "phase_input_digest": "c32c7b2fba4d01a0f51df65172400f4af1adec50a539a2cfe25c0304ced2b13d",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.C1",
+          "ART.C2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "0d37e2593c3206acf52127ed6be023a3e0fcb7dc48dddeb859e64f0a86ceb041",
+          "2b2776641a2e892c366f0e804f397f8af4f60062673f50bb89f63b256593cbc3"
+        ],
+        "gate_state": {
+          "G0_INTEGRITY": "PASS"
+        },
+        "phase_material": {
+          "artifact_validation_results": [
+            {
+              "artifact_id": "ART.C1",
+              "schema_status": "VALID",
+              "integrity_status": "VALID",
+              "admissible": true,
+              "reason_codes": []
+            },
+            {
+              "artifact_id": "ART.C2",
+              "schema_status": "VALID",
+              "integrity_status": "VALID",
+              "admissible": true,
+              "reason_codes": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 1,
+      "phase_id": "admissibility_derivation",
+      "previous_step_hash": "fdc9ba217f666b6bbea263decd462079f3acbfba62da335ba3d777601b00c7a0",
+      "step_hash": "2e1b03149e8f09655abfa5bd179093e1228ad782aa8f03bf0d813156fc8f04e8",
+      "contract_version": "2026.2",
+      "phase_input_digest": "82f704193e1a4b82cd673cdba0c122e3e0a13b747c79aa299eb0809e43454ddd",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.C1",
+          "ART.C2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "0d37e2593c3206acf52127ed6be023a3e0fcb7dc48dddeb859e64f0a86ceb041",
+          "2b2776641a2e892c366f0e804f397f8af4f60062673f50bb89f63b256593cbc3"
+        ],
+        "gate_state": {},
+        "phase_material": {
+          "admitted_artifact_ids": [
+            "ART.C1",
+            "ART.C2"
+          ],
+          "admitted_artifact_fingerprints": [
+            "0d37e2593c3206acf52127ed6be023a3e0fcb7dc48dddeb859e64f0a86ceb041",
+            "2b2776641a2e892c366f0e804f397f8af4f60062673f50bb89f63b256593cbc3"
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 2,
+      "phase_id": "task_scoring",
+      "previous_step_hash": "2e1b03149e8f09655abfa5bd179093e1228ad782aa8f03bf0d813156fc8f04e8",
+      "step_hash": "f23b39831e9f9053ecba4d2fd60bce416e36b66da2021f3a28be13abfbc58692",
+      "contract_version": "2026.2",
+      "phase_input_digest": "e17334c175206f541274a8c582e2f85aa1899b11232a2341686ed3279e046da9",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.C1",
+          "ART.C2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "0d37e2593c3206acf52127ed6be023a3e0fcb7dc48dddeb859e64f0a86ceb041",
+          "2b2776641a2e892c366f0e804f397f8af4f60062673f50bb89f63b256593cbc3"
+        ],
+        "gate_state": {},
+        "phase_material": {
+          "task_scores": [
+            {
+              "domain_id": "ESA.ARCH",
+              "task_id": "T1",
+              "final_score": 4.0,
+              "evidence_artifact_ids": [
+                "ART.C1"
+              ],
+              "reason_codes": []
+            },
+            {
+              "domain_id": "ESA.GOV",
+              "task_id": "T2",
+              "final_score": 5.0,
+              "evidence_artifact_ids": [
+                "ART.C2"
+              ],
+              "reason_codes": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 3,
+      "phase_id": "domain_scoring",
+      "previous_step_hash": "f23b39831e9f9053ecba4d2fd60bce416e36b66da2021f3a28be13abfbc58692",
+      "step_hash": "ca956796436d638c5a49eb13f965d63e74e9d6db9511a5ae78f1d0de3e3e6c8d",
+      "contract_version": "2026.2",
+      "phase_input_digest": "a60f609376214c0d87891a879a115b3638d4195f09c08c781eb8d65ada912f37",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.C1",
+          "ART.C2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "0d37e2593c3206acf52127ed6be023a3e0fcb7dc48dddeb859e64f0a86ceb041",
+          "2b2776641a2e892c366f0e804f397f8af4f60062673f50bb89f63b256593cbc3"
+        ],
+        "gate_state": {},
+        "phase_material": {
+          "domain_scores": [
+            {
+              "domain_id": "ESA.ARCH",
+              "final_domain_score": 2.0,
+              "domain_cap": 5.0,
+              "evidence_class_distribution": {
+                "LOW": 0,
+                "MED": 0,
+                "HIGH": 1
+              }
+            },
+            {
+              "domain_id": "ESA.GOV",
+              "final_domain_score": 2.5,
+              "domain_cap": 5.0,
+              "evidence_class_distribution": {
+                "LOW": 0,
+                "MED": 0,
+                "HIGH": 1
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 4,
+      "phase_id": "gate_evaluation",
+      "previous_step_hash": "ca956796436d638c5a49eb13f965d63e74e9d6db9511a5ae78f1d0de3e3e6c8d",
+      "step_hash": "5237e9b6e39f89698d83c8379b0bd4cd5894041b971fbb4ba9690d1dd6f72954",
+      "contract_version": "2026.2",
+      "phase_input_digest": "cc6fc0f534ea2677f139f5c2d922407bf414bb3763d511b71b66375bd8d730d5",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.C1",
+          "ART.C2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "0d37e2593c3206acf52127ed6be023a3e0fcb7dc48dddeb859e64f0a86ceb041",
+          "2b2776641a2e892c366f0e804f397f8af4f60062673f50bb89f63b256593cbc3"
+        ],
+        "gate_state": {
+          "G0_INTEGRITY": "PASS",
+          "G1_MINIMUM_READINESS": "FAIL",
+          "G2_EVIDENCE_SUFFICIENCY": "PASS"
+        },
+        "phase_material": {
+          "gate_results": [
+            {
+              "gate_id": "G0_INTEGRITY",
+              "status": "PASS",
+              "blocking": false
+            },
+            {
+              "gate_id": "G1_MINIMUM_READINESS",
+              "status": "FAIL",
+              "blocking": true
+            },
+            {
+              "gate_id": "G2_EVIDENCE_SUFFICIENCY",
+              "status": "PASS",
+              "blocking": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 5,
+      "phase_id": "classification",
+      "previous_step_hash": "5237e9b6e39f89698d83c8379b0bd4cd5894041b971fbb4ba9690d1dd6f72954",
+      "step_hash": "a00aada439307b5a9dba702be7b536af7fb29a08aaae6d03f233954a9bdddaff",
+      "contract_version": "2026.2",
+      "phase_input_digest": "2dbd458bdecb811b6b18b3834340311308145ff497d144a457ff8e898ef395a9",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.C1",
+          "ART.C2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "0d37e2593c3206acf52127ed6be023a3e0fcb7dc48dddeb859e64f0a86ceb041",
+          "2b2776641a2e892c366f0e804f397f8af4f60062673f50bb89f63b256593cbc3"
+        ],
+        "gate_state": {
+          "G0_INTEGRITY": "PASS",
+          "G1_MINIMUM_READINESS": "FAIL",
+          "G2_EVIDENCE_SUFFICIENCY": "PASS"
+        },
+        "phase_material": {
+          "classification": {
+            "status": "FAIL",
+            "classification_label": "NOT_READY",
+            "composite_score": 2.25
+          }
+        }
+      }
+    },
+    {
+      "phase_index": 6,
+      "phase_id": "finalization",
+      "previous_step_hash": "a00aada439307b5a9dba702be7b536af7fb29a08aaae6d03f233954a9bdddaff",
+      "step_hash": "b1e1c66c0dad047db62d11c89af82087bdc6d2f31a82f0d7df2ea691991d2b7e",
+      "contract_version": "2026.2",
+      "phase_input_digest": "9b78b0c1529da7dcd8f311327b227cc753b8d2d39efcca7a59b1a77074d2ef84",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.C1",
+          "ART.C2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "0d37e2593c3206acf52127ed6be023a3e0fcb7dc48dddeb859e64f0a86ceb041",
+          "2b2776641a2e892c366f0e804f397f8af4f60062673f50bb89f63b256593cbc3"
+        ],
+        "gate_state": {
+          "G0_INTEGRITY": "PASS",
+          "G1_MINIMUM_READINESS": "FAIL",
+          "G2_EVIDENCE_SUFFICIENCY": "PASS"
+        },
+        "phase_material": {
+          "finalization": {
+            "target_protocol_id": "ESA-SECURITY-ARCHITECT-PROTOCOL-2026.1",
+            "execution_mode": "MODE_STRICT_AUDIT",
+            "evaluation_timestamp": "1970-01-01T00:00:00Z",
+            "artifact_count": 2,
+            "evidence_trace_digest": "2c1fbd271591b305a2ed92cd876b01b94a1ff372164834d5e94e45f1b41435d8"
+          }
+        }
+      }
+    }
+  ],
+  "execution_chain_terminal_hash": "b1e1c66c0dad047db62d11c89af82087bdc6d2f31a82f0d7df2ea691991d2b7e",
+  "evidence_trace_table": [
+    {
+      "artifact_id": "ART.C1",
+      "artifact_type": "ARCHITECTURE_DIAGRAM",
+      "domain_id": "ESA.ARCH",
+      "task_id": "T1",
+      "task_score_contribution": 4.0,
+      "domain_score_contribution": 2.0,
+      "evidence_class": "HIGH",
+      "trace_status": "USED"
+    },
+    {
+      "artifact_id": "ART.C2",
+      "artifact_type": "POLICY",
+      "domain_id": "ESA.GOV",
+      "task_id": "T2",
+      "task_score_contribution": 5.0,
+      "domain_score_contribution": 2.5,
+      "evidence_class": "HIGH",
+      "trace_status": "USED"
+    }
+  ]
+}

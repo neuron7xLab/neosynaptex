@@ -1,0 +1,122 @@
+{
+  "bundle_id": "case-002",
+  "target_protocol_id": "SSE-SECURITY-EXECUTION-PROTOCOL-2026.1",
+  "execution_mode": "MODE_STRICT_AUDIT",
+  "model_identifier": "reference-runner-1.0",
+  "artifacts": [
+    {
+      "artifact_id": "ART.B1",
+      "artifact_type": "PULL_REQUEST",
+      "title": "Detection PR",
+      "provenance": {
+        "origin_actor": "demo-author",
+        "origin_system": "demo-repository",
+        "acquisition_method": "DIRECT_EXPORT",
+        "source_class": "PRIMARY"
+      },
+      "reviewer": {
+        "reviewer_id": "reviewer-001",
+        "reviewer_independence": true,
+        "review_status": "INDEPENDENTLY_REVIEWED"
+      },
+      "timestamps": {
+        "creation_time": "2026-03-06T10:00:00Z",
+        "evaluation_capture_time": "2026-03-06T12:00:00Z"
+      },
+      "references": [
+        "https://example.org/b1"
+      ],
+      "fingerprint": {
+        "algorithm": "SHA-256",
+        "sha256": "edef043895656aac9cbde1290ee459d697c40e51e3bad914a3975c83d142fa82"
+      },
+      "evidence_class": "HIGH",
+      "domain_mapping": [
+        "SSE.DETECTION"
+      ],
+      "payload": {
+        "pr": 125,
+        "files": 8
+      }
+    },
+    {
+      "artifact_id": "ART.B2",
+      "artifact_type": "TEST_REPORT",
+      "title": "Regression tests",
+      "provenance": {
+        "origin_actor": "demo-author",
+        "origin_system": "demo-repository",
+        "acquisition_method": "DIRECT_EXPORT",
+        "source_class": "PRIMARY"
+      },
+      "reviewer": {
+        "reviewer_id": "reviewer-001",
+        "reviewer_independence": true,
+        "review_status": "INDEPENDENTLY_REVIEWED"
+      },
+      "timestamps": {
+        "creation_time": "2026-03-06T10:00:00Z",
+        "evaluation_capture_time": "2026-03-06T12:00:00Z"
+      },
+      "references": [
+        "https://example.org/b2"
+      ],
+      "fingerprint": {
+        "algorithm": "SHA-256",
+        "sha256": "5a506d7b8c23516a31e8f6e9ced252f6765302a76fc7de1756fe329ed47d6ab0"
+      },
+      "evidence_class": "HIGH",
+      "domain_mapping": [
+        "SSE.QUALITY"
+      ],
+      "payload": {
+        "passed": 148,
+        "failed": 0
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "domain_id": "SSE.DETECTION",
+      "domain_name": "Detection Engineering",
+      "must_have": true,
+      "task_id": "T1",
+      "task_weight": 60,
+      "required_artifact_ids": [
+        "ART.B1"
+      ],
+      "evidence_artifact_ids": [
+        "ART.B1"
+      ],
+      "raw_score": 5,
+      "evidence_cap": 5
+    },
+    {
+      "domain_id": "SSE.QUALITY",
+      "domain_name": "Execution Quality",
+      "must_have": true,
+      "task_id": "T2",
+      "task_weight": 40,
+      "required_artifact_ids": [
+        "ART.B2"
+      ],
+      "evidence_artifact_ids": [
+        "ART.B2"
+      ],
+      "raw_score": 4,
+      "evidence_cap": 5
+    }
+  ],
+  "expected": {
+    "human_overall_score": 2,
+    "human_final_classification": "NOT_READY",
+    "human_gates": {
+      "G0_INTEGRITY": "PASS",
+      "G1_MINIMUM_READINESS": "FAIL",
+      "G2_EVIDENCE_SUFFICIENCY": "PASS"
+    },
+    "runtime_seconds": 1.0,
+    "cost_usd": 0.0028,
+    "adversarial": false
+  }
+}

@@ -1,0 +1,386 @@
+# Alertmanager Rules for MLSDM
+#
+# This file contains Prometheus alerting rules for monitoring MLSDM
+# cognitive architecture system based on SLO specifications.
+#
+# Usage:
+# 1. Add this file to Prometheus rules configuration
+# 2. Configure Alertmanager for alert routing
+# 3. Reload Prometheus configuration
+#
+# Reference: SLO_SPEC.md
+#
+# Threshold Constants (based on SLO_SPEC.md):
+# - MEMORY_TARGET_BYTES: 29370000 (29.37 MB - SLO target)
+# - MEMORY_WARNING_BYTES: 35000000 (~35 MB - warning threshold)
+# - MEMORY_CRITICAL_BYTES: 50000000 (~50 MB - critical threshold)
+# - MEMORY_GROWTH_ALERT_BYTES: 10000000 (10 MB growth threshold per hour)
+# - LATENCY_P95_SLO_MS: 50 (P95 latency SLO in milliseconds)
+# - LATENCY_P99_CRITICAL_MS: 100 (P99 critical threshold)
+# - ERROR_RATE_SLO: 0.005 (0.5% error rate SLO)
+# - THROUGHPUT_MIN_RPS: 100 (minimum expected throughput)
+
+groups:
+  # ===========================================================================
+  # SLO-based Availability Alerts
+  # ===========================================================================
+  - name: mlsdm_availability
+    rules:
+      # SLO-1: Availability - 99.5% target
+      - alert: MLSDMHighErrorRate
+        expr: |
+          (
+            sum(rate(mlsdm_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(mlsdm_requests_total[5m]))
+          ) > 0.005
+        for: 5m
+        labels:
+          severity: critical
+          component: availability
+          slo: "1"
+        annotations:
+          summary: "MLSDM error rate exceeds SLO threshold"
+          description: "Error rate is {{ $value | humanizePercentage }} which exceeds the 0.5% SLO threshold over the last 5 minutes."
+          runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#high-error-rate"
+
+      - alert: MLSDMAvailabilityWarning
+        expr: |
+          (
+            sum(rate(mlsdm_requests_total{status=~"5.."}[15m]))
+            /
+            sum(rate(mlsdm_requests_total[15m]))
+          ) > 0.003
+        for: 10m
+        labels:
+          severity: warning
+          component: availability
+          slo: "1"
+        annotations:
+          summary: "MLSDM availability degraded"
+          description: "Error rate is {{ $value | humanizePercentage }} approaching SLO threshold."
+
+      - alert: MLSDMServiceDown
+        expr: up{job="mlsdm"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: availability
+        annotations:
+          summary: "MLSDM service is down"
+          description: "MLSDM instance {{ $labels.instance }} is not responding to health checks."
+
+  # ===========================================================================
+  # SLO-based Latency Alerts
+  # ===========================================================================
+  - name: mlsdm_latency
+    rules:
+      # SLO-2: Latency - P95 < 50ms target
+      - alert: MLSDMHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(mlsdm_processing_latency_milliseconds_bucket[5m])) by (le)
+          ) > 50
+        for: 5m
+        labels:
+          severity: warning
+          component: latency
+          slo: "2"
+        annotations:
+          summary: "MLSDM P95 latency exceeds SLO"
+          description: "P95 latency is {{ $value | printf \"%.2f\" }}ms which exceeds the 50ms SLO threshold."
+          runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#high-latency"
+
+      - alert: MLSDMCriticalLatency
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(mlsdm_processing_latency_milliseconds_bucket[5m])) by (le)
+          ) > 100
+        for: 3m
+        labels:
+          severity: critical
+          component: latency
+          slo: "2"
+        annotations:
+          summary: "MLSDM P99 latency critically high"
+          description: "P99 latency is {{ $value | printf \"%.2f\" }}ms which indicates severe performance degradation."
+
+  # ===========================================================================
+  # SLO-based Throughput Alerts
+  # ===========================================================================
+  - name: mlsdm_throughput
+    rules:
+      # SLO-3: Throughput - 1000+ RPS target
+      - alert: MLSDMLowThroughput
+        expr: |
+          sum(rate(mlsdm_events_processed_total[5m])) < 100
+        for: 10m
+        labels:
+          severity: warning
+          component: throughput
+          slo: "3"
+        annotations:
+          summary: "MLSDM throughput is low"
+          description: "Current throughput is {{ $value | printf \"%.2f\" }} RPS which is below expected levels."
+
+      - alert: MLSDMThroughputDrop
+        expr: |
+          (
+            sum(rate(mlsdm_events_processed_total[5m]))
+            /
+            sum(rate(mlsdm_events_processed_total[1h] offset 1d))
+          ) < 0.5
+        for: 15m
+        labels:
+          severity: warning
+          component: throughput
+        annotations:
+          summary: "MLSDM throughput dropped significantly"
+          description: "Throughput has dropped to {{ $value | humanizePercentage }} of yesterday's level."
+
+  # ===========================================================================
+  # SLO-based Memory Alerts
+  # ===========================================================================
+  - name: mlsdm_memory
+    rules:
+      # SLO-5: Resource Efficiency - 29.37 MB target
+      - alert: MLSDMHighMemoryUsage
+        expr: mlsdm_memory_usage_bytes > 35000000  # ~35MB
+        for: 5m
+        labels:
+          severity: warning
+          component: memory
+          slo: "5"
+        annotations:
+          summary: "MLSDM memory usage exceeds target"
+          description: "Memory usage is {{ $value | humanize1024 }} which exceeds the 29.37 MB target."
+          runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#high-memory-usage"
+
+      - alert: MLSDMCriticalMemoryUsage
+        expr: mlsdm_memory_usage_bytes > 50000000  # ~50MB
+        for: 2m
+        labels:
+          severity: critical
+          component: memory
+          slo: "5"
+        annotations:
+          summary: "MLSDM memory usage critically high"
+          description: "Memory usage is {{ $value | humanize1024 }} indicating potential memory leak."
+
+      - alert: MLSDMMemoryGrowth
+        expr: |
+          (
+            mlsdm_memory_usage_bytes
+            -
+            mlsdm_memory_usage_bytes offset 1h
+          ) > 10000000  # 10MB growth
+        for: 30m
+        labels:
+          severity: warning
+          component: memory
+        annotations:
+          summary: "MLSDM memory is growing unexpectedly"
+          description: "Memory has grown by {{ $value | humanize1024 }} in the last hour."
+
+  # ===========================================================================
+  # Moral Filter Alerts
+  # ===========================================================================
+  - name: mlsdm_moral_filter
+    rules:
+      # SLO-4: Safety - 93.3% toxic rejection target
+      - alert: MLSDMHighMoralDrift
+        expr: |
+          abs(mlsdm_moral_threshold - 0.5) > 0.25
+        for: 10m
+        labels:
+          severity: warning
+          component: moral_filter
+          slo: "4"
+        annotations:
+          summary: "MLSDM moral threshold has drifted significantly"
+          description: "Moral threshold is {{ $value | printf \"%.2f\" }} which deviates from baseline."
+          runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#moral-drift"
+
+      - alert: MLSDMHighRejectionRate
+        expr: |
+          (
+            sum(rate(mlsdm_events_rejected_total[5m]))
+            /
+            sum(rate(mlsdm_events_processed_total[5m]))
+          ) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          component: moral_filter
+        annotations:
+          summary: "MLSDM rejection rate is unusually high"
+          description: "Rejection rate is {{ $value | humanizePercentage }} which may indicate attack or misconfiguration."
+
+      - alert: MLSDMLowRejectionRate
+        expr: |
+          (
+            sum(rate(mlsdm_events_rejected_total[5m]))
+            /
+            sum(rate(mlsdm_events_processed_total[5m]))
+          ) < 0.01
+        for: 30m
+        labels:
+          severity: info
+          component: moral_filter
+        annotations:
+          summary: "MLSDM rejection rate is very low"
+          description: "Rejection rate is {{ $value | humanizePercentage }} which may indicate filter is too permissive."
+
+  # ===========================================================================
+  # Error Budget Alerts
+  # ===========================================================================
+  - name: mlsdm_error_budget
+    rules:
+      - alert: MLSDMErrorBudgetBurnRateHigh
+        expr: |
+          (
+            sum(increase(mlsdm_errors_total[1h]))
+            /
+            (30 * 24 * 0.005 * sum(increase(mlsdm_requests_total[1h])))  # 30-day error budget
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: error_budget
+        annotations:
+          summary: "MLSDM error budget burn rate is high"
+          description: "Consuming {{ $value | printf \"%.1f\" }}% of monthly error budget per hour."
+
+      - alert: MLSDMErrorBudgetExhausted
+        expr: |
+          (
+            sum(increase(mlsdm_errors_total[30d]))
+            /
+            (0.005 * sum(increase(mlsdm_requests_total[30d])))
+          ) > 0.8
+        for: 1m
+        labels:
+          severity: critical
+          component: error_budget
+        annotations:
+          summary: "MLSDM error budget nearly exhausted"
+          description: "{{ $value | printf \"%.1f\" }}% of monthly error budget has been consumed."
+
+  # ===========================================================================
+  # Cognitive Rhythm Alerts
+  # ===========================================================================
+  - name: mlsdm_rhythm
+    rules:
+      - alert: MLSDMStuckInSleep
+        expr: mlsdm_phase == 0 and delta(mlsdm_phase[30m]) == 0
+        for: 30m
+        labels:
+          severity: warning
+          component: rhythm
+        annotations:
+          summary: "MLSDM appears stuck in sleep phase"
+          description: "System has been in sleep phase for over 30 minutes without transitioning."
+
+      - alert: MLSDMRhythmUnstable
+        expr: |
+          changes(mlsdm_phase[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: rhythm
+        annotations:
+          summary: "MLSDM cognitive rhythm is unstable"
+          description: "Phase has changed {{ $value }} times in 5 minutes, indicating instability."
+
+  # ===========================================================================
+  # Infrastructure Alerts
+  # ===========================================================================
+  - name: mlsdm_infrastructure
+    rules:
+      - alert: MLSDMHealthCheckFailing
+        expr: mlsdm_health_check_success == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "MLSDM health check is failing"
+          description: "Health check endpoint is not returning success."
+
+      - alert: MLSDMEmergencyShutdown
+        expr: mlsdm_emergency_shutdown_active == 1
+        for: 0m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "MLSDM is in emergency shutdown mode"
+          description: "System has triggered emergency shutdown. Manual intervention required."
+          runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#emergency-shutdown"
+
+      - alert: MLSDMNoRecentActivity
+        expr: |
+          time() - mlsdm_last_request_timestamp > 600
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "No recent MLSDM activity"
+          description: "No requests processed in the last 10 minutes."
+
+  # ===========================================================================
+  # Rate Limiting Alerts
+  # ===========================================================================
+  - name: mlsdm_rate_limiting
+    rules:
+      - alert: MLSDMHighRateLimitHits
+        expr: |
+          sum(rate(mlsdm_rate_limit_exceeded_total[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: rate_limiting
+        annotations:
+          summary: "High rate of rate limit violations"
+          description: "{{ $value | printf \"%.2f\" }} rate limit violations per second."
+
+      - alert: MLSDMPossibleAttack
+        expr: |
+          sum(rate(mlsdm_rate_limit_exceeded_total[1m])) > 100
+        for: 1m
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "Possible DoS attack detected"
+          description: "Very high rate of requests being rate limited: {{ $value | printf \"%.0f\" }}/s."
+
+  # ===========================================================================
+  # LLM Backend Alerts
+  # ===========================================================================
+  - name: mlsdm_llm
+    rules:
+      - alert: MLSDMLLMHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(mlsdm_generation_latency_milliseconds_bucket[5m])) by (le, provider_id)
+          ) > 5000
+        for: 5m
+        labels:
+          severity: warning
+          component: llm
+        annotations:
+          summary: "LLM generation latency is high"
+          description: "P95 LLM latency for {{ $labels.provider_id }} is {{ $value | printf \"%.0f\" }}ms."
+
+      - alert: MLSDMLLMErrors
+        expr: |
+          sum(rate(mlsdm_llm_errors_total[5m])) by (provider_id) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: llm
+        annotations:
+          summary: "LLM errors detected"
+          description: "LLM provider {{ $labels.provider_id }} is experiencing errors at {{ $value | printf \"%.2f\" }}/s."

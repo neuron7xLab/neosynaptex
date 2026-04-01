@@ -1,0 +1,24 @@
+scpe_release: v1.0
+schema_version: ERM-2026.3
+mode: shadow-only
+trigger:
+  consecutive_fails_min: 3
+  required_severity: S0
+  stable_deadlock_window: 3
+allowlist:
+  - scpe/codex-interpreted-mechanized-quality-agent/PA.txt
+  - scpe/codex-interpreted-mechanized-quality-agent/PS.md
+  - scpe/codex-interpreted-mechanized-quality-agent/IM.yml
+  - scpe/codex-interpreted-mechanized-quality-agent/QM.yml
+  - scpe/codex-interpreted-mechanized-quality-agent/GM.yml
+  - scpe/codex-interpreted-mechanized-quality-agent/CG.json
+  - scpe/codex-interpreted-mechanized-quality-agent/OH.yml
+  - scpe/codex-interpreted-mechanized-quality-agent/ERM.yml
+  - scpe/codex-interpreted-mechanized-quality-agent/META-EBS-2026.3.yml
+  - scpe/codex-interpreted-mechanized-quality-agent/PL.json
+  - scpe/codex-interpreted-mechanized-quality-agent/VR.json
+transactions:
+  - id: ERM.NOOP
+    description: deterministic no-op meta transaction
+    patch:
+      type: noop

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AnalysisReport",
+  "version": "v1",
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "spec": {
+      "oneOf": [
+        {
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sequence": {
+      "type": "object"
+    },
+    "descriptor": {
+      "type": "object"
+    },
+    "detection": {
+      "type": "object"
+    },
+    "forecast": {
+      "oneOf": [
+        {
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "comparison": {
+      "oneOf": [
+        {
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "artifacts": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

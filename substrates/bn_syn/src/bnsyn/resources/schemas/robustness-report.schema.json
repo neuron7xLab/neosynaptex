@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Canonical Robustness Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "seed_set", "replay_check", "runs"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "seed_set": {"type": "array", "minItems": 10, "maxItems": 10, "items": {"type": "integer"}},
+    "replay_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seed", "required_traces", "hashes", "identical"],
+      "properties": {
+        "seed": {"type": "integer"},
+        "required_traces": {"type": "array", "items": {"type": "string"}},
+        "hashes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["artifact", "run_a", "run_b"],
+            "properties": {
+              "artifact": {"type": "string"},
+              "run_a": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+              "run_b": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+            }
+          }
+        },
+        "identical": {"type": "boolean"}
+      }
+    },
+    "runs": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["seed", "rate_mean_hz", "sigma_mean", "avalanche_count", "avalanche_exponent"],
+        "properties": {
+          "seed": {"type": "integer"},
+          "rate_mean_hz": {"type": "number"},
+          "sigma_mean": {"type": "number"},
+          "avalanche_count": {"type": "integer", "minimum": 0},
+          "avalanche_exponent": {"type": "number"}
+        }
+      }
+    }
+  }
+}

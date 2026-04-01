@@ -1,0 +1,75 @@
+# NON-PR-GATE: long-running workflow; must not run on pull_request/push.
+name: ci-benchmarks
+# Guard: non-PR-gate workflow; must remain off PRs.
+
+on:
+  schedule:
+    - cron: '0 4 * * 0'  # Weekly -- Sunday 04:00 UTC
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: "Benchmark tier to run"
+        required: true
+        type: choice
+        default: standard
+        options:
+          - standard
+          - elite
+      profile:
+        description: "Benchmark profile to run"
+        required: true
+        type: choice
+        default: baseline
+        options:
+          - micro
+          - baseline
+          - full
+          - custom
+      scenario:
+        description: "Benchmark scenario to run (custom profile only)"
+        required: false
+        default: ci_smoke
+        type: choice
+        options:
+          - ci_smoke
+          - quick
+          - n_sweep
+          - steps_sweep
+          - conn_sweep
+          - dt_sweep
+
+permissions:
+  contents: read
+
+jobs:
+  benchmarks-dispatch:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/_reusable_benchmarks.yml
+    with:
+      tier: ${{ inputs.tier }}
+      profile: ${{ inputs.profile }}
+      scenario: ${{ inputs.scenario }}
+      publish_baseline: false
+    secrets: inherit
+
+  benchmarks-standard:
+    if: ${{ github.event_name == 'schedule' && github.event.schedule == '0 2 * * *' }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/_reusable_benchmarks.yml
+    with:
+      tier: standard
+      profile: baseline
+      scenario: ci_smoke
+      publish_baseline: true
+    secrets: inherit
+
+  benchmarks-elite:
+    if: ${{ github.event_name == 'schedule' && github.event.schedule == '0 3 * * 0' }}
+    uses: ./.github/workflows/_reusable_benchmarks.yml
+    with:
+      tier: elite
+      profile: baseline
+      scenario: ci_smoke
+      publish_baseline: false
+    secrets: inherit

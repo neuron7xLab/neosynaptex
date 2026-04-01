@@ -1,0 +1,137 @@
+hazards:
+  - id: H1
+    title: Invalid external arrays enter system state
+    loss_refs:
+      - L1
+      - L2
+      - L3
+    unsafe_control_actions:
+      - UCA1
+    safety_constraints:
+      - SC-1
+    severity: medium
+    likelihood: medium
+    detectability: high
+    status: enforced
+    status_reason: Input validators enforce dtype/shape/NaN checks before use.
+    enforcement:
+      - code: src/bnsyn/validation/inputs.py:L83-L197
+        description: ndarray/type/shape/NaN validation for state, spikes, connectivity.
+    tests:
+      - path: tests/test_validation_inputs.py:L15-L53
+        description: exercises dtype/shape/NaN error paths.
+    verification:
+      - pytest tests/test_validation_inputs.py -q
+    gates:
+      - workflow: .github/workflows/ci-smoke.yml
+        job: tests-smoke
+        command: pytest -m "not (validation or property)"
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"
+  - id: H2
+    title: Invalid network configuration or external current shape at runtime
+    loss_refs:
+      - L1
+      - L2
+    unsafe_control_actions:
+      - UCA2
+      - UCA3
+    safety_constraints:
+      - SC-2
+    severity: high
+    likelihood: low
+    detectability: high
+    status: enforced
+    status_reason: Network initialization rejects invalid params and step rejects invalid current shapes.
+    enforcement:
+      - code: src/bnsyn/sim/network.py:L132-L175
+        description: parameter validation and connectivity validation.
+      - code: src/bnsyn/sim/network.py:L249-L255
+        description: external current shape validation.
+    tests:
+      - path: tests/test_network_validation_edges.py:L21-L77
+        description: invalid parameter and bounds checks.
+      - path: tests/test_network_external_input.py:L92-L153
+        description: external current shape validation.
+    verification:
+      - pytest tests/test_network_validation_edges.py -q
+      - pytest tests/test_network_external_input.py -q
+    gates:
+      - workflow: .github/workflows/ci-smoke.yml
+        job: tests-smoke
+        command: pytest -m "not (validation or property)"
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"
+  - id: H3
+    title: RNG seeding drift or missing seed propagation breaks determinism
+    loss_refs:
+      - L1
+    unsafe_control_actions:
+      - UCA4
+    safety_constraints:
+      - SC-3
+    severity: high
+    likelihood: medium
+    detectability: medium
+    status: enforced
+    status_reason: Deterministic seeding enforced via seed_all and run_simulation seed propagation.
+    enforcement:
+      - code: src/bnsyn/rng.py:L52-L88
+        description: seed_all validates and sets deterministic RNG state.
+      - code: src/bnsyn/sim/network.py:L514-L533
+        description: run_simulation seeds RNG via seed_all before simulation.
+    tests:
+      - path: tests/properties/test_properties_determinism.py:L12-L31
+        description: property tests assert deterministic behavior and seed control.
+    verification:
+      - pytest tests/properties/test_properties_determinism.py -q -m property
+    gates:
+      - workflow: .github/workflows/ci-validation.yml
+        job: property-tests
+        command: pytest -m property -v --tb=short --hypothesis-show-statistics
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"
+  - id: H4
+    title: Nondeterministic execution from thread-level parallelism or BLAS settings
+    loss_refs:
+      - L1
+    unsafe_control_actions:
+      - UCA5
+    safety_constraints:
+      - SC-4
+    severity: medium
+    likelihood: medium
+    detectability: low
+    status: unmitigated
+    status_reason: No repository-controlled thread/BLAS determinism guards present.
+    enforcement: []
+    tests: []
+    verification:
+      - rg -n "OMP_NUM_THREADS|MKL|OPENBLAS|NUMEXPR" src docs
+    gates: []
+    follow_up: docs/safety/followups.md#FUP-001
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"
+  - id: H5
+    title: NaN/Inf propagation in dynamics due to missing runtime numeric health checks
+    loss_refs:
+      - L2
+    unsafe_control_actions:
+      - UCA6
+    safety_constraints:
+      - SC-5
+    severity: high
+    likelihood: low
+    detectability: low
+    status: unmitigated
+    status_reason: Numeric health checks exist only in testing utilities; runtime does not enforce NaN/Inf checks.
+    enforcement: []
+    tests:
+      - path: tests/validation/test_chaos_numeric.py:L46-L92
+        description: validates numeric health utility behavior (not runtime enforcement).
+    verification:
+      - rg -n "validate_numeric_health" src/bnsyn
+    gates: []
+    follow_up: docs/safety/followups.md#FUP-002
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"

@@ -1,0 +1,15 @@
+name: Policy Fixture Bad Mutable
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Third-party action
+        uses: somecorp/some-action@main

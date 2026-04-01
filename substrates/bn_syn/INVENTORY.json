@@ -1,0 +1,63 @@
+{
+  "_generated_by": "python tools/generate_inventory.py",
+  "paths": [
+    "src",
+    "tests",
+    "docs",
+    ".github"
+  ],
+  "counts": {
+    "src": 129,
+    "tests": 243,
+    "docs": 297,
+    ".github": 56
+  },
+  "workflows": [
+    "_reusable_benchmarks.yml",
+    "_reusable_chaos_tests.yml",
+    "_reusable_formal_science.yml",
+    "_reusable_gate_profile.yml",
+    "_reusable_property_tests.yml",
+    "_reusable_pytest.yml",
+    "_reusable_quality.yml",
+    "_reusable_ssot.yml",
+    "_reusable_validation_tests.yml",
+    "benchmarks.yml",
+    "canonical-proof-spine.yml",
+    "ci-benchmarks-elite.yml",
+    "ci-benchmarks.yml",
+    "ci-pr-atomic.yml",
+    "ci-pr.yml",
+    "ci-smoke.yml",
+    "ci-validation.yml",
+    "codecov-health.yml",
+    "codeql.yml",
+    "context_compressor_gate.yml",
+    "dependency-review.yml",
+    "dependency-watch.yml",
+    "docs.yml",
+    "dsio_gate.yml",
+    "formal-coq.yml",
+    "formal-tla.yml",
+    "launch-gate.yml",
+    "math-quality-gate.yml",
+    "perfection-gate.yml",
+    "physics-equivalence.yml",
+    "pr_gate.yml",
+    "quality-mutation.yml",
+    "release-pipeline.yml",
+    "repo-governor-evidence.yml",
+    "science.yml",
+    "scientific_product_gate.yml",
+    "smlrs_gate.yml",
+    "sse-sdo-fhe-gate.yml",
+    "sse-sdo-max-gate.yml",
+    "workflow-integrity.yml"
+  ],
+  "detected_tools": [
+    "pyproject.toml",
+    "requirements-lock.txt",
+    "docker-compose.yml",
+    "Makefile"
+  ]
+}

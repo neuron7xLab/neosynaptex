@@ -1,0 +1,171 @@
+{
+  "version": "1.0",
+  "description": "Edge case test fixtures for MyceliumFractalNet",
+  "generated": "2025-11-30",
+  "nernst": {
+    "extreme_concentration_high": {
+      "z_valence": 1,
+      "concentration_out_molar": 1.0,
+      "concentration_in_molar": 1e-6,
+      "temperature_k": 310.0,
+      "expected_mv": 358.59,
+      "tolerance_mv": 5.0,
+      "reference": "Nernst equation at extreme ratio"
+    },
+    "extreme_concentration_low": {
+      "z_valence": 1,
+      "concentration_out_molar": 1e-6,
+      "concentration_in_molar": 1.0,
+      "temperature_k": 310.0,
+      "expected_mv": -358.59,
+      "tolerance_mv": 5.0,
+      "reference": "Nernst equation at extreme ratio (inverted)"
+    },
+    "temperature_min": {
+      "z_valence": 1,
+      "concentration_out_molar": 0.005,
+      "concentration_in_molar": 0.140,
+      "temperature_k": 273.0,
+      "expected_mv": -78.3,
+      "tolerance_mv": 2.0,
+      "reference": "K+ at 0°C (hypothermic limit)",
+      "note": "273K (0°C) represents the lower physiological boundary; most biological systems operate at higher temperatures but this tests numerical stability at edge conditions"
+    },
+    "temperature_max": {
+      "z_valence": 1,
+      "concentration_out_molar": 0.005,
+      "concentration_in_molar": 0.140,
+      "temperature_k": 320.0,
+      "expected_mv": -91.9,
+      "tolerance_mv": 2.0,
+      "reference": "K+ at 47°C (hyperthermic limit)"
+    },
+    "divalent_cation": {
+      "z_valence": 2,
+      "concentration_out_molar": 0.002,
+      "concentration_in_molar": 0.0001,
+      "temperature_k": 310.0,
+      "expected_mv": 40.4,
+      "tolerance_mv": 5.0,
+      "reference": "Ca2+ typical values"
+    },
+    "monovalent_anion": {
+      "z_valence": -1,
+      "concentration_out_molar": 0.120,
+      "concentration_in_molar": 0.004,
+      "temperature_k": 310.0,
+      "expected_mv": -89.0,
+      "tolerance_mv": 5.0,
+      "reference": "Cl- typical values (Hille 2001)"
+    }
+  },
+  "turing": {
+    "minimal_grid": {
+      "grid_size": 4,
+      "steps": 10,
+      "alpha": 0.1,
+      "expected_finite": true,
+      "reference": "Minimum viable grid size"
+    },
+    "boundary_diffusion_low": {
+      "grid_size": 32,
+      "steps": 100,
+      "alpha": 0.01,
+      "D_a": 0.01,
+      "D_i": 0.005,
+      "expected_finite": true,
+      "reference": "Very slow diffusion"
+    },
+    "boundary_diffusion_high": {
+      "grid_size": 32,
+      "steps": 100,
+      "alpha": 0.1,
+      "D_a": 0.5,
+      "D_i": 0.25,
+      "expected_finite": true,
+      "reference": "Fast diffusion (stability test)"
+    },
+    "long_simulation": {
+      "grid_size": 32,
+      "steps": 1000,
+      "alpha": 0.1,
+      "expected_finite": true,
+      "reference": "Long-term stability test"
+    }
+  },
+  "fractal": {
+    "minimal_points": {
+      "num_points": 100,
+      "expected_dimension_range": [1.0, 2.0],
+      "reference": "Minimum viable point count"
+    },
+    "large_points": {
+      "num_points": 10000,
+      "expected_dimension_range": [1.5, 1.9],
+      "reference": "High accuracy estimation"
+    },
+    "sparse_field": {
+      "grid_size": 32,
+      "fill_fraction": 0.05,
+      "expected_dimension_range": [0.5, 1.5],
+      "reference": "Sparse pattern (low dimension)"
+    },
+    "dense_field": {
+      "grid_size": 32,
+      "fill_fraction": 0.95,
+      "expected_dimension_range": [1.8, 2.0],
+      "reference": "Dense pattern (high dimension)"
+    }
+  },
+  "stdp": {
+    "boundary_tau_min": {
+      "tau_plus": 0.005,
+      "tau_minus": 0.005,
+      "a_plus": 0.01,
+      "a_minus": 0.012,
+      "reference": "Minimum time constant (5 ms)"
+    },
+    "boundary_tau_max": {
+      "tau_plus": 0.100,
+      "tau_minus": 0.100,
+      "a_plus": 0.01,
+      "a_minus": 0.012,
+      "reference": "Maximum time constant (100 ms)"
+    },
+    "symmetric_amplitudes": {
+      "tau_plus": 0.020,
+      "tau_minus": 0.020,
+      "a_plus": 0.01,
+      "a_minus": 0.01,
+      "reference": "Symmetric LTP/LTD (non-standard)"
+    },
+    "strong_asymmetry": {
+      "tau_plus": 0.020,
+      "tau_minus": 0.020,
+      "a_plus": 0.005,
+      "a_minus": 0.020,
+      "reference": "Strong LTD bias for stability"
+    }
+  },
+  "simulation": {
+    "demo_config": {
+      "grid_size": 32,
+      "steps": 32,
+      "seed": 42,
+      "alpha": 0.1,
+      "turing_enabled": true,
+      "expected_time_s": 0.05,
+      "expected_time_tolerance": 0.05,
+      "reference": "Fast demo configuration"
+    },
+    "stress_config": {
+      "grid_size": 128,
+      "steps": 500,
+      "seed": 42,
+      "alpha": 0.1,
+      "turing_enabled": true,
+      "expected_finite": true,
+      "reference": "Large-scale stress test"
+    }
+  }
+}

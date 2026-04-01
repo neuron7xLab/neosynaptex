@@ -1,0 +1,43 @@
+{
+  "version": "0.1.0",
+  "date": "2026-03-28",
+  "metrics": {
+    "python_files": 256,
+    "total_classes": 464,
+    "unique_class_names": 452,
+    "duplicated_class_names": 10,
+    "import_cycles": 11,
+    "cross_package_edges": 84,
+    "dict_str_any_in_core": 127,
+    "mutable_boundaries_new_modules": 4,
+    "total_all_symbols": 526,
+    "import_contracts": 10,
+    "tests_passing": 2815,
+    "tests_failing": 0,
+    "tests_skipped": 10,
+    "modules": 19,
+    "loc_estimate": 60000
+  },
+  "structural_debt": {
+    "high": [
+      "BoundaryCondition triplicate (types/field.py should be canonical)",
+      "analytics <-> core import cycle"
+    ],
+    "medium": [
+      "dict[str, Any] in 127 core locations",
+      "integration __all__ = 114 (bloated)",
+      "core <-> intervention cycle"
+    ],
+    "low": [
+      "FeatureVector 3x (different semantics, not true duplication)",
+      "config <-> config_validation cycle (intentional)",
+      "api <-> api_v1 cycle (version delegation)"
+    ]
+  },
+  "read_write_boundaries": {
+    "read_only": ["interpretability", "self_reading (4/5)", "tau_control (8/9)", "analytics"],
+    "write_theta_pid": ["self_reading/recovery.py"],
+    "write_meta_rules": ["tau_control/transformation.py"],
+    "write_simulation": ["core/*"]
+  }
+}

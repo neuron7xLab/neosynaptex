@@ -1,0 +1,35 @@
+# BN-Syn Gitleaks Policy (strict with bibkey false-positive exception)
+# =====================================================================
+# This config keeps gitleaks STRICT for all real secrets while preventing
+# false positives on bibliography reference keys in YAML files.
+#
+# WHAT IS SCANNED:
+#   - Repository scan: All files in all commits
+#   - PR diff scan: Changes between base and head of PR
+#
+# WHY bibkey: IS ALLOWLISTED:
+#   The 'generic-api-key' rule matches patterns like `key: <value>`. In this
+#   repo, `bibkey: <author><year><word>` fields in YAML files are bibliographic
+#   reference keys (e.g., "bibkey: axelrod1981cooperation"), NOT secrets.
+#   These are deterministic identifiers linking claims to bibliography entries.
+#
+# SCOPE: Only the specific bibkey field pattern in bibliography/claims YAML files.
+# INVARIANT: All other secrets MUST still fail CI.
+
+title = "BN-Syn Gitleaks Policy"
+
+[allowlist]
+description = "Allow bibliography reference keys (bibkey:) in YAML metadata files"
+
+# Path-scoped: only these specific files
+paths = [
+  '''^bibliography/mapping\.yml$''',
+  '''^claims/claims\.yml$'''
+]
+
+# Pattern-scoped: only the bibkey field (author-year-word format)
+# This matches: "bibkey: authorYYYYword" where author is lowercase letters,
+# YYYY is 4 digits, and word is lowercase letters
+regexes = [
+  '''bibkey:\s+[a-z]+\d{4}[a-z]+'''
+]

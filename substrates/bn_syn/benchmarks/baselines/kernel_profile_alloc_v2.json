@@ -1,0 +1,95 @@
+{
+  "complexity": {
+    "adex_update": "O(200)",
+    "conductance_decay": "O(200)",
+    "criticality_estimation": "O(200)",
+    "full_step": "O(1990 + 200)",
+    "nmda_mg_block": "O(200)",
+    "poisson_input": "O(200)",
+    "synapse_propagation": "O(1990)"
+  },
+  "configuration": {
+    "dt_ms": 0.1,
+    "neurons": 200,
+    "seed": 42,
+    "steps": 100,
+    "synapses": 1990
+  },
+  "kernels": {
+    "adex_update": {
+      "avg_memory_mb": 0.0,
+      "avg_time_sec": 8.95384900013596e-05,
+      "call_count": 100,
+      "max_time_sec": 0.00017841599947132636,
+      "min_time_sec": 6.395600030373316e-05,
+      "total_time_sec": 0.00895384900013596
+    },
+    "conductance_decay": {
+      "avg_memory_mb": 0.0,
+      "avg_time_sec": 8.04458002676256e-06,
+      "call_count": 100,
+      "max_time_sec": 1.9326999790791888e-05,
+      "min_time_sec": 5.328000042936765e-06,
+      "total_time_sec": 0.000804458002676256
+    },
+    "criticality_estimation": {
+      "avg_memory_mb": 0.0,
+      "avg_time_sec": 1.736641001116368e-05,
+      "call_count": 100,
+      "max_time_sec": 4.274700040696189e-05,
+      "min_time_sec": 1.2398999388096854e-05,
+      "total_time_sec": 0.001736641001116368
+    },
+    "full_step": {
+      "avg_memory_mb": 0.0,
+      "avg_time_sec": 0.0002144245699764724,
+      "call_count": 100,
+      "max_time_sec": 0.00035539999953471124,
+      "min_time_sec": 0.00015161000010266434,
+      "total_time_sec": 0.02144245699764724
+    },
+    "network_setup": {
+      "avg_memory_mb": 0.0,
+      "avg_time_sec": 0.0004848769995078328,
+      "call_count": 1,
+      "max_time_sec": 0.0004848769995078328,
+      "min_time_sec": 0.0004848769995078328,
+      "total_time_sec": 0.0004848769995078328
+    },
+    "nmda_mg_block": {
+      "avg_memory_mb": 0.0,
+      "avg_time_sec": 1.0158090090044425e-05,
+      "call_count": 100,
+      "max_time_sec": 2.3628000235476065e-05,
+      "min_time_sec": 6.829000085417647e-06,
+      "total_time_sec": 0.0010158090090044425
+    },
+    "poisson_input": {
+      "avg_memory_mb": 0.0,
+      "avg_time_sec": 8.635160029371036e-06,
+      "call_count": 100,
+      "max_time_sec": 2.0837000192841515e-05,
+      "min_time_sec": 5.502000021806452e-06,
+      "total_time_sec": 0.0008635160029371036
+    },
+    "synapse_propagation": {
+      "avg_memory_mb": 0.0,
+      "avg_time_sec": 2.374863998738874e-05,
+      "call_count": 100,
+      "max_time_sec": 5.3685000239056535e-05,
+      "min_time_sec": 1.7639999896346126e-05,
+      "total_time_sec": 0.002374863998738874
+    }
+  },
+  "metadata": {
+    "description": "Performance Jacobian - gradient of cost w.r.t. kernels",
+    "note": "Use this to identify O(N\u00b2) operations and optimization surfaces",
+    "platform": "Linux-6.12.13-x86_64-with-glibc2.39",
+    "python_version": "3.12.12"
+  },
+  "regime_id": "alloc_v2",
+  "summary": {
+    "runs": 5,
+    "statistic": "median"
+  }
+}

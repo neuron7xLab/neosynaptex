@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-03-25T15:05:41.246651",
+  "benchmarks": [
+    {
+      "name": "field_simulation",
+      "metric_value": 3.2252760138362646,
+      "metric_unit": "ms",
+      "target_value": 250.0,
+      "passed": true,
+      "timestamp": "2026-03-25T15:05:40.736275"
+    },
+    {
+      "name": "fractal_dimension",
+      "metric_value": 0.11824914021417499,
+      "metric_unit": "ms",
+      "target_value": 50.0,
+      "passed": true,
+      "timestamp": "2026-03-25T15:05:40.743243"
+    },
+    {
+      "name": "pipeline_e2e",
+      "metric_value": 5.812558997422457,
+      "metric_unit": "ms",
+      "target_value": 200.0,
+      "passed": true,
+      "timestamp": "2026-03-25T15:05:40.831711"
+    },
+    {
+      "name": "causal_gate",
+      "metric_value": 2.786053279414773,
+      "metric_unit": "ms",
+      "target_value": 10.0,
+      "passed": true,
+      "timestamp": "2026-03-25T15:05:40.999683"
+    },
+    {
+      "name": "memory_simulation",
+      "metric_value": 0.42771148681640625,
+      "metric_unit": "MB",
+      "target_value": 100.0,
+      "passed": true,
+      "timestamp": "2026-03-25T15:05:41.246477"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0
+  }
+}

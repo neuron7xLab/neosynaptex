@@ -1,0 +1,172 @@
+# ====================================================
+# Network Policies for MLSDM Production
+# ====================================================
+# Implements zero-trust network security by default-denying
+# all traffic and explicitly allowing only necessary flows.
+#
+# Prerequisites:
+#   - CNI plugin with NetworkPolicy support
+#     (Calico, Cilium, Weave, or cloud-native CNI)
+#
+# Usage:
+#   kubectl apply -f network-policy.yaml -n mlsdm-production
+# ====================================================
+
+# Default deny all ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: network-security
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+
+---
+# Default deny all egress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: network-security
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+
+---
+# Allow ingress to MLSDM API pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-mlsdm-api-ingress
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: network-security
+spec:
+  podSelector:
+    matchLabels:
+      app: mlsdm-api
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow traffic from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: TCP
+          port: 8000
+
+    # Allow traffic from Prometheus for metrics scraping
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+          podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 8000
+
+---
+# Allow egress from MLSDM API pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-mlsdm-api-egress
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: network-security
+spec:
+  podSelector:
+    matchLabels:
+      app: mlsdm-api
+  policyTypes:
+    - Egress
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+    # Allow egress to OpenAI API (if using OpenAI backend)
+    # Note: For cloud services, use CIDR blocks or external service names
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+
+---
+# Allow inter-pod communication within the namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-same-namespace
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: network-security
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+  egress:
+    - to:
+        - podSelector: {}
+
+---
+# Allow metrics scraping from Prometheus in monitoring namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus-scrape
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: network-security
+spec:
+  podSelector:
+    matchLabels:
+      app: mlsdm-api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8000

@@ -1,0 +1,122 @@
+[
+  {
+    "type": "command_log",
+    "path": "proof_bundle/git_status.log",
+    "sha256": "ab13706f0ce8be94c1452c04acd69e371fde5f01deac8c9a864cb1eae0699386",
+    "cmd": "git status --short --branch",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/git_log.log",
+    "sha256": "dac6330a0755ead14b114a9f6aa2a0b5919d97b29a235a8816fd8add19df7175",
+    "cmd": "git log -1 --pretty=fuller",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/python_version.log",
+    "sha256": "e925235452b18521f223da6c5c94ce026f0bdb61938737a49b2e2afdb2c5bb13",
+    "cmd": "python --version",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/pip_version.log",
+    "sha256": "acf32fee7a32aa49f548f056bcbf2b89b42e62454c144a2ad8db41b53ac1895d",
+    "cmd": "python -m pip --version",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/pytest_version.log",
+    "sha256": "7eefb56b8603b033e5b2d018412784ba0e721719641f8cf1a02dcb83f3e8389e",
+    "cmd": "python -m pytest --version",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/uname.log",
+    "sha256": "c78c5ad7853e6e324a0a48930cacf3c8b9e9f9c39c1ef3bc47415fdffe65309b",
+    "cmd": "uname -a",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/cpu.log",
+    "sha256": "c1f3e06ee1ccb3f7eff5f89ce0d39fa5ccc2f9faeb8fba882a0f3e28eec3c719",
+    "cmd": "lscpu",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/mem.log",
+    "sha256": "c4df150251de34ea5f301788c6849652395205268f13e7467d4a7236faacc328",
+    "cmd": "free -h",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/find_top.log",
+    "sha256": "1905d53dac6e114def169c16140b781bba6b5114bbe14b817ee1de9f088e8141",
+    "cmd": "find . -maxdepth 2 -mindepth 1 -type d | sort",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/ext_counts.log",
+    "sha256": "bb6a17d4febfa5954bc38aa4e5777a0c28750fc0c3bbd93805daceea20899d87",
+    "cmd": "python - <<'P2'\nfrom pathlib import Path\nfrom collections import Counter\nroot=Path('.')\nc=Counter(p.suffix or '<noext>' for p in root.rglob('*') if p.is_file() and '.git/' not in str(p))\nfor k,v in c.most_common(40):\n print(f'{k}\t{v}')\nP2",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/manifests.log",
+    "sha256": "395c045bc54f0cce8f55f15fdd997050aee5debb838dc03e680ac342d1abd89d",
+    "cmd": "find . -maxdepth 3 -type f \\( -name 'pyproject.toml' -o -name 'requirements-lock.txt' -o -name 'Dockerfile' -o -name 'docker-compose.yml' -o -name '.pre-commit-config.yaml' -o -path './.github/workflows/*.yml' \\) | sort",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/install_dev_test.log",
+    "sha256": "6762445b1c99d9c118feb39b5d2dc70410f4e8918453434f0e3b9e0af2c17278",
+    "cmd": "python -m pip install -e \".[dev,test]\"",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/install_build.log",
+    "sha256": "d7c5ccf54332f258b92dc0afeec31062a588b4e228f88a1cba33abd1d94ea961",
+    "cmd": "python -m pip install build",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/build.log",
+    "sha256": "1707cc96c6ae877d9a39e003b37d4aeb08081dcb11afd1545edbd7a412964fc7",
+    "cmd": "python -m build",
+    "exit": 0,
+    "timeout_sec": 1200
+  },
+  {
+    "type": "command_log",
+    "path": "proof_bundle/test_all.log",
+    "sha256": "cc5a8375a5b10620c71d19e13a31112f23becd3c10f4b630a1a13553da3dd728",
+    "cmd": "python -m pytest -q",
+    "exit": 0,
+    "timeout_sec": 1200
+  }
+]

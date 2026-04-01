@@ -1,0 +1,170 @@
+[
+  {
+    "path": "proof_bundle/command_logs/01.log",
+    "sha256": "b2604bc6ca8c5d06fbc885ea87f81b1db14b5a724596a491c93387aee2cd07be",
+    "command": "pwd",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/02.log",
+    "sha256": "a82d5f7c9d8774245fc8b7e5b03b3638493145e79632c357a0a3a8761ffb1df9",
+    "command": "date -u +%Y-%m-%dT%H:%M:%SZ",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/03.log",
+    "sha256": "73d34c9982b8ae28d756789b28812090fd2e486523b83cd68c050d9d4c6312c3",
+    "command": "uname -a",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/04.log",
+    "sha256": "cfe4fc93a1650e9bd98865d250e36569ae8ca05d5af64557fa65db2836d12010",
+    "command": "git status --short",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/05.log",
+    "sha256": "801ec1623626966c7aa92adf7ca6ebea4a03e3899bc2f603ddf3431eaeaa7ab5",
+    "command": "git rev-parse --abbrev-ref HEAD",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/06.log",
+    "sha256": "649e2c1850c4e84923362829a09dbb2e6704aadd3618d17d94732c3a6348c935",
+    "command": "git rev-parse HEAD",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/07.log",
+    "sha256": "a1036ba4a272b9d70f5f23777d9a6b1e47f17466d09432c25ef174e9767a9ee3",
+    "command": "git remote -v",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/08.log",
+    "sha256": "b56f4741c5a24b7065f6aaff606b13f469bac01a1ffb018764d70af89390c9f2",
+    "command": "find . -maxdepth 2 -type d | sort",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/09.log",
+    "sha256": "880114d4fb11d70c2761dd546cdaf871dc891b6c6d42acf5b7cf28f25b08ceed",
+    "command": "find . -maxdepth 3 -type f | sed \"s#^./##\" | awk -F. \"NF>1{print tolower($NF)}\" | sort | uniq -c | sort -nr | head -n 100",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/10.log",
+    "sha256": "59ce74f9b7aa0b800e30baebe59e64b6c5d663863b4536ff9829ad26c4f86dba",
+    "command": "du -sh ./* | sort -h",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/11.log",
+    "sha256": "2dcc8df6176acddde1ce6a5d07aca030a294426690547a362c114e0877c0b238",
+    "command": "python --version",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/12.log",
+    "sha256": "517b3d6b54fca3a4f211ffd293239e19acdabc70426ec41bf95f3ae18030be96",
+    "command": "pip --version",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/13.log",
+    "sha256": "e86d035202301f4cb80aa1b4a2d48807efddc822a6a592e62194619dd02a9a98",
+    "command": "rg -n \"(Flask|FastAPI|Django|aiohttp|click|argparse|uvicorn|gunicorn|postgres|sqlite|redis|jwt|auth|oauth|token|webhook|idempot|transaction|retry|rate limit|CORS|HSTS|CSP|tenant|PII|email|password|api key|secret|logging|metrics|prometheus|opentelemetry|sentry)\" README.md docs src tests pyproject.toml requirements-lock.txt",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/14.log",
+    "sha256": "5b47c2edceaccd4e6fd4fe268b68fc17f783946ac5ec23bc049df972bf7f4a16",
+    "command": "cat pyproject.toml",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/15.log",
+    "sha256": "e3ebe761838092a612c2addfeff9fda2dea10bf7ece685c2acc803ff7a55501b",
+    "command": "cat requirements-lock.txt",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/16.log",
+    "sha256": "f47a8cf19e47d1c2664964c2f70ed2bb4257a7a02dca47ab1ee8969481d2e4ee",
+    "command": "rg -n \"(openapi|swagger|route|endpoint|api)\" docs src README.md",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/17.log",
+    "sha256": "8a3ae2a2bcd041b8d9387e2f166dd0cd741e6034c427f383cbb13d5ef003474a",
+    "command": "rg -n \"(idempot|transaction|atomic|webhook|replay|dedup|unique|constraint)\" src docs tests",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/18.log",
+    "sha256": "1459442654a61fe8ff3cb441b9966aa5fbaee0022af38329475fb396cf76a6a4",
+    "command": "rg -n \"(auth|authorization|rbac|role|permission|jwt|session|token)\" src docs tests",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/19.log",
+    "sha256": "ba0b8015b6cce8210b7db6dc7167a4a02cec6ba6607252eb2a78882add653b68",
+    "command": "rg -n \"(tenant|org|multi-tenant|isolation|scope)\" src docs tests",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/20.log",
+    "sha256": "15a21bc462b94396d45fc6c00f61113edb937d7581cb7d73e2f230c6b9a5fd57",
+    "command": "rg -n \"(log|metrics|trace|observ|slo|alert|incident|runbook)\" docs src README.md",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/21.log",
+    "sha256": "cf98bb7057e2bb85cd6fe52520eb0c91c313e25aa5c144e7e1f6d8e0c2675f51",
+    "command": "rg -n \"(retention|delete|erasure|privacy|GDPR|PII|encrypt|TLS|HSTS)\" docs src README.md",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/22.log",
+    "sha256": "6847f0aeb47ae3c2d29498961d338cce995efb06cbf9f1b7cc0fffd1b1854823",
+    "command": "rg -n \"(Dockerfile|docker-compose|kubernetes|helm|deploy|rollback|migration|backup)\" README.md docs infra Dockerfile docker-compose.yml",
+    "exit": 2
+  },
+  {
+    "path": "proof_bundle/command_logs/23.log",
+    "sha256": "e1581b4fa21033be70f225e4031e77920116413d770d06cd51d3cbf3eea38336",
+    "command": "find .github -maxdepth 3 -type f -print",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/24.log",
+    "sha256": "22590996ee96ae31b065199c8279a0872532d0e6df3dbcd9b9255b29711b025a",
+    "command": "cat .github/workflows/ci.yml",
+    "exit": 1
+  },
+  {
+    "path": "proof_bundle/command_logs/25.log",
+    "sha256": "94c743ab2b9eee0f8a62385f84edf435c7a590f8c9b389d63b728dbf0bcc3d96",
+    "command": "find src -maxdepth 4 -type f -print",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/26.log",
+    "sha256": "bdb3c79b430e66622318410b2030f0b088b8c22dd191052c3bc1104b9fd9d2e0",
+    "command": "find docs -maxdepth 3 -type f -print",
+    "exit": 0
+  },
+  {
+    "path": "proof_bundle/command_logs/27.log",
+    "sha256": "5eda0aa2e093667e1fc17d9b400cb67564b4fce812487d93f6a88f4120cb0111",
+    "command": "pytest --collect-only -q",
+    "exit": 2
+  },
+  {
+    "path": "proof_bundle/command_logs/28.log",
+    "sha256": "92b48a25080f80deb16c30a80ecbf05bc5c1c1ef8957f5785f640db23aa3f214",
+    "command": "pytest -q",
+    "exit": 2
+  }
+]

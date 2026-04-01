@@ -1,0 +1,17 @@
+# Grafana Dashboard Provisioning
+# ===============================
+# Automatically loads MLSDM dashboards into Grafana
+
+apiVersion: 1
+
+providers:
+  - name: 'MLSDM Dashboards'
+    orgId: 1
+    folder: 'MLSDM'
+    folderUid: 'mlsdm'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 60
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

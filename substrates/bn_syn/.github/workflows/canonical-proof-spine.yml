@@ -1,0 +1,248 @@
+name: canonical-proof-spine
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: canonical-proof-spine-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  canonical-proof-spine:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 75
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-lock.txt
+
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+
+      - name: Log pip version
+        run: python -m pip --version
+
+      - name: Install
+        run: python -m pip install -e ".[dev,test]"
+
+      - name: Validate canonical quickstart surface
+        run: |
+          mkdir -p artifacts/ci-logs
+          python -m scripts.check_quickstart_consistency 2>&1 | tee artifacts/ci-logs/check_quickstart_consistency.log
+          python -m scripts.validate_quickstart_contract 2>&1 | tee artifacts/ci-logs/validate_quickstart_contract.log
+
+      - name: Run headless canonical quickstart
+        run: |
+          make quickstart-smoke 2>&1 | tee artifacts/ci-logs/quickstart-smoke.log
+
+      - name: Validate canonical bundle
+        run: |
+          bnsyn proof-validate-bundle artifacts/canonical_run 2>&1 | tee artifacts/ci-logs/proof-validate.log
+
+      - name: Verify manifest/proof consistency
+        run: |
+          bnsyn proof-evaluate artifacts/canonical_run 2>&1 | tee artifacts/ci-logs/proof-evaluate.log
+
+      - name: Validate determinism replay
+        run: |
+          bnsyn proof-check-determinism artifacts/canonical_run 2>&1 | tee artifacts/ci-logs/determinism.log
+
+      - name: Validate 10-seed admissibility band
+        run: |
+          bnsyn proof-check-envelope artifacts/canonical_run 2>&1 | tee artifacts/ci-logs/envelope.log
+
+      - name: Evaluate canonical phase-space gate
+        id: phase_gate
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/phase_gate
+          python -m scripts.check_canonical_phase_gates \
+            artifacts/canonical_run \
+            --output-json artifacts/phase_gate/phase_space_gate.json \
+            --output-md artifacts/phase_gate/phase_space_gate.md \
+            2>&1 | tee artifacts/phase_gate/phase_space_gate.log
+          cat artifacts/phase_gate/phase_space_gate.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build agent feedback bundle
+        if: always()
+        run: |
+          python -m scripts.build_agent_feedback \
+            --artifact-dir artifacts/canonical_run \
+            --output-dir artifacts/agent_feedback \
+            --log artifacts/ci-logs/check_quickstart_consistency.log \
+            --log artifacts/ci-logs/validate_quickstart_contract.log \
+            --log artifacts/ci-logs/quickstart-smoke.log \
+            --log artifacts/ci-logs/proof-validate.log \
+            --log artifacts/ci-logs/proof-evaluate.log \
+            --log artifacts/ci-logs/determinism.log \
+            --log artifacts/ci-logs/envelope.log \
+            --log artifacts/phase_gate/phase_space_gate.log
+
+      - name: Synthesize remediation plan
+        if: always()
+        run: |
+          mkdir -p artifacts/remediation
+          python -m scripts.synthesize_canonical_remediation \
+            --context artifacts/agent_feedback/context.json \
+            --phase-gate artifacts/phase_gate/phase_space_gate.json \
+            --output-json artifacts/remediation/remediation_plan.json \
+            --output-md artifacts/remediation/remediation_plan.md
+          cat artifacts/remediation/remediation_plan.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Package canonical bundle
+        if: always()
+        run: |
+          tar -czf artifacts/canonical_run_bundle.tgz -C artifacts canonical_run
+
+      - name: Upload canonical proof artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: canonical-proof-bundle-${{ github.sha }}
+          path: |
+            artifacts/canonical_run/
+            artifacts/canonical_run_bundle.tgz
+            artifacts/agent_feedback/
+            artifacts/ci-logs/
+            artifacts/phase_gate/
+            artifacts/remediation/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce phase gate result
+        if: always() && steps.phase_gate.outcome == 'failure'
+        run: |
+          echo "phase-space gate failed; remediation_plan.md was generated and attached above"
+          exit 1
+
+  attest-canonical-bundle:
+    name: attest-canonical-bundle
+    needs: canonical-proof-spine
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      attestations: write
+      id-token: write
+    timeout-minutes: 15
+    steps:
+      - name: Download canonical proof bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: canonical-proof-bundle-${{ github.sha }}
+          path: artifacts
+
+      - name: Attest canonical proof bundle
+        uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45
+        with:
+          subject-path: artifacts/canonical_run_bundle.tgz
+
+  cross-commit-analytics:
+    name: cross-commit-analytics
+    needs: canonical-proof-spine
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 90
+    steps:
+      - name: Checkout current revision
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-lock.txt
+
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+
+      - name: Install
+        run: python -m pip install -e ".[dev,test]"
+
+      - name: Download current canonical bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: canonical-proof-bundle-${{ github.sha }}
+          path: artifacts
+
+      - name: Compare against base revision canonical bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/cross_commit artifacts/base_logs
+          BASE_DIR="$RUNNER_TEMP/base-canonical"
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          COMPARE_EXIT=0
+          git worktree add --detach "$BASE_DIR" "$BASE_SHA"
+          if [ -f "$BASE_DIR/pyproject.toml" ] && [ -f "$BASE_DIR/Makefile" ]; then
+            python -m venv "$BASE_DIR/.venv"
+            "$BASE_DIR/.venv/bin/python" -m pip install -U pip setuptools wheel
+            "$BASE_DIR/.venv/bin/python" -m pip install -e "${BASE_DIR}[dev,test]"
+            make -C "$BASE_DIR" quickstart-smoke 2>&1 | tee artifacts/base_logs/quickstart-smoke.log
+            python -m scripts.compare_canonical_runs \
+              --baseline-dir "$BASE_DIR/artifacts/canonical_run" \
+              --current-dir artifacts/canonical_run \
+              --output-json artifacts/cross_commit/compare.json \
+              --output-md artifacts/cross_commit/compare.md || COMPARE_EXIT=$?
+            python -m scripts.synthesize_canonical_remediation \
+              --context artifacts/agent_feedback/context.json \
+              --phase-gate artifacts/phase_gate/phase_space_gate.json \
+              --compare artifacts/cross_commit/compare.json \
+              --output-json artifacts/cross_commit/remediation_plan.json \
+              --output-md artifacts/cross_commit/remediation_plan.md
+          else
+            cat > artifacts/cross_commit/compare.json <<'JSON'
+          {
+            "schema_version": "1.0.0",
+            "status": "INCONCLUSIVE",
+            "reason": "base revision missing canonical quickstart surface"
+          }
+          JSON
+            cat > artifacts/cross_commit/compare.md <<'MD'
+          # Cross-Commit Canonical Analytics
+
+          status: **INCONCLUSIVE**
+
+          Base revision is missing the canonical quickstart surface required for deterministic comparison.
+          MD
+            python -m scripts.synthesize_canonical_remediation \
+              --context artifacts/agent_feedback/context.json \
+              --phase-gate artifacts/phase_gate/phase_space_gate.json \
+              --compare artifacts/cross_commit/compare.json \
+              --output-json artifacts/cross_commit/remediation_plan.json \
+              --output-md artifacts/cross_commit/remediation_plan.md
+          fi
+          cat artifacts/cross_commit/compare.md >> "$GITHUB_STEP_SUMMARY"
+          cat artifacts/cross_commit/remediation_plan.md >> "$GITHUB_STEP_SUMMARY"
+          exit "$COMPARE_EXIT"
+
+      - name: Upload cross-commit analytics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cross-commit-analytics-${{ github.sha }}
+          path: |
+            artifacts/cross_commit/
+            artifacts/base_logs/
+          if-no-files-found: error
+          retention-days: 30

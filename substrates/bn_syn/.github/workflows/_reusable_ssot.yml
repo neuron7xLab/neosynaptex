@@ -1,0 +1,38 @@
+# REUSABLE NON-PR-GATE: long-running workflow_call; must not run on pull_request/push.
+name: Reusable SSOT Gates
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: 'Python version to use'
+        type: string
+        default: '3.11'
+
+permissions:
+  contents: read
+
+jobs:
+  ssot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ inputs['python-version'] }}
+          cache: 'pip'
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+
+      - name: Log pip version
+        run: python -m pip --version
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev,test]"
+      - name: SSOT gates
+        run: |
+          python -m scripts.validate_bibliography
+          python -m scripts.validate_claims
+          python -m scripts.scan_governed_docs
+          python -m scripts.scan_normative_tags

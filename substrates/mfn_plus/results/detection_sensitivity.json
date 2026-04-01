@@ -1,0 +1,24 @@
+{
+  "n_test_cases": 20,
+  "baseline_scores": {
+    "mean": 0.2168,
+    "std": 0.0017,
+    "cv_percent": 0.79,
+    "min": 0.2127,
+    "max": 0.2187
+  },
+  "label_distribution": {
+    "nominal": 20
+  },
+  "weights": {
+    "ANOMALY_W_CHANGE": 0.14,
+    "ANOMALY_W_COLLAPSE": 0.18,
+    "ANOMALY_W_CONNECTIVITY": 0.06,
+    "ANOMALY_W_INSTABILITY": 0.16,
+    "ANOMALY_W_NOISE": 0.14,
+    "ANOMALY_W_PLASTICITY": 0.06,
+    "ANOMALY_W_TRANSITION": 0.14,
+    "ANOMALY_W_VOLATILITY": 0.12
+  },
+  "weight_sum": 1.0
+}

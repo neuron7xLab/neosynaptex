@@ -1,0 +1,79 @@
+{
+  "part1_debruijn": {
+    "gray_scott": {
+      "holds_pct": 5.3,
+      "dH_neg_pct": 100.0,
+      "ratio_mean": 0.0276,
+      "ratio_std": 0.0382,
+      "n_samples": 760
+    },
+    "cahn_hilliard": {
+      "holds_pct": 96.6,
+      "dH_neg_pct": 96.6,
+      "ratio_mean": 0.3127,
+      "ratio_std": 0.2654,
+      "n_samples": 580
+    }
+  },
+  "part2_metrics": {
+    "gray_scott": {
+      "W2_decreases": true,
+      "H1_decreases": true,
+      "W2_start": 0.0577,
+      "W2_end": 0.0103,
+      "H1_start": 2.3224,
+      "H1_end": 0.0053
+    },
+    "cahn_hilliard": {
+      "W2_decreases": true,
+      "H1_decreases": true,
+      "W2_start": 0.0243,
+      "W2_end": 0.0,
+      "H1_start": 5.3428,
+      "H1_end": 0.0
+    }
+  },
+  "part3_neural": {
+    "300": {
+      "sigma": 1.0,
+      "n_spikes": 6105,
+      "tau_mk": 0.1373,
+      "p": 0.2537,
+      "descent": 0.0212,
+      "verdict": "no_trend"
+    },
+    "500": {
+      "sigma": 1.0,
+      "n_spikes": 6100,
+      "tau_mk": -0.0838,
+      "p": 0.486,
+      "descent": 0.0203,
+      "verdict": "no_trend"
+    },
+    "800": {
+      "sigma": 1.0,
+      "n_spikes": 6106,
+      "tau_mk": -0.041,
+      "p": 0.7331,
+      "descent": 0.0133,
+      "verdict": "no_trend"
+    },
+    "1200": {
+      "sigma": 1.0,
+      "n_spikes": 6098,
+      "tau_mk": 0.0945,
+      "p": 0.432,
+      "descent": -0.0135,
+      "verdict": "no_trend"
+    },
+    "2000": {
+      "sigma": 1.0,
+      "n_spikes": 6108,
+      "tau_mk": -0.0588,
+      "p": 0.6247,
+      "descent": 0.0729,
+      "verdict": "no_trend"
+    }
+  },
+  "compute_seconds": 17.8
+}

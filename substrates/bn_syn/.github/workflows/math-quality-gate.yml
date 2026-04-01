@@ -1,0 +1,49 @@
+name: Math Quality Gate
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+env:
+  PIP_VERSION: "26.0"
+
+jobs:
+  math-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade "pip==${PIP_VERSION}"
+          python -m pip --version
+          python -m pip install -e ".[test]"
+      - name: Import contracts sanity check
+        run: python -c "import contracts; print('import ok')"
+      - name: Run math validator
+        run: python scripts/math_validate.py
+      - name: Run math invariant tests
+        run: pytest tests/test_math_invariants.py -v --tb=short
+      - name: Verify no UNTRUSTED artifacts
+        run: |
+          python - <<'PY'
+          import json
+
+          with open('artifacts/math_audit/manifest.json', encoding='utf-8') as handle:
+              m = json.load(handle)
+          untrusted = [a for a in m['artifacts'] if a.get('provenance') == 'UNTRUSTED']
+          if untrusted:
+              for item in untrusted:
+                  print(f"UNTRUSTED: {item['path']}")
+              raise SystemExit(1)
+          print('All artifacts have provenance.')
+          PY
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: math-audit
+          path: artifacts/math_audit/

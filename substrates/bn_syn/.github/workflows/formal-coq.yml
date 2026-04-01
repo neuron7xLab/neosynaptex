@@ -1,0 +1,24 @@
+# NON-PR-GATE: long-running workflow; must not run on pull_request/push.
+name: formal-coq
+# Guard: non-PR-gate workflow; must remain off PRs.
+
+on:
+  schedule:
+    # Run nightly at 1 AM UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formal-coq-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coq-proof-check:
+    uses: ./.github/workflows/_reusable_formal_science.yml
+    with:
+      proof-suite: coq
+      model-set: specs/coq
+      time-budget: 20

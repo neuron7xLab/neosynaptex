@@ -1,0 +1,396 @@
+# MyceliumFractalNet v4.1 Kubernetes Deployment
+# Supports scaling to 1M clients via horizontal pod autoscaling
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mycelium-fractal-net
+  labels:
+    app: mycelium-fractal-net
+    pod-security.kubernetes.io/enforce: "restricted"
+    pod-security.kubernetes.io/audit: "restricted"
+    pod-security.kubernetes.io/warn: "restricted"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: mfn-limit-range
+  namespace: mycelium-fractal-net
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: "250m"
+        memory: "256Mi"
+      default:
+        cpu: "500m"
+        memory: "512Mi"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: mfn-resource-quota
+  namespace: mycelium-fractal-net
+spec:
+  hard:
+    pods: "150"
+    requests.cpu: "30"
+    limits.cpu: "60"
+    requests.memory: "32Gi"
+    limits.memory: "48Gi"
+    requests.ephemeral-storage: "30Gi"
+    limits.ephemeral-storage: "60Gi"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mfn-service-account
+  namespace: mycelium-fractal-net
+automountServiceAccountToken: false
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mfn-restricted
+  namespace: mycelium-fractal-net
+spec:
+  podSelector:
+    matchLabels:
+      app: mycelium-fractal-net
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+  egress:
+    - to:
+        - podSelector: {}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mycelium-fractal-net
+  namespace: mycelium-fractal-net
+  labels:
+    app: mycelium-fractal-net
+    version: v4.1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mycelium-fractal-net
+  template:
+    metadata:
+      labels:
+        app: mycelium-fractal-net
+        version: v4.1
+    spec:
+      serviceAccountName: mfn-service-account
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - mycelium-fractal-net
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: mycelium-fractal-net
+          # Replace with a real image digest, e.g.:
+          # docker inspect mycelium-fractal-net:v4.1 --format='{{index .RepoDigests 0}}'
+          image: mycelium-fractal-net@sha256:REPLACE_WITH_ACTUAL_DIGEST
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsUser: 10000
+            runAsGroup: 10000
+          ports:
+            - containerPort: 8000
+              name: http
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          envFrom:
+            - configMapRef:
+                name: mfn-app-env
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: MFN_API_KEY_FILE
+              value: /etc/secrets/api-key
+            - name: MFN_API_KEYS_FILE
+              value: /etc/secrets/api-keys
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            failureThreshold: 6
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: mfn-secrets
+              mountPath: /etc/secrets
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: mfn-secrets
+          secret:
+            secretName: mfn-secrets
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mfn-pdb
+  namespace: mycelium-fractal-net
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: mycelium-fractal-net
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mycelium-fractal-net
+  namespace: mycelium-fractal-net
+spec:
+  selector:
+    app: mycelium-fractal-net
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mycelium-fractal-net-hpa
+  namespace: mycelium-fractal-net
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mycelium-fractal-net
+  minReplicas: 3
+  maxReplicas: 100
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# ConfigMap for API/environment configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mfn-app-env
+  namespace: mycelium-fractal-net
+data:
+  MFN_SEED: "42"
+  MFN_ENV: "prod"
+  MFN_API_KEY_REQUIRED: "true"
+  MFN_RATE_LIMIT_ENABLED: "true"
+  MFN_RATE_LIMIT_REQUESTS: "100"
+  MFN_RATE_LIMIT_WINDOW: "60"
+  MFN_LOG_FORMAT: "json"
+  MFN_LOG_LEVEL: "INFO"
+  MFN_METRICS_ENABLED: "true"
+  MFN_METRICS_ENDPOINT: "/metrics"
+  MFN_METRICS_INCLUDE_IN_AUTH: "false"
+  MFN_CORS_ORIGINS: "https://mfn.example.com"
+---
+# ConfigMap for model configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mycelium-config
+  namespace: mycelium-fractal-net
+data:
+  config.json: |
+    {
+      "seed": 42,
+      "epochs": 1,
+      "batch_size": 4,
+      "grid_size": 64,
+      "steps": 64,
+      "turing_enabled": true,
+      "quantum_jitter": false,
+      "use_sparse_attention": true,
+      "use_stdp": true
+    }
+---
+# Secret for API keys and sensitive configuration
+# Recommended: create the secret out-of-band (CI/CD or secret manager), e.g.:
+#   kubectl create secret generic mfn-secrets \
+#     --from-literal=api-key=$(openssl rand -base64 32) \
+#     -n mycelium-fractal-net
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mfn-secrets
+  namespace: mycelium-fractal-net
+type: Opaque
+stringData:
+  # Set a strong value before deployment; leave blank to force override in CI/CD or secret manager
+  api-key: ""
+  api-keys: ""
+---
+# Ingress for external HTTP(S) access
+# Note: Requires an ingress controller (nginx, traefik, etc.)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mycelium-ingress
+  namespace: mycelium-fractal-net
+  annotations:
+    # Nginx ingress annotations
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://mfn.example.com"
+    # Cert-manager for automatic TLS
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - mfn.example.com
+      secretName: mfn-tls-secret
+  rules:
+    - host: mfn.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mycelium-fractal-net
+                port:
+                  number: 80
+---
+# NetworkPolicy to restrict pod-to-pod communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mfn-network-policy
+  namespace: mycelium-fractal-net
+spec:
+  podSelector:
+    matchLabels:
+      app: mycelium-fractal-net
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+    # Allow traffic from monitoring namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow external HTTPS (for API calls if needed)
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+---
+# PodDisruptionBudget to ensure availability during disruptions
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mfn-pdb
+  namespace: mycelium-fractal-net
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: mycelium-fractal-net
+---
+# ServiceMonitor for Prometheus metrics scraping
+# Note: Requires prometheus-operator
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mfn-metrics
+  namespace: mycelium-fractal-net
+  labels:
+    app: mycelium-fractal-net
+spec:
+  selector:
+    matchLabels:
+      app: mycelium-fractal-net
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

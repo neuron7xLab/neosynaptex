@@ -1,0 +1,28 @@
+{
+  "accelerated": {
+    "backend": "accelerated",
+    "energy_cost": 18065154.913369767,
+    "neurons": 200,
+    "synapses": 1990,
+    "updates_per_sec": 18065154.913369767,
+    "wall_time_sec": 0.11015681900005347
+  },
+  "metadata": {
+    "description": "Throughput gains from physics-preserving optimizations",
+    "note": "All gains validated against physics equivalence"
+  },
+  "reference": {
+    "backend": "reference",
+    "energy_cost": 19110635.396070305,
+    "neurons": 200,
+    "synapses": 1990,
+    "updates_per_sec": 19110635.396070305,
+    "wall_time_sec": 0.10413049900000715
+  },
+  "summary": {
+    "energy_reduction_pct": 5.470673585848007,
+    "memory_reduction_pct": 92.2875,
+    "speedup": 0.9452932641415199,
+    "wall_time_reduction_pct": -5.787276598036772
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "batch_id": "PH_BATCH_01",
+  "changed_files": [
+    "docs/PLACEHOLDER_REGISTRY.md",
+    "tests/test_scan_placeholders.py",
+    "plan.md",
+    "acceptance_map.yaml",
+    "worklist.json"
+  ],
+  "pre_fix_proof": {
+    "command": "python -m pytest -q tests/test_scan_placeholders.py::test_registry_closed_entries_include_evidence_ref",
+    "sha": "f94e02f8e0d911134dbacc3c40f6b66e6c6f1f20",
+    "exit_code": 4,
+    "log": "evidence/placeholder_closure/pre_fix_failure.log"
+  },
+  "post_fix_tests": [
+    "tests/test_scan_placeholders.py::test_registry_closed_entries_include_evidence_ref",
+    "tests/test_crystallizer_edge_cases.py::test_crystallizer_pca_failure_retains_previous"
+  ],
+  "post_fix_exit_code": 0
+}

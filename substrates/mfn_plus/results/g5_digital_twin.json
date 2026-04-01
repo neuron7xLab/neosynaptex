@@ -1,0 +1,20 @@
+{
+  "gate": "G5_digital_twin",
+  "pass": true,
+  "f4_pass": false,
+  "predictive_power": 0.0,
+  "mae": 0.033751,
+  "pred_1step_mae": 0.008491,
+  "trajectory_bounded": true,
+  "ac_activations": 5,
+  "axioms_satisfied": true,
+  "axiom_detail": {
+    "A1_admissibility": true,
+    "A2_ccp_closure": true,
+    "A3_non_derivability": true,
+    "A4_phase_induction": true,
+    "A5_stabilization": true,
+    "all_satisfied": true
+  },
+  "elapsed_s": 0.01
+}

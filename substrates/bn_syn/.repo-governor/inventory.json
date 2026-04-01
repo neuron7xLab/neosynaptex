@@ -1,0 +1,36 @@
+{
+  "stacks": [
+    {
+      "name": "python",
+      "roots": [
+        "./"
+      ],
+      "markers": [
+        "pyproject.toml",
+        "requirements-lock.txt"
+      ]
+    }
+  ],
+  "monorepo": {
+    "kind": "none",
+    "affected": false
+  },
+  "services": {
+    "enabled": false,
+    "roots": []
+  },
+  "canonical_commands": {
+    "setup": "make setup",
+    "lint": "make lint",
+    "typecheck": "make typecheck",
+    "test": "make test",
+    "test_all": "make test-all",
+    "demo": "make demo",
+    "reproduce": "make reproduce",
+    "security": "make security",
+    "sbom": "make sbom",
+    "profile": "make profile",
+    "clean": "make clean"
+  },
+  "unknown": []
+}

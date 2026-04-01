@@ -1,0 +1,36 @@
+name: context-compressor-gate
+
+on:
+  schedule:
+    - cron: '0 3 * * 2'  # Weekly -- Tuesday 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  context-compressor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Validate context compressor quality gate
+        run: |
+          python - <<'PY'
+          import json
+          p = json.load(open('artifacts/context_compressor/quality.json', encoding='utf-8'))
+          assert p['verdict'] == 'PASS'
+          assert int(p.get('missing_evidence', 0)) == 0
+          assert int(p.get('broken_refs', 0)) == 0
+          assert int(p.get('contradictions', 0)) == 0
+          PY
+      - name: Upload context artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: context-compressor-artifacts
+          path: artifacts/context_compressor/

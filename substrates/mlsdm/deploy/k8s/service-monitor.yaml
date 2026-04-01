@@ -1,0 +1,140 @@
+# ====================================================
+# ServiceMonitor for Prometheus Operator
+# ====================================================
+# Configures Prometheus to automatically discover and scrape
+# metrics from MLSDM API pods.
+#
+# Prerequisites:
+#   - Prometheus Operator installed
+#   - ServiceMonitor CRD available
+#
+# Usage:
+#   kubectl apply -f service-monitor.yaml -n mlsdm-production
+# ====================================================
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mlsdm-api-monitor
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: monitoring
+    release: prometheus  # Match your Prometheus Operator release label
+spec:
+  # Target the mlsdm-api service
+  selector:
+    matchLabels:
+      app: mlsdm-api
+
+  # Namespace where the service is located
+  namespaceSelector:
+    matchNames:
+      - mlsdm-production
+
+  # Endpoint configuration
+  endpoints:
+    - port: http
+      path: /health/metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      scheme: http
+
+      # Metric relabeling (optional)
+      metricRelabelings:
+        # Keep only metrics starting with mlsdm_
+        - sourceLabels: [__name__]
+          regex: 'mlsdm_.*'
+          action: keep
+
+      # Target relabeling
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: namespace
+
+---
+# PrometheusRule for MLSDM-specific recording rules
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mlsdm-recording-rules
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: monitoring
+    release: prometheus
+spec:
+  groups:
+    - name: mlsdm.rules
+      interval: 30s
+      rules:
+        # Request rate
+        - record: mlsdm:requests:rate5m
+          expr: sum(rate(mlsdm_events_processed_total[5m]))
+
+        # Error rate (with division-by-zero protection)
+        - record: mlsdm:error_rate:ratio5m
+          expr: |
+            sum(rate(mlsdm_requests_total{status=~"5.."}[5m]))
+            /
+            (sum(rate(mlsdm_requests_total[5m])) > 0 or vector(1))
+
+        # P95 latency
+        - record: mlsdm:latency_p95:5m
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(mlsdm_processing_latency_milliseconds_bucket[5m])) by (le)
+            )
+
+        # P99 latency
+        - record: mlsdm:latency_p99:5m
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(mlsdm_processing_latency_milliseconds_bucket[5m])) by (le)
+            )
+
+        # Availability (1 - error rate)
+        - record: mlsdm:availability:ratio5m
+          expr: 1 - mlsdm:error_rate:ratio5m
+
+        # Moral rejection rate
+        - record: mlsdm:moral_rejection_rate:ratio5m
+          expr: |
+            sum(rate(mlsdm_events_rejected_total[5m]))
+            /
+            (sum(rate(mlsdm_events_processed_total[5m])) + sum(rate(mlsdm_events_rejected_total[5m])))
+
+        # Memory utilization ratio
+        # Note: 29370000 bytes = ~29.37 MB is the SLO target from SLO_SPEC.md
+        - record: mlsdm:memory_utilization:ratio
+          expr: |
+            mlsdm_memory_usage_bytes / 29370000
+
+---
+# PodMonitor for direct pod discovery (alternative to ServiceMonitor)
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: mlsdm-api-pods
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: mlsdm-api
+
+  namespaceSelector:
+    matchNames:
+      - mlsdm-production
+
+  podMetricsEndpoints:
+    - port: http
+      path: /health/metrics
+      interval: 30s
+      scrapeTimeout: 10s

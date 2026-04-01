@@ -1,0 +1,687 @@
+{
+  "_authority_proof_minimum": {
+    "type": "canonical_id_type",
+    "canonical_id": "canonical_id",
+    "canonical_url": "canonical_url",
+    "verification_method": "verification_method",
+    "fields": [
+      "canonical_id_type",
+      "canonical_id",
+      "canonical_url",
+      "verification_method"
+    ],
+    "description": "Minimum authority-proof fields required for any source record."
+  },
+  "_verification_method_guidance": {
+    "recommended": {
+      "doi": "Use when the canonical identifier is a DOI; verify via Crossref or the publisher.",
+      "arxiv": "Use when the canonical identifier is an arXiv ID and no peer-reviewed version exists.",
+      "publisher": "Use for official issuer URLs (standards bodies, government, or publisher-hosted pages).",
+      "isbn": "Use when the canonical identifier is an ISBN and verified via the publisher or official catalog."
+    },
+    "description": "Recommended values for `verification_method` aligned to the canonical identifier type."
+  },
+  "asha_aphasia": {
+    "canonical_id": "https://www.asha.org/practice-portal/clinical-topics/aphasia/",
+    "canonical_id_type": "url",
+    "canonical_url": "https://www.asha.org/practice-portal/clinical-topics/aphasia/",
+    "frozen_metadata": {
+      "first_author_family": "Association",
+      "title": "Aphasia (Practice Portal)",
+      "venue": "American Speech-Language-Hearing Association",
+      "year": "n.d."
+    },
+    "verification_method": "publisher",
+    "verified_on": "2025-12-30"
+  },
+  "bai2022_constitutional": {
+    "canonical_id": "arXiv:2212.08073",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2212.08073",
+    "frozen_metadata": {
+      "first_author_family": "Bai",
+      "title": "Constitutional AI: Harmlessness from AI Feedback",
+      "venue": "arXiv",
+      "year": "2022"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "bassett2017_network": {
+    "canonical_id": "10.1038/nn.4502",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1038/nn.4502",
+    "frozen_metadata": {
+      "first_author_family": "Bassett",
+      "title": "Network neuroscience",
+      "venue": "Nature Neuroscience",
+      "year": "2017"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "bassett2017_smallworld": {
+    "canonical_id": "10.1177/1073858416667720",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1177/1073858416667720",
+    "frozen_metadata": {
+      "first_author_family": "Bassett",
+      "title": "Small-World Brain Networks Revisited",
+      "venue": "The Neuroscientist",
+      "year": "2017"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "benna2016_synaptic": {
+    "canonical_id": "10.1038/nn.4401",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1038/nn.4401",
+    "frozen_metadata": {
+      "first_author_family": "Benna",
+      "title": "Computational principles of synaptic memory consolidation",
+      "venue": "Nature Neuroscience",
+      "year": "2016"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "borgeaud2022_retro": {
+    "canonical_id": "arXiv:2112.04426",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2112.04426",
+    "frozen_metadata": {
+      "first_author_family": "Borgeaud",
+      "title": "Improving language models by retrieving from trillions of tokens",
+      "venue": "arXiv",
+      "year": "2022"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "brady2016_aphasia": {
+    "canonical_id": "10.1002/14651858.CD000425.pub4",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1002/14651858.CD000425.pub4",
+    "frozen_metadata": {
+      "first_author_family": "Brady",
+      "title": "Speech and language therapy for aphasia following stroke",
+      "venue": "Cochrane Database of Systematic Reviews",
+      "year": "2016"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "carr2011_replay": {
+    "canonical_id": "10.1038/nn.2732",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1038/nn.2732",
+    "frozen_metadata": {
+      "first_author_family": "Carr",
+      "title": "Hippocampal replay in the awake state: A potential substrate for memory consolidation and retrieval",
+      "venue": "Nature Neuroscience",
+      "year": "2011"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "davies2018_loihi": {
+    "canonical_id": "10.1109/MM.2018.112130359",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1109/MM.2018.112130359",
+    "frozen_metadata": {
+      "first_author_family": "Davies",
+      "title": "Loihi: A Neuromorphic Manycore Processor with On-Chip Learning",
+      "venue": "IEEE Micro",
+      "year": "2018"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "elkishky2022_sigstore": {
+    "canonical_id": "10.1145/3548606.3560596",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1145/3548606.3560596",
+    "frozen_metadata": {
+      "first_author_family": "El-Kishky",
+      "title": "Sigstore: Software Signing for Everybody",
+      "venue": "ACM CCS '22",
+      "year": "2022"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "fedorenko2023_agrammatic": {
+    "canonical_id": "10.1080/02687038.2022.2143233",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1080/02687038.2022.2143233",
+    "frozen_metadata": {
+      "first_author_family": "Fedorenko",
+      "title": "Agrammatic output in non-fluent, including Broca's, aphasia as a rational behavior",
+      "venue": "Aphasiology",
+      "year": "2023"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "friederici2011_brain": {
+    "canonical_id": "10.1152/physrev.00006.2011",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1152/physrev.00006.2011",
+    "frozen_metadata": {
+      "first_author_family": "Friederici",
+      "title": "The brain basis of language processing: From structure to function",
+      "venue": "Physiological Reviews",
+      "year": "2011"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "foster2006_reverse": {
+    "canonical_id": "10.1038/nature04587",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1038/nature04587",
+    "frozen_metadata": {
+      "first_author_family": "Foster",
+      "title": "Reverse replay of behavioural sequences in hippocampal place cells during the awake state",
+      "venue": "Nature",
+      "year": "2006"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "fusi2005_cascade": {
+    "canonical_id": "10.1016/j.neuron.2005.02.001",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1016/j.neuron.2005.02.001",
+    "frozen_metadata": {
+      "first_author_family": "Fusi",
+      "title": "Cascade models of synaptically stored memories",
+      "venue": "Neuron",
+      "year": "2005"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "gabriel2020_alignment": {
+    "canonical_id": "10.1007/s11023-020-09539-2",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1007/s11023-020-09539-2",
+    "frozen_metadata": {
+      "first_author_family": "Gabriel",
+      "title": "Artificial Intelligence, Values, and Alignment",
+      "venue": "Minds and Machines",
+      "year": "2020"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "hastings2018_circadian": {
+    "canonical_id": "10.1038/s41583-018-0026-z",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1038/s41583-018-0026-z",
+    "frozen_metadata": {
+      "first_author_family": "Hastings",
+      "title": "Generation of circadian rhythms in the suprachiasmatic nucleus",
+      "venue": "Nature Reviews Neuroscience",
+      "year": "2018"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "hickok2007_cortical": {
+    "canonical_id": "10.1038/nrn2113",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1038/nrn2113",
+    "frozen_metadata": {
+      "first_author_family": "Hickok",
+      "title": "The cortical organization of speech processing",
+      "venue": "Nature Reviews Neuroscience",
+      "year": "2007"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "hbp2024_assessment": {
+    "canonical_id": "10.2759/6494125",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.2759/6494125",
+    "frozen_metadata": {
+      "first_author_family": "Commission",
+      "title": "Human Brain Project -- 10 Years Assessment",
+      "venue": "European Commission",
+      "year": "2024"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "hebb1949_organization": {
+    "canonical_id": "9780471362728",
+    "canonical_id_type": "isbn",
+    "canonical_url": "https://archive.org/details/organizationofbe00hebb",
+    "frozen_metadata": {
+      "first_author_family": "Hebb",
+      "title": "The organization of behavior: A neuropsychological theory",
+      "venue": "Wiley",
+      "year": "1949"
+    },
+    "verification_method": "publisher",
+    "verified_on": "2025-12-30"
+  },
+  "hong2025_agents": {
+    "canonical_id": "10.3389/fpsyg.2025.1591618",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.3389/fpsyg.2025.1591618",
+    "frozen_metadata": {
+      "first_author_family": "Hong",
+      "title": "Enhancing memory retrieval in generative agents through LLM-trained cross attention networks",
+      "venue": "Frontiers in Psychology",
+      "year": "2025"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "hopfield1982_neural": {
+    "canonical_id": "10.1073/pnas.79.8.2554",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1073/pnas.79.8.2554",
+    "frozen_metadata": {
+      "first_author_family": "Hopfield",
+      "title": "Neural networks and physical systems with emergent collective computational abilities",
+      "venue": "Proceedings of the National Academy of Sciences",
+      "year": "1982"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "ieee2020_7010": {
+    "canonical_id": "10.1109/IEEESTD.2020.9084219",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1109/IEEESTD.2020.9084219",
+    "frozen_metadata": {
+      "first_author_family": "IEEE",
+      "title": "IEEE Std 7010-2020 \u2014 Assessing the impact of autonomous and intelligent systems on human well-being",
+      "venue": "IEEE",
+      "year": "2020"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "iso2023_42001": {
+    "canonical_id": "https://www.iso.org/standard/42001",
+    "canonical_id_type": "url",
+    "canonical_url": "https://www.iso.org/standard/42001",
+    "frozen_metadata": {
+      "first_author_family": "Standardization",
+      "title": "ISO/IEC 42001:2023 \u2014 Artificial intelligence management system",
+      "venue": "International Organization for Standardization",
+      "year": "2023"
+    },
+    "verification_method": "publisher",
+    "verified_on": "2025-12-30"
+  },
+  "jensen2024_replayplanning": {
+    "canonical_id": "10.1038/s41593-024-01675-7",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1038/s41593-024-01675-7",
+    "frozen_metadata": {
+      "first_author_family": "Jensen",
+      "title": "A recurrent network model of planning explains hippocampal replay and human behavior",
+      "venue": "Nature Neuroscience",
+      "year": "2024"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "ji2023_survey": {
+    "canonical_id": "arXiv:2310.19852",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2310.19852",
+    "frozen_metadata": {
+      "first_author_family": "Ji",
+      "title": "AI Alignment: A Comprehensive Survey",
+      "venue": "arXiv",
+      "year": "2023"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "karpukhin2020_dpr": {
+    "canonical_id": "arXiv:2004.04906",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2004.04906",
+    "frozen_metadata": {
+      "first_author_family": "Karpukhin",
+      "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+      "venue": "arXiv",
+      "year": "2020"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "lewis2020_rag": {
+    "canonical_id": "arXiv:2005.11401",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2005.11401",
+    "frozen_metadata": {
+      "first_author_family": "Lewis",
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "venue": "arXiv",
+      "year": "2020"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "masuyama2014_qibam": {
+    "canonical_id": "10.1142/S0219843614500066",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1142/S0219843614500066",
+    "frozen_metadata": {
+      "first_author_family": "Masuyama",
+      "title": "Quantum-inspired bidirectional associative memory for human\u2013robot communication",
+      "venue": "International Journal of Neural Systems",
+      "year": "2014"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "masuyama2018_qmam": {
+    "canonical_id": "10.1109/TNNLS.2017.2653114",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1109/TNNLS.2017.2653114",
+    "frozen_metadata": {
+      "first_author_family": "Masuyama",
+      "title": "Quantum-inspired multidirectional associative memory with a self-convergent iterative learning",
+      "venue": "IEEE Transactions on Neural Networks and Learning Systems",
+      "year": "2018"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "mendoza2009_clocks": {
+    "canonical_id": "10.1177/1073858408327808",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1177/1073858408327808",
+    "frozen_metadata": {
+      "first_author_family": "Mendoza",
+      "title": "Brain clocks: From the suprachiasmatic nuclei to a cerebral network",
+      "venue": "The Neuroscientist",
+      "year": "2009"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "nist2022_ssdf": {
+    "canonical_id": "10.6028/NIST.SP.800-218",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.6028/NIST.SP.800-218",
+    "frozen_metadata": {
+      "first_author_family": "Souppaya",
+      "title": "Secure Software Development Framework (SSDF) Version 1.1",
+      "venue": "NIST",
+      "year": "2022"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "nist2023_rmf": {
+    "canonical_id": "https://nvlpubs.nist.gov/nistpubs/ai/nist.ai.100-1.pdf",
+    "canonical_id_type": "url",
+    "canonical_url": "https://nvlpubs.nist.gov/nistpubs/ai/nist.ai.100-1.pdf",
+    "frozen_metadata": {
+      "first_author_family": "Standards",
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "venue": "NIST",
+      "year": "2023"
+    },
+    "verification_method": "publisher",
+    "verified_on": "2025-12-30"
+  },
+  "olafsdottir2018_replay": {
+    "canonical_id": "10.1016/j.cub.2017.10.073",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1016/j.cub.2017.10.073",
+    "frozen_metadata": {
+      "first_author_family": "\u00d3lafsd\u00f3ttir",
+      "title": "The role of hippocampal replay in memory and planning",
+      "venue": "Current Biology",
+      "year": "2018"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "tononi2014_sleep": {
+    "canonical_id": "10.1016/j.neuron.2013.12.025",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1016/j.neuron.2013.12.025",
+    "frozen_metadata": {
+      "first_author_family": "Tononi",
+      "title": "Sleep and the price of plasticity: From synaptic and cellular homeostasis to memory consolidation and integration",
+      "venue": "Neuron",
+      "year": "2014"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "turrigiano2012_homeostatic": {
+    "canonical_id": "10.1101/cshperspect.a005736",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1101/cshperspect.a005736",
+    "frozen_metadata": {
+      "first_author_family": "Turrigiano",
+      "title": "Homeostatic synaptic plasticity: Local and global mechanisms for stabilizing neuronal function",
+      "venue": "Cold Spring Harbor Perspectives in Biology",
+      "year": "2012"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "openai2023_gpt4": {
+    "canonical_id": "arXiv:2303.08774",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2303.08774",
+    "frozen_metadata": {
+      "first_author_family": "OpenAI",
+      "title": "GPT-4 Technical Report",
+      "venue": "arXiv",
+      "year": "2023"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "openssf2023_slsa": {
+    "canonical_id": "https://slsa.dev/spec/v1.0/",
+    "canonical_id_type": "url",
+    "canonical_url": "https://slsa.dev/spec/v1.0/",
+    "frozen_metadata": {
+      "first_author_family": "OpenSSF",
+      "title": "SLSA specification v1.0",
+      "venue": "OpenSSF",
+      "year": "2023"
+    },
+    "verification_method": "publisher",
+    "verified_on": "2025-12-30"
+  },
+  "ouyang2022_instruct": {
+    "canonical_id": "arXiv:2203.02155",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2203.02155",
+    "frozen_metadata": {
+      "first_author_family": "Ouyang",
+      "title": "Training language models to follow instructions with human feedback",
+      "venue": "arXiv",
+      "year": "2022"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "park2023_generative": {
+    "canonical_id": "10.1145/3586183.3606763",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1145/3586183.3606763",
+    "frozen_metadata": {
+      "first_author_family": "Park",
+      "title": "Generative Agents: Interactive Simulacra of Human Behavior",
+      "venue": "CHI '23",
+      "year": "2023"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "schick2023_toolformer": {
+    "canonical_id": "arXiv:2302.04761",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2302.04761",
+    "frozen_metadata": {
+      "first_author_family": "Schick",
+      "title": "Toolformer: Language models can teach themselves to use tools",
+      "venue": "arXiv",
+      "year": "2023"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "torresarias2019_intoto": {
+    "canonical_id": "https://www.usenix.org/conference/usenixsecurity19/presentation/torres-arias",
+    "canonical_id_type": "url",
+    "canonical_url": "https://www.usenix.org/conference/usenixsecurity19/presentation/torres-arias",
+    "frozen_metadata": {
+      "first_author_family": "Torres-Arias",
+      "title": "in-toto: Providing farm-to-table guarantees for bits and bytes",
+      "venue": "USENIX Security 2019",
+      "year": "2019"
+    },
+    "verification_method": "publisher",
+    "verified_on": "2025-12-30"
+  },
+  "touvron2023_llama": {
+    "canonical_id": "arXiv:2302.13971",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2302.13971",
+    "frozen_metadata": {
+      "first_author_family": "Touvron",
+      "title": "LLaMA: Open and Efficient Foundation Language Models",
+      "venue": "arXiv",
+      "year": "2023"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "touvron2023_llama2": {
+    "canonical_id": "arXiv:2307.09288",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2307.09288",
+    "frozen_metadata": {
+      "first_author_family": "Touvron",
+      "title": "Llama 2: Open Foundation and Fine-Tuned Chat Models",
+      "venue": "arXiv",
+      "year": "2023"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "vallverdu2025_neuroq": {
+    "canonical_id": "10.3390/biomimetics10080516",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.3390/biomimetics10080516",
+    "frozen_metadata": {
+      "first_author_family": "Vallverd\u00fa",
+      "title": "NeuroQ: Quantum-Inspired Brain Emulation",
+      "venue": "Biomimetics",
+      "year": "2025"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "vaswani2017_attention": {
+    "canonical_id": "arXiv:1706.03762",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/1706.03762",
+    "frozen_metadata": {
+      "first_author_family": "Vaswani",
+      "title": "Attention Is All You Need",
+      "venue": "arXiv",
+      "year": "2017"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "vasylenko2025_mlsdm": {
+    "canonical_id": "https://github.com/neuron7xLab/mlsdm-governed-cognitive-memory",
+    "canonical_id_type": "url",
+    "canonical_url": "https://github.com/neuron7xLab/mlsdm-governed-cognitive-memory",
+    "frozen_metadata": {
+      "first_author_family": "Vasylenko",
+      "title": "MLSDM Governed Cognitive Memory v1.0.0",
+      "venue": "Vasylenko, Yaroslav",
+      "year": "2025"
+    },
+    "verification_method": "publisher",
+    "verified_on": "2025-12-30"
+  },
+  "wang2024_clllm": {
+    "canonical_id": "arXiv:2402.01364",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2402.01364",
+    "frozen_metadata": {
+      "first_author_family": "Wang",
+      "title": "Continual Learning for Large Language Models: A Survey",
+      "venue": "arXiv",
+      "year": "2024"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "weidinger2023_veil": {
+    "canonical_id": "10.1073/pnas.2213709120",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1073/pnas.2213709120",
+    "frozen_metadata": {
+      "first_author_family": "Weidinger",
+      "title": "Using the Veil of Ignorance to Align AI Systems with Principles of Justice",
+      "venue": "PNAS",
+      "year": "2023"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "xie2013_glymphatic": {
+    "canonical_id": "10.1126/science.1241224",
+    "canonical_id_type": "doi",
+    "canonical_url": "https://doi.org/10.1126/science.1241224",
+    "frozen_metadata": {
+      "first_author_family": "Xie",
+      "title": "Sleep drives metabolite clearance from the adult brain",
+      "venue": "Science",
+      "year": "2013"
+    },
+    "verification_method": "crossref",
+    "verified_on": "2025-12-30"
+  },
+  "wu2022_memorizing": {
+    "canonical_id": "arXiv:2203.08913",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2203.08913",
+    "frozen_metadata": {
+      "first_author_family": "Wu",
+      "title": "Memorizing Transformers",
+      "venue": "arXiv",
+      "year": "2022"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  },
+  "yao2022_react": {
+    "canonical_id": "arXiv:2210.03629",
+    "canonical_id_type": "arxiv",
+    "canonical_url": "https://arxiv.org/abs/2210.03629",
+    "frozen_metadata": {
+      "first_author_family": "Yao",
+      "title": "ReAct: Synergizing reasoning and acting in language models",
+      "venue": "arXiv",
+      "year": "2022"
+    },
+    "verification_method": "arxiv",
+    "verified_on": "2025-12-30"
+  }
+}

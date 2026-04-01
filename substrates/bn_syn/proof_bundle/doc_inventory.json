@@ -1,0 +1,24 @@
+{
+  "produced_docs": [
+    "README.md",
+    "docs/repo_map.md",
+    "docs/usage_workflows.md",
+    "scripts/README.md",
+    "docs/scripts/index.md",
+    "docs/contracts/index.md",
+    "docs/audit_merge_readiness.md",
+    "DOC_CHANGELOG.md",
+    "proof_bundle/repo_state.txt",
+    "proof_bundle/commands.log",
+    "proof_bundle/doc_inventory.json",
+    "proof_bundle/hashes.sha256",
+    "INVENTORY.json"
+  ],
+  "script_coverage": {
+    "scope": "scripts/*.py and scripts/*.sh",
+    "scripts_total": 64,
+    "script_pages_total": 64,
+    "missing_pages": []
+  },
+  "inventory_check": "python tools/generate_inventory.py --check"
+}

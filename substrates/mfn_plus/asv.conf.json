@@ -1,0 +1,18 @@
+{
+    "version": 1,
+    "project": "mycelium-fractal-net",
+    "project_url": "https://github.com/neuron7x/mycelium-fractal-net",
+    "repo": ".",
+    "branches": ["main"],
+    "benchmark_dir": "benchmarks",
+    "env_dir": ".asv/env",
+    "results_dir": ".asv/results",
+    "html_dir": ".asv/html",
+    "install_command": ["pip install -e .[bio,science,accel]"],
+    "matrix": {
+        "numpy": ["2.0", "2.1"]
+    },
+    "regressions_first_commits": {
+        ".*": "HEAD~20"
+    }
+}

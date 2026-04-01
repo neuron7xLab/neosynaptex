@@ -1,0 +1,128 @@
+{
+  "dimensions": [
+    {
+      "id": "Q.LINT",
+      "metrics": [
+        {
+          "key": "lint.error_count",
+          "passed": true,
+          "source": "REPORTS/quality/lint.json",
+          "threshold": null,
+          "value": 0
+        }
+      ],
+      "passed": true,
+      "weight": 0.18
+    },
+    {
+      "id": "Q.TEST",
+      "metrics": [
+        {
+          "key": "tests.fail_count",
+          "passed": true,
+          "source": "REPORTS/quality/tests.json",
+          "threshold": null,
+          "value": 0
+        }
+      ],
+      "passed": true,
+      "weight": 0.2
+    },
+    {
+      "id": "Q.SEC",
+      "metrics": [
+        {
+          "key": "security.high_count",
+          "passed": true,
+          "source": "REPORTS/quality/security.json",
+          "threshold": null,
+          "value": 0
+        }
+      ],
+      "passed": true,
+      "weight": 0.2
+    },
+    {
+      "id": "Q.MAINT",
+      "metrics": [
+        {
+          "key": "complexity.p95",
+          "passed": true,
+          "source": "REPORTS/quality/maintainability.json",
+          "threshold": 18,
+          "value": 0
+        },
+        {
+          "key": "duplication.lines",
+          "passed": true,
+          "source": "REPORTS/quality/maintainability.json",
+          "threshold": 250,
+          "value": 0
+        }
+      ],
+      "passed": true,
+      "weight": 0.14
+    },
+    {
+      "id": "Q.DOC",
+      "metrics": [
+        {
+          "key": "docs.broken_links",
+          "passed": true,
+          "source": "REPORTS/quality/docs.json",
+          "threshold": null,
+          "value": 0
+        }
+      ],
+      "passed": true,
+      "weight": 0.08
+    },
+    {
+      "id": "Q.PERF",
+      "metrics": [
+        {
+          "key": "perf.regression_detected",
+          "passed": true,
+          "source": "REPORTS/quality/perf.json",
+          "threshold": null,
+          "value": false
+        }
+      ],
+      "passed": true,
+      "weight": 0.1
+    },
+    {
+      "id": "Q.STAB",
+      "metrics": [
+        {
+          "key": "ci.required_checks_failed",
+          "passed": true,
+          "source": "REPORTS/checks.json",
+          "threshold": null,
+          "value": 0
+        }
+      ],
+      "passed": true,
+      "weight": 0.1
+    }
+  ],
+  "hard_blockers": [
+    {
+      "expr": "lint.error_count==0",
+      "id": "HB.LINT",
+      "passed": true
+    },
+    {
+      "expr": "tests.fail_count==0",
+      "id": "HB.TEST",
+      "passed": true
+    },
+    {
+      "expr": "security.high_count==0",
+      "id": "HB.SEC",
+      "passed": true
+    }
+  ],
+  "min_score": 92,
+  "score": 100
+}

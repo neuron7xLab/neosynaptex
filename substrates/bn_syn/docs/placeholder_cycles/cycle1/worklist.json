@@ -1,0 +1,57 @@
+{
+  "cycle": 1,
+  "scope_policy": "only PH files and direct dependencies for fixes/tests",
+  "batches": [
+    {
+      "id": "PH_BATCH_01",
+      "context": "src/bnsyn/emergence/crystallizer.py",
+      "items": [
+        {
+          "ph_id": "PH-0001",
+          "path": "src/bnsyn/emergence/crystallizer.py",
+          "risk": "runtime-critical",
+          "fix_strategy": "guard_fail_closed",
+          "test_strategy": "regression",
+          "tests": [
+            "tests/test_crystallizer_edge_cases.py::test_crystallizer_pca_failure_retains_previous"
+          ],
+          "status": "RESOLVED"
+        }
+      ]
+    },
+    {
+      "id": "PH_BATCH_02",
+      "context": "tests harness",
+      "items": [
+        {
+          "ph_id": "PH-0002",
+          "path": "tests/test_coverage_gate.py",
+          "risk": "tests",
+          "fix_strategy": "implement_minimal",
+          "test_strategy": "regression",
+          "tests": [
+            "tests/test_coverage_gate.py::test_read_coverage_percent_missing_file_fails"
+          ],
+          "status": "RESOLVED"
+        },
+        {
+          "ph_id": "PH-0003",
+          "path": "tests/validation/test_chaos_integration.py",
+          "risk": "tests",
+          "fix_strategy": "guard_fail_closed",
+          "test_strategy": "regression",
+          "tests": [
+            "tests/validation/test_chaos_integration.py::test_adex_bounds_enforcement"
+          ],
+          "status": "RESOLVED"
+        }
+      ]
+    }
+  ],
+  "global_acceptance": {
+    "per_ph_red_green": true,
+    "meta_scan_zero_or_closed": true,
+    "registry_validation": true,
+    "ci_green": true
+  }
+}

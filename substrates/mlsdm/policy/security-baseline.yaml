@@ -1,0 +1,202 @@
+# MLSDM Security Baseline Policy
+# ==================================
+# Machine-readable security requirements enforced in CI/CD
+#
+# Version: 1.1.0
+# Last Updated: December 2025
+# Status: ACTIVE
+
+policy_contract_version: "1.1"
+version: "1.1"
+policy_name: "MLSDM Security Baseline"
+enforcement_level: "blocking"  # CI must fail if any check fails
+updated_at: "2025-12-07"
+owner:
+  name: "Security Team"
+  team: "Security"
+  email: "security@mlsdm.dev"
+rationale: >-
+  Establishes non-negotiable security controls and CI gating to prevent
+  regressions, enforce vulnerability response timelines, and guarantee
+  auditable governance across the MLSDM delivery pipeline.
+
+controls:
+  # Required security checks that MUST pass before merge
+  required_checks:
+    - name: "bandit"
+      description: "Python security vulnerability scanner"
+      github_action: "Bandit SAST Scan"
+      workflow_file: ".github/workflows/sast-scan.yml"
+      severity_threshold: "high"
+      confidence_threshold: "high"
+      fail_on_violation: true
+
+    - name: "semgrep"
+      description: "Semantic code analysis for security vulnerabilities"
+      github_action: "Semgrep SAST Scan"
+      workflow_file: ".github/workflows/sast-scan.yml"
+      fail_on_violation: true
+
+    - name: "dependency-audit"
+      description: "Dependency vulnerability scanning with pip-audit"
+      github_action: "Dependency Vulnerability Scan"
+      workflow_file: ".github/workflows/sast-scan.yml"
+      fail_on_violation: true
+
+    - name: "secrets-scan"
+      description: "Secrets detection to prevent credential leakage"
+      github_action: "Secrets Scanning"
+      workflow_file: ".github/workflows/sast-scan.yml"
+      fail_on_violation: true
+
+    - name: "ruff"
+      description: "Fast Python linter"
+      github_action: "Lint with Ruff"
+      command: "ruff check src tests"
+      fail_on_violation: true
+
+    - name: "mypy"
+      description: "Static type checking"
+      github_action: "Type Check"
+      command: "mypy src/mlsdm"
+      fail_on_violation: true
+
+    - name: "coverage_gate"
+      description: "Code coverage threshold enforcement"
+      script: "./coverage_gate.sh"
+      fail_on_violation: true
+
+  # Security baseline requirements
+  security_requirements:
+    # Authentication & Authorization
+    authentication:
+      api_key_required: true
+      api_key_env_var: "API_KEY"
+      never_hardcode_secrets: true
+      secrets_in_env_only: true
+
+    # Input Validation
+    input_validation:
+      llm_safety_gateway_required: true
+      llm_safety_module: "mlsdm.security.llm_safety"
+      payload_scrubber_module: "mlsdm.security.payload_scrubber"
+      validate_all_external_input: true
+
+    # PII & Data Protection
+    data_protection:
+      scrub_pii_from_logs: true
+      scrubber_implementation: "mlsdm.security.payload_scrubber"
+      fields_always_scrubbed:
+        - "password"
+        - "api_key"
+        - "secret"
+        - "token"
+        - "credit_card"
+        - "ssn"
+
+    # Dependency Management
+    dependencies:
+      sbom_generation_on_release: true
+      security_advisory_checks: true
+      outdated_dependency_monitoring: true
+
+  # Compliance & Audit
+  audit_requirements:
+    security_audit_frequency_days: 90
+    penetration_test_frequency_days: 180
+    security_training_required: true
+    incident_response_plan_required: true
+
+  # Integration points
+  integrations:
+    github_required_checks:
+      - "Bandit SAST Scan"
+      - "Semgrep SAST Scan"
+      - "Dependency Vulnerability Scan"
+      - "Secrets Scanning"
+      - "Type Check"
+      - "Lint with Ruff"
+      - "Lint and Type Check"
+      - "Security Vulnerability Scan"
+      - "test (3.11)"
+      - "Code Coverage Gate"
+      - "End-to-End Tests"
+      - "Effectiveness Validation"
+      - "Smoke Tests"
+      - "Coverage Gate"
+      - "Ablation Smoke Test"
+      - "Policy Check"
+      - "Property-Based Invariants Tests (3.11)"
+      - "Counterexamples Regression Tests"
+      - "Invariant Coverage Check"
+      - "Dependency Review"
+
+    branch_protection:
+      require_pr_reviews: 1
+      require_status_checks: true
+      enforce_admins: true
+      required_status_checks:
+        - "Lint and Type Check"
+        - "Security Vulnerability Scan"
+        - "test (3.11)"
+        - "Code Coverage Gate"
+        - "End-to-End Tests"
+        - "Effectiveness Validation"
+        - "Smoke Tests"
+        - "Coverage Gate"
+        - "Ablation Smoke Test"
+        - "Policy Check"
+        - "Property-Based Invariants Tests (3.11)"
+        - "Counterexamples Regression Tests"
+        - "Invariant Coverage Check"
+        - "Dependency Review"
+        - "Bandit SAST Scan"
+        - "Semgrep SAST Scan"
+        - "Dependency Vulnerability Scan"
+        - "Secrets Scanning"
+
+  ci_workflow_policy:
+    prohibited_permissions:
+      - "write-all"
+    first_party_action_owners:
+      - "actions"
+      - "github"
+    # Prohibited mutable refs include branch names and major-only version tags.
+    # Major-only tags (e.g., @v0, @v1) are mutable because maintainers can
+    # retag them to point to newer commits. Only full semver (e.g., @v0.21.1)
+    # or commit SHAs provide immutability.
+    prohibited_mutable_refs:
+      - "@main"
+      - "@master"
+      - "@v0"
+      - "@v1"
+      - "@v2"
+      - "@v3"
+      - "@v4"
+      - "@v5"
+      - "@v6"
+      - "@v7"
+      - "@v8"
+      - "@v9"
+
+thresholds:
+  # Vulnerability severity thresholds
+  vulnerability_thresholds:
+    critical:
+      max_allowed: 0
+      response_time_hours: 24
+      fix_timeline_days: 7
+    high:
+      max_allowed: 0
+      response_time_hours: 48
+      fix_timeline_days: 14
+    medium:
+      max_allowed: 0
+      response_time_hours: 168  # 7 days
+      fix_timeline_days: 30
+    low:
+      max_allowed: 5
+      response_time_hours: 336  # 14 days
+      fix_timeline_days: 90
+
+  coverage_gate_minimum_percent: 75  # Matches CI and coverage_gate.sh (staged: 75% → 85% → 90%)

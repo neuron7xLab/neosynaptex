@@ -1,0 +1,545 @@
+# MFN Integration Gaps - Machine-Readable Specification
+# Version: 1.0
+# Analysis Date: 2025-11-29
+# Target Version: MyceliumFractalNet v4.1.0
+#
+# This file is the source of truth for generating GitHub issues backlog.
+# Categories: external_api, cli_interface, batch_pipeline_adapter, streaming_adapter,
+#             risk_signals_adapter, monitoring_metrics, logging_tracing,
+#             deployment_layer, config_management, other
+
+layers:
+  # ============================================================================
+  # READY LAYERS
+  # ============================================================================
+  
+  - id: mfn-cli
+    category: cli_interface
+    scope: inbound
+    readiness: READY
+    sources: ["code", "docs"]
+    description: >
+      Command-line interface for MFN validation and simulation.
+      Single-file entrypoint supporting --mode validate, --seed, --epochs, etc.
+    files:
+      - mycelium_fractal_net_v4_1.py
+    upstream_systems:
+      - name: User/CI
+        role: Invokes CLI with parameters
+    downstream_systems:
+      - name: stdout/stderr
+        role: Receives validation metrics output
+    notes: >
+      Used by CI pipeline for automated validation. Delegates to run_validation_cli()
+      from the mycelium_fractal_net package.
+
+  - id: mfn-docker
+    category: deployment_layer
+    scope: infrastructure
+    readiness: READY
+    sources: ["code", "docs"]
+    description: >
+      Multi-stage Docker build for production deployment.
+      Python 3.10-slim base with healthcheck configured.
+    files:
+      - Dockerfile
+    upstream_systems: []
+    downstream_systems: []
+    notes: >
+      Stage 1 (builder) installs dependencies. Stage 2 copies packages for minimal image.
+      HEALTHCHECK runs validation to verify container health. Exposes port 8000.
+
+  - id: mfn-ci-cd
+    category: deployment_layer
+    scope: infrastructure
+    readiness: READY
+    sources: ["code"]
+    description: >
+      Complete CI/CD pipeline with GitHub Actions.
+      Jobs: lint (ruff, mypy), test (Python 3.10-3.12), validate, benchmark, scientific-validation.
+    files:
+      - .github/workflows/ci.yml
+    upstream_systems:
+      - name: GitHub
+        role: Triggers CI on push/PR
+    downstream_systems:
+      - name: Codecov
+        role: Receives coverage reports
+    notes: >
+      All jobs passing per TECHNICAL_AUDIT.md. Tests run with pytest and hypothesis.
+
+  - id: mfn-feature-extraction
+    category: batch_pipeline_adapter
+    scope: outbound
+    readiness: READY
+    sources: ["code", "docs"]
+    description: >
+      Feature extraction pipeline producing 18 standardized features.
+      Returns FeatureVector dataclass with D_box, V_stats, temporal, structural features.
+    files:
+      - analytics/fractal_features.py
+      - analytics/__init__.py
+    upstream_systems:
+      - name: MFN Simulation
+        role: Provides field history (T, N, N) tensor
+    downstream_systems:
+      - name: ML Pipeline
+        role: Consumes 18-feature vectors
+    notes: >
+      Documented in MFN_FEATURE_SCHEMA.md. Supports both single snapshot and temporal history.
+
+  - id: mfn-dataset-generation
+    category: batch_pipeline_adapter
+    scope: outbound
+    readiness: READY
+    sources: ["code", "docs"]
+    description: >
+      Parameter sweep pipeline for generating parquet datasets.
+      Produces reproducible datasets with all 18 features for offline analysis.
+    files:
+      - experiments/generate_dataset.py
+      - experiments/__init__.py
+    upstream_systems:
+      - name: Configuration
+        role: Provides sweep parameters
+    downstream_systems:
+      - name: Data Storage
+        role: Stores parquet files in data/
+    notes: >
+      Used for model training and analysis. Parquet export is currently the only persistence mechanism.
+
+  # ============================================================================
+  # PARTIAL LAYERS
+  # ============================================================================
+
+  - id: mfn-api-rest
+    category: external_api
+    scope: inbound
+    readiness: PARTIAL
+    sources: ["code", "docs"]
+    description: >
+      FastAPI REST server with 5 endpoints: /health, /validate, /simulate, 
+      /nernst, /federated/aggregate. CORS middleware added. OpenAPI exported.
+    files:
+      - api.py
+      - docs/openapi.json
+    upstream_systems:
+      - name: HTTP Clients
+        role: Send requests to API endpoints
+    downstream_systems:
+      - name: MFN Core
+        role: Executes simulation/validation
+    missing_features:
+      - Authentication/Authorization middleware
+      - Rate limiting
+      # CORS configuration - DONE (2025-11-30)
+      - Request validation logging
+      # OpenAPI spec export in production - DONE (2025-11-30)
+      - Error handling standardization
+    completed_features:
+      - "CORS configuration via CORSMiddleware (MFN_CORS_ORIGINS, MFN_ENV)"
+      - "OpenAPI spec export to docs/openapi.json"
+      - "Swagger UI at /docs, ReDoc at /redoc"
+    notes: >
+      TECHNICAL_AUDIT.md classifies code_integration as PARTIAL.
+      CORS and OpenAPI completed in concept-implementation sweep.
+
+  - id: mfn-k8s
+    category: deployment_layer
+    scope: infrastructure
+    readiness: PARTIAL
+    sources: ["code", "docs"]
+    description: >
+      Basic Kubernetes manifest with Namespace, Deployment (3 replicas),
+      Service (ClusterIP), HPA, and ConfigMap.
+    files:
+      - k8s.yaml
+    upstream_systems: []
+    downstream_systems: []
+    missing_features:
+      - Secrets management (no Secret resources)
+      - Ingress controller configuration
+      - Network policies
+      - PodDisruptionBudget
+      - Production-grade probe configuration
+      - Resource quotas
+    notes: >
+      TECHNICAL_AUDIT.md classifies infra as PARTIAL.
+      HPA configured for CPU/memory scaling (70%/80% thresholds).
+
+  - id: mfn-config-json
+    category: config_management
+    scope: inbound
+    readiness: PARTIAL
+    sources: ["code", "docs"]
+    description: >
+      Predefined JSON configuration files for different computational budgets.
+      Six profiles: small, medium, large (computation), dev, staging, prod (environment).
+    files:
+      - configs/small.json
+      - configs/medium.json
+      - configs/large.json
+      - configs/dev.json
+      - configs/staging.json
+      - configs/prod.json
+    upstream_systems:
+      - name: Operator
+        role: Selects configuration profile
+    downstream_systems:
+      - name: MFN Core
+        role: Receives simulation parameters
+    missing_features:
+      # Environment-specific configs (dev/staging/prod) - DONE (2025-11-30)
+      - Secrets management integration
+      - Config validation at runtime
+      - Dynamic config reload
+      - Environment variable overrides
+    completed_features:
+      - "Environment-specific configs: dev.json, staging.json, prod.json"
+    notes: >
+      Configs define grid_size, steps, clusters. Environment configs added.
+
+  # ============================================================================
+  # MISSING LAYERS
+  # ============================================================================
+
+  - id: mfn-auth
+    category: external_api
+    scope: inbound
+    readiness: MISSING
+    sources: ["docs", "system_role"]
+    description: >
+      Authentication and authorization middleware for API security.
+      Should support API keys, OAuth 2.0, or mTLS.
+    files: []
+    upstream_systems:
+      - name: Identity Provider
+        role: Validates credentials, issues tokens
+    downstream_systems:
+      - name: MFN API
+        role: Protected endpoints
+    required_functionality:
+      - API key validation
+      - JWT/OAuth token verification
+      - Role-based access control
+      - Rate limiting per client
+    references:
+      - "MFN_SYSTEM_ROLE.md Section 6.4 Question 11"
+      - "TECHNICAL_AUDIT.md MISSING list"
+    notes: >
+      Critical for production deployment. Currently API is completely open.
+
+  - id: mfn-rate-limiting
+    category: external_api
+    scope: inbound
+    readiness: MISSING
+    sources: ["docs"]
+    description: >
+      Rate limiting middleware to prevent API abuse and ensure fair resource allocation.
+    files: []
+    upstream_systems:
+      - name: HTTP Clients
+        role: Subject to rate limits
+    downstream_systems:
+      - name: MFN API
+        role: Protected from abuse
+    required_functionality:
+      - Per-client rate limits
+      - Global rate limits
+      - Burst handling
+      - 429 Too Many Requests responses
+    references:
+      - "TECHNICAL_AUDIT.md MISSING list"
+    notes: >
+      Should integrate with mfn-auth for per-client limits.
+
+  - id: mfn-api-streaming
+    category: streaming_adapter
+    scope: inbound
+    readiness: MISSING
+    sources: ["roadmap"]
+    description: >
+      Real-time data streaming API for continuous field simulation updates.
+      Server-Sent Events (SSE) or similar for push-based communication.
+    files: []
+    upstream_systems:
+      - name: Streaming Client
+        role: Maintains persistent connection
+    downstream_systems:
+      - name: MFN Simulation
+        role: Emits field updates
+    required_functionality:
+      - Persistent connection handling
+      - Incremental field updates
+      - Backpressure management
+      - Connection lifecycle (open/close/reconnect)
+    references:
+      - "ROADMAP.md v4.3 - Streaming API"
+    notes: >
+      Planned for v4.3. No implementation exists.
+
+  - id: mfn-api-websocket
+    category: external_api
+    scope: inbound
+    readiness: MISSING
+    sources: ["roadmap"]
+    description: >
+      WebSocket support for bidirectional real-time communication.
+      Push-based updates for field evolution and feature vectors.
+    files: []
+    upstream_systems:
+      - name: WebSocket Client
+        role: Sends parameters, receives updates
+    downstream_systems:
+      - name: MFN Core
+        role: Processes requests, emits results
+    required_functionality:
+      - Connection management
+      - Message framing
+      - Heartbeat/keepalive
+      - Error handling and reconnection
+    references:
+      - "ROADMAP.md v4.3 - WebSocket support"
+    notes: >
+      Planned for v4.3. No implementation exists.
+
+  - id: mfn-api-grpc
+    category: external_api
+    scope: inbound
+    readiness: MISSING
+    sources: ["roadmap", "system_role"]
+    description: >
+      gRPC endpoints for high-performance RPC interface.
+      Efficient binary protocol suitable for federated learning coordination.
+    files: []
+    upstream_systems:
+      - name: gRPC Client
+        role: Sends RPC calls
+    downstream_systems:
+      - name: MFN Core
+        role: Handles RPC methods
+    required_functionality:
+      - Proto definitions for all API methods
+      - Streaming RPC for simulations
+      - Unary RPC for validation
+      - Client/server interceptors
+    references:
+      - "ROADMAP.md v4.3 - gRPC endpoints"
+      - "MFN_SYSTEM_ROLE.md Section 6.4 Question 13"
+    notes: >
+      Planned for v4.3. Would enable efficient federated learning communication.
+
+  - id: mfn-monitoring
+    category: monitoring_metrics
+    scope: outbound
+    readiness: MISSING
+    sources: ["docs", "system_role"]
+    description: >
+      Prometheus metrics exporter for runtime observability.
+      Exports latency, throughput, error rates, and simulation statistics.
+    files: []
+    upstream_systems:
+      - name: MFN Core
+        role: Generates metrics during operation
+    downstream_systems:
+      - name: Prometheus/Grafana
+        role: Scrapes and visualizes metrics
+    required_functionality:
+      - /metrics endpoint
+      - Request latency histograms
+      - Request counter by endpoint
+      - Error rate gauges
+      - Simulation-specific metrics (fractal_dimension, growth_events)
+    references:
+      - "TECHNICAL_AUDIT.md MISSING - Prometheus metrics"
+      - "MFN_SYSTEM_ROLE.md Section 2.2 item 9, Section 5.3"
+    notes: >
+      Critical for production observability. No metrics exposure exists.
+
+  - id: mfn-logging
+    category: logging_tracing
+    scope: outbound
+    readiness: MISSING
+    sources: ["docs"]
+    description: >
+      Structured logging with JSON format and distributed tracing support.
+      OpenTelemetry integration for end-to-end request tracing.
+    files: []
+    upstream_systems:
+      - name: MFN Components
+        role: Generate log events
+    downstream_systems:
+      - name: Log Aggregator (ELK/Loki)
+        role: Stores and queries logs
+      - name: Tracing Backend (Jaeger/Zipkin)
+        role: Visualizes traces
+    required_functionality:
+      - JSON-structured log output
+      - Log levels (DEBUG, INFO, WARN, ERROR)
+      - Request correlation IDs
+      - Trace context propagation (W3C Trace Context)
+      - Span creation for key operations
+    references:
+      - "TECHNICAL_AUDIT.md MISSING - structured logging, distributed tracing"
+    notes: >
+      No structured logging exists. Uses basic Python logging.
+
+  - id: mfn-upstream-connector
+    category: batch_pipeline_adapter
+    scope: inbound
+    readiness: MISSING
+    sources: ["system_role"]
+    description: >
+      Formal connectors for external data injection.
+      Receives pre-processed input data from upstream systems.
+    files: []
+    upstream_systems:
+      - name: Parameter Configurator
+        role: Provides simulation configuration
+      - name: Data Preprocessor
+        role: Transforms raw input data
+      - name: Orchestration Layer
+        role: Triggers simulation runs
+    downstream_systems:
+      - name: MFN Core
+        role: Receives normalized inputs
+    required_functionality:
+      - Input validation and transformation
+      - Batch job queuing
+      - External field initialization support
+      - Configuration injection from orchestrator
+    references:
+      - "MFN_SYSTEM_ROLE.md Section 3.1 - all upstream systems marked (Planned)"
+    notes: >
+      MFN operates standalone. No formal upstream integration.
+
+  - id: mfn-downstream-publisher
+    category: streaming_adapter
+    scope: outbound
+    readiness: MISSING
+    sources: ["system_role"]
+    description: >
+      Event publishing system for feature vectors and signals.
+      Publishes to message queues (Kafka, RabbitMQ) or webhooks.
+    files: []
+    upstream_systems:
+      - name: MFN Core
+        role: Produces feature vectors, signals
+    downstream_systems:
+      - name: ML Model/Policy Agent
+        role: Consumes features for decision-making
+      - name: Risk Module
+        role: Consumes stability metrics
+      - name: Federated Coordinator
+        role: Receives aggregated gradients
+    required_functionality:
+      - Message queue producer (Kafka/RabbitMQ)
+      - Webhook callbacks
+      - Event schema definition
+      - At-least-once delivery guarantees
+      - Dead letter queue handling
+    references:
+      - "MFN_SYSTEM_ROLE.md Section 3.2"
+      - "MFN_SYSTEM_ROLE.md Section 6.2 Questions 6, 7"
+      - "MFN_SYSTEM_ROLE.md Section 6.4 Question 13"
+    notes: >
+      Outputs only via return values, API responses, or parquet files.
+
+  - id: mfn-risk-signals
+    category: risk_signals_adapter
+    scope: outbound
+    readiness: MISSING
+    sources: ["system_role"]
+    description: >
+      Dedicated channel for regime change indicators and stability signals.
+      Separates risk-related outputs from general feature streams.
+    files: []
+    upstream_systems:
+      - name: MFN Feature Extraction
+        role: Computes stability metrics, Lyapunov exponents
+    downstream_systems:
+      - name: Risk Module
+        role: Consumes regime change signals
+      - name: Analytics Dashboard
+        role: Displays stability indicators
+    required_functionality:
+      - Regime change event emission
+      - Lyapunov stability alerts
+      - Fractal dimension anomaly detection
+      - Configurable thresholds
+    references:
+      - "MFN_SYSTEM_ROLE.md Section 6.3 Question 8"
+    notes: >
+      Unclear if MFN or downstream responsibility. Question unresolved.
+
+  - id: mfn-secrets-mgmt
+    category: config_management
+    scope: configuration
+    readiness: MISSING
+    sources: ["docs"]
+    description: >
+      Secure storage and injection of sensitive configuration.
+      Integration with secrets vault (HashiCorp Vault, AWS Secrets Manager).
+    files: []
+    upstream_systems:
+      - name: Secrets Vault
+        role: Stores and rotates credentials
+    downstream_systems:
+      - name: MFN Runtime
+        role: Receives injected secrets
+    required_functionality:
+      - Vault/AWS SM integration
+      - Secret rotation handling
+      - Environment variable injection
+      - Kubernetes Secret mounting
+    references:
+      - "TECHNICAL_AUDIT.md MISSING - Secrets management"
+    notes: >
+      No secrets handling exists. Credentials would be exposed in configs.
+
+  - id: mfn-edge-deploy
+    category: deployment_layer
+    scope: infrastructure
+    readiness: MISSING
+    sources: ["roadmap"]
+    description: >
+      Optimized deployment configurations for edge/IoT scenarios.
+      Reduced resource footprint, offline operation support.
+    files: []
+    upstream_systems: []
+    downstream_systems: []
+    required_functionality:
+      - Minimal container image
+      - ARM architecture support
+      - Offline operation mode
+      - Resource optimization
+      - Model quantization (for NN components)
+    references:
+      - "ROADMAP.md v4.3 - Edge deployment"
+    notes: >
+      Planned for v4.3. No edge-specific configurations exist.
+
+# ============================================================================
+# METADATA
+# ============================================================================
+
+metadata:
+  analysis_version: "1.0"
+  analysis_date: "2025-11-29"
+  mfn_version: "4.1.0"
+  source_documents:
+    - docs/TECHNICAL_AUDIT.md
+    - docs/MFN_SYSTEM_ROLE.md
+    - docs/ROADMAP.md
+    - docs/MFN_INTEGRATION_SPEC.md
+    - docs/ARCHITECTURE.md
+  summary:
+    total_layers: 20
+    ready: 5
+    partial: 3
+    missing: 12
+  critical_gaps:
+    - mfn-auth
+    - mfn-monitoring
+    - mfn-logging
+    - mfn-downstream-publisher

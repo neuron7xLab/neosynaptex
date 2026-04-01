@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bnsyn/schemas/pytest-failure-diagnostics.schema.json",
+  "title": "Pytest Failure Diagnostics",
+  "type": "object",
+  "required": ["schema_version", "status", "pytest_exit_code", "summary", "failures"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "status": { "type": "string", "enum": ["clean", "failures_detected", "input_error"] },
+    "pytest_exit_code": { "type": "integer" },
+    "summary": {
+      "type": "object",
+      "required": ["tests_total", "failures", "errors", "skipped"],
+      "additionalProperties": false,
+      "properties": {
+        "tests_total": { "type": "integer", "minimum": 0 },
+        "failures": { "type": "integer", "minimum": 0 },
+        "errors": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["nodeid", "file", "classname", "test_name", "kind", "message", "traceback_excerpt", "raw_text_excerpt", "reproduce"],
+        "additionalProperties": false,
+        "properties": {
+          "nodeid": { "type": "string" },
+          "file": { "type": "string" },
+          "classname": { "type": "string" },
+          "test_name": { "type": "string" },
+          "kind": { "type": "string", "enum": ["failure", "error"] },
+          "message": { "type": "string" },
+          "traceback_excerpt": { "type": "string" },
+          "raw_text_excerpt": { "type": ["string", "null"] },
+          "reproduce": { "type": "string" },
+          "stdout_excerpt": { "type": ["string", "null"] },
+          "stderr_excerpt": { "type": ["string", "null"] },
+          "suite_name": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "input_error": {
+      "type": "object",
+      "required": ["type", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "annotations_file": { "type": "string" },
+        "annotations_emitted": { "type": "integer", "minimum": 0 },
+        "github_step_summary": { "type": "string" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "input_error" } } },
+      "then": { "required": ["input_error"] }
+    }
+  ]
+}

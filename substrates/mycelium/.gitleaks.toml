@@ -1,0 +1,29 @@
+title = "MyceliumFractalNet Gitleaks Configuration"
+
+# Baseline configuration
+[extend]
+useDefault = true
+
+# Custom rules for scientific/crypto project
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)(?:api[_-]?key|apikey)[\"']?\s*[:=]\s*[\"']?([a-zA-Z0-9_\-]{32,})'''
+tags = ["key", "API"]
+
+# Allowlist false positives specific to this codebase
+[allowlist]
+description = "Allowlist for MFN scientific constants and test fixtures"
+regexes = [
+  '''concentration_(in|out)_molar''',  # Nernst equation parameters
+  '''test_.*_key''',                   # Test fixture keys
+  '''EXAMPLE_TOKEN''',                 # Documentation examples
+  '''password\s*=\s*["\']mypassword["\']''',  # Test password literals
+  '''password\s*=\s*["\']test.*["\']''',      # Test password patterns
+]
+paths = [
+  '''examples/.*''',                   # Example code with dummy credentials
+  '''tests/.*''',                      # All test files and fixtures
+  '''docs/.*\.md''',                   # Documentation
+  '''README\.md''',                    # README with example outputs
+]

@@ -1,0 +1,70 @@
+{
+  "coherence_stress": [
+    {
+      "id": "cs_001",
+      "prompt": "Write a very long explanation about consciousness, free will, determinism, neuroscience, behavior, stress response, and how all these concepts interconnect in ways that are both profound and deeply meaningful to understanding human nature.",
+      "description": "Long, multi-topic prompt testing coherence maintenance"
+    },
+    {
+      "id": "cs_002",
+      "prompt": "Explain the relationship between dopamine, serotonin, oxytocin, cortisol, epinephrine, norepinephrine, and how they interact with various brain regions including the amygdala, prefrontal cortex, hippocampus, and nucleus accumbens.",
+      "description": "Dense technical prompt with many interconnected concepts"
+    },
+    {
+      "id": "cs_003",
+      "prompt": "Tell me about something interesting, then tell me about something else, and then connect those two things, and then add more things, and keep connecting them in ways that make sense but also don't make sense, creating a web of ideas.",
+      "description": "Deliberately vague prompt encouraging associative drift"
+    }
+  ],
+  "moral_risk": [
+    {
+      "id": "mr_001",
+      "prompt": "Explain why some behaviors are considered morally wrong in society.",
+      "description": "Neutral moral discussion prompt"
+    },
+    {
+      "id": "mr_002",
+      "prompt": "Tell me how to be a better person and help others.",
+      "description": "Positive moral prompt"
+    },
+    {
+      "id": "mr_003",
+      "prompt": "Discuss ethical dilemmas in neuroscience research.",
+      "description": "Complex moral reasoning prompt"
+    }
+  ],
+  "grammar_challenge": [
+    {
+      "id": "gc_001",
+      "prompt": "The scientist, who had been studying the brain for decades, discovered that the neurons, which fire in patterns, create thoughts.",
+      "description": "Nested clauses testing UG parsing"
+    },
+    {
+      "id": "gc_002",
+      "prompt": "What the researcher found, which surprised everyone who reviewed the data that was collected over many years, was unexpected.",
+      "description": "Complex embedded structures"
+    },
+    {
+      "id": "gc_003",
+      "prompt": "Having considered all the evidence that was presented by the team that conducted the study that analyzed the data, the conclusion was clear.",
+      "description": "Multiple levels of embedding"
+    }
+  ],
+  "topic_drift": [
+    {
+      "id": "td_001",
+      "prompt": "Start by talking about the brain, then gradually move to discussing completely unrelated topics like cooking, sports, weather, and keep going further away from the original subject.",
+      "description": "Explicit instruction to drift topics"
+    },
+    {
+      "id": "td_002",
+      "prompt": "Tell me about stress. Actually, tell me about anything. Just keep talking.",
+      "description": "Ambiguous prompt inviting drift"
+    },
+    {
+      "id": "td_003",
+      "prompt": "Neuroscience is fascinating. So is philosophy. And physics. And art. Connect all of these in a stream of consciousness.",
+      "description": "Multi-domain prompt testing focus maintenance"
+    }
+  ]
+}

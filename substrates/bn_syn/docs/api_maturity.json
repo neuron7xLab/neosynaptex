@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "modules": {
+    "bnsyn.config": "stable",
+    "bnsyn.rng": "stable",
+    "bnsyn.cli": "stable",
+    "bnsyn.neurons": "stable",
+    "bnsyn.synapses": "stable",
+    "bnsyn.control": "stable",
+    "bnsyn.simulation": "stable",
+    "bnsyn.sim.network": "stable",
+    "bnsyn.neuron.adex": "stable",
+    "bnsyn.synapse.conductance": "stable",
+    "bnsyn.plasticity.three_factor": "stable",
+    "bnsyn.criticality.branching": "stable",
+    "bnsyn.temperature.schedule": "stable",
+    "bnsyn.connectivity.sparse": "stable",
+    "bnsyn.emergence": "experimental",
+    "bnsyn.memory": "experimental",
+    "bnsyn.sleep": "experimental",
+    "bnsyn.viz": "experimental"
+  }
+}

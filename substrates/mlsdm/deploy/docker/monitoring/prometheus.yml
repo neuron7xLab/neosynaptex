@@ -1,0 +1,59 @@
+# Prometheus Configuration for MLSDM
+# ====================================
+# This configuration is used with docker-compose for local/production monitoring.
+#
+# Usage:
+#   Place in deploy/docker/monitoring/prometheus.yml
+#   Run: docker-compose -f deploy/docker/docker-compose.production.yaml --profile monitoring up -d
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+  external_labels:
+    environment: production
+    service: mlsdm
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Rule files to load
+rule_files:
+  - "/etc/prometheus/rules/*.yaml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # MLSDM API metrics
+  - job_name: 'mlsdm-api'
+    metrics_path: '/health/metrics'
+    static_configs:
+      - targets: ['mlsdm-api:8000']
+        labels:
+          service: 'mlsdm'
+          component: 'api'
+
+    # Relabel to add instance labels
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '(.+):(\d+)'
+        replacement: '$1'
+
+  # Docker container metrics (if using cAdvisor)
+  # - job_name: 'cadvisor'
+  #   static_configs:
+  #     - targets: ['cadvisor:8080']
+
+  # Node exporter for host metrics
+  # - job_name: 'node'
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']

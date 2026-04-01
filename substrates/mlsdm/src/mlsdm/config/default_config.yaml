@@ -1,0 +1,75 @@
+# Default Configuration for MLSDM Governed Cognitive Memory
+# ==========================================================
+#
+# This configuration is suitable for development and testing.
+# For production deployments, use config/production.yaml
+#
+# Documentation: src/mlsdm/utils/config_schema.py
+# Deployment Guide: DEPLOYMENT_GUIDE.md
+
+# Vector dimension (10 for testing, use 384+ in production)
+dimension: 10
+
+# Multi-level synaptic memory (three-level hierarchy)
+multi_level_memory:
+  lambda_l1: 0.5      # L1 decay rate (short-term)
+  lambda_l2: 0.1      # L2 decay rate (medium-term)
+  lambda_l3: 0.01     # L3 decay rate (long-term)
+  theta_l1: 1.0       # L1→L2 threshold
+  theta_l2: 2.0       # L2→L3 threshold
+  gating12: 0.5       # L1→L2 gating factor
+  gating23: 0.3       # L2→L3 gating factor
+
+# Adaptive moral filter for content governance
+moral_filter:
+  threshold: 0.5      # Initial threshold (0.0-1.0)
+  adapt_rate: 0.05    # Adaptation speed
+  min_threshold: 0.3  # Lower bound
+  max_threshold: 0.9  # Upper bound
+
+# Ontology-based semantic categorization
+ontology_matcher:
+  ontology_vectors:
+    - [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  ontology_labels: ["concept1", "concept2"]
+
+# Circadian-like wake/sleep rhythm
+cognitive_rhythm:
+  wake_duration: 5    # Active processing cycles
+  sleep_duration: 2   # Consolidation cycles
+
+# Enhanced validation (disable in production)
+strict_mode: false
+
+# Aphasia-Broca detection and repair configuration
+aphasia:
+  detect_enabled: true      # Enable/disable aphasia detection
+  repair_enabled: true      # Enable/disable aphasia repair
+  severity_threshold: 0.3   # Minimum severity for repair (0.0-1.0)
+
+# ============================================================
+# Core Reliability Configuration (REL-001 to REL-005)
+# ============================================================
+
+# Cognitive Controller Auto-Recovery (REL-001)
+cognitive_controller:
+  auto_recovery_enabled: true       # Enable time-based auto-recovery
+  auto_recovery_cooldown_seconds: 60.0  # Seconds before auto-recovery attempt
+
+# API Reliability Settings
+api:
+  # Request timeout (REL-004)
+  request_timeout_seconds: 30.0     # Request-level timeout (returns 504 on timeout)
+
+  # Bulkhead concurrency limiting (REL-002)
+  max_concurrent_requests: 100      # Maximum concurrent requests
+  queue_timeout_seconds: 5.0        # Timeout for waiting in queue
+
+  # Request prioritization (REL-005)
+  priority:
+    enabled: true                   # Enable priority header support
+    default_priority: "normal"      # Default priority: high, normal, low
+    high_weight: 3                  # Weight for high priority requests
+    normal_weight: 2                # Weight for normal priority requests
+    low_weight: 1                   # Weight for low priority requests

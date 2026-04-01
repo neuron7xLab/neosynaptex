@@ -1,0 +1,167 @@
+# NON-PR-GATE: long-running workflow; must not run on pull_request/push.
+name: ci-validation
+# Guard: non-PR-gate workflow; must remain off PRs.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly -- Monday 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Validation mode'
+        type: choice
+        default: standard
+        options:
+          - standard
+          - elite
+          - chaos
+          - property
+      chaos_subset:
+        description: 'Chaos test subset to run (chaos mode only)'
+        type: choice
+        default: all
+        options:
+          - all
+          - numeric
+          - timing
+          - stochastic
+          - io
+permissions:
+  contents: read
+
+concurrency:
+  group: validation-${{ github.ref }}-${{ github.event.inputs.mode || github.event.schedule || 'manual' }}
+  cancel-in-progress: ${{ github.event.inputs.mode == 'chaos' || github.event.schedule == '0 4 * * *' || github.event.schedule == '30 2 * * *' || github.event.inputs.mode == 'property' }}
+
+jobs:
+  gate-profile:
+    uses: ./.github/workflows/_reusable_gate_profile.yml
+    with:
+      profile: long
+
+  determine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      mode: ${{ steps.set.outputs.mode }}
+      chaos_subset: ${{ steps.set.outputs.chaos_subset }}
+    steps:
+      - id: set
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            case "${{ github.event.schedule }}" in
+              "0 3 * * 0") mode="standard";;
+              "0 2 * * *") mode="elite";;
+              "0 4 * * *") mode="chaos";;
+              "30 2 * * *") mode="property";;
+              *) mode="standard";;
+            esac
+            chaos_subset="all"
+          else
+            mode="${{ github.event.inputs.mode }}"
+            chaos_subset="${{ github.event.inputs.chaos_subset }}"
+            if [ -z "$chaos_subset" ]; then
+              chaos_subset="all"
+            fi
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "chaos_subset=$chaos_subset" >> "$GITHUB_OUTPUT"
+
+  ssot:
+    needs: determine
+    if: needs.determine.outputs.mode == 'standard'
+    uses: ./.github/workflows/_reusable_ssot.yml
+
+  validation-tests:
+    needs: [determine, gate-profile]
+    if: needs.determine.outputs.mode == 'standard' || needs.determine.outputs.mode == 'elite'
+    uses: ./.github/workflows/_reusable_validation_tests.yml
+    with:
+      markers: ${{ needs.gate-profile.outputs.validation-markers }}
+      summary-title: ${{ needs.determine.outputs.mode == 'elite' && 'Scientific Validation Suite' || 'Validation Suite' }}
+      timeout-minutes: ${{ fromJSON(needs.gate-profile.outputs.validation-timeout-minutes) }}
+      upload-artifacts: ${{ needs.determine.outputs.mode == 'elite' }}
+      artifact-name: validation-logs
+
+  property-tests:
+    needs: [determine, gate-profile]
+    if: needs.determine.outputs.mode == 'elite' || needs.determine.outputs.mode == 'chaos' || needs.determine.outputs.mode == 'property'
+    uses: ./.github/workflows/_reusable_property_tests.yml
+    with:
+      markers: ${{ needs.gate-profile.outputs.property-markers }}
+      hypothesis-profile: ${{ needs.determine.outputs.mode == 'chaos' && 'thorough' || needs.determine.outputs.mode == 'property' && 'ci' || 'quick' }}
+      extra-args: ${{ needs.determine.outputs.mode == 'chaos' && '-v --tb=short --strict-markers --hypothesis-show-statistics' || '-v --tb=short --hypothesis-show-statistics' }}
+      junit-enabled: ${{ needs.determine.outputs.mode != 'chaos' }}
+      summary-title: ${{ needs.determine.outputs.mode == 'chaos' && 'Property-Based Testing' || 'Property-Based Invariants (Hypothesis)' }}
+      timeout-minutes: ${{ fromJSON(needs.gate-profile.outputs.property-timeout-minutes) }}
+      upload-artifacts: true
+      upload-hypothesis-cache: ${{ needs.determine.outputs.mode == 'chaos' || needs.determine.outputs.mode == 'property' }}
+      artifact-name: ${{ (needs.determine.outputs.mode == 'chaos' || needs.determine.outputs.mode == 'property') && 'property-test-results' || 'property-logs' }}
+
+  chaos-tests:
+    needs: determine
+    if: needs.determine.outputs.mode == 'chaos'
+    uses: ./.github/workflows/_reusable_chaos_tests.yml
+    with:
+      test-subset: ${{ needs.determine.outputs.chaos_subset }}
+
+  elite-summary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [determine, validation-tests, property-tests]
+    if: needs.determine.outputs.mode == 'elite'
+    steps:
+      - name: Summary
+        run: |
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "##  Validation Suite Summary"
+            echo ""
+            echo "| Suite | Status |"
+            echo "|-------|--------|"
+            echo "| Validation Tests | ${{ needs.validation-tests.result }} |"
+            echo "| Property Tests | ${{ needs.property-tests.result }} |"
+            echo ""
+            echo " **Note:** This workflow is NON-BLOCKING and does not affect PR merge status."
+            echo "It runs on a schedule to verify scientific claims and system invariants."
+          } >> "$summary_file"
+
+  chaos-summary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [determine, chaos-tests, property-tests]
+    if: needs.determine.outputs.mode == 'chaos' && always()
+    steps:
+      - name: Generate summary report
+        run: |
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "##  Chaos & Property Testing Summary"
+            echo ""
+            echo "| Test Suite | Status |"
+            echo "|------------|--------|"
+            if [ "${{ needs.chaos-tests.result }}" = "success" ]; then
+              echo "| Chaos Tests |  PASS |"
+            else
+              echo "| Chaos Tests |  FAIL |"
+            fi
+            if [ "${{ needs.property-tests.result }}" = "success" ]; then
+              echo "| Property Tests |  PASS |"
+            else
+              echo "| Property Tests |  FAIL |"
+            fi
+            echo ""
+            echo "### Key Insights"
+            echo ""
+            echo "- **Numeric Faults**: Tests system resilience to NaN/inf injection"
+            echo "- **Timing Faults**: Tests stability under dt jitter"
+            echo "- **Stochastic Faults**: Tests determinism under RNG perturbation"
+            echo "- **I/O Faults**: Tests graceful degradation on I/O failures"
+            echo "- **Property Tests**: Tests invariants across wide input space"
+          } >> "$summary_file"
+      - name: Check overall status
+        run: |
+          if [ "${{ needs.chaos-tests.result }}" != "success" ] || [ "${{ needs.property-tests.result }}" != "success" ]; then
+            echo " Some validation tests failed" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi

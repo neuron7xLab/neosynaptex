@@ -1,0 +1,96 @@
+# Docker Compose - MLSDM Loki Log Aggregation Stack
+# ==================================================
+# Complete observability stack with Loki, Promtail, and Grafana.
+#
+# Usage:
+#   cd deploy/monitoring/loki
+#   docker compose up -d
+#
+# Access:
+#   - Grafana: http://localhost:3000 (admin/admin)
+#   - Loki: http://localhost:3100
+#
+# ==================================================
+
+services:
+  # Loki - Log aggregation
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: mlsdm-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - mlsdm-observability
+
+  # Promtail - Log collector
+  promtail:
+    image: grafana/promtail:2.9.4
+    container_name: mlsdm-promtail
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /var/log:/var/log:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yaml
+    depends_on:
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mlsdm-observability
+
+  # Grafana - Visualization (with Loki pre-configured)
+  grafana:
+    image: grafana/grafana:10.3.1
+    container_name: mlsdm-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_FEATURE_TOGGLES_ENABLE=traceToLogs
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ../../grafana:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mlsdm-observability
+
+  # Prometheus - Metrics (optional, for full observability)
+  prometheus:
+    image: prom/prometheus:v2.49.1
+    container_name: mlsdm-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - mlsdm-observability
+
+volumes:
+  loki-data:
+  grafana-data:
+  prometheus-data:
+
+networks:
+  mlsdm-observability:
+    driver: bridge

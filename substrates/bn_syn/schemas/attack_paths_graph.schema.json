@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AttackPathsGraph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "nodes", "edges", "chains", "minimal_cut_sets"],
+  "properties": {
+    "meta": {"type": "object"},
+    "nodes": {"type": "array", "items": {"type": "object"}},
+    "edges": {"type": "array", "items": {"type": "object"}},
+    "chains": {"type": "array", "items": {"type": "object"}},
+    "minimal_cut_sets": {"type": "array", "items": {"type": "array", "items": {"type": "string"}}}
+  }
+}

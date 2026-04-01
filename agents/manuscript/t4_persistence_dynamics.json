@@ -1,0 +1,84 @@
+{
+  "results": [
+    {
+      "competition": 0.0,
+      "pe0_mean": 2.9763,
+      "pe0_std": 0.8001,
+      "beta0_mean": 29.27,
+      "beta0_std": 18.0567,
+      "delta_pe0_mean": 0.02,
+      "delta_pe0_std": 0.024,
+      "delta_beta0_mean": 0.5523,
+      "delta_beta0_std": 0.7266,
+      "cross_corr_max": 0.9966,
+      "cross_corr_lag": 0,
+      "zero_lag_corr": 0.9966,
+      "pe0_beta0_ratio": 0.1017
+    },
+    {
+      "competition": 0.25,
+      "pe0_mean": 3.4049,
+      "pe0_std": 0.5582,
+      "beta0_mean": 38.62,
+      "beta0_std": 17.5066,
+      "delta_pe0_mean": 0.0067,
+      "delta_pe0_std": 0.0123,
+      "delta_beta0_mean": 0.3808,
+      "delta_beta0_std": 0.5778,
+      "cross_corr_max": 0.9734,
+      "cross_corr_lag": 0,
+      "zero_lag_corr": 0.9734,
+      "pe0_beta0_ratio": 0.0882
+    },
+    {
+      "competition": 0.5,
+      "pe0_mean": 3.3048,
+      "pe0_std": 0.4235,
+      "beta0_mean": 42.1,
+      "beta0_std": 11.0187,
+      "delta_pe0_mean": 0.0129,
+      "delta_pe0_std": 0.0143,
+      "delta_beta0_mean": 0.3497,
+      "delta_beta0_std": 0.53,
+      "cross_corr_max": 0.9225,
+      "cross_corr_lag": 0,
+      "zero_lag_corr": 0.9225,
+      "pe0_beta0_ratio": 0.0785
+    },
+    {
+      "competition": 0.75,
+      "pe0_mean": 3.2455,
+      "pe0_std": 0.2742,
+      "beta0_mean": 41.1,
+      "beta0_std": 7.0486,
+      "delta_pe0_mean": 0.0148,
+      "delta_pe0_std": 0.0133,
+      "delta_beta0_mean": 0.4788,
+      "delta_beta0_std": 0.597,
+      "cross_corr_max": 0.8739,
+      "cross_corr_lag": 0,
+      "zero_lag_corr": 0.8739,
+      "pe0_beta0_ratio": 0.079
+    },
+    {
+      "competition": 1.0,
+      "pe0_mean": 3.4607,
+      "pe0_std": 0.3376,
+      "beta0_mean": 45.33,
+      "beta0_std": 5.6293,
+      "delta_pe0_mean": 0.0103,
+      "delta_pe0_std": 0.0114,
+      "delta_beta0_mean": 0.2517,
+      "delta_beta0_std": 0.4589,
+      "cross_corr_max": 0.7367,
+      "cross_corr_lag": 0,
+      "zero_lag_corr": 0.7367,
+      "pe0_beta0_ratio": 0.0763
+    }
+  ],
+  "gates": {
+    "T4-G1: metastable corr(pe0,b0) > 0.3": true,
+    "T4-G2: chaotic corr < metastable corr": false,
+    "T4-G3: metastable pe0_std significant": false
+  }
+}

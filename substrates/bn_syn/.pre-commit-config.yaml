@@ -1,0 +1,99 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.1
+    hooks:
+      - id: mypy
+        args: [--strict, --no-implicit-optional]
+        additional_dependencies: [types-all]
+
+  - repo: https://github.com/PyCQA/pylint
+    rev: v3.0.0
+    hooks:
+      - id: pylint
+        args: [--rcfile=pyproject.toml, --fail-under=7.5]
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.3
+    hooks:
+      - id: bandit
+        args: [-r, src/, -ll]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.3
+    hooks:
+      - id: gitleaks
+        args: [detect, --no-banner, --redact, --verbose, --source=., --config=.gitleaks.toml]
+
+
+  - repo: local
+    hooks:
+      - id: pytest-smoke-tests
+        name: pytest smoke tests
+        entry: bash -c 'pytest -m "not validation" --tb=short -q'
+        language: system
+        stages: [commit]
+        pass_filenames: false
+
+      - id: coverage-check
+        name: coverage must be ≥85%
+        entry: bash -c 'pytest --cov=src/bnsyn --cov-fail-under=85 -q'
+        language: system
+        stages: [commit]
+        pass_filenames: false
+
+      - id: pydocstyle
+        name: check docstrings
+        entry: pydocstyle src/bnsyn
+        language: python
+        additional_dependencies: [pydocstyle]
+        types: [python]
+
+      - id: no-pdb
+        name: prevent pdb
+        entry: bash -c 'grep -r "import pdb" src/ && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+
+      - id: validate-pyproject
+        name: validate pyproject.toml
+        entry: validate-pyproject
+        language: python
+        files: ^pyproject\.toml$
+        additional_dependencies: [validate-pyproject]
+
+
+      - id: regenerate-inventory
+        name: regenerate inventory snapshot
+        entry: python tools/generate_inventory.py
+        language: system
+        pass_filenames: false
+        files: ^(src/|tests/|docs/|\.github/|tools/generate_inventory\.py|INVENTORY\.json)
+        stages: [commit]
+
+      - id: regenerate-repo-manifest
+        name: regenerate repository manifest artifacts
+        entry: python -m tools.manifest generate
+        language: system
+        pass_filenames: false
+        files: ^(\.github/|manifest/|quality/|scripts/|tools/manifest/|Makefile|README\.md)
+        stages: [commit]
+      - id: validate-bibliography
+        name: validate bibliography
+        entry: python -m scripts.validate_bibliography
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+      - id: validate-claims
+        name: validate claims
+        entry: python -m scripts.validate_claims
+        language: system
+        pass_filenames: false
+        stages: [commit]

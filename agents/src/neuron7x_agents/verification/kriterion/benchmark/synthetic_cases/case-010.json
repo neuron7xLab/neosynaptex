@@ -1,0 +1,107 @@
+{
+  "bundle_id": "case-010",
+  "target_protocol_id": "PSE-SECURITY-PLATFORM-PROTOCOL-2026.2",
+  "execution_mode": "MODE_STRICT_AUDIT",
+  "model_identifier": "reference-runner-1.0",
+  "artifacts": [
+    {
+      "artifact_id": "ART.J1",
+      "artifact_type": "PIPELINE_OUTPUT",
+      "title": "Duplicate 1",
+      "provenance": {
+        "origin_actor": "demo-author",
+        "origin_system": "demo-repository",
+        "acquisition_method": "DIRECT_EXPORT",
+        "source_class": "PRIMARY"
+      },
+      "reviewer": {
+        "reviewer_id": "reviewer-001",
+        "reviewer_independence": true,
+        "review_status": "INDEPENDENTLY_REVIEWED"
+      },
+      "timestamps": {
+        "creation_time": "2026-03-06T10:00:00Z",
+        "evaluation_capture_time": "2026-03-06T12:00:00Z"
+      },
+      "references": [
+        "https://example.org/j1"
+      ],
+      "fingerprint": {
+        "algorithm": "SHA-256",
+        "sha256": "b4c6ef474f3aaf4b36e3a201aacb53a4f6b18e112ed4637276a7970d9830d879"
+      },
+      "evidence_class": "HIGH",
+      "domain_mapping": [
+        "PSE.PLATFORM"
+      ],
+      "payload": {
+        "rollout_percent": 100
+      }
+    },
+    {
+      "artifact_id": "ART.J2",
+      "artifact_type": "PIPELINE_OUTPUT",
+      "title": "Duplicate 2",
+      "provenance": {
+        "origin_actor": "demo-author",
+        "origin_system": "demo-repository",
+        "acquisition_method": "DIRECT_EXPORT",
+        "source_class": "PRIMARY"
+      },
+      "reviewer": {
+        "reviewer_id": "reviewer-001",
+        "reviewer_independence": true,
+        "review_status": "INDEPENDENTLY_REVIEWED"
+      },
+      "timestamps": {
+        "creation_time": "2026-03-06T10:00:00Z",
+        "evaluation_capture_time": "2026-03-06T12:00:00Z"
+      },
+      "references": [
+        "https://example.org/j2"
+      ],
+      "fingerprint": {
+        "algorithm": "SHA-256",
+        "sha256": "b4c6ef474f3aaf4b36e3a201aacb53a4f6b18e112ed4637276a7970d9830d879"
+      },
+      "evidence_class": "HIGH",
+      "domain_mapping": [
+        "PSE.PLATFORM"
+      ],
+      "payload": {
+        "rollout_percent": 100
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "domain_id": "PSE.PLATFORM",
+      "domain_name": "Security Platform",
+      "must_have": true,
+      "task_id": "T1",
+      "task_weight": 100,
+      "required_artifact_ids": [
+        "ART.J1"
+      ],
+      "evidence_artifact_ids": [
+        "ART.J1",
+        "ART.J2"
+      ],
+      "raw_score": 5,
+      "evidence_cap": 5
+    }
+  ],
+  "expected": {
+    "human_overall_score": 0,
+    "human_final_classification": "NOT_READY",
+    "human_gates": {
+      "G0_INTEGRITY": "FAIL",
+      "G1_MINIMUM_READINESS": "FAIL",
+      "G2_EVIDENCE_SUFFICIENCY": "FAIL"
+    },
+    "runtime_seconds": 0.8,
+    "cost_usd": 0.0018,
+    "adversarial": true,
+    "attack_class": "AG2_DUPLICATE_EVIDENCE_REUSE"
+  }
+}

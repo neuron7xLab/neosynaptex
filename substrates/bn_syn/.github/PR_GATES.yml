@@ -1,0 +1,40 @@
+version: '1'
+required_pr_gates:
+  - workflow_file: ci-pr-atomic.yml
+    workflow_name: ci-pr-atomic
+    required_job_ids:
+      - gate-profile
+      - determinism
+      - quality
+      - build
+      - smoke-wheel-matrix
+      - tests-smoke
+      - ssot
+      - security
+      - finalize
+  - workflow_file: workflow-integrity.yml
+    workflow_name: Workflow Integrity
+    required_job_ids:
+      - validate-workflows
+  - workflow_file: math-quality-gate.yml
+    workflow_name: Math Quality Gate
+    required_job_ids:
+      - math-gate
+  - workflow_file: scientific_product_gate.yml
+    workflow_name: scientific-product-gate
+    required_job_ids:
+      - scientific-product
+  - workflow_file: dependency-review.yml
+    workflow_name: dependency-review
+    required_job_ids:
+      - dependency-review
+  - workflow_file: pr_gate.yml
+    workflow_name: pr-gate
+    required_job_ids:
+      - pr-gate
+  - workflow_file: canonical-proof-spine.yml
+    workflow_name: canonical-proof-spine
+    required_job_ids:
+      - canonical-proof-spine
+      - cross-commit-analytics
+      - attest-canonical-bundle

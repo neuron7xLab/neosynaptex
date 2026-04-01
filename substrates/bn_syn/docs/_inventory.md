@@ -1,0 +1,109 @@
+# Inventory Snapshot
+
+## top_level_dirs
+- .github
+- PROOF_BUNDLE
+- artifacts
+- assessment_logs
+- benchmarks
+- bibliography
+- calibration_pack
+- claims
+- docs
+- entropy
+- evidence
+- examples
+- experiments
+- figures
+- manifest
+- proof_bundle
+- quality
+- reports
+- results
+- schemas
+- scripts
+- specs
+- src
+- tests
+- tools
+
+## workflows
+- .github/workflows/_reusable_benchmarks.yml
+- .github/workflows/_reusable_chaos_tests.yml
+- .github/workflows/_reusable_formal_science.yml
+- .github/workflows/_reusable_gate_profile.yml
+- .github/workflows/_reusable_property_tests.yml
+- .github/workflows/_reusable_pytest.yml
+- .github/workflows/_reusable_quality.yml
+- .github/workflows/_reusable_ssot.yml
+- .github/workflows/_reusable_validation_tests.yml
+- .github/workflows/benchmarks.yml
+- .github/workflows/ci-benchmarks-elite.yml
+- .github/workflows/ci-benchmarks.yml
+- .github/workflows/ci-pr-atomic.yml
+- .github/workflows/ci-pr.yml
+- .github/workflows/ci-smoke.yml
+- .github/workflows/ci-validation.yml
+- .github/workflows/codecov-health.yml
+- .github/workflows/codeql.yml
+- .github/workflows/dependency-review.yml
+- .github/workflows/dependency-watch.yml
+- .github/workflows/docs.yml
+- .github/workflows/formal-coq.yml
+- .github/workflows/formal-tla.yml
+- .github/workflows/math-quality-gate.yml
+- .github/workflows/physics-equivalence.yml
+- .github/workflows/quality-mutation.yml
+- .github/workflows/release-pipeline.yml
+- .github/workflows/science.yml
+- .github/workflows/workflow-integrity.yml
+
+## make_targets
+- make api-contract
+- make check
+- make clean
+- make coverage
+- make coverage-baseline
+- make coverage-fast
+- make coverage-gate
+- make dev-env-offline
+- make dev-setup
+- make docs
+- make docs-evidence
+- make fix
+- make format
+- make inventory
+- make inventory-check
+- make lint
+- make manifest
+- make manifest-check
+- make manifest-validate
+- make mutation
+- make mutation-baseline
+- make mutation-check
+- make mutation-check-strict
+- make mutation-ci
+- make mypy
+- make public-surfaces
+- make quality
+- make quickstart-smoke
+- make release-readiness
+- make security
+- make ssot
+- make test
+- make test-determinism
+- make test-validation
+- make traceability-check
+- make validate-api-maturity
+- make validate-claims-coverage
+- make wheelhouse-build
+- make wheelhouse-clean
+- make wheelhouse-report
+- make wheelhouse-validate
+
+## doc_validators_and_related_scripts
+- scripts/check_internal_links.py
+- scripts/check_quickstart_consistency.py
+- scripts/validate_traceability.py
+- scripts/check_mermaid_syntax.py
+- scripts/validate_svg.py

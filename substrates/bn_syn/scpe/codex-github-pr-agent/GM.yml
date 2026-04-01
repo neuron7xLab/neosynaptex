@@ -1,0 +1,103 @@
+scpe_release: v1.0
+schema_version: GM-2026.1
+owner: codex-github-pr-agent
+gates:
+  - id: "G.CDX.OBS.001"
+    description: "Inventory exists: repo state, branches, tool versions, allowlist, baseline CI pointers."
+    pass_predicate: "REPORTS/inventory.json exists AND REPORTS/ci-baseline.json exists AND ENV.txt exists AND COMMANDS.txt exists"
+    evidence_commands:
+      - "git rev-parse HEAD"
+      - "git status --porcelain"
+      - "git remote -v"
+      - "git branch --show-current"
+      - "gh --version"
+      - "gh auth status -t || gh auth status"
+      - "uname -a"
+      - "python3 --version"
+      - "jq --version"
+    required_artifacts:
+      - "REPORTS/inventory.json"
+      - "REPORTS/ci-baseline.json"
+      - "REPORTS/gh-auth.json"
+      - "ENV.txt"
+      - "COMMANDS.txt"
+    runtime_budget_seconds: 180
+    rollback_hint: "no changes expected"
+    owner: "codex-github-pr-agent"
+
+  - id: "G.CDX.GH.001"
+    description: "GitHub context is resolvable: REPO, BASE_BRANCH, auth, API reachability."
+    pass_predicate: "REPORTS/gh-context.json exists AND repo reachable AND base branch exists"
+    evidence_commands:
+      - "gh repo view \"$REPO\" --json nameWithOwner,defaultBranchRef,url"
+      - "gh api \"repos/$REPO/branches/$BASE_BRANCH\""
+    required_artifacts:
+      - "REPORTS/gh-context.json"
+    runtime_budget_seconds: 120
+    rollback_hint: "no changes expected"
+    owner: "codex-github-pr-agent"
+
+  - id: "G.CDX.PR.001"
+    description: "A single PR exists or is updated with gate-referenced commits and correct base/head mapping."
+    pass_predicate: "REPORTS/pr.json exists AND pr.url exists AND pr.baseRefName=BASE_BRANCH AND pr.headRefName exists"
+    evidence_commands:
+      - "gh pr view \"$PR_NUMBER\" --json url,number,baseRefName,headRefName,state,isDraft,commits"
+    required_artifacts:
+      - "REPORTS/pr.json"
+      - "REPORTS/diff-summary.json"
+    runtime_budget_seconds: 180
+    rollback_hint: "close PR without merge"
+    owner: "codex-github-pr-agent"
+
+  - id: "G.CDX.CI.001"
+    description: "CI evidence captured for PR head SHA: run URLs and required check statuses."
+    pass_predicate: "REPORTS/ci-after.json exists AND REPORTS/checks.json exists AND ci_after.run_urls length>0"
+    evidence_commands:
+      - "gh pr view \"$PR_NUMBER\" --json headRefOid"
+      - "gh api \"repos/$REPO/commits/$HEAD_SHA/check-runs\""
+      - "gh api \"repos/$REPO/actions/runs?branch=$HEAD_BRANCH&per_page=10\""
+    required_artifacts:
+      - "REPORTS/ci-after.json"
+      - "REPORTS/checks.json"
+    runtime_budget_seconds: 900
+    rollback_hint: "do not merge; iterate"
+    owner: "codex-github-pr-agent"
+
+  - id: "G.CDX.DIFF.001"
+    description: "Minimal diff within allowlist and within budgets."
+    pass_predicate: "REPORTS/diff-summary.json exists AND diff.outside_allowlist_count=0 AND diff.files_changed<=25 AND diff.loc_changed<=800"
+    evidence_commands:
+      - "git diff --name-only \"$BASE_BRANCH...HEAD\""
+      - "git diff --stat \"$BASE_BRANCH...HEAD\""
+    required_artifacts:
+      - "REPORTS/diff-summary.json"
+    runtime_budget_seconds: 120
+    rollback_hint: "git revert commits"
+    owner: "codex-github-pr-agent"
+
+  - id: "G.CDX.SEC.001"
+    description: "Redaction policy present and enforced."
+    pass_predicate: "SECURITY.redaction.yml exists"
+    evidence_commands:
+      - "test -f SECURITY.redaction.yml && echo ok"
+    required_artifacts:
+      - "SECURITY.redaction.yml"
+    runtime_budget_seconds: 10
+    rollback_hint: "add policy file only"
+    owner: "codex-github-pr-agent"
+
+  - id: "G.CDX.PROOF.001"
+    description: "EBS-2026 proof bundle exists with sha256 checksums for required artifacts and recorded exit codes."
+    pass_predicate: "MANIFEST.json exists AND artifacts[].sha256 exists for each required_artifact AND commands[].exit_code present"
+    evidence_commands:
+      - "cat MANIFEST.json"
+    required_artifacts:
+      - "ENV.txt"
+      - "COMMANDS.txt"
+      - "MANIFEST.json"
+      - "BASELINE/"
+      - "AFTER/"
+      - "REPORTS/"
+    runtime_budget_seconds: 120
+    rollback_hint: "revert-safe by design"
+    owner: "codex-github-pr-agent"

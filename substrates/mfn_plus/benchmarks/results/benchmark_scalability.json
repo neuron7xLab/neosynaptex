@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-03-23T10:26:01.934498",
+  "benchmarks": [
+    {
+      "name": "large_grid_128x128",
+      "metric_value": 0.0796186679508537,
+      "metric_unit": "s",
+      "target_value": 15.0,
+      "passed": true,
+      "memory_mb": 0.6937465667724609,
+      "timestamp": "2026-03-23T10:26:01.642489"
+    },
+    {
+      "name": "concurrent_throughput",
+      "metric_value": 32.596445080145315,
+      "metric_unit": "sim/s",
+      "target_value": 3.0,
+      "passed": true,
+      "memory_mb": 0.41938304901123047,
+      "timestamp": "2026-03-23T10:26:01.806236"
+    },
+    {
+      "name": "fractal_dimension_256x256",
+      "metric_value": 0.0014699019957333803,
+      "metric_unit": "s",
+      "target_value": 0.5,
+      "passed": true,
+      "memory_mb": 0.08110618591308594,
+      "timestamp": "2026-03-23T10:26:01.848723"
+    },
+    {
+      "name": "laplacian_numpy_vs_jit",
+      "metric_value": 0.000127676990814507,
+      "metric_unit": "s",
+      "target_value": 0.0005553779192268848,
+      "passed": true,
+      "memory_mb": 0.0,
+      "timestamp": "2026-03-23T10:26:01.849448"
+    },
+    {
+      "name": "memmap_history_128x128_smoke",
+      "metric_value": 0.04617957992013544,
+      "metric_unit": "s",
+      "target_value": 180.0,
+      "passed": true,
+      "memory_mb": 7.799654006958008,
+      "timestamp": "2026-03-23T10:26:01.934417"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0
+  }
+}

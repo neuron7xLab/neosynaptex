@@ -1,0 +1,85 @@
+# REUSABLE NON-PR-GATE: long-running workflow_call; must not run on pull_request/push.
+name: Reusable Gate Profile
+
+on:
+  workflow_call:
+    inputs:
+      profile:
+        description: "Gate profile to apply"
+        type: string
+        required: true
+    outputs:
+      pytest-markers:
+        description: "Pytest marker expression"
+        value: ${{ jobs.profile.outputs.pytest_markers }}
+      coverage-threshold:
+        description: "Coverage threshold percentage"
+        value: ${{ jobs.profile.outputs.coverage_threshold }}
+      pytest-timeout-minutes:
+        description: "Pytest timeout in minutes"
+        value: ${{ jobs.profile.outputs.pytest_timeout_minutes }}
+      validation-markers:
+        description: "Validation marker expression"
+        value: ${{ jobs.profile.outputs.validation_markers }}
+      validation-timeout-minutes:
+        description: "Validation timeout in minutes"
+        value: ${{ jobs.profile.outputs.validation_timeout_minutes }}
+      property-markers:
+        description: "Property marker expression"
+        value: ${{ jobs.profile.outputs.property_markers }}
+      property-timeout-minutes:
+        description: "Property timeout in minutes"
+        value: ${{ jobs.profile.outputs.property_timeout_minutes }}
+
+permissions:
+  contents: read
+
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    outputs:
+      pytest_markers: ${{ steps.set.outputs.pytest_markers }}
+      coverage_threshold: ${{ steps.set.outputs.coverage_threshold }}
+      pytest_timeout_minutes: ${{ steps.set.outputs.pytest_timeout_minutes }}
+      validation_markers: ${{ steps.set.outputs.validation_markers }}
+      validation_timeout_minutes: ${{ steps.set.outputs.validation_timeout_minutes }}
+      property_markers: ${{ steps.set.outputs.property_markers }}
+      property_timeout_minutes: ${{ steps.set.outputs.property_timeout_minutes }}
+    steps:
+      - id: set
+        shell: bash
+        run: |
+          profile="${{ inputs.profile }}"
+          case "$profile" in
+            pr)
+              pytest_markers="not (validation or property)"
+              coverage_threshold="95"
+              pytest_timeout_minutes="10"
+              validation_markers="validation"
+              validation_timeout_minutes="30"
+              property_markers="property"
+              property_timeout_minutes="30"
+              ;;
+            long)
+              pytest_markers="not (validation)"
+              coverage_threshold="85"
+              pytest_timeout_minutes="30"
+              validation_markers="validation"
+              validation_timeout_minutes="30"
+              property_markers="property"
+              property_timeout_minutes="30"
+              ;;
+            *)
+              echo "Unsupported profile: $profile" >&2
+              exit 1
+              ;;
+          esac
+          {
+            echo "pytest_markers=$pytest_markers"
+            echo "coverage_threshold=$coverage_threshold"
+            echo "pytest_timeout_minutes=$pytest_timeout_minutes"
+            echo "validation_markers=$validation_markers"
+            echo "validation_timeout_minutes=$validation_timeout_minutes"
+            echo "property_markers=$property_markers"
+            echo "property_timeout_minutes=$property_timeout_minutes"
+          } >> "$GITHUB_OUTPUT"

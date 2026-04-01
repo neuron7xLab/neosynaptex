@@ -1,0 +1,39 @@
+# REUSABLE NON-PR-GATE: long-running workflow_call; must not run on pull_request/push.
+name: ci-pr
+
+on:
+  workflow_dispatch:
+    inputs:
+      python-version:
+        type: string
+        default: "3.11"
+      upload-codecov:
+        type: string
+        default: "true"
+  workflow_call:
+    inputs:
+      python-version:
+        type: string
+        default: "3.11"
+      upload-codecov:
+        type: string
+        default: "true"
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci-pr-atomic:
+    uses: ./.github/workflows/ci-pr-atomic.yml
+    with:
+      python-version: ${{ inputs['python-version'] }}
+      upload-codecov: ${{ fromJSON(inputs['upload-codecov']) }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

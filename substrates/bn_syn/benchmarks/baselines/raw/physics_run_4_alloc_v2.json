@@ -1,0 +1,49 @@
+{
+  "backend": "reference",
+  "configuration": {
+    "dt_ms": 0.1,
+    "frac_inhib": 0.2,
+    "neurons": 200,
+    "p_conn": 0.05,
+    "steps": 1000,
+    "synapses": 1990
+  },
+  "metadata": {
+    "determinism": "enforced",
+    "dt_invariance": "validated",
+    "platform": "Linux-6.12.13-x86_64-with-glibc2.39",
+    "python_version": "3.12.12"
+  },
+  "performance": {
+    "energy_cost": 9164987.900321566,
+    "spikes_per_sec": 0.0,
+    "updates_per_sec": 9164987.900321566,
+    "wall_time_sec": 0.21713067400014552
+  },
+  "physics": {
+    "attractor_metrics": {
+      "autocorr_lag1": 0.0,
+      "mean_activity": 0.0,
+      "variance": 0.0
+    },
+    "gain": {
+      "final": 1.0,
+      "mean": 1.0
+    },
+    "sigma": {
+      "final": 1.0,
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "spike_statistics": {
+      "max": 0.0,
+      "mean": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "std": 0.0
+    },
+    "total_spikes": 0.0
+  },
+  "regime_id": "alloc_v2",
+  "seed": 42
+}

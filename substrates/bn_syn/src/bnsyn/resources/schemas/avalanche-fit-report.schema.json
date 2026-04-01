@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Avalanche Fit Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "alpha", "tau", "xmin", "ks_distance", "p_value", "likelihood_ratio", "fit_method", "sample_size", "tau_meaning", "validity"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "alpha": {"type": "number"},
+    "tau": {"type": "number"},
+    "xmin": {"type": "integer", "minimum": 0},
+    "ks_distance": {"type": "number", "minimum": 0.0},
+    "p_value": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+    "likelihood_ratio": {"type": "number"},
+    "fit_method": {"type": "string", "minLength": 1},
+    "sample_size": {"type": "integer", "minimum": 0},
+    "tau_meaning": {"type": "string", "minLength": 1},
+    "validity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verdict", "reasons", "thresholds"],
+      "properties": {
+        "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+        "reasons": {"type": "array", "items": {"type": "string"}},
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min_tail_count", "p_value_min", "ks_max"],
+          "properties": {
+            "min_tail_count": {"type": "integer", "minimum": 1},
+            "p_value_min": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+            "ks_max": {"type": "number", "minimum": 0.0}
+          }
+        }
+      }
+    }
+  }
+}

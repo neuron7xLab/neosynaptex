@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BN-Syn Experiment Configuration",
+  "type": "object",
+  "required": [
+    "experiment",
+    "network",
+    "simulation"
+  ],
+  "properties": {
+    "experiment": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "seeds"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9_-]+$",
+          "description": "Experiment name (lowercase alphanumeric, underscore, dash)"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^v[0-9]+$",
+          "description": "Version identifier (e.g., v1, v2)"
+        },
+        "seeds": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "minItems": 1,
+          "maxItems": 100,
+          "uniqueItems": true,
+          "description": "Random seeds for reproducibility"
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "required": [
+        "size"
+      ],
+      "properties": {
+        "size": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 100000,
+          "description": "Number of neurons in the network"
+        }
+      }
+    },
+    "simulation": {
+      "type": "object",
+      "required": [
+        "duration_ms",
+        "dt_ms"
+      ],
+      "properties": {
+        "duration_ms": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Simulation duration in milliseconds"
+        },
+        "dt_ms": {
+          "type": "number",
+          "enum": [
+            0.01,
+            0.05,
+            0.1,
+            0.5,
+            1.0
+          ],
+          "description": "Timestep in milliseconds"
+        },
+        "external_current_pA": {
+          "type": "number",
+          "default": 0.0,
+          "description": "Constant external current injection per neuron in picoamps"
+        },
+        "artifact_dir": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Directory for emergence NPZ artifacts; null uses summary-only mode"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+[
+  {
+    "N": 1000,
+    "benchmark": "bench_adex",
+    "dt": 0.1,
+    "git_sha": "440a570010c7319d822b5fe1f24526b4c1101dba",
+    "metric_name": "adex_steps_per_sec",
+    "seed": 42,
+    "timestamp": "2026-01-24T16:51:54.543431+00:00",
+    "units": "steps/sec",
+    "value": 13560.42966858774
+  },
+  {
+    "N": 1000,
+    "benchmark": "bench_adex",
+    "dt": 0.1,
+    "git_sha": "440a570010c7319d822b5fe1f24526b4c1101dba",
+    "metric_name": "memory_per_neuron_mb",
+    "rss_mb": 86.56640625,
+    "seed": 42,
+    "timestamp": "2026-01-24T16:51:54.543431+00:00",
+    "units": "MB/neuron",
+    "value": 0.08656640625
+  },
+  {
+    "N": 1000,
+    "benchmark": "bench_synapses",
+    "dt": 0.1,
+    "git_sha": "440a570010c7319d822b5fe1f24526b4c1101dba",
+    "metric_name": "synapse_update_cost_ms",
+    "seed": 42,
+    "timestamp": "2026-01-24T16:51:54.814780+00:00",
+    "units": "ms/step",
+    "value": 0.025806242003454827
+  },
+  {
+    "N": 1000,
+    "benchmark": "bench_plasticity",
+    "dt": 0.1,
+    "git_sha": "440a570010c7319d822b5fe1f24526b4c1101dba",
+    "metric_name": "plasticity_update_cost_ms",
+    "seed": 42,
+    "timestamp": "2026-01-24T16:51:54.914479+00:00",
+    "units": "ms/step",
+    "value": 0.023756991999107413
+  },
+  {
+    "N": 1000,
+    "benchmark": "bench_criticality",
+    "dt": 0.1,
+    "git_sha": "440a570010c7319d822b5fe1f24526b4c1101dba",
+    "metric_name": "criticality_sigma_drift",
+    "seed": 42,
+    "timestamp": "2026-01-24T16:51:55.005913+00:00",
+    "units": "abs(sigma-target)",
+    "value": 0.12646354162166662
+  },
+  {
+    "N": 1000,
+    "benchmark": "bench_dt_invariance",
+    "dt": 0.1,
+    "git_sha": "440a570010c7319d822b5fe1f24526b4c1101dba",
+    "metric_name": "dt_invariance_drift",
+    "seed": 42,
+    "timestamp": "2026-01-24T16:51:55.017184+00:00",
+    "units": "relative",
+    "value": 4.269825748813321e-07
+  }
+]

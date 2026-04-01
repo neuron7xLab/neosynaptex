@@ -1,0 +1,418 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BN-Syn Canonical Proof Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_contract",
+    "export_proof",
+    "verdict",
+    "verdict_code",
+    "timestamp_utc",
+    "seed",
+    "gates",
+    "metrics",
+    "recomputed_metrics",
+    "summary_metrics_snapshot",
+    "recompute_sources",
+    "metric_consistency",
+    "artifacts_verified",
+    "failure_reasons"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "INCONCLUSIVE"
+      ]
+    },
+    "verdict_code": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "G1_active_spiking",
+        "G2_rate_in_bounds",
+        "G3_sigma_in_range",
+        "G4_core_artifacts_complete",
+        "G5_manifest_valid",
+        "G6_determinism_replay",
+        "G7_avalanche_evidence_sufficient",
+        "G8_reproducibility_envelope",
+        "G9_metrics_trace_consistency"
+      ],
+      "properties": {
+        "G1_active_spiking": {
+          "$ref": "#/definitions/gateResult"
+        },
+        "G2_rate_in_bounds": {
+          "$ref": "#/definitions/gateResult"
+        },
+        "G3_sigma_in_range": {
+          "$ref": "#/definitions/gateResult"
+        },
+        "G4_core_artifacts_complete": {
+          "$ref": "#/definitions/gateResult"
+        },
+        "G5_manifest_valid": {
+          "$ref": "#/definitions/gateResult"
+        },
+        "G6_determinism_replay": {
+          "$ref": "#/definitions/gateResult"
+        },
+        "G7_avalanche_evidence_sufficient": {
+          "$ref": "#/definitions/gateResult"
+        },
+        "G8_reproducibility_envelope": {
+          "$ref": "#/definitions/gateResult"
+        },
+        "G9_metrics_trace_consistency": {
+          "$ref": "#/definitions/gateResult"
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "recomputed_metrics": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "summary_metrics_snapshot": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "recompute_sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rate_mean_hz",
+        "sigma_mean",
+        "spike_events",
+        "spike_events_source"
+      ],
+      "properties": {
+        "rate_mean_hz": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sigma_mean": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "spike_events": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "spike_events_source": {
+          "type": "string",
+          "enum": [
+            "raw_npz",
+            "rate_trace_reconstruction",
+            "unverifiable",
+            "canonical_raw_npz_malformed"
+          ]
+        },
+        "spike_events_metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "number",
+              "string",
+              "integer"
+            ]
+          }
+        },
+        "spike_events_reconstruction": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "number",
+              "string",
+              "integer"
+            ]
+          }
+        }
+      }
+    },
+    "metric_consistency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "spike_events",
+        "rate_mean_hz",
+        "sigma_mean"
+      ],
+      "properties": {
+        "spike_events": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "tolerance",
+            "policy",
+            "summary_source",
+            "source"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "PASS",
+                "FAIL"
+              ]
+            },
+            "tolerance": {
+              "type": "number",
+              "minimum": 0.0
+            },
+            "policy": {
+              "type": "string",
+              "minLength": 1
+            },
+            "summary_source": {
+              "type": "string",
+              "const": "summary_metrics.json"
+            },
+            "source": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "summary": {
+              "type": [
+                "number",
+                "integer"
+              ]
+            },
+            "recomputed": {
+              "type": [
+                "number",
+                "integer"
+              ]
+            },
+            "delta": {
+              "type": "number",
+              "minimum": 0.0
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "rate_mean_hz": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "tolerance",
+            "policy",
+            "summary_source",
+            "source"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "PASS",
+                "FAIL"
+              ]
+            },
+            "tolerance": {
+              "type": "number",
+              "minimum": 0.0
+            },
+            "policy": {
+              "type": "string",
+              "minLength": 1
+            },
+            "summary_source": {
+              "type": "string",
+              "const": "summary_metrics.json"
+            },
+            "source": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "summary": {
+              "type": [
+                "number",
+                "integer"
+              ]
+            },
+            "recomputed": {
+              "type": [
+                "number",
+                "integer"
+              ]
+            },
+            "delta": {
+              "type": "number",
+              "minimum": 0.0
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "sigma_mean": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "tolerance",
+            "policy",
+            "summary_source",
+            "source"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "PASS",
+                "FAIL"
+              ]
+            },
+            "tolerance": {
+              "type": "number",
+              "minimum": 0.0
+            },
+            "policy": {
+              "type": "string",
+              "minLength": 1
+            },
+            "summary_source": {
+              "type": "string",
+              "const": "summary_metrics.json"
+            },
+            "source": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "summary": {
+              "type": [
+                "number",
+                "integer"
+              ]
+            },
+            "recomputed": {
+              "type": [
+                "number",
+                "integer"
+              ]
+            },
+            "delta": {
+              "type": "number",
+              "minimum": 0.0
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "artifacts_verified": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "failure_reasons": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "bundle_contract": {
+      "type": "string",
+      "enum": [
+        "canonical-base",
+        "canonical-export-proof"
+      ]
+    },
+    "export_proof": {
+      "type": "boolean"
+    }
+  },
+  "definitions": {
+    "gateResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "INCONCLUSIVE"
+          ]
+        },
+        "details": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "number",
+            "integer"
+          ]
+        },
+        "missing_artifacts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "consistency": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

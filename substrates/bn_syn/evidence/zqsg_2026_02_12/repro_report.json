@@ -1,0 +1,56 @@
+[
+  {
+    "artifact": "tests_inventory.json",
+    "command": "python -m scripts.generate_tests_inventory",
+    "hashes": [
+      "276852335a55465c152cb99d8750b5c1b6826e44db0ef7e6cbd640c516b3f548",
+      "276852335a55465c152cb99d8750b5c1b6826e44db0ef7e6cbd640c516b3f548",
+      "276852335a55465c152cb99d8750b5c1b6826e44db0ef7e6cbd640c516b3f548"
+    ],
+    "outputs": [
+      {
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      }
+    ],
+    "status": "pass"
+  },
+  {
+    "artifact": "INVENTORY.json",
+    "command": "python tools/generate_inventory.py",
+    "hashes": [
+      "3353f994fb21609bad64647c88fb094cc1eb5bdedb9f7957772bd61937e1e7ce",
+      "3353f994fb21609bad64647c88fb094cc1eb5bdedb9f7957772bd61937e1e7ce",
+      "3353f994fb21609bad64647c88fb094cc1eb5bdedb9f7957772bd61937e1e7ce"
+    ],
+    "outputs": [
+      {
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      }
+    ],
+    "status": "pass"
+  }
+]

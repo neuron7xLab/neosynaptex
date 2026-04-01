@@ -1,0 +1,56 @@
+{
+  "results": [
+    {
+      "competition": 0.0,
+      "eta": 0.2383,
+      "eta_r2": 0.7067,
+      "gamma": 4.547,
+      "eta_gamma_ratio": 0.0524,
+      "corr_at_lag1": 0.9948,
+      "corr_at_lag10": 0.9467,
+      "corr_at_lag50": 0.7137
+    },
+    {
+      "competition": 0.25,
+      "eta": 0.2859,
+      "eta_r2": 0.7213,
+      "gamma": 2.067,
+      "eta_gamma_ratio": 0.1383,
+      "corr_at_lag1": 0.9931,
+      "corr_at_lag10": 0.9302,
+      "corr_at_lag50": 0.6562
+    },
+    {
+      "competition": 0.5,
+      "eta": 0.2814,
+      "eta_r2": 0.7368,
+      "gamma": 1.662,
+      "eta_gamma_ratio": 0.1693,
+      "corr_at_lag1": 0.9925,
+      "corr_at_lag10": 0.9244,
+      "corr_at_lag50": 0.6494
+    },
+    {
+      "competition": 0.75,
+      "eta": 0.208,
+      "eta_r2": 0.7316,
+      "gamma": 0.861,
+      "eta_gamma_ratio": 0.2415,
+      "corr_at_lag1": 0.9945,
+      "corr_at_lag10": 0.9432,
+      "corr_at_lag50": 0.7293
+    },
+    {
+      "competition": 1.0,
+      "eta": 0.1637,
+      "eta_r2": 0.6906,
+      "gamma": 1.93,
+      "eta_gamma_ratio": 0.0848,
+      "corr_at_lag1": 0.9968,
+      "corr_at_lag10": 0.9649,
+      "corr_at_lag50": 0.8008
+    }
+  ],
+  "correlation_eta_gamma": 0.1102,
+  "gates": {
+    "T1-G1: power law R2 > 0.5 at comp=0.75": 

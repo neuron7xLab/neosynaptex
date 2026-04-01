@@ -1,0 +1,281 @@
+name: SAST Security Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  bandit:
+    name: Bandit SAST Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            pyproject.toml
+
+      - name: Restore Python cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-py3.11-${{ hashFiles('**/requirements.txt', '**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-py3.11-
+            ${{ runner.os }}-
+
+      - name: Install bandit
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit[sarif]
+
+      - name: Run bandit scan for SARIF
+        run: |
+          # Generate SARIF report with medium+ findings for GitHub Security tab
+          # This is for tracking/visibility, not for blocking (see high severity gate below)
+          bandit -r src/mlsdm \
+            -f sarif \
+            -o bandit-results.sarif \
+            --severity-level medium \
+            --confidence-level medium \
+            || true  # Continue even if medium issues found; actual gate is high severity check
+
+      - name: Validate Bandit SARIF JSON
+        run: |
+          # Validate that generated SARIF is valid JSON
+          python3 - << 'EOF'
+          import json
+          import sys
+
+          try:
+              with open("bandit-results.sarif", "r", encoding="utf-8") as f:
+                  data = json.load(f)
+              print("✓ SARIF JSON validation passed")
+              print(f"  - Version: {data.get('version', 'unknown')}")
+              print(f"  - Runs: {len(data.get('runs', []))}")
+          except json.JSONDecodeError as e:
+              print(f"✗ SARIF JSON validation failed: {e}")
+              sys.exit(1)
+          except FileNotFoundError:
+              print("✗ SARIF file not found: bandit-results.sarif")
+              sys.exit(1)
+          EOF
+
+      - name: Check for high severity issues (SECURITY GATE)
+        run: |
+          # SECURITY GATE: Display and fail on high severity issues
+          # If no HIGH issues found, exit 0; if found, display them and exit 1
+          bandit -r src/mlsdm \
+            --severity-level high \
+            --confidence-level high \
+            -f txt
+
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: bandit-results.sarif
+          category: bandit
+        # INFORMATIONAL: Upload failures should not block the workflow
+        # The actual security scan already passed/failed above
+        continue-on-error: true
+
+      - name: Generate readable report
+        if: always()
+        run: |
+          echo "## Bandit Security Scan Results" > bandit-summary.md
+          echo "" >> bandit-summary.md
+          bandit -r src/mlsdm -f txt >> bandit-summary.md 2>&1 || true
+
+      - name: Upload scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-security-report
+          path: |
+            bandit-summary.md
+            bandit-results.sarif
+          retention-days: 30
+
+  semgrep:
+    name: Semgrep SAST Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # SECURITY GATE: Semgrep is a blocking check
+    # Uses native CLI via official container image (supply-chain secure)
+    # Container image pinned by digest for reproducibility
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep (SECURITY GATE)
+        # Uses official Semgrep container image pinned by digest
+        # Replaces third-party action for better supply-chain control
+        run: |
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/src" \
+            -w /src \
+            returntocorp/semgrep:1.102.0@sha256:cef085245254d15c66d96be413c730f0b458823a1d0c39afbc12f705b664ce8f \
+            semgrep scan \
+              --config p/python \
+              --config p/security-audit \
+              --config p/owasp-top-ten \
+              --sarif \
+              --sarif-output semgrep.sarif \
+              --error \
+              .
+        # --error flag makes semgrep exit with non-zero if findings detected
+        # This is the SECURITY GATE - findings block the build
+
+      - name: Upload Semgrep SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+        # INFORMATIONAL: Upload failures should not block the workflow
+        # The actual security scan already passed/failed above
+        continue-on-error: true
+
+  dependency-audit:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # SECURITY GATE: Blocks CI on known vulnerabilities in dependencies
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            pyproject.toml
+
+      - name: Restore Python cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-py3.11-${{ hashFiles('**/requirements.txt', '**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-py3.11-
+            ${{ runner.os }}-
+
+      - name: Install dependencies and pip-audit
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit
+          pip install -r requirements.txt
+
+      - name: Run pip-audit (SECURITY GATE)
+        run: |
+          # SECURITY GATE: Fail on any known vulnerabilities
+          # Uses --strict to fail on any vulnerability found
+          pip-audit --requirement requirements.txt --strict --progress-spinner=off
+
+      - name: Generate dependency report
+        if: always()
+        run: |
+          echo "## Dependency Vulnerability Report" > dep-audit-summary.md
+          echo "" >> dep-audit-summary.md
+          echo "Generated at: $(date -u)" >> dep-audit-summary.md
+          echo "" >> dep-audit-summary.md
+          pip-audit --requirement requirements.txt --format json > pip-audit-results.json 2>&1 || true
+          pip-audit --requirement requirements.txt >> dep-audit-summary.md 2>&1 || true
+
+      - name: Upload dependency report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-report
+          path: |
+            dep-audit-summary.md
+            pip-audit-results.json
+          retention-days: 30
+
+  secrets-scan:
+    name: Secrets Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # SECURITY GATE: Detects committed secrets before merge
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for secret detection
+
+      - name: Run Gitleaks (SECURITY GATE)
+        # Uses official Gitleaks container image pinned by digest
+        # Replaces third-party action for better supply-chain control
+        run: |
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/src" \
+            -w /src \
+            zricethezav/gitleaks:v8.21.2@sha256:0e99e8821643ea5b235718642b93bb32486af9c8162c8b8731f7cbdc951a7f46 \
+            detect \
+              --source=/src \
+              --config=/src/.gitleaks.toml \
+              --verbose \
+              --redact \
+              --report-format=sarif \
+              --report-path=/src/gitleaks-results.sarif \
+              --exit-code=1
+        # --exit-code=1 ensures non-zero exit on findings (SECURITY GATE)
+        # --redact prevents secret values from appearing in logs
+        # --config points to repo-specific allowlist for test fixtures
+
+      - name: Generate secrets scan summary
+        if: always()
+        run: |
+          echo "## Secrets Scan Summary" > secrets-scan-summary.md
+          echo "" >> secrets-scan-summary.md
+          echo "Gitleaks scan completed at: $(date -u)" >> secrets-scan-summary.md
+          echo "" >> secrets-scan-summary.md
+          if [ -f "gitleaks-results.sarif" ]; then
+            echo "Results file generated - check SARIF for details" >> secrets-scan-summary.md
+          else
+            echo "No SARIF output file found (this may be normal if no secrets detected)" >> secrets-scan-summary.md
+          fi
+
+      - name: Upload secrets scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secrets-scan-report
+          path: |
+            secrets-scan-summary.md
+            gitleaks-results.sarif
+          retention-days: 30
+        continue-on-error: true

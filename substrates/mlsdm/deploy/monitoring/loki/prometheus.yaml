@@ -1,0 +1,30 @@
+# Prometheus Configuration for MLSDM
+# ===================================
+# This configuration scrapes MLSDM metrics.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # MLSDM API Service
+  - job_name: 'mlsdm'
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+        labels:
+          app: 'mlsdm'
+          env: 'local'
+    metrics_path: '/health/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Loki metrics
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+    metrics_path: '/metrics'

@@ -1,0 +1,31 @@
+- test_id: FIXTURE_A
+  intent: Sparse evidence should apply pessimistic prior and partial termination.
+  inputs: calibration_pack/harness/fixtures/FIXTURE_A.json
+  expected_artifacts:
+    - calibration_pack/golden/FIXTURE_A.output.json
+  expected_invariants:
+    - evidence_density_below_threshold
+    - confidence_below_fixture_b
+    - contradiction_flag_false
+  acceptable_variance: 0
+
+- test_id: FIXTURE_B
+  intent: Normal evidence should satisfy completeness and pass termination.
+  inputs: calibration_pack/harness/fixtures/FIXTURE_B.json
+  expected_artifacts:
+    - calibration_pack/golden/FIXTURE_B.output.json
+  expected_invariants:
+    - completeness_above_threshold
+    - contradiction_flag_false
+    - non_zero_scores_have_evidence
+  acceptable_variance: 0
+
+- test_id: FIXTURE_C
+  intent: Contradiction evidence must trigger deterministic downgrade.
+  inputs: calibration_pack/harness/fixtures/FIXTURE_C.json
+  expected_artifacts:
+    - calibration_pack/golden/FIXTURE_C.output.json
+  expected_invariants:
+    - contradiction_flag_true
+    - contradiction_penalty_applied
+  acceptable_variance: 0

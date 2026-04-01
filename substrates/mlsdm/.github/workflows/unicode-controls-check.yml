@@ -1,0 +1,32 @@
+name: Unicode Controls Guard
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/*'
+      - 'copilot/*'
+  pull_request:
+    branches:
+      - main
+      - 'feature/*'
+      - 'copilot/*'
+
+permissions:
+  contents: read
+
+jobs:
+  unicode-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run unicode control guard
+        run: python scripts/check_no_unicode_controls.py

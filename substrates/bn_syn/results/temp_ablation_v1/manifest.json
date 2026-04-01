@@ -1,0 +1,45 @@
+{
+  "experiment": "temp_ablation_v1",
+  "version": "1.0",
+  "git_commit": "f27aab087e09e503ea8eb72d1bd24132292cb05e",
+  "python_version": "3.12.3 (main, Jan  8 2026, 11:30:50) [GCC 13.3.0]",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "steps": 5000,
+  "params": {
+    "T0": 1.0,
+    "Tmin": 0.001,
+    "alpha": 0.95,
+    "Tc": 0.1,
+    "gate_tau": 0.02,
+    "dt_s": 1.0,
+    "pulse_amplitude": 2.0,
+    "pulse_prob": 0.05
+  },
+  "result_files": {
+    "cooling_geometric.json": "36b5ee870c4a03d65ba4d399315196693eb5c1457e1cd6d5600fe8bd17056bfd",
+    "fixed_high.json": "b1bbb12b8b65d5a32107d442c97a59b28d863b004d5a5f22a3120f0ddec96be6",
+    "fixed_low.json": "a0ca345a899b434b1991c10ce1b338e58fea562f47588dc56625a50cba557192",
+    "random_T.json": "330cba54f2157c77329f8767e96e69a3645dfaa87348c555155389bf2e406a0e"
+  }
+}

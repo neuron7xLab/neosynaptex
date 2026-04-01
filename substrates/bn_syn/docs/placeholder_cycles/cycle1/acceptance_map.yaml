@@ -1,0 +1,66 @@
+cycle: 1
+objective: "Close all OPEN PH entries with deterministic evidence and CI-green validation"
+requirements:
+  per_ph_test_required:
+    rule: "Each PH must have at least one test that fails pre-fix and passes post-fix"
+  meta_scan_required:
+    rule: "placeholder-scan must return 0 findings OR all findings status=RESOLVED with evidence"
+  registry_validation_required:
+    rule: "Registry must validate structure, unique PH IDs, and allowed statuses"
+  ci_green_required:
+    rule: "Required CI checks must pass on final commit"
+ph_acceptance:
+  - id: PH-0001
+    batch: PH_BATCH_01
+    file: src/bnsyn/emergence/crystallizer.py
+    fix_strategy: guard_fail_closed
+    test_strategy: regression
+    tests:
+      - tests/test_crystallizer_edge_cases.py::test_crystallizer_pca_failure_retains_previous
+    pre_fix_expectation: "fails due to permissive pass path"
+    post_fix_expectation: "passes with deterministic fallback retention behavior"
+    closure_evidence:
+      - "targeted test output"
+      - "registry status updated to RESOLVED"
+  - id: PH-0002
+    batch: PH_BATCH_02
+    file: tests/test_coverage_gate.py
+    fix_strategy: implement_minimal
+    test_strategy: regression
+    tests:
+      - tests/test_coverage_gate.py::test_read_coverage_percent_missing_file_fails
+    pre_fix_expectation: "fails because missing artifact branch is non-assertive"
+    post_fix_expectation: "passes with explicit missing-file assertion behavior"
+    closure_evidence:
+      - "targeted test output"
+      - "registry status updated to RESOLVED"
+  - id: PH-0003
+    batch: PH_BATCH_02
+    file: tests/validation/test_chaos_integration.py
+    fix_strategy: guard_fail_closed
+    test_strategy: regression
+    tests:
+      - tests/validation/test_chaos_integration.py::test_adex_bounds_enforcement
+    pre_fix_expectation: "fails due to permissive exception pass branch"
+    post_fix_expectation: "passes with explicit finite-output/accepted-error assertions"
+    closure_evidence:
+      - "targeted test output"
+      - "registry status updated to RESOLVED"
+meta_tests:
+  - name: placeholder_scan_text
+    command: python -m scripts.scan_placeholders --format text
+    expected: "findings=0 OR findings fully RESOLVED with evidence"
+  - name: placeholder_scan_json
+    command: python -m scripts.scan_placeholders --format json
+    expected: "[] OR all entries status=RESOLVED with evidence"
+  - name: registry_validation
+    command: pytest -q tests/test_scan_placeholders.py
+    expected: "pass"
+ci_gate:
+  required_commands:
+    - pytest -q
+    - make quality
+artifacts:
+  - docs/placeholder_cycles/cycle1/plan.md
+  - docs/placeholder_cycles/cycle1/acceptance_map.yaml
+  - docs/placeholder_cycles/cycle1/worklist.json

@@ -1,0 +1,63 @@
+default_language_version:
+  python: python3.12
+
+repos:
+  # ── General file hygiene ──────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: detect-private-key
+      - id: check-yaml
+        args: ["--unsafe"]
+      - id: check-toml
+      - id: check-json
+        exclude: "^(artifacts|benchmarks/results)/"
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-symlinks
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+      - id: no-commit-to-branch
+        args: ["--branch=main"]
+      - id: debug-statements
+
+  # ── Python linting & formatting ───────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.10
+    hooks:
+      - id: ruff
+        args: ["--fix", "--exit-non-zero-on-fix"]
+      - id: ruff-format
+
+  # ── Security ──────────────────────────────────────────────────
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.9
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml", "-q"]
+        additional_dependencies: ["bandit[toml]"]
+        files: ^src/
+
+  # ── Import boundary contracts ─────────────────────────────────
+  - repo: local
+    hooks:
+      - id: import-linter
+        name: import-linter
+        entry: uv run lint-imports
+        language: system
+        pass_filenames: false
+        types: [python]
+
+  # ── Type checking (incremental) ───────────────────────────────
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: uv run mypy src/mycelium_fractal_net/types/ src/mycelium_fractal_net/security/ src/mycelium_fractal_net/core/ src/mycelium_fractal_net/analytics/ src/mycelium_fractal_net/neurochem/ src/mycelium_fractal_net/bio/ --strict --ignore-missing-imports
+        language: system
+        pass_filenames: false
+        types: [python]

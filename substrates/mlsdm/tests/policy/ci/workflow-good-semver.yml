@@ -1,0 +1,23 @@
+name: Good Workflow Semver
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  safe-job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Third-party action pinned to full semver (immutable)
+      # This should NOT be blocked by the mutable-ref policy because
+      # @v0.21.1 is different from @v0 (exact match required)
+      - name: Third-party semver pinned action
+        uses: example/secure-action@v0.21.1

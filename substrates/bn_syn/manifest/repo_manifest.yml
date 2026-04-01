@@ -1,0 +1,47 @@
+manifest_version: '1.0'
+required_pr_gates:
+  source: .github/PR_GATES.yml
+  sha256: 5ec87b49db654362aceda66d6cb036ee6b94ef7046d8bf5c89a620e909683b17
+invariants:
+- id: INV-001
+  statement: Repository manifest markdown and computed snapshot are generated artifacts.
+  enforcement: python -m tools.manifest generate && git diff --exit-code -- .github/REPO_MANIFEST.md
+    manifest/repo_manifest.computed.json
+  evidence_kind: artifact
+- id: INV-002
+  statement: PR gate workflows required by .github/PR_GATES.yml exist in .github/workflows/.
+  enforcement: python -m tools.manifest validate
+  evidence_kind: path:line-span
+- id: INV-003
+  statement: Coverage gate baseline is defined and parseable from quality/coverage_gate.json.
+  enforcement: python -m tools.manifest validate
+  evidence_kind: path:line-span
+- id: INV-004
+  statement: Mutation baseline is defined and parseable from quality/mutation_baseline.json.
+  enforcement: python -m tools.manifest validate
+  evidence_kind: path:line-span
+- id: INV-005
+  statement: ci_manifest.json is not used by automation and must remain absent.
+  enforcement: python -m tools.manifest validate
+  evidence_kind: artifact
+metrics:
+- workflow_total
+- workflow_reusable_total
+- workflow_call_total
+- required_pr_gate_total
+- coverage_minimum_percent
+- coverage_baseline_percent
+- mutation_baseline_score
+- mutation_total_mutants
+- ci_manifest_reference_count
+policies:
+  generated_files_are_readonly: true
+  drift_is_failure: true
+  deterministic_sorting: true
+  generated_files:
+  - .github/REPO_MANIFEST.md
+  - manifest/repo_manifest.computed.json
+evidence_rules:
+  accepted_pointer_formats:
+  - path:line-span
+  - artifact

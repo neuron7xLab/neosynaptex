@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TaskScore",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_id",
+    "domain_id",
+    "task_id",
+    "task_weight",
+    "evidence_artifact_ids",
+    "raw_score",
+    "evidence_cap",
+    "penalties_applied",
+    "final_score",
+    "reason_codes"
+  ],
+  "properties": {
+    "protocol_id": {
+      "type": "string"
+    },
+    "domain_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "task_weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "evidence_artifact_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "raw_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "evidence_cap": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "penalties_applied": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "final_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

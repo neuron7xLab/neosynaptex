@@ -1,0 +1,29 @@
+{
+  "assets": [
+    {
+      "path": "policies/README.md",
+      "sha256": "a0eb59c5f8523a3a7d7be0742b05c6d5dc0b304d2a7626a07baafe66e2b6381b"
+    },
+    {
+      "path": "policies/ci/workflows.rego",
+      "sha256": "4902bc24de388208ac29742c9cc76a141db92b3aaa175aaeffd963888f848e0f"
+    },
+    {
+      "path": "policy/observability-slo.yaml",
+      "sha256": "3a8555667d71539c2dac3d720f974878faf01ec1389019d303236242594ebf34"
+    },
+    {
+      "path": "policy/registry.json",
+      "sha256": "0079e025c2a64ac7ba94c1847c154fe6083750dd34ace4f2d117dbb0327d28a4"
+    },
+    {
+      "path": "policy/security-baseline.yaml",
+      "sha256": "de76214c7046149add32ce1299cae9cb60aade5dd364254a955ea3528061a30c"
+    }
+  ],
+  "catalog_version": "1",
+  "policy_bundle_hash": "7c7ae4090ddf49f2a3817b5b0435f2ee9a110884d88f80ae84ce508002b0360c",
+  "policy_contract_version": "1.1",
+  "signature": "a78a22217a7dc4648bd7ddbe45dc08c562174f3e1884de346ecb08eea450c8a6",
+  "signature_algorithm": "sha256"
+}

@@ -1,0 +1,81 @@
+name: dependency-review
+
+on:
+  pull_request:
+    paths:
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "requirements/**/*.txt"
+      - "setup.py"
+      - "setup.cfg"
+      - "poetry.lock"
+      - "uv.lock"
+      - "Pipfile"
+      - "Pipfile.lock"
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Detect dependency graph availability
+        id: depgraph
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python - <<"PY"
+          from __future__ import annotations
+
+          import json
+          import os
+          import subprocess
+
+          repo = os.environ.get("GH_REPO", "")
+          token = os.environ.get("GH_TOKEN", "")
+          enabled = False
+
+          if repo and token:
+              cmd = [
+                  "curl",
+                  "-sSfL",
+                  "-H",
+                  f"Authorization: Bearer {token}",
+                  "-H",
+                  "Accept: application/vnd.github+json",
+                  f"https://api.github.com/repos/{repo}",
+              ]
+              try:
+                  payload = json.loads(subprocess.check_output(cmd, text=True))
+                  sec = payload.get("security_and_analysis") or {}
+                  dep = sec.get("dependency_graph") or {}
+                  enabled = dep.get("status") == "enabled"
+              except Exception as exc:  # pragma: no cover - workflow runtime fallback
+                  print(f"WARNING: could not query dependency_graph status: {exc}")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"enabled={'true' if enabled else 'false'}\\n")
+
+          print(
+              "Dependency graph status: enabled"
+              if enabled
+              else "Dependency graph status: disabled/unknown; dependency-review skipped"
+          )
+          PY
+
+      - name: Dependency Review
+        if: steps.depgraph.outputs.enabled == 'true'
+        uses: actions/dependency-review-action@3c4e3dcb1aa7874d2c16be7d79418e9b7efd6261
+
+      - name: Dependency Review skipped notice
+        if: steps.depgraph.outputs.enabled != 'true'
+        run: |
+          echo "Dependency graph is disabled or unavailable; skipping dependency-review action."

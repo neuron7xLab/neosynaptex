@@ -1,0 +1,59 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "GPT5.4-AUDIT-HARDENING-PROTOCOL-2026",
+    "protocol_version": "2026.4.3",
+    "target_protocol_id": "SSE-SECURITY-EXECUTION-PROTOCOL-2026.1",
+    "execution_mode": "MODE_STRICT_AUDIT",
+    "evaluation_timestamp": "1970-01-01T00:00:00Z",
+    "model_identifier": "reference-runner-1.0",
+    "artifact_count": 1,
+    "evaluation_hash": "f6dfda0a3246d9138fe14f1237ae113c8b224636e472bc065c113a79576e8455"
+  },
+  "artifact_validation_results": [
+    {
+      "artifact_id": "ART.H1",
+      "schema_status": "VALID",
+      "integrity_status": "INJECTION_ATTEMPT",
+      "admissible": false,
+      "reason_codes": [
+        "INJECTION_ATTEMPT"
+      ]
+    }
+  ],
+  "task_scores": [],
+  "domain_scores": [],
+  "gate_results": [
+    {
+      "gate_id": "G0_INTEGRITY",
+      "status": "FAIL",
+      "blocking": true,
+      "reason_codes": [
+        "INJECTION_ATTEMPT"
+      ],
+      "affected_artifact_ids": [
+        "ART.H1"
+      ]
+    },
+    {
+      "gate_id": "G1_MINIMUM_READINESS",
+      "status": "PASS",
+      "blocking": false,
+      "reason_codes": [],
+      "affected_artifact_ids": []
+    },
+    {
+      "gate_id": "G2_EVIDENCE_SUFFICIENCY",
+      "status": "PASS",
+      "blocking": false,
+      "reason_codes": [],
+      "affected_artifact_ids": []
+    }
+  ],
+  "final_classification": {
+    "status": "FAIL",
+    "classification_label": "NOT_READY",
+    "composite_score": 0.0,
+    "integrity_hash": "f6dfda0a3246d9138fe14f1237ae113c8b224636e472bc065c113a79576e8455"
+  },
+  "evidence_trace_table": []
+}

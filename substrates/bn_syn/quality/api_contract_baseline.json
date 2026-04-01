@@ -1,0 +1,65 @@
+{
+  "modules": {
+    "bnsyn.cli": {},
+    "bnsyn.config": {},
+    "bnsyn.connectivity.sparse": {
+      "SparseConnectivity": "(W: 'Float64Array', density_threshold: 'float' = 0.1, force_format: \"Literal['auto', 'dense', 'sparse']\" = 'auto') -> 'None'",
+      "build_random_connectivity": "(n_pre: 'int', n_post: 'int', connection_prob: 'float', *, rng: 'np.random.Generator', weight_mean: 'float' = 1.0, weight_std: 'float' = 0.1) -> 'SparseConnectivity'"
+    },
+    "bnsyn.control": {
+      "BranchingEstimator": "(eps: 'float' = 1e-09, ema_alpha: 'float' = 0.05, _sigma_ema: 'float' = 1.0) -> None",
+      "SigmaController": "(params: 'CriticalityParams', gain: 'float' = 1.0) -> None",
+      "TemperatureSchedule": "(params: 'TemperatureParams', T: 'float | None' = None) -> None",
+      "energy_cost": "(rate_hz: 'np.ndarray', w: 'np.ndarray', I_ext_pA: 'np.ndarray', p: 'EnergyParams') -> 'float'",
+      "gate_sigmoid": "(T: 'float', Tc: 'float', tau: 'float') -> 'float'",
+      "total_reward": "(r_task: 'float', e_total: 'float', rate_mean_hz: 'float', p: 'EnergyParams') -> 'float'"
+    },
+    "bnsyn.criticality.branching": {
+      "BranchingEstimator": "(eps: 'float' = 1e-09, ema_alpha: 'float' = 0.05, _sigma_ema: 'float' = 1.0) -> None",
+      "SigmaController": "(params: 'CriticalityParams', gain: 'float' = 1.0) -> None"
+    },
+    "bnsyn.neuron.adex": {
+      "AdExState": "(V_mV: 'Float64Array', w_pA: 'Float64Array', spiked: 'BoolArray') -> None",
+      "IntegrationMetrics": "(lte_estimate: 'float', global_error_bound: 'float', recommended_dt_ms: 'float') -> None",
+      "adex_step": "(state: 'AdExState', params: 'AdExParams', dt_ms: 'float', I_syn_pA: 'Float64Array', I_ext_pA: 'Float64Array') -> 'AdExState'",
+      "adex_step_adaptive": "(state: 'AdExState', params: 'AdExParams', dt_ms: 'float', I_syn_pA: 'Float64Array', I_ext_pA: 'Float64Array', *, atol: 'float' = 1e-08, rtol: 'float' = 1e-06) -> 'AdExState'",
+      "adex_step_with_error_tracking": "(state: 'AdExState', params: 'AdExParams', dt_ms: 'float', I_syn_pA: 'Float64Array', I_ext_pA: 'Float64Array', *, atol: 'float' = 1e-06, rtol: 'float' = 0.001) -> 'tuple[AdExState, IntegrationMetrics]'"
+    },
+    "bnsyn.neurons": {
+      "AdExState": "(V_mV: 'Float64Array', w_pA: 'Float64Array', spiked: 'BoolArray') -> None",
+      "IntegrationMetrics": "(lte_estimate: 'float', global_error_bound: 'float', recommended_dt_ms: 'float') -> None",
+      "adex_step": "(state: 'AdExState', params: 'AdExParams', dt_ms: 'float', I_syn_pA: 'Float64Array', I_ext_pA: 'Float64Array') -> 'AdExState'",
+      "adex_step_adaptive": "(state: 'AdExState', params: 'AdExParams', dt_ms: 'float', I_syn_pA: 'Float64Array', I_ext_pA: 'Float64Array', *, atol: 'float' = 1e-08, rtol: 'float' = 1e-06) -> 'AdExState'",
+      "adex_step_with_error_tracking": "(state: 'AdExState', params: 'AdExParams', dt_ms: 'float', I_syn_pA: 'Float64Array', I_ext_pA: 'Float64Array', *, atol: 'float' = 1e-06, rtol: 'float' = 0.001) -> 'tuple[AdExState, IntegrationMetrics]'"
+    },
+    "bnsyn.plasticity.three_factor": {
+      "three_factor_update": "(w: 'Float64Array', elig: 'EligibilityTraces', neuromod: 'NeuromodulatorTrace', pre_spikes: 'BoolArray', post_spikes: 'BoolArray', dt_ms: 'float', p: 'PlasticityParams') -> 'tuple[Float64Array, EligibilityTraces]'"
+    },
+    "bnsyn.rng": {},
+    "bnsyn.sim.network": {
+      "Network": "(nparams: 'NetworkParams', adex: 'AdExParams', syn: 'SynapseParams', crit: 'CriticalityParams', dt_ms: 'float', rng: 'np.random.Generator', backend: \"Literal['reference', 'accelerated']\" = 'reference')",
+      "NetworkParams": "(N: 'int' = 200, frac_inhib: 'float' = 0.2, p_conn: 'float' = 0.05, w_exc_nS: 'float' = 0.5, w_inh_nS: 'float' = 1.0, ext_rate_hz: 'float' = 2.0, ext_w_nS: 'float' = 0.3, V_min_mV: 'float' = -100.0, V_max_mV: 'float' = 50.0) -> None",
+      "run_simulation": "(steps: 'int', dt_ms: 'float', seed: 'int', N: 'int' = 200, backend: \"Literal['reference', 'accelerated']\" = 'reference', external_current_pA: 'float' = 0.0) -> 'dict[str, float]'"
+    },
+    "bnsyn.simulation": {
+      "Network": "(nparams: 'NetworkParams', adex: 'AdExParams', syn: 'SynapseParams', crit: 'CriticalityParams', dt_ms: 'float', rng: 'np.random.Generator', backend: \"Literal['reference', 'accelerated']\" = 'reference')",
+      "NetworkParams": "(N: 'int' = 200, frac_inhib: 'float' = 0.2, p_conn: 'float' = 0.05, w_exc_nS: 'float' = 0.5, w_inh_nS: 'float' = 1.0, ext_rate_hz: 'float' = 2.0, ext_w_nS: 'float' = 0.3, V_min_mV: 'float' = -100.0, V_max_mV: 'float' = 50.0) -> None",
+      "run_simulation": "(steps: 'int', dt_ms: 'float', seed: 'int', N: 'int' = 200, backend: \"Literal['reference', 'accelerated']\" = 'reference', external_current_pA: 'float' = 0.0) -> 'dict[str, float]'"
+    },
+    "bnsyn.synapse.conductance": {
+      "ConductanceState": "(g_ampa_nS: 'Float64Array', g_nmda_nS: 'Float64Array', g_gabaa_nS: 'Float64Array') -> None",
+      "ConductanceSynapses": "(N: 'int', params: 'SynapseParams', dt_ms: 'float') -> 'None'",
+      "nmda_mg_block": "(V_mV: 'Float64Array', mg_mM: 'float') -> 'Float64Array'"
+    },
+    "bnsyn.synapses": {
+      "ConductanceState": "(g_ampa_nS: 'Float64Array', g_nmda_nS: 'Float64Array', g_gabaa_nS: 'Float64Array') -> None",
+      "ConductanceSynapses": "(N: 'int', params: 'SynapseParams', dt_ms: 'float') -> 'None'",
+      "nmda_mg_block": "(V_mV: 'Float64Array', mg_mM: 'float') -> 'Float64Array'"
+    },
+    "bnsyn.temperature.schedule": {
+      "TemperatureSchedule": "(params: 'TemperatureParams', T: 'float | None' = None) -> None",
+      "gate_sigmoid": "(T: 'float', Tc: 'float', tau: 'float') -> 'float'"
+    }
+  },
+  "version": "0.2.0"
+}

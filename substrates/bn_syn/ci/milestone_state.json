@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.1.0",
+  "track": "canonical_foundation",
+  "milestones": {
+    "M0": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M1": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M2": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M3": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M4": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M5": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M6": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M7": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M8": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M9": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M10": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    },
+    "M11": {
+      "closed": false,
+      "commit": null,
+      "ci_run": null
+    }
+  }
+}

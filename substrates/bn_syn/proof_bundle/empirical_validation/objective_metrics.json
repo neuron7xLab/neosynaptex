@@ -1,0 +1,20 @@
+{
+  "branch_calibration": {
+    "decision": "no_pruning_needed",
+    "instruction_optimization": [
+      "Prioritize scenarios with zero divergence and zero bitwise delta for default reviewer path.",
+      "Escalate only high-load scenarios (p95 wall-time) when stability_integrity_index >= 0.99.",
+      "Treat any non-zero NaN/divergence branch as non-canonical until corrected."
+    ],
+    "pruned_branches": []
+  },
+  "objective_metrics": {
+    "median_wall_time_sec": 0.024078995000309078,
+    "review_load_index": 0.0,
+    "stability_integrity_index": 1.0
+  },
+  "stress_test_surface": {
+    "scenario_count": 1,
+    "unstable_branch_count": 0
+  }
+}

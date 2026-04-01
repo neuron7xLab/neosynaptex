@@ -1,0 +1,80 @@
+{
+  "gate": "G3_cross_validation",
+  "pass": true,
+  "substrates_passing": 1,
+  "elapsed_s": 0.37,
+  "substrates": {
+    "mfn_turing": {
+      "results": [
+        {
+          "seed": 42,
+          "D_f": 1.7095251731642926,
+          "R": 0.7660394985860943,
+          "cognitive": true
+        },
+        {
+          "seed": 17,
+          "D_f": 1.7095251731642926,
+          "R": 0.7677606552410553,
+          "cognitive": true
+        },
+        {
+          "seed": 91,
+          "D_f": 1.7095251731642926,
+          "R": 0.8141995541047363,
+          "cognitive": true
+        }
+      ],
+      "cognitive_fraction": 1.0,
+      "passes_ccp": true
+    },
+    "fhn_excitable": {
+      "results": [
+        {
+          "seed": 42,
+          "D_f": 1.9870648501435617,
+          "R": 0.026237029567461677,
+          "cognitive": false
+        },
+        {
+          "seed": 17,
+          "D_f": 1.9666003112542108,
+          "R": 0.010569374902737282,
+          "cognitive": false
+        },
+        {
+          "seed": 91,
+          "D_f": 1.9914538673565707,
+          "R": 0.002594629556374395,
+          "cognitive": false
+        }
+      ],
+      "cognitive_fraction": 0.0,
+      "passes_ccp": false
+    },
+    "kuramoto": {
+      "results": [
+        {
+          "seed": 42,
+          "D_f": 1.9366794560394325,
+          "R": 0.02328191862033565,
+          "cognitive": false
+        },
+        {
+          "seed": 17,
+          "D_f": 1.9424023420350793,
+          "R": 0.023349734080758522,
+          "cognitive": false
+        },
+        {
+          "seed": 91,
+          "D_f": 1.9599974379741598,
+          "R": 0.021473050435187758,
+          "cognitive": false
+        }
+      ],
+      "cognitive_fraction": 0.0,
+      "passes_ccp": false
+    }
+  }
+}

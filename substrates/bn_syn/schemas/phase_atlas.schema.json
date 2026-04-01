@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bnsyn.dev/schemas/phase_atlas.schema.json",
+  "title": "BN-Syn Phase Atlas",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["atlas_version", "meta", "records", "schema_version", "seed"],
+  "properties": {
+    "atlas_version": {"type": "string"},
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classifier", "code_sha", "grid", "payload_sha256"],
+      "properties": {
+        "classifier": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["critical_max", "critical_min", "subcritical_max", "supercritical_min"],
+          "properties": {
+            "critical_max": {"type": "number"},
+            "critical_min": {"type": "number"},
+            "subcritical_max": {"type": "number"},
+            "supercritical_min": {"type": "number"}
+          }
+        },
+        "code_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "grid": {"type": "string"},
+        "payload_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["criticality", "grid_id", "metrics", "regime", "sleep", "temperature"],
+        "properties": {
+          "criticality": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["estimator_window", "gain_clamp", "sigma_target"],
+            "properties": {
+              "estimator_window": {"type": "integer", "minimum": 1},
+              "gain_clamp": {"type": "number"},
+              "sigma_target": {"type": "number"}
+            }
+          },
+          "grid_id": {"type": "string"},
+          "metrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["attractor_score", "sigma_estimate", "stability_score"],
+            "properties": {
+              "attractor_score": {"type": "number"},
+              "sigma_estimate": {"type": "number"},
+              "stability_score": {"type": "number"}
+            }
+          },
+          "regime": {"type": "string", "enum": ["SUB", "CRIT", "SUPER"]},
+          "sleep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["noise_scale", "replay_strength", "stages"],
+            "properties": {
+              "noise_scale": {"type": "number"},
+              "replay_strength": {"type": "number"},
+              "stages": {
+                "type": "array",
+                "items": {"type": "string"},
+                "minItems": 1
+              }
+            }
+          },
+          "temperature": {"type": "number"}
+        }
+      }
+    },
+    "schema_version": {"type": "string"},
+    "seed": {"type": "integer"}
+  }
+}

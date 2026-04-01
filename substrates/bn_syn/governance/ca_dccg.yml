@@ -1,0 +1,40 @@
+protocol: "CA-DCCG-2026.04"
+determinism:
+  required: 1.0
+  stable_ordering: true
+evidence:
+  required_ratio_P0: 1.0
+  anchor_format: "§REF"
+risk:
+  classes:
+    P0: {requires: ["ARB", "ADR", "RFC", "CHAOS", "PERF_BASELINE", "SECURITY_FULL"]}
+    P1: {requires: ["ADR", "RFC", "SECURITY_FULL"]}
+    P2: {requires: ["ADR", "SECURITY_CORE"]}
+    P3: {requires: ["SECURITY_CORE"]}
+governance:
+  bodies:
+    ARB:
+      quorum: 2
+      scope: ["P0", "cross_domain", "platform_surface"]
+decision_frameworks:
+  default: "RISK_WEIGHTED_DECISION"
+portfolio:
+  max_active_initiatives: 5
+  scoring_weights:
+    user_value: 3
+    risk_reduction: 4
+    platform_leverage: 3
+    cost: -2
+    time_to_value: 2
+budgets:
+  complexity:
+    max_cycles: 0
+    max_public_interfaces: 12
+    max_dependency_edges_delta: 15
+  reliability:
+    chaos_required_P0: true
+  performance:
+    regression_threshold_pct: 3.0
+security:
+  supply_chain_pinning: true
+  least_privilege_ci: true

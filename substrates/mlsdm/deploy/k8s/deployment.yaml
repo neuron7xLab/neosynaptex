@@ -1,0 +1,96 @@
+# ====================================================
+# Kubernetes Deployment for NeuroCognitiveEngine Service
+# ====================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neuro-engine
+  labels:
+    app: neuro-engine
+    component: api
+    version: v0.1.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: neuro-engine
+  template:
+    metadata:
+      labels:
+        app: neuro-engine
+        component: api
+        version: v0.1.0
+    spec:
+      containers:
+      - name: neuro-engine
+        image: ghcr.io/neuron7xLab/mlsdm-neuro-engine:1.2.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        env:
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8000"
+        - name: LLM_BACKEND
+          value: "local_stub"
+        - name: EMBEDDING_DIM
+          value: "384"
+        - name: ENABLE_FSLGS
+          value: "true"
+        - name: ENABLE_METRICS
+          value: "true"
+        - name: LOG_PAYLOADS
+          value: "false"
+        # Uncomment and configure for OpenAI backend
+        # - name: OPENAI_API_KEY
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: neuro-engine-secrets
+        #       key: openai-api-key
+        # - name: OPENAI_MODEL
+        #   value: "gpt-3.5-turbo"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+      securityContext:
+        fsGroup: 1000

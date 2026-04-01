@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AuditReproducibility",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "audit_hash",
+    "timestamp_utc",
+    "toolchain_fingerprint_artifact",
+    "artifact_hashes",
+    "proof_bundle_entries",
+    "deterministic_replay_steps"
+  ],
+  "properties": {
+    "audit_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "timestamp_utc": {"type": "string"},
+    "toolchain_fingerprint_artifact": {"type": "string"},
+    "artifact_hashes": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+    },
+    "proof_bundle_entries": {"type": "integer", "minimum": 1},
+    "deterministic_replay_steps": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+  }
+}

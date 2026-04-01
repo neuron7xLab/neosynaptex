@@ -1,0 +1,935 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvaluationResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_metadata",
+    "artifact_validation_results",
+    "task_scores",
+    "domain_scores",
+    "gate_results",
+    "final_classification",
+    "execution_chain_format_version",
+    "execution_state_chain",
+    "execution_chain_terminal_hash",
+    "evidence_trace_table"
+  ],
+  "properties": {
+    "protocol_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_id",
+        "protocol_version",
+        "target_protocol_id",
+        "execution_mode",
+        "evaluation_timestamp",
+        "model_identifier",
+        "artifact_count",
+        "evaluation_hash"
+      ],
+      "properties": {
+        "protocol_id": {
+          "type": "string"
+        },
+        "protocol_version": {
+          "type": "string"
+        },
+        "target_protocol_id": {
+          "type": "string"
+        },
+        "execution_mode": {
+          "type": "string",
+          "enum": [
+            "MODE_STRICT_AUDIT",
+            "MODE_AGENT_AUTOMATION",
+            "MODE_INTERACTIVE_ANALYSIS"
+          ]
+        },
+        "evaluation_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "model_identifier": {
+          "type": "string"
+        },
+        "artifact_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evaluation_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "artifact_validation_results": {
+      "type": "array",
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "ArtifactValidationResult",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_id",
+          "schema_status",
+          "integrity_status",
+          "admissible",
+          "reason_codes"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "schema_status": {
+            "type": "string",
+            "enum": [
+              "VALID",
+              "INVALID_SCHEMA",
+              "INVALID_TYPE",
+              "INVALID_REQUIRED_FIELD",
+              "INVALID_ENUM",
+              "INVALID_PATTERN"
+            ]
+          },
+          "integrity_status": {
+            "type": "string",
+            "enum": [
+              "VALID",
+              "INVALID_FINGERPRINT",
+              "DUPLICATE_EVIDENCE",
+              "PROVENANCE_INCOMPLETE",
+              "INJECTION_ATTEMPT",
+              "REVIEWER_INDEPENDENCE_MISSING"
+            ]
+          },
+          "admissible": {
+            "type": "boolean"
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "task_scores": {
+      "type": "array",
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "TaskScore",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "protocol_id",
+          "domain_id",
+          "task_id",
+          "task_weight",
+          "evidence_artifact_ids",
+          "raw_score",
+          "evidence_cap",
+          "penalties_applied",
+          "final_score",
+          "reason_codes"
+        ],
+        "properties": {
+          "protocol_id": {
+            "type": "string"
+          },
+          "domain_id": {
+            "type": "string"
+          },
+          "task_id": {
+            "type": "string"
+          },
+          "task_weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "evidence_artifact_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "raw_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "evidence_cap": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "penalties_applied": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "final_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "domain_scores": {
+      "type": "array",
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "DomainScore",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "domain_id",
+          "domain_name",
+          "must_have",
+          "weighted_score",
+          "evidence_class_distribution",
+          "domain_cap",
+          "final_domain_score"
+        ],
+        "properties": {
+          "domain_id": {
+            "type": "string"
+          },
+          "domain_name": {
+            "type": "string"
+          },
+          "must_have": {
+            "type": "boolean"
+          },
+          "weighted_score": {
+            "type": "number",
+            "minimum": 0
+          },
+          "evidence_class_distribution": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "LOW",
+              "MED",
+              "HIGH"
+            ],
+            "properties": {
+              "LOW": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "MED": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "HIGH": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "domain_cap": {
+            "type": "number",
+            "minimum": 0
+          },
+          "final_domain_score": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "gate_results": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "GateResult",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "gate_id",
+          "status",
+          "blocking",
+          "reason_codes",
+          "affected_artifact_ids"
+        ],
+        "properties": {
+          "gate_id": {
+            "type": "string",
+            "enum": [
+              "G0_INTEGRITY",
+              "G1_MINIMUM_READINESS",
+              "G2_EVIDENCE_SUFFICIENCY"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL"
+            ]
+          },
+          "blocking": {
+            "type": "boolean"
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "affected_artifact_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "final_classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "classification_label",
+        "composite_score",
+        "integrity_hash"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNKNOWN"
+          ]
+        },
+        "classification_label": {
+          "type": "string"
+        },
+        "composite_score": {
+          "type": "number",
+          "minimum": 0
+        },
+        "integrity_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "evidence_trace_table": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_id",
+          "artifact_type",
+          "domain_id",
+          "task_id",
+          "task_score_contribution",
+          "domain_score_contribution",
+          "evidence_class",
+          "trace_status"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "artifact_type": {
+            "type": "string"
+          },
+          "domain_id": {
+            "type": "string"
+          },
+          "task_id": {
+            "type": "string"
+          },
+          "task_score_contribution": {
+            "type": "number"
+          },
+          "domain_score_contribution": {
+            "type": "number"
+          },
+          "evidence_class": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MED",
+              "HIGH"
+            ]
+          },
+          "trace_status": {
+            "type": "string",
+            "enum": [
+              "USED",
+              "REJECTED",
+              "SUPPORTING"
+            ]
+          }
+        }
+      }
+    },
+    "execution_state_chain": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase_index",
+            "phase_id",
+            "previous_step_hash",
+            "step_hash",
+            "contract_version",
+            "phase_input_digest",
+            "replay_capsule"
+          ],
+          "properties": {
+            "phase_index": {
+              "const": 0
+            },
+            "phase_id": {
+              "const": "artifact_validation"
+            },
+            "previous_step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "contract_version": {
+              "type": "string"
+            },
+            "phase_input_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "replay_capsule": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "admitted_artifact_ids",
+                "admitted_artifact_fingerprints",
+                "gate_state",
+                "phase_material"
+              ],
+              "properties": {
+                "admitted_artifact_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "admitted_artifact_fingerprints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "gate_state": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": [
+                      "PASS",
+                      "FAIL"
+                    ]
+                  }
+                },
+                "phase_material": {
+                  "type": "object",
+                  "minProperties": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase_index",
+            "phase_id",
+            "previous_step_hash",
+            "step_hash",
+            "contract_version",
+            "phase_input_digest",
+            "replay_capsule"
+          ],
+          "properties": {
+            "phase_index": {
+              "const": 1
+            },
+            "phase_id": {
+              "const": "admissibility_derivation"
+            },
+            "previous_step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "contract_version": {
+              "type": "string"
+            },
+            "phase_input_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "replay_capsule": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "admitted_artifact_ids",
+                "admitted_artifact_fingerprints",
+                "gate_state",
+                "phase_material"
+              ],
+              "properties": {
+                "admitted_artifact_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "admitted_artifact_fingerprints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "gate_state": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": [
+                      "PASS",
+                      "FAIL"
+                    ]
+                  }
+                },
+                "phase_material": {
+                  "type": "object",
+                  "minProperties": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase_index",
+            "phase_id",
+            "previous_step_hash",
+            "step_hash",
+            "contract_version",
+            "phase_input_digest",
+            "replay_capsule"
+          ],
+          "properties": {
+            "phase_index": {
+              "const": 2
+            },
+            "phase_id": {
+              "const": "task_scoring"
+            },
+            "previous_step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "contract_version": {
+              "type": "string"
+            },
+            "phase_input_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "replay_capsule": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "admitted_artifact_ids",
+                "admitted_artifact_fingerprints",
+                "gate_state",
+                "phase_material"
+              ],
+              "properties": {
+                "admitted_artifact_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "admitted_artifact_fingerprints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "gate_state": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": [
+                      "PASS",
+                      "FAIL"
+                    ]
+                  }
+                },
+                "phase_material": {
+                  "type": "object",
+                  "minProperties": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase_index",
+            "phase_id",
+            "previous_step_hash",
+            "step_hash",
+            "contract_version",
+            "phase_input_digest",
+            "replay_capsule"
+          ],
+          "properties": {
+            "phase_index": {
+              "const": 3
+            },
+            "phase_id": {
+              "const": "domain_scoring"
+            },
+            "previous_step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "contract_version": {
+              "type": "string"
+            },
+            "phase_input_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "replay_capsule": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "admitted_artifact_ids",
+                "admitted_artifact_fingerprints",
+                "gate_state",
+                "phase_material"
+              ],
+              "properties": {
+                "admitted_artifact_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "admitted_artifact_fingerprints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "gate_state": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": [
+                      "PASS",
+                      "FAIL"
+                    ]
+                  }
+                },
+                "phase_material": {
+                  "type": "object",
+                  "minProperties": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase_index",
+            "phase_id",
+            "previous_step_hash",
+            "step_hash",
+            "contract_version",
+            "phase_input_digest",
+            "replay_capsule"
+          ],
+          "properties": {
+            "phase_index": {
+              "const": 4
+            },
+            "phase_id": {
+              "const": "gate_evaluation"
+            },
+            "previous_step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "contract_version": {
+              "type": "string"
+            },
+            "phase_input_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "replay_capsule": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "admitted_artifact_ids",
+                "admitted_artifact_fingerprints",
+                "gate_state",
+                "phase_material"
+              ],
+              "properties": {
+                "admitted_artifact_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "admitted_artifact_fingerprints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "gate_state": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": [
+                      "PASS",
+                      "FAIL"
+                    ]
+                  }
+                },
+                "phase_material": {
+                  "type": "object",
+                  "minProperties": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase_index",
+            "phase_id",
+            "previous_step_hash",
+            "step_hash",
+            "contract_version",
+            "phase_input_digest",
+            "replay_capsule"
+          ],
+          "properties": {
+            "phase_index": {
+              "const": 5
+            },
+            "phase_id": {
+              "const": "classification"
+            },
+            "previous_step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "contract_version": {
+              "type": "string"
+            },
+            "phase_input_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "replay_capsule": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "admitted_artifact_ids",
+                "admitted_artifact_fingerprints",
+                "gate_state",
+                "phase_material"
+              ],
+              "properties": {
+                "admitted_artifact_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "admitted_artifact_fingerprints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "gate_state": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": [
+                      "PASS",
+                      "FAIL"
+                    ]
+                  }
+                },
+                "phase_material": {
+                  "type": "object",
+                  "minProperties": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase_index",
+            "phase_id",
+            "previous_step_hash",
+            "step_hash",
+            "contract_version",
+            "phase_input_digest",
+            "replay_capsule"
+          ],
+          "properties": {
+            "phase_index": {
+              "const": 6
+            },
+            "phase_id": {
+              "const": "finalization"
+            },
+            "previous_step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "step_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "contract_version": {
+              "type": "string"
+            },
+            "phase_input_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "replay_capsule": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "admitted_artifact_ids",
+                "admitted_artifact_fingerprints",
+                "gate_state",
+                "phase_material"
+              ],
+              "properties": {
+                "admitted_artifact_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "admitted_artifact_fingerprints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "gate_state": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": [
+                      "PASS",
+                      "FAIL"
+                    ]
+                  }
+                },
+                "phase_material": {
+                  "type": "object",
+                  "minProperties": 1
+                }
+              }
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "execution_chain_terminal_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "execution_chain_format_version": {
+      "type": "string",
+      "const": "execution_chain.v1"
+    }
+  }
+}

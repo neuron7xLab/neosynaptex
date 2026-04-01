@@ -1,0 +1,26 @@
+{
+  "hypothesis": "G_two_mechanisms",
+  "verdict": "CONFIRMED",
+  "gs": {
+    "rho_ce": 0.4119,
+    "p_ce": 0.0294,
+    "rho_xi": 0.5371,
+    "p_xi": 0.0032,
+    "class": "Class I (Causal + Coherent)"
+  },
+  "fhn": {
+    "rho_ce": -0.373,
+    "p_ce": 0.0726,
+    "rho_xi": NaN,
+    "p_xi": NaN,
+    "class": "Class III (Neither)"
+  },
+  "br": {
+    "rho_ce": -0.9182,
+    "p_ce": 0.0,
+    "rho_xi": -0.7746,
+    "p_xi": 0.0,
+    "class": "Class III (Neither)"
+  },
+  "compute_seconds": 4.1
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GateResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gate_id",
+    "status",
+    "blocking",
+    "reason_codes",
+    "affected_artifact_ids"
+  ],
+  "properties": {
+    "gate_id": {
+      "type": "string",
+      "enum": [
+        "G0_INTEGRITY",
+        "G1_MINIMUM_READINESS",
+        "G2_EVIDENCE_SUFFICIENCY"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "blocking": {
+      "type": "boolean"
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "affected_artifact_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

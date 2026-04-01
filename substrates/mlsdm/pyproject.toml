@@ -1,0 +1,300 @@
+# ====================================================
+# MLSDM Governed Cognitive Memory - Project Configuration
+# ====================================================
+
+[project]
+name = "mlsdm-governed-cognitive-memory"
+version = "1.2.0"
+description = "Production-ready neurobiologically-grounded cognitive architecture with moral governance"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "neuron7x", email = "neuron7x@users.noreply.github.com"}
+]
+maintainers = [
+    {name = "neuron7x", email = "neuron7x@users.noreply.github.com"}
+]
+keywords = [
+    "cognitive-architecture",
+    "neuromorphic",
+    "moral-governance",
+    "memory-systems",
+    "ai-safety",
+    "llm-wrapper",
+    "circadian-rhythm",
+    "phase-entangled-memory"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=2.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.32.0",
+    "pyyaml>=6.0.2",
+    "pydantic>=2.10.0",
+    "prometheus-client>=0.21.0",
+    "tenacity>=9.0.0",
+    "requests>=2.32.3",
+    "psutil>=6.1.0",
+    "defusedxml>=0.7.1",
+]
+
+[project.optional-dependencies]
+observability = [
+    "opentelemetry-api>=1.31.0",
+    "opentelemetry-sdk>=1.31.0",
+    "pyjwt>=2.10.0",
+]
+neurolang = [
+    "torch>=2.0.0",
+]
+embeddings = [
+    "sentence-transformers>=3.0.0",
+]
+ltm = [
+    "cryptography>=42.0.0",
+]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.122.0",
+    "ruff>=0.9.0",
+    "mypy>=1.15.0",
+    "deptry>=0.24.0",
+    "locust>=2.32.0",
+    "httpx>=0.28.0",
+    "types-PyYAML==6.0.12.20250915",
+    "types-requests==2.32.4.20260107",
+    "tomli>=2.0.0; python_version < '3.11'",  # TOML backport for Py3.10 compatibility
+    "sentence-transformers>=3.0.0",  # Include embeddings in dev for full testing
+    "pip-tools>=7.4.0",  # For dependency locking with pip-compile
+    "pytest-xdist>=3.6.1",  # Include in dev bundle
+]
+docs = [
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=2.0.0",
+]
+test = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.122.0",
+    "httpx>=0.28.0",
+    "pytest-xdist>=3.6.1",  # Parallel test execution (30-50% speedup)
+]
+visualization = [
+    "matplotlib>=3.8.4",
+    "jupyter>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/neuron7xLab/mlsdm"
+Repository = "https://github.com/neuron7xLab/mlsdm"
+Documentation = "https://github.com/neuron7xLab/mlsdm/blob/main/docs/index.md"
+Issues = "https://github.com/neuron7xLab/mlsdm/issues"
+
+[project.scripts]
+mlsdm = "mlsdm.cli:main"
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+mlsdm = ["py.typed"]
+"mlsdm.config" = ["*.yaml"]
+
+# ====================================================
+# Tool Configuration
+# ====================================================
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+# Exclude sdk and examples directories which are separate modules
+exclude = ["sdk", "examples"]
+
+# Tests in src/mlsdm/tests should be allowed to have untyped definitions
+[[tool.mypy.overrides]]
+module = "mlsdm.tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+# NeuroLang extension is an optional PyTorch-based plugin
+# Torch typing is complex and unstable, so we use lenient checking
+[[tool.mypy.overrides]]
+module = "mlsdm.extensions.neuro_lang_extension"
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+check_untyped_defs = false
+warn_unused_ignores = false
+disallow_any_generics = false
+# Disable strict checking for torch module subclassing since torch is optional
+# and nn.Module may be None when torch is not installed
+disable_error_code = ["misc"]
+# Note: This is explicitly an optional extension and does not affect core functionality
+
+# Experimental modules are not part of the stable API
+# They are for research/benchmarking purposes and have relaxed type checking
+[[tool.mypy.overrides]]
+module = "mlsdm.memory.experimental.*"
+disallow_untyped_defs = false
+disallow_any_generics = false
+check_untyped_defs = false
+# Note: Experimental modules require optional dependencies and are not production-ready
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    # Note: pytest.ini exists and configures testpaths/markers
+    # Coverage threshold controlled by CI workflow, not default test runs
+    # The following are commented out to avoid conflicts and unrealistic defaults:
+    # "--cov=src",
+    # "--cov-report=html",
+    # "--cov-report=term-missing",
+    # "--cov-fail-under=90",  # Not used - CI enforces 65% threshold, actual coverage is ~86%
+    "--strict-markers",
+    "--strict-config",
+    "-v",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "property: marks property-based tests",
+    "security: marks security-related tests",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+    # Entrypoints are thin wrappers tested via E2E (see TEST_STRATEGY.md)
+    "src/mlsdm/entrypoints/*",
+    "src/mlsdm/main.py",
+    "src/mlsdm/service/*",
+    # Experimental modules require optional dependencies (PyTorch GPU)
+    "src/mlsdm/memory/experimental/*",
+]
+branch = true
+
+[tool.coverage.report]
+# Line coverage target: 75% (staged from 65% baseline, target 90%)
+# Branch coverage target: 70% (staged from current baseline, target 80%)
+fail_under = 75
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+    # Optional dependencies (torch, opentelemetry)
+    "except ImportError:",
+    "if torch is not None:",
+    "if OTEL_AVAILABLE:",
+]
+precision = 2
+show_missing = true
+# Skip files with 0% coverage (intentionally excluded)
+skip_empty = true
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "N806",  # Allow uppercase variable names (L1, L2, L3 are scientific notation for memory levels)
+    "SIM105",  # contextlib.suppress is less explicit than try-except-pass
+    "SIM102",  # Nested ifs can be more readable in some contexts
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # unused imports
+"tests/**/*.py" = ["N802", "N803", "N801", "B017", "B007"]  # test naming and test patterns
+"src/mlsdm/tests/**/*.py" = ["N802", "N803", "N801", "B017", "B007"]  # test naming and test patterns
+"src/mlsdm/utils/metrics.py" = ["N803"]  # Allow L1, L2, L3 parameter names
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# ====================================================
+# Package Configuration
+# ====================================================
+
+[tool.setuptools]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.deptry]
+# Exclude dev/test/docs dependencies from being treated as main dependencies
+exclude = ["tests", "docs"]
+# Tell deptry to only check dependencies against src/ code, not test/docs code
+pep621_dev_dependency_groups = ["dev", "test", "docs", "visualization"]
+
+[tool.deptry.per_rule_ignores]
+# Allow certain missing imports that are optional/conditional
+DEP001 = ["openai", "anthropic", "fslgs", "redis"]
+# Allow transitive dependencies that are re-exported by parent packages
+DEP003 = ["starlette", "typing_extensions"]
+# Allow certain optional dependencies that are defined but not yet used in src/
+DEP002 = ["sentence-transformers"]
+
+[tool.deptry.package_module_name_map]
+opentelemetry-api = "opentelemetry"
+opentelemetry-sdk = "opentelemetry"
+pyjwt = "jwt"
+sentence-transformers = "sentence_transformers"

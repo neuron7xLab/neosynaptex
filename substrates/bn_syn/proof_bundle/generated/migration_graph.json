@@ -1,0 +1,6 @@
+{
+  "generated_at_utc": "2026-02-15T20:06:09.015174Z",
+  "migrations": [],
+  "consistency": "UNKNOWN",
+  "notes": "No dedicated migrations directory detected via command scan; marked UNKNOWN."
+}

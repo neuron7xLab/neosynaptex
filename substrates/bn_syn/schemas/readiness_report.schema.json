@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ReadinessReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "meta",
+    "representator",
+    "modules",
+    "repo_scale_classification",
+    "depth_plan",
+    "time_budget_allocation",
+    "confidence_per_module",
+    "adjusted_risk",
+    "residual_uncertainty_index",
+    "evidence_strength_index",
+    "security_maturity_level",
+    "executive_decision_support_matrix",
+    "resource_allocation_optimizer",
+    "cross_module_consistency",
+    "proof_bundle_index"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object"
+    },
+    "representator": {
+      "type": "object"
+    },
+    "modules": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      },
+      "minProperties": 16,
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^M([0-9]|1[0-5])_.+"
+      }
+    },
+    "repo_scale_classification": {
+      "enum": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
+    },
+    "depth_plan": {
+      "type": "object"
+    },
+    "time_budget_allocation": {
+      "type": "object"
+    },
+    "confidence_per_module": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "adjusted_risk": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "residual_uncertainty_index": {
+      "type": "number"
+    },
+    "evidence_strength_index": {
+      "type": "number"
+    },
+    "security_maturity_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "executive_decision_support_matrix": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "resource_allocation_optimizer": {
+      "type": "object"
+    },
+    "cross_module_consistency": {
+      "type": "object"
+    },
+    "proof_bundle_index": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

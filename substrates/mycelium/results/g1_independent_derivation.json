@@ -1,0 +1,45 @@
+{
+  "gate": "G1_independent_derivation",
+  "pass": true,
+  "max_spread": 0.4442,
+  "mean_spread": 0.4296,
+  "threshold": 0.5,
+  "elapsed_s": 0.39,
+  "per_seed": [
+    {
+      "seed": 42,
+      "D_box": 1.5,
+      "D_corr": 1.3597,
+      "D_hurst": 1.0748,
+      "spread": 0.4252
+    },
+    {
+      "seed": 17,
+      "D_box": 1.5,
+      "D_corr": 1.4172,
+      "D_hurst": 1.0595,
+      "spread": 0.4405
+    },
+    {
+      "seed": 91,
+      "D_box": 1.5,
+      "D_corr": 1.4677,
+      "D_hurst": 1.0558,
+      "spread": 0.4442
+    },
+    {
+      "seed": 7,
+      "D_box": 1.5,
+      "D_corr": 1.4587,
+      "D_hurst": 1.0657,
+      "spread": 0.4343
+    },
+    {
+      "seed": 55,
+      "D_box": 1.5,
+      "D_corr": 1.4451,
+      "D_hurst": 1.0962,
+      "spread": 0.4038
+    }
+  ]
+}

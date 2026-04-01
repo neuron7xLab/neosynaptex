@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Phase Space Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "seed",
+    "N",
+    "dt_ms",
+    "duration_ms",
+    "steps",
+    "state_axes",
+    "point_count",
+    "rate_mean_hz",
+    "sigma_mean",
+    "coherence_mean",
+    "coherence_std",
+    "coherence_min",
+    "coherence_max",
+    "rate_sigma_correlation",
+    "rate_coherence_correlation",
+    "trajectory_length_l2",
+    "bounding_box",
+    "centroid",
+    "activity_map",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "N": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "dt_ms": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "duration_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "steps": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "state_axes": {
+      "type": "array",
+      "const": [
+        "population_rate_hz",
+        "sigma",
+        "coherence"
+      ]
+    },
+    "point_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rate_mean_hz": {
+      "type": "number"
+    },
+    "sigma_mean": {
+      "type": "number"
+    },
+    "coherence_mean": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "coherence_std": {
+      "type": "number",
+      "minimum": 0
+    },
+    "coherence_min": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "coherence_max": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "rate_sigma_correlation": {
+      "type": "number"
+    },
+    "rate_coherence_correlation": {
+      "type": "number"
+    },
+    "trajectory_length_l2": {
+      "type": "number",
+      "minimum": 0
+    },
+    "bounding_box": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rate_min",
+        "rate_max",
+        "sigma_min",
+        "sigma_max",
+        "coherence_min",
+        "coherence_max"
+      ],
+      "properties": {
+        "rate_min": {
+          "type": "number"
+        },
+        "rate_max": {
+          "type": "number"
+        },
+        "sigma_min": {
+          "type": "number"
+        },
+        "sigma_max": {
+          "type": "number"
+        },
+        "coherence_min": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "coherence_max": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "centroid": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rate",
+        "sigma",
+        "coherence"
+      ],
+      "properties": {
+        "rate": {
+          "type": "number"
+        },
+        "sigma": {
+          "type": "number"
+        },
+        "coherence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "activity_map": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "axes",
+        "grid_size",
+        "occupied_cell_count",
+        "occupied_cell_fraction",
+        "max_cell_count",
+        "density_mean"
+      ],
+      "properties": {
+        "grid_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occupied_cell_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "occupied_cell_fraction": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "max_cell_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "density_mean": {
+          "type": "number",
+          "minimum": 0
+        },
+        "axes": {
+          "type": "array",
+          "const": [
+            "population_rate_hz",
+            "sigma"
+          ]
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plots",
+        "traces"
+      ],
+      "properties": {
+        "plots": {
+          "type": "array",
+          "const": [
+            "phase_space_rate_sigma.png",
+            "phase_space_rate_coherence.png",
+            "phase_space_activity_map.png"
+          ]
+        },
+        "traces": {
+          "type": "array",
+          "const": [
+            "population_rate_trace.npy",
+            "sigma_trace.npy",
+            "coherence_trace.npy"
+          ]
+        }
+      }
+    }
+  }
+}

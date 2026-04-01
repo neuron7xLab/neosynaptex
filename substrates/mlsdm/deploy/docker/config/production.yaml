@@ -1,0 +1,54 @@
+# MLSDM Production Configuration for Docker
+# ==========================================
+# Copy this file to config/production.yaml in your deployment directory
+# and customize as needed.
+
+# Vector dimension for embeddings
+dimension: 384
+
+# Multi-level memory configuration
+multi_level_memory:
+  lambda_l1: 0.5
+  lambda_l2: 0.1
+  lambda_l3: 0.01
+  theta_l1: 1.0
+  theta_l2: 2.0
+  gating12: 0.5
+  gating23: 0.3
+
+# Moral filter settings
+moral_filter:
+  threshold: 0.50
+  adapt_rate: 0.05
+  min_threshold: 0.30
+  max_threshold: 0.90
+
+# Cognitive rhythm configuration
+cognitive_rhythm:
+  wake_duration: 8
+  sleep_duration: 3
+
+# Observability settings
+observability:
+  logging:
+    level: "INFO"
+    format: "json"
+  metrics:
+    enabled: true
+    port: 8000
+    path: "/health/metrics"
+
+# Security settings
+security:
+  rate_limiting:
+    enabled: true
+    requests_per_second: 5.0
+    burst_capacity: 10
+
+# NeuroLang configuration (disabled for production)
+neurolang:
+  mode: "disabled"
+  checkpoint_path: "config/neurolang_grammar.pt"
+
+# Strict mode (disabled for production)
+strict_mode: false

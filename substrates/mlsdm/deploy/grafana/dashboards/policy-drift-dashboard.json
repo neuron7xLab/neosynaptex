@@ -1,0 +1,324 @@
+{
+  "dashboard": {
+    "title": "ML-SDM Policy Drift Monitoring",
+    "uid": "mlsdm-policy-drift",
+    "version": 1,
+    "timezone": "utc",
+    "editable": true,
+    "tags": ["mlsdm", "policy", "drift", "safety"],
+    "panels": [
+      {
+        "id": 1,
+        "title": "Moral Threshold Over Time",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "mlsdm_moral_threshold_current",
+            "legendFormat": "{{ filter_id }}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Threshold",
+            "format": "short",
+            "min": 0.25,
+            "max": 0.95,
+            "decimals": 2
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "xaxis": {
+          "mode": "time",
+          "show": true
+        },
+        "lines": true,
+        "linewidth": 2,
+        "fill": 0,
+        "alert": {
+          "name": "Threshold at boundaries",
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [0.31],
+                "type": "lt"
+              },
+              "query": {
+                "params": ["A", "5m", "now"]
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "60s",
+          "handler": 1,
+          "message": "Moral threshold approaching minimum boundary",
+          "noDataState": "no_data",
+          "notifications": []
+        },
+        "thresholds": [
+          {
+            "value": 0.31,
+            "colorMode": "critical",
+            "op": "lt",
+            "fill": true,
+            "line": true
+          },
+          {
+            "value": 0.89,
+            "colorMode": "critical",
+            "op": "gt",
+            "fill": true,
+            "line": true
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "EMA Acceptance Rate",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "0.5 - mlsdm_moral_ema_deviation",
+            "legendFormat": "EMA {{ filter_id }}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "EMA Value",
+            "format": "short",
+            "min": 0,
+            "max": 1,
+            "decimals": 2
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "xaxis": {
+          "mode": "time",
+          "show": true
+        },
+        "lines": true,
+        "linewidth": 2,
+        "fill": 1,
+        "seriesOverrides": [
+          {
+            "alias": "Target",
+            "color": "green",
+            "dashes": true
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Drift Events (Last 1h)",
+        "type": "stat",
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(increase(mlsdm_moral_drift_events_total[1h])) by (severity)",
+            "legendFormat": "{{ severity }}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "orientation": "auto",
+          "textMode": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "green"
+                },
+                {
+                  "value": 1,
+                  "color": "yellow"
+                },
+                {
+                  "value": 5,
+                  "color": "red"
+                }
+              ]
+            },
+            "color": {
+              "mode": "thresholds"
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Boundary Violations",
+        "type": "table",
+        "gridPos": {
+          "h": 8,
+          "w": 16,
+          "x": 8,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "mlsdm_moral_threshold_violations_total",
+            "legendFormat": "",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "options": {
+          "showHeader": true,
+          "sortBy": [
+            {
+              "displayName": "Value",
+              "desc": true
+            }
+          ]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "__name__": true,
+                "instance": true,
+                "job": true
+              },
+              "indexByName": {
+                "filter_id": 0,
+                "boundary": 1,
+                "Value": 2
+              },
+              "renameByName": {
+                "filter_id": "Filter ID",
+                "boundary": "Boundary",
+                "Value": "Violations"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "EMA Deviation",
+        "type": "gauge",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        },
+        "targets": [
+          {
+            "expr": "mlsdm_moral_ema_deviation",
+            "legendFormat": "{{ filter_id }}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "green"
+                },
+                {
+                  "value": 0.1,
+                  "color": "yellow"
+                },
+                {
+                  "value": 0.2,
+                  "color": "red"
+                }
+              ]
+            },
+            "min": 0,
+            "max": 0.5,
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Drift Event Rate",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        },
+        "targets": [
+          {
+            "expr": "rate(mlsdm_moral_drift_events_total[5m])",
+            "legendFormat": "{{ filter_id }} - {{ severity }}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Events/sec",
+            "format": "short",
+            "decimals": 3
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "xaxis": {
+          "mode": "time",
+          "show": true
+        },
+        "lines": true,
+        "bars": false,
+        "stack": true
+      }
+    ],
+    "refresh": "10s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"],
+      "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d"]
+    }
+  }
+}

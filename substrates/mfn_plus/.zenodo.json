@@ -1,0 +1,36 @@
+{
+  "title": "MyceliumFractalNet: Morphogenetic Field Intelligence Engine with Identity Preservation",
+  "version": "0.1.0",
+  "description": "Bio-inspired morphogenetic field intelligence engine combining reaction-diffusion PDE simulation, persistent homology (TDA), causal validation (46 rules), neuromodulatory control (GNC+ 7 axes), interpretability engine, self-reading architecture, and tau-control identity preservation. First system to unify R-D + TDA + causal + neuromod + self-healing in a single Python package. 2798 tests, 20 modules, ~60K LOC.",
+  "license": "MIT",
+  "upload_type": "software",
+  "keywords": [
+    "reaction-diffusion",
+    "persistent homology",
+    "causal validation",
+    "morphogenesis",
+    "Turing patterns",
+    "topological data analysis",
+    "neuromodulation",
+    "identity preservation",
+    "gamma-scaling",
+    "interpretability",
+    "self-reading",
+    "Wasserstein geometry"
+  ],
+  "creators": [
+    {
+      "name": "Vasylenko, Yaroslav",
+      "affiliation": "Independent Researcher",
+      "orcid": ""
+    }
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.5281/zenodo.10301912",
+      "relation": "references",
+      "resource_type": "dataset"
+    }
+  ],
+  "grants": []
+}

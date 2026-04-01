@@ -1,0 +1,1063 @@
+# MFN Backlog - Machine-Readable Specification
+# Version: 1.0
+# Created: 2025-11-29
+# Target: MyceliumFractalNet v4.1 → Production-Ready Component
+#
+# This file is the source of truth for automated GitHub issue creation.
+# Consistent with docs/MFN_BACKLOG.md
+#
+# Categories: core_logic, external_api, integration_adapter, infra, tests,
+#             docs, monitoring_metrics, logging_tracing, research
+# Priorities: P0 (critical), P1 (important), P2 (enhancements), P3 (nice-to-have)
+# Types: feature, refactor, bugfix, infra, docs, research
+
+issues:
+  # ============================================================================
+  # P0 - CRITICAL
+  # ============================================================================
+
+  - id: MFN-API-001
+    title: "Implement API authentication middleware"
+    category: external_api
+    layer_id: mfn-auth
+    priority: P0
+    type: feature
+    depends_on: []
+    summary: >
+      Implement authentication middleware for the FastAPI REST API. The API is currently
+      completely open with no access control, making it unsuitable for production deployment.
+      This task adds API key validation as the minimum viable authentication mechanism.
+    motivation: >
+      Per MFN_SYSTEM_ROLE.md Section 2.2 item 7 and Section 6.4 Question 11, authentication
+      is explicitly listed as a non-responsibility but is recognized as needed for production.
+      TECHNICAL_AUDIT.md lists "Authentication/Authorization" as MISSING under code_integration gaps.
+      The integration gaps document (mfn-auth) marks this as a critical gap for production deployment.
+    acceptance_criteria:
+      - "API key validation middleware is implemented"
+      - "All endpoints except /health require valid API key in header (X-API-Key)"
+      - "Invalid/missing API key returns 401 Unauthorized with standard error response"
+      - "API keys can be configured via environment variable or config file"
+      - "Documentation updated with authentication requirements"
+    test_coverage: >
+      Unit tests for API key validation logic. Integration tests for protected endpoint access
+      with valid/invalid/missing keys. E2E tests for full request cycle with authentication.
+    labels:
+      - "area:api"
+      - "priority:p0"
+      - "type:feature"
+      - "security"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+      - "docs/MFN_SYSTEM_ROLE.md#Non-Responsibilities"
+      - "docs/MFN_INTEGRATION_GAPS.md#Missing - Authentication & Authorization"
+      - "planning/mfn_integration_gaps.yaml#mfn-auth"
+
+  - id: MFN-API-002
+    title: "Add rate limiting to REST API"
+    category: external_api
+    layer_id: mfn-rate-limiting
+    priority: P0
+    type: feature
+    depends_on:
+      - MFN-API-001
+    summary: >
+      Implement rate limiting middleware to prevent API abuse and ensure fair resource allocation.
+      Rate limits should be configurable per endpoint and, when authentication is available, per client.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "Rate limiting" as MISSING. The mfn-rate-limiting layer in
+      integration gaps specifies required functionality including per-client limits, global limits,
+      burst handling, and 429 responses. Without rate limiting, the API is vulnerable to
+      denial-of-service attacks.
+    acceptance_criteria:
+      - "Rate limiting middleware is implemented (e.g., using slowapi or similar)"
+      - "Default rate limits configured (e.g., 100 req/min for simulation, 1000 req/min for health)"
+      - "Rate limits configurable via environment/config"
+      - "429 Too Many Requests returned when limits exceeded with Retry-After header"
+      - "Rate limit headers included in responses (X-RateLimit-Limit, X-RateLimit-Remaining)"
+    test_coverage: >
+      Unit tests for rate limit calculation logic. Integration tests for rate limit enforcement
+      and 429 response handling. Load tests to verify rate limiting under sustained traffic.
+    labels:
+      - "area:api"
+      - "priority:p0"
+      - "type:feature"
+      - "security"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+      - "docs/MFN_INTEGRATION_GAPS.md#Missing - Rate Limiting"
+      - "planning/mfn_integration_gaps.yaml#mfn-rate-limiting"
+
+  - id: MFN-OBS-001
+    title: "Implement Prometheus metrics endpoint"
+    category: monitoring_metrics
+    layer_id: mfn-monitoring
+    priority: P0
+    type: feature
+    depends_on: []
+    summary: >
+      Add a /metrics endpoint exposing Prometheus-format metrics for runtime observability.
+      Include standard HTTP metrics (latency histograms, request counters, error rates) as baseline.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "Prometheus metrics" as MISSING under infra. MFN_SYSTEM_ROLE.md
+      Section 5.3 Gap Summary identifies "Observability" as a primary gap. The mfn-monitoring
+      layer specifies required metrics. Without metrics, production operation lacks visibility.
+    acceptance_criteria:
+      - "/metrics endpoint returns Prometheus-format metrics"
+      - "HTTP request latency histogram (per endpoint, per status code)"
+      - "HTTP request counter (per endpoint, per method)"
+      - "HTTP error rate gauge"
+      - "Active requests gauge"
+      - "Metrics library integrated (prometheus-fastapi-instrumentator or similar)"
+    test_coverage: >
+      Unit tests for metric collection logic. Integration tests for /metrics endpoint returning
+      valid Prometheus format. E2E tests for metrics updating correctly during request processing.
+    labels:
+      - "area:observability"
+      - "priority:p0"
+      - "type:feature"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+      - "docs/MFN_SYSTEM_ROLE.md#Gap Summary"
+      - "docs/MFN_INTEGRATION_GAPS.md#Missing - Prometheus Metrics"
+      - "planning/mfn_integration_gaps.yaml#mfn-monitoring"
+
+  - id: MFN-LOG-001
+    title: "Add structured JSON logging"
+    category: logging_tracing
+    layer_id: mfn-logging
+    priority: P0
+    type: feature
+    depends_on: []
+    summary: >
+      Replace basic Python logging with structured JSON logging. All log entries should include
+      timestamp, level, message, and contextual fields (request_id, endpoint, etc.) for production
+      debugging and log aggregation.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "structured logging" as MISSING. The mfn-logging layer specifies
+      JSON-structured log output with log levels and correlation IDs. Structured logs are essential
+      for production debugging and integration with log aggregation systems (ELK, Loki).
+    acceptance_criteria:
+      - "JSON-structured log output configured for all components"
+      - "Log levels configurable (DEBUG, INFO, WARN, ERROR)"
+      - "Request correlation ID generated and included in all request-scoped logs"
+      - "Correlation ID returned in response headers (X-Request-ID)"
+      - "Log format compatible with common aggregators (ELK, Loki)"
+    test_coverage: >
+      Unit tests for log formatting and correlation ID generation. Integration tests for logs
+      containing expected fields during request processing.
+    labels:
+      - "area:observability"
+      - "priority:p0"
+      - "type:feature"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+      - "docs/MFN_INTEGRATION_GAPS.md#Missing - Structured Logging & Tracing"
+      - "planning/mfn_integration_gaps.yaml#mfn-logging"
+
+  - id: MFN-TEST-001
+    title: "Add API load/performance tests"
+    category: tests
+    layer_id: null
+    priority: P0
+    type: feature
+    depends_on: []
+    summary: >
+      Create load and performance tests for the REST API using tools like locust or k6.
+      Tests should verify API behavior under sustained load and establish performance baselines.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "Load/Performance tests" as MISSING. The audit notes that load
+      testing API was not executed due to lack of tooling. Performance baselines are needed to
+      detect regressions and ensure SLA compliance.
+    acceptance_criteria:
+      - "Load testing tool configured (locust, k6, or similar)"
+      - "Test scenarios for key endpoints: /validate, /simulate, /nernst"
+      - "Performance baselines documented (latency p50/p95/p99, throughput)"
+      - "Tests can be run locally and in CI"
+      - "Test report generated with metrics summary"
+    test_coverage: >
+      Load tests for sustained traffic simulation. Stress tests to identify breaking points.
+      Spike tests for sudden traffic increase handling.
+    labels:
+      - "area:testing"
+      - "priority:p0"
+      - "type:feature"
+      - "performance"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+      - "docs/TECHNICAL_AUDIT.md#Limitations & Assumptions"
+
+  # ============================================================================
+  # P1 - IMPORTANT
+  # ============================================================================
+
+  - id: MFN-TEST-002
+    title: "Configure pytest-cov with coverage badge in CI"
+    category: tests
+    layer_id: mfn-ci-cd
+    priority: P1
+    type: infra
+    depends_on: []
+    summary: >
+      Add pytest-cov to the CI pipeline and configure coverage reporting with a badge in README.
+      Coverage data should be uploaded to Codecov or similar service.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "Coverage reporting" as MISSING. While 305+ tests exist with
+      100% pass rate, there is no visibility into code coverage percentage. Coverage metrics
+      help identify untested code paths.
+    acceptance_criteria:
+      - "pytest-cov added to test dependencies"
+      - "CI workflow runs tests with coverage collection"
+      - "Coverage report uploaded to Codecov (or similar)"
+      - "Coverage badge added to README.md"
+      - "Minimum coverage threshold configured (e.g., 80%)"
+    test_coverage: >
+      CI validation that coverage collection works across Python versions.
+    labels:
+      - "area:testing"
+      - "priority:p1"
+      - "type:infra"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+
+  - id: MFN-API-003
+    title: "Add CORS configuration to REST API"
+    category: external_api
+    layer_id: mfn-api-rest
+    priority: P1
+    type: feature
+    depends_on: []
+    summary: >
+      Configure CORS (Cross-Origin Resource Sharing) middleware for the FastAPI application.
+      Allow configurable origins for development and production environments.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "CORS configuration" as a missing feature in the REST API
+      (code_integration PARTIAL). CORS is required for browser-based clients to access the API.
+    acceptance_criteria:
+      - "CORS middleware configured in FastAPI"
+      - "Allowed origins configurable via environment/config"
+      - "Development mode allows all origins"
+      - "Production mode restricts to specific domains"
+      - "Proper handling of preflight OPTIONS requests"
+    test_coverage: >
+      Integration tests for CORS headers present in responses. Tests for allowed/blocked origins.
+    labels:
+      - "area:api"
+      - "priority:p1"
+      - "type:feature"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#PARTIAL"
+      - "api.py"
+      - "planning/mfn_integration_gaps.yaml#mfn-api-rest"
+
+  - id: MFN-API-004
+    title: "Add request validation logging"
+    category: external_api
+    layer_id: mfn-api-rest
+    priority: P1
+    type: feature
+    depends_on:
+      - MFN-LOG-001
+    summary: >
+      Add logging for API request validation, including input parameters, validation errors,
+      and request metadata. This aids debugging and audit trails.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "request validation logging" as missing in the REST API. The
+      mfn-api-rest layer in integration gaps identifies this as a missing feature. Request
+      logging is essential for debugging production issues.
+    acceptance_criteria:
+      - "All incoming requests logged with method, path, client IP"
+      - "Request parameters logged (with sensitive data masking)"
+      - "Validation errors logged with details"
+      - "Logs include correlation ID from MFN-LOG-001"
+      - "Log level configurable (DEBUG for full request body, INFO for metadata only)"
+    test_coverage: >
+      Unit tests for log message formatting. Integration tests for logs generated for
+      valid/invalid requests.
+    labels:
+      - "area:api"
+      - "priority:p1"
+      - "type:feature"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#PARTIAL"
+      - "planning/mfn_integration_gaps.yaml#mfn-api-rest"
+
+  - id: MFN-API-005
+    title: "Standardize API error responses"
+    category: external_api
+    layer_id: mfn-api-rest
+    priority: P1
+    type: refactor
+    depends_on: []
+    summary: >
+      Implement standardized error response format across all API endpoints. Errors should
+      include error code, message, details, and request ID for debugging.
+    motivation: >
+      The mfn-api-rest layer lists "Error handling standardization" as a missing feature.
+      Consistent error responses improve client integration and debugging experience.
+    acceptance_criteria:
+      - "Standard error response schema defined (code, message, details, request_id)"
+      - "Exception handlers registered for common errors (validation, auth, rate limit, internal)"
+      - "HTTP status codes correctly mapped to error types"
+      - "Error responses include correlation ID"
+      - "Documentation updated with error response format"
+    test_coverage: >
+      Unit tests for exception handler logic. Integration tests for error responses for
+      various failure scenarios.
+    labels:
+      - "area:api"
+      - "priority:p1"
+      - "type:refactor"
+    source_refs:
+      - "api.py"
+      - "planning/mfn_integration_gaps.yaml#mfn-api-rest"
+
+  - id: MFN-K8S-001
+    title: "Add Kubernetes Secrets management"
+    category: infra
+    layer_id: mfn-k8s
+    priority: P1
+    type: infra
+    depends_on: []
+    summary: >
+      Add Kubernetes Secret resources to k8s.yaml for sensitive configuration. Secrets should
+      be referenced by the deployment for API keys, credentials, etc.
+    motivation: >
+      TECHNICAL_AUDIT.md classifies infra as PARTIAL, noting missing secrets management. The
+      mfn-k8s layer lists "Secrets management" as a missing feature. Secrets should not be
+      stored in ConfigMaps.
+    acceptance_criteria:
+      - "Secret resource template added to k8s.yaml"
+      - "Deployment updated to mount secrets as environment variables"
+      - "Documentation for creating secrets in different environments"
+      - "Example secret values (placeholder) included"
+    test_coverage: >
+      Manual verification of Kubernetes deployment with secrets.
+    labels:
+      - "area:infra"
+      - "priority:p1"
+      - "type:infra"
+      - "kubernetes"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#PARTIAL"
+      - "k8s.yaml"
+      - "planning/mfn_integration_gaps.yaml#mfn-k8s"
+
+  - id: MFN-K8S-002
+    title: "Configure Ingress controller"
+    category: infra
+    layer_id: mfn-k8s
+    priority: P1
+    type: infra
+    depends_on: []
+    summary: >
+      Add Ingress resource to k8s.yaml for external HTTP(S) access. Configure TLS termination
+      and path-based routing.
+    motivation: >
+      The mfn-k8s layer lists "Ingress controller configuration" as missing. Currently only
+      ClusterIP service is configured, requiring port-forwarding for external access.
+    acceptance_criteria:
+      - "Ingress resource added to k8s.yaml"
+      - "TLS configuration with secret reference"
+      - "Annotations for common ingress controllers (nginx, traefik)"
+      - "Health check path configured"
+      - "Documentation for DNS and certificate setup"
+    test_coverage: >
+      Manual verification of external access via Ingress.
+    labels:
+      - "area:infra"
+      - "priority:p1"
+      - "type:infra"
+      - "kubernetes"
+    source_refs:
+      - "k8s.yaml"
+      - "planning/mfn_integration_gaps.yaml#mfn-k8s"
+
+  - id: MFN-K8S-003
+    title: "Add Network Policies"
+    category: infra
+    layer_id: mfn-k8s
+    priority: P1
+    type: infra
+    depends_on: []
+    summary: >
+      Add NetworkPolicy resources to restrict pod-to-pod communication. MFN pods should only
+      accept traffic from Ingress and monitoring namespaces.
+    motivation: >
+      The mfn-k8s layer lists "Network policies" as missing. Network policies are a security
+      best practice for limiting blast radius in case of compromise.
+    acceptance_criteria:
+      - "NetworkPolicy resource added to k8s.yaml"
+      - "Ingress traffic allowed from Ingress controller namespace"
+      - "Egress traffic allowed to monitoring namespace"
+      - "Default deny for other traffic"
+      - "Documentation for network policy requirements"
+    test_coverage: >
+      Manual verification of network policy enforcement in cluster.
+    labels:
+      - "area:infra"
+      - "priority:p1"
+      - "type:infra"
+      - "kubernetes"
+      - "security"
+    source_refs:
+      - "k8s.yaml"
+      - "planning/mfn_integration_gaps.yaml#mfn-k8s"
+
+  - id: MFN-K8S-004
+    title: "Add PodDisruptionBudget"
+    category: infra
+    layer_id: mfn-k8s
+    priority: P1
+    type: infra
+    depends_on: []
+    summary: >
+      Add PodDisruptionBudget resource to ensure minimum availability during voluntary
+      disruptions (upgrades, node drains).
+    motivation: >
+      The mfn-k8s layer lists "PodDisruptionBudget" as missing. PDB ensures high availability
+      during cluster maintenance operations.
+    acceptance_criteria:
+      - "PodDisruptionBudget resource added to k8s.yaml"
+      - "Minimum available pods configured (e.g., minAvailable: 2 or maxUnavailable: 1)"
+      - "Documentation for PDB configuration"
+    test_coverage: >
+      Manual verification that PDB prevents simultaneous pod eviction.
+    labels:
+      - "area:infra"
+      - "priority:p1"
+      - "type:infra"
+      - "kubernetes"
+    source_refs:
+      - "k8s.yaml"
+      - "planning/mfn_integration_gaps.yaml#mfn-k8s"
+
+  - id: MFN-CFG-001
+    title: "Create environment-specific configs (dev/staging/prod)"
+    category: infra
+    layer_id: mfn-config-json
+    priority: P1
+    type: infra
+    depends_on: []
+    summary: >
+      Create environment-specific configuration files for development, staging, and production.
+      Each environment should have appropriate settings for logging, resource limits, and
+      feature flags.
+    motivation: >
+      TECHNICAL_AUDIT.md notes configs lack "environment-specific configs". The mfn-config-json
+      layer lists this as missing. Different environments require different settings (e.g.,
+      debug logging in dev, optimized settings in prod).
+    acceptance_criteria:
+      - "configs/dev.json created with development settings"
+      - "configs/staging.json created with staging settings"
+      - "configs/prod.json created with production settings"
+      - "Environment selection via MFN_ENV environment variable"
+      - "Documentation for environment configuration"
+    test_coverage: >
+      Unit tests for config loading per environment.
+    labels:
+      - "area:infra"
+      - "priority:p1"
+      - "type:infra"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#PARTIAL"
+      - "configs/"
+      - "planning/mfn_integration_gaps.yaml#mfn-config-json"
+
+  - id: MFN-CFG-002
+    title: "Add runtime config validation"
+    category: infra
+    layer_id: mfn-config-json
+    priority: P1
+    type: feature
+    depends_on: []
+    summary: >
+      Add runtime validation for configuration values using Pydantic or similar. Invalid
+      configurations should fail fast with clear error messages.
+    motivation: >
+      The mfn-config-json layer lists "Config validation at runtime" as missing. Runtime
+      validation prevents silent failures from misconfiguration.
+    acceptance_criteria:
+      - "Configuration schema defined with Pydantic models"
+      - "Validation runs at startup before any processing"
+      - "Clear error messages for validation failures"
+      - "Required vs optional fields documented"
+      - "Default values specified in schema"
+    test_coverage: >
+      Unit tests for valid/invalid config scenarios. Integration tests for application
+      failing fast on invalid config.
+    labels:
+      - "area:infra"
+      - "priority:p1"
+      - "type:feature"
+    source_refs:
+      - "planning/mfn_integration_gaps.yaml#mfn-config-json"
+
+  - id: MFN-LOG-002
+    title: "Add distributed tracing (OpenTelemetry)"
+    category: logging_tracing
+    layer_id: mfn-logging
+    priority: P1
+    type: feature
+    depends_on:
+      - MFN-LOG-001
+    summary: >
+      Integrate OpenTelemetry for distributed tracing. Create spans for key operations
+      (API requests, simulation runs, aggregation) to enable end-to-end request tracing.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "distributed tracing" as MISSING. The mfn-logging layer
+      specifies OpenTelemetry integration and W3C Trace Context propagation. Tracing is
+      essential for debugging latency issues in distributed systems.
+    acceptance_criteria:
+      - "OpenTelemetry SDK integrated"
+      - "Automatic instrumentation for FastAPI"
+      - "Custom spans for simulation and aggregation operations"
+      - "Trace context propagation (W3C format)"
+      - "Exporters configured for Jaeger/Zipkin (configurable)"
+    test_coverage: >
+      Integration tests for trace context propagated through request lifecycle. Manual
+      verification of traces visible in tracing backend.
+    labels:
+      - "area:observability"
+      - "priority:p1"
+      - "type:feature"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+      - "planning/mfn_integration_gaps.yaml#mfn-logging"
+
+  - id: MFN-OBS-002
+    title: "Add simulation-specific metrics (fractal_dimension, growth_events)"
+    category: monitoring_metrics
+    layer_id: mfn-monitoring
+    priority: P1
+    type: feature
+    depends_on:
+      - MFN-OBS-001
+    summary: >
+      Extend Prometheus metrics with MFN-specific metrics: fractal_dimension histogram,
+      growth_events counter, simulation duration, Lyapunov exponent gauge.
+    motivation: >
+      The mfn-monitoring layer specifies simulation-specific metrics beyond standard HTTP
+      metrics. These metrics provide insight into MFN's computational characteristics and
+      can trigger alerts on anomalies.
+    acceptance_criteria:
+      - "fractal_dimension histogram metric (bucket ranges 1.0-2.0)"
+      - "growth_events counter per simulation"
+      - "simulation_duration_seconds histogram"
+      - "lyapunov_exponent gauge"
+      - "Metrics labeled by simulation parameters (grid_size, steps)"
+    test_coverage: >
+      Integration tests for metrics recorded during simulation. E2E tests for metrics values
+      matching simulation results.
+    labels:
+      - "area:observability"
+      - "priority:p1"
+      - "type:feature"
+    source_refs:
+      - "planning/mfn_integration_gaps.yaml#mfn-monitoring"
+      - "docs/MFN_FEATURE_SCHEMA.md"
+
+  - id: MFN-DOC-001
+    title: "Export OpenAPI spec and configure Swagger UI"
+    category: docs
+    layer_id: mfn-api-rest
+    priority: P1
+    type: docs
+    depends_on: []
+    summary: >
+      Export OpenAPI specification as static JSON/YAML file and configure Swagger UI endpoint
+      for interactive API documentation in non-production environments.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "OpenAPI spec export, Swagger UI in production" as MISSING.
+      The mfn-api-rest layer identifies this as a missing feature. OpenAPI spec enables
+      client code generation and API documentation.
+    acceptance_criteria:
+      - "OpenAPI spec exported to docs/openapi.json (or .yaml)"
+      - "Swagger UI enabled at /docs (FastAPI default)"
+      - "ReDoc enabled at /redoc (FastAPI default)"
+      - "Interactive docs disabled in production via config flag"
+      - "Spec version matches API version"
+    test_coverage: >
+      Integration tests for /docs and /redoc endpoints accessible. Validation that OpenAPI
+      spec is valid.
+    labels:
+      - "area:docs"
+      - "priority:p1"
+      - "type:docs"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+      - "planning/mfn_integration_gaps.yaml#mfn-api-rest"
+
+  # ============================================================================
+  # P2 - ENHANCEMENTS
+  # ============================================================================
+
+  - id: MFN-DOC-002
+    title: "Create detailed usage tutorials"
+    category: docs
+    layer_id: null
+    priority: P2
+    type: docs
+    depends_on: []
+    summary: >
+      Create step-by-step tutorials for common MFN use cases: basic simulation, feature
+      extraction, federated learning setup, and API integration.
+    motivation: >
+      TECHNICAL_AUDIT.md notes README has "basic instructions" but lacks "detailed tutorials".
+      Detailed tutorials lower the barrier for new users and reduce support burden.
+    acceptance_criteria:
+      - "Tutorial: Getting started with MFN simulation (CLI)"
+      - "Tutorial: Extracting features for ML pipelines"
+      - "Tutorial: Setting up federated learning"
+      - "Tutorial: Integrating with the REST API"
+      - "All tutorials tested and verified to work"
+    test_coverage: >
+      Manual verification that tutorials execute without errors.
+    labels:
+      - "area:docs"
+      - "priority:p2"
+      - "type:docs"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#PARTIAL"
+      - "README.md"
+
+  - id: MFN-DOC-003
+    title: "Create troubleshooting guide"
+    category: docs
+    layer_id: null
+    priority: P2
+    type: docs
+    depends_on: []
+    summary: >
+      Create troubleshooting guide covering common issues: installation problems, configuration
+      errors, API errors, performance issues, and debugging tips.
+    motivation: >
+      TECHNICAL_AUDIT.md notes missing "troubleshooting guide" in usage docs. A troubleshooting
+      guide reduces support burden and helps users self-diagnose issues.
+    acceptance_criteria:
+      - "Section: Installation troubleshooting"
+      - "Section: Configuration troubleshooting"
+      - "Section: API error troubleshooting"
+      - "Section: Performance troubleshooting"
+      - "FAQ section with common questions"
+    test_coverage: >
+      Manual verification that guide covers observed issues.
+    labels:
+      - "area:docs"
+      - "priority:p2"
+      - "type:docs"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#PARTIAL"
+
+  - id: MFN-DEMO-001
+    title: "Create Jupyter notebooks for MFN visualization"
+    category: docs
+    layer_id: null
+    priority: P2
+    type: docs
+    depends_on: []
+    summary: >
+      Create interactive Jupyter notebooks demonstrating MFN capabilities with visualizations.
+      Notebooks should cover field simulation, feature analysis, and fractal pattern exploration.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "Jupyter notebooks" as MISSING. ROADMAP.md v4.3 mentions
+      "Jupyter notebooks with visualizations" as a research feature. Interactive notebooks
+      are valuable for exploration and education.
+    acceptance_criteria:
+      - "Notebook: Field simulation and visualization (notebooks/01_field_simulation.ipynb)"
+      - "Notebook: Feature extraction analysis (notebooks/02_feature_analysis.ipynb)"
+      - "Notebook: Fractal dimension exploration (notebooks/03_fractal_exploration.ipynb)"
+      - "All notebooks executable with current codebase"
+      - "Binder or Google Colab compatibility"
+    test_coverage: >
+      CI job to execute notebooks without errors (nbconvert --execute).
+    labels:
+      - "area:docs"
+      - "priority:p2"
+      - "type:docs"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+      - "docs/ROADMAP.md#v4.3"
+
+  - id: MFN-DEMO-002
+    title: "Add interactive field evolution visualizations"
+    category: docs
+    layer_id: null
+    priority: P2
+    type: feature
+    depends_on:
+      - MFN-DEMO-001
+    summary: >
+      Add interactive visualizations showing field evolution over time. Use matplotlib animations
+      or Plotly for interactive exploration of simulation dynamics.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "Interactive visualizations" as MISSING under examples/demo.
+      Visualizations help users understand MFN's behavior and validate results.
+    acceptance_criteria:
+      - "Animated field evolution visualization (matplotlib animation or Plotly)"
+      - "Interactive parameter exploration (Plotly widgets or ipywidgets)"
+      - "Visualization of growth events on field"
+      - "Export capability (GIF, MP4)"
+      - "Documentation for using visualizations"
+    test_coverage: >
+      Manual verification that visualizations render correctly.
+    labels:
+      - "area:docs"
+      - "priority:p2"
+      - "type:feature"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+
+  - id: MFN-BENCH-001
+    title: "Integrate benchmarks into CI for regression testing"
+    category: tests
+    layer_id: mfn-ci-cd
+    priority: P2
+    type: infra
+    depends_on: []
+    summary: >
+      Integrate existing benchmark suite into CI pipeline to detect performance regressions.
+      Benchmark results should be compared against baselines.
+    motivation: >
+      TECHNICAL_AUDIT.md notes benchmarks lack "CI integration for regression testing". The
+      benchmark_core.py exists but isn't run automatically. CI integration prevents accidental
+      performance degradation.
+    acceptance_criteria:
+      - "CI job runs benchmarks on main branch"
+      - "Benchmark results stored as artifacts"
+      - "Performance thresholds defined (fail if > 20% regression)"
+      - "Results compared against baseline file"
+      - "Notification on performance regression"
+    test_coverage: >
+      CI validation that benchmark job completes successfully.
+    labels:
+      - "area:testing"
+      - "priority:p2"
+      - "type:infra"
+      - "performance"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#PARTIAL"
+      - "benchmarks/benchmark_core.py"
+
+  - id: MFN-BENCH-002
+    title: "Add historical benchmark comparison"
+    category: tests
+    layer_id: null
+    priority: P2
+    type: feature
+    depends_on:
+      - MFN-BENCH-001
+    summary: >
+      Add capability to compare benchmark results across commits/versions. Store historical
+      results and generate trend reports.
+    motivation: >
+      TECHNICAL_AUDIT.md notes benchmarks lack "historical comparison". Historical tracking
+      helps identify gradual performance changes and validate optimization efforts.
+    acceptance_criteria:
+      - "Benchmark results stored with git commit hash"
+      - "Comparison tool for two commits"
+      - "Trend visualization (optional)"
+      - "Results stored in machine-readable format (JSON)"
+      - "Documentation for benchmark workflow"
+    test_coverage: >
+      Manual verification that historical comparison produces meaningful output.
+    labels:
+      - "area:testing"
+      - "priority:p2"
+      - "type:feature"
+      - "performance"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#PARTIAL"
+
+  - id: MFN-SEC-001
+    title: "Integrate secrets management (Vault/AWS SM)"
+    category: infra
+    layer_id: mfn-secrets-mgmt
+    priority: P2
+    type: infra
+    depends_on:
+      - MFN-K8S-001
+    summary: >
+      Integrate with external secrets management system (HashiCorp Vault or AWS Secrets Manager)
+      for secure credential storage and rotation.
+    motivation: >
+      TECHNICAL_AUDIT.md lists "Secrets management" with Vault/AWS SM integration as MISSING.
+      The mfn-secrets-mgmt layer specifies required functionality including rotation handling
+      and K8s Secret mounting.
+    acceptance_criteria:
+      - "Integration with at least one secrets backend (Vault or AWS SM)"
+      - "Secrets injected via environment variables or mounted files"
+      - "Secret rotation handling (graceful reload)"
+      - "Documentation for secrets backend setup"
+      - "Example configuration for each supported backend"
+    test_coverage: >
+      Manual verification that secrets retrieved from external backend.
+    labels:
+      - "area:infra"
+      - "priority:p2"
+      - "type:infra"
+      - "security"
+    source_refs:
+      - "docs/TECHNICAL_AUDIT.md#MISSING"
+      - "planning/mfn_integration_gaps.yaml#mfn-secrets-mgmt"
+
+  - id: MFN-INT-001
+    title: "Design upstream connector interface"
+    category: integration_adapter
+    layer_id: mfn-upstream-connector
+    priority: P2
+    type: research
+    depends_on: []
+    summary: >
+      Research and design the interface for upstream data connectors. Define how external
+      systems (Parameter Configurator, Data Preprocessor, Orchestration Layer) will inject
+      data into MFN.
+    motivation: >
+      MFN_SYSTEM_ROLE.md Section 3.1 lists all upstream systems as "(Planned)" with no
+      implementation. The mfn-upstream-connector layer is MISSING. Design work is needed
+      before implementation.
+    acceptance_criteria:
+      - "Design document specifying connector interface"
+      - "Input schema definitions for each upstream system type"
+      - "Protocol options evaluated (REST callback, message queue, direct call)"
+      - "Sequence diagrams for data flow"
+      - "Decision on synchronous vs asynchronous operation"
+    test_coverage: >
+      N/A (research task).
+    labels:
+      - "area:integration"
+      - "priority:p2"
+      - "type:research"
+    source_refs:
+      - "docs/MFN_SYSTEM_ROLE.md#Upstream Systems"
+      - "planning/mfn_integration_gaps.yaml#mfn-upstream-connector"
+
+  - id: MFN-INT-002
+    title: "Design downstream event publisher interface"
+    category: integration_adapter
+    layer_id: mfn-downstream-publisher
+    priority: P2
+    type: research
+    depends_on: []
+    summary: >
+      Research and design the interface for downstream event publishing. Define how MFN will
+      emit feature vectors and signals to external systems.
+    motivation: >
+      MFN_SYSTEM_ROLE.md Section 3.2 lists downstream systems (ML Model, Risk Module, etc.)
+      all as "(Planned)". MFN_SYSTEM_ROLE.md Questions 6, 7, 13 ask about push vs pull and
+      protocol selection. Design work needed before implementation.
+    acceptance_criteria:
+      - "Design document specifying publisher interface"
+      - "Event schema definitions (feature vectors, signals)"
+      - "Protocol options evaluated (Kafka, RabbitMQ, webhooks)"
+      - "Delivery guarantees specified (at-least-once, at-most-once)"
+      - "Decision on push vs pull for different event types"
+    test_coverage: >
+      N/A (research task).
+    labels:
+      - "area:integration"
+      - "priority:p2"
+      - "type:research"
+    source_refs:
+      - "docs/MFN_SYSTEM_ROLE.md#Downstream Systems"
+      - "docs/MFN_SYSTEM_ROLE.md#Open Questions"
+      - "planning/mfn_integration_gaps.yaml#mfn-downstream-publisher"
+
+  # ============================================================================
+  # P3 - NICE-TO-HAVE
+  # ============================================================================
+
+  - id: MFN-API-006
+    title: "Implement WebSocket support"
+    category: external_api
+    layer_id: mfn-api-websocket
+    priority: P3
+    type: feature
+    depends_on:
+      - MFN-API-001
+      - MFN-API-002
+    summary: >
+      Add WebSocket endpoint for real-time bidirectional communication. Clients can subscribe
+      to simulation updates and receive incremental field data.
+    motivation: >
+      ROADMAP.md v4.3 plans "WebSocket support". The mfn-api-websocket layer is MISSING.
+      WebSocket enables efficient real-time applications without polling.
+    acceptance_criteria:
+      - "WebSocket endpoint at /ws/simulate"
+      - "Connection authentication (using API key from MFN-API-001)"
+      - "Heartbeat/keepalive mechanism"
+      - "Graceful disconnect handling"
+      - "Message schema documented"
+    test_coverage: >
+      Integration tests for WebSocket connection lifecycle. E2E tests for real-time message delivery.
+    labels:
+      - "area:api"
+      - "priority:p3"
+      - "type:feature"
+    source_refs:
+      - "docs/ROADMAP.md#v4.3"
+      - "planning/mfn_integration_gaps.yaml#mfn-api-websocket"
+
+  - id: MFN-API-007
+    title: "Implement streaming API (SSE)"
+    category: external_api
+    layer_id: mfn-api-streaming
+    priority: P3
+    type: feature
+    depends_on:
+      - MFN-API-001
+      - MFN-API-002
+    summary: >
+      Add Server-Sent Events (SSE) endpoint for push-based simulation updates. Simpler than
+      WebSocket for one-way streaming use cases.
+    motivation: >
+      ROADMAP.md v4.3 plans "Streaming API". The mfn-api-streaming layer is MISSING. SSE is
+      simpler than WebSocket for server-to-client push scenarios.
+    acceptance_criteria:
+      - "SSE endpoint at /stream/simulate"
+      - "Connection authentication"
+      - "Incremental field updates as events"
+      - "Backpressure handling"
+      - "Client reconnection support (Last-Event-ID)"
+    test_coverage: >
+      Integration tests for SSE connection and event delivery. E2E tests for event stream correctness.
+    labels:
+      - "area:api"
+      - "priority:p3"
+      - "type:feature"
+    source_refs:
+      - "docs/ROADMAP.md#v4.3"
+      - "planning/mfn_integration_gaps.yaml#mfn-api-streaming"
+
+  - id: MFN-API-008
+    title: "Implement gRPC endpoints"
+    category: external_api
+    layer_id: mfn-api-grpc
+    priority: P3
+    type: feature
+    depends_on:
+      - MFN-API-001
+    summary: >
+      Add gRPC interface for high-performance RPC communication. Particularly valuable for
+      federated learning coordination with efficient binary protocol.
+    motivation: >
+      ROADMAP.md v4.3 plans "gRPC endpoints". MFN_SYSTEM_ROLE.md Question 13 asks about gRPC.
+      The mfn-api-grpc layer is MISSING. gRPC offers better performance than REST for
+      high-frequency calls.
+    acceptance_criteria:
+      - "Proto definitions for all API methods"
+      - "Unary RPCs for validate, nernst"
+      - "Server streaming for simulate"
+      - "Bidirectional streaming for federated aggregation"
+      - "Client/server interceptors for auth"
+    test_coverage: >
+      Integration tests for gRPC method calls. E2E tests for full RPC workflow.
+    labels:
+      - "area:api"
+      - "priority:p3"
+      - "type:feature"
+    source_refs:
+      - "docs/ROADMAP.md#v4.3"
+      - "docs/MFN_SYSTEM_ROLE.md#Open Questions"
+      - "planning/mfn_integration_gaps.yaml#mfn-api-grpc"
+
+  - id: MFN-RISK-001
+    title: "Design risk signals adapter interface"
+    category: integration_adapter
+    layer_id: mfn-risk-signals
+    priority: P3
+    type: research
+    depends_on:
+      - MFN-INT-002
+    summary: >
+      Research whether MFN should have a dedicated risk signals channel or if risk analysis
+      should be downstream responsibility. Clarify Question 8 from MFN_SYSTEM_ROLE.md.
+    motivation: >
+      MFN_SYSTEM_ROLE.md Question 8 asks: "Should risk-related signals (e.g., regime change
+      indicators) be a separate MFN output channel or computed by a downstream module using
+      MFN features?" This is unresolved.
+    acceptance_criteria:
+      - "Analysis document answering Question 8"
+      - "Pros/cons of MFN vs downstream risk computation"
+      - "Recommendation with rationale"
+      - "If MFN-owned: Interface design for risk signals"
+      - "If downstream-owned: Documentation of risk-relevant features"
+    test_coverage: >
+      N/A (research task).
+    labels:
+      - "area:integration"
+      - "priority:p3"
+      - "type:research"
+    source_refs:
+      - "docs/MFN_SYSTEM_ROLE.md#Open Questions"
+      - "planning/mfn_integration_gaps.yaml#mfn-risk-signals"
+
+  - id: MFN-EDGE-001
+    title: "Create edge deployment configurations"
+    category: infra
+    layer_id: mfn-edge-deploy
+    priority: P3
+    type: infra
+    depends_on: []
+    summary: >
+      Create optimized deployment configurations for edge/IoT scenarios with minimal resource
+      footprint and offline operation support.
+    motivation: >
+      ROADMAP.md v4.3 plans "Edge deployment". The mfn-edge-deploy layer is MISSING. Edge
+      deployment enables MFN use in resource-constrained environments.
+    acceptance_criteria:
+      - "Minimal Docker image optimized for size"
+      - "ARM architecture support (ARM64)"
+      - "Offline operation mode (no external dependencies)"
+      - "Resource optimization documentation"
+      - "Example deployment for Raspberry Pi or similar"
+    test_coverage: >
+      Manual verification of edge deployment on target hardware.
+    labels:
+      - "area:infra"
+      - "priority:p3"
+      - "type:infra"
+    source_refs:
+      - "docs/ROADMAP.md#v4.3"
+      - "planning/mfn_integration_gaps.yaml#mfn-edge-deploy"
+
+# ============================================================================
+# METADATA
+# ============================================================================
+
+metadata:
+  backlog_version: "1.0"
+  created_date: "2025-11-29"
+  mfn_version: "4.1.0"
+  source_documents:
+    - docs/TECHNICAL_AUDIT.md
+    - docs/MFN_SYSTEM_ROLE.md
+    - docs/MFN_INTEGRATION_GAPS.md
+    - planning/mfn_integration_gaps.yaml
+    - docs/ROADMAP.md
+  summary:
+    total_issues: 32
+    by_priority:
+      P0: 5
+      P1: 13
+      P2: 9
+      P3: 5
+    by_category:
+      external_api: 8
+      monitoring_metrics: 2
+      logging_tracing: 2
+      tests: 4
+      infra: 8
+      docs: 5
+      integration_adapter: 3
+    by_type:
+      feature: 15
+      refactor: 1
+      infra: 9
+      docs: 4
+      research: 3
+  critical_path:
+    - MFN-API-001
+    - MFN-API-002
+    - MFN-OBS-001
+    - MFN-LOG-001
+    - MFN-TEST-001

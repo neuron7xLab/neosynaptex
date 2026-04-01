@@ -1,0 +1,81 @@
+# ====================================================
+# Kustomization for MLSDM Production Deployment
+# ====================================================
+# Provides a unified way to deploy all MLSDM Kubernetes resources.
+#
+# Usage:
+#   # Preview what will be deployed
+#   kubectl kustomize deploy/k8s/
+#
+#   # Apply all resources
+#   kubectl apply -k deploy/k8s/
+#
+#   # Delete all resources
+#   kubectl delete -k deploy/k8s/
+#
+# For environment-specific overlays, create:
+#   deploy/k8s/overlays/staging/
+#   deploy/k8s/overlays/production/
+# ====================================================
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Namespace for all resources
+namespace: mlsdm-production
+
+# Common labels applied to all resources
+labels:
+  - pairs:
+      app.kubernetes.io/name: mlsdm
+      app.kubernetes.io/component: cognitive-memory
+      app.kubernetes.io/version: "1.2.0"
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: false
+
+# Common annotations
+commonAnnotations:
+  mlsdm.neuron7x.io/environment: production
+
+# Resources to include (in order of dependency)
+# NOTE: production-deployment.yaml is a standalone all-in-one manifest.
+#       Use EITHER the modular resources OR production-deployment.yaml, not both.
+resources:
+  # Core deployment resources (modular approach)
+  - configmap.yaml
+  - secrets.yaml
+  - deployment.yaml
+  - service.yaml
+
+  # Network and security
+  - network-policy.yaml
+
+  # Ingress (comment out if using different ingress method)
+  - ingress.yaml
+
+  # Monitoring (requires Prometheus Operator)
+  # Uncomment if Prometheus Operator is installed
+  # - service-monitor.yaml
+
+# Image customization
+images:
+  - name: ghcr.io/neuron7xLab/mlsdm-neuro-engine
+    newTag: "1.2.0"
+
+# Replicas override (for quick scaling)
+# replicas:
+#   - name: neuro-engine
+#     count: 3
+
+# Resource name suffix (useful for testing)
+# nameSuffix: -prod
+
+# Patches for environment-specific modifications
+# patches:
+#   - patch: |-
+#       - op: replace
+#         path: /spec/replicas
+#         value: 5
+#     target:
+#       kind: Deployment
+#       name: neuro-engine

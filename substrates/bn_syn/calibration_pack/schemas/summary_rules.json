@@ -1,0 +1,9 @@
+{
+  "required_headings": [
+    "# Calibration Summary",
+    "## Operational Readiness",
+    "## Top 5 Blockers",
+    "## Replay Commands"
+  ],
+  "max_words": 140
+}

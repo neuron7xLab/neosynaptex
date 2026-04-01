@@ -1,0 +1,113 @@
+# Golden Baseline for Performance Benchmarks
+# Auto-generated reference values for regression detection
+# Date: 2026-01-27
+# Platform: Ubuntu Linux, Python 3.11+
+# Hardware: GitHub Actions runners (2-core, 7GB RAM)
+
+version: 1.0
+metadata:
+  description: "Performance baseline for BN-Syn network simulations"
+  platform: "ubuntu-latest"
+  python_version: "3.11"
+  git_sha: "baseline"
+  generated_utc: "2026-01-27T00:00:00Z"
+
+benchmarks:
+  # Network step performance (small network)
+  - name: "network_step_N50"
+    description: "Single network step with N=50 neurons"
+    parameters:
+      N: 50
+      dt_ms: 0.1
+      steps: 1000
+    metrics:
+      mean_ms: 0.5
+      std_ms: 0.05
+      min_ms: 0.45
+      max_ms: 0.60
+      tolerance_pct: 10  # ±10% acceptable variation
+
+  # Network step performance (medium network)
+  - name: "network_step_N100"
+    description: "Single network step with N=100 neurons"
+    parameters:
+      N: 100
+      dt_ms: 0.1
+      steps: 1000
+    metrics:
+      mean_ms: 1.0
+      std_ms: 0.1
+      min_ms: 0.85
+      max_ms: 1.20
+      tolerance_pct: 10
+
+  # Network step performance (large network)
+  - name: "network_step_N200"
+    description: "Single network step with N=200 neurons"
+    parameters:
+      N: 200
+      dt_ms: 0.1
+      steps: 1000
+    metrics:
+      mean_ms: 2.5
+      std_ms: 0.25
+      min_ms: 2.0
+      max_ms: 3.0
+      tolerance_pct: 10
+
+  # AdEx neuron step
+  - name: "adex_step"
+    description: "AdEx neuron model step performance"
+    parameters:
+      N: 1000
+      steps: 10000
+    metrics:
+      steps_per_sec: 13000
+      tolerance_pct: 15
+
+  # Full simulation benchmark
+  - name: "full_simulation"
+    description: "Complete network simulation"
+    parameters:
+      N: 100
+      dt_ms: 0.1
+      steps: 1000
+    metrics:
+      total_time_s: 1.5
+      tolerance_pct: 20
+
+  # Memory usage
+  - name: "memory_per_neuron"
+    description: "Memory consumption per neuron"
+    parameters:
+      N: 1000
+    metrics:
+      mb_per_neuron: 0.087
+      tolerance_pct: 25  # Memory can vary more across platforms
+
+  # Criticality sigma drift
+  - name: "criticality_sigma_drift"
+    description: "Criticality control accuracy"
+    parameters:
+      N: 1000
+      target_sigma: 1.0
+    metrics:
+      drift_abs: 0.13
+      tolerance_pct: 30
+
+  # dt-invariance check
+  - name: "dt_invariance_drift"
+    description: "Numerical stability across dt"
+    parameters:
+      N: 100
+      dt_values: [0.05, 0.1, 0.2]
+    metrics:
+      drift_relative: 1.0e-06
+      tolerance_pct: 50  # Numerical errors can vary
+
+# Regression thresholds
+regression_policy:
+  fail_on_regression: false  # Non-blocking (conservative)
+  warning_threshold_pct: 5   # Warn if >5% slower
+  critical_threshold_pct: 20  # Flag as critical if >20% slower
+  require_improvement: false  # Don't require speedups (stability focus)

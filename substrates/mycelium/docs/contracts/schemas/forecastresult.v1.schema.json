@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ForecastResult",
+  "version": "v1",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "horizon": {
+      "type": "integer"
+    },
+    "method": {
+      "type": "string"
+    },
+    "uncertainty_envelope": {
+      "type": "number"
+    },
+    "descriptor_trajectory": {
+      "type": "number"
+    },
+    "predicted_states": {
+      "type": "number"
+    },
+    "predicted_state_summary": {
+      "type": "number"
+    },
+    "evaluation_metrics": {
+      "type": "number"
+    },
+    "benchmark_metrics": {
+      "type": "number"
+    },
+    "metadata": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

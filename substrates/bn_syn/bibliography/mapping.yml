@@ -1,0 +1,104 @@
+CLM-0001:
+  bibkey: brette2005adaptive
+  section: P0-1 AdEx neuron model
+  tier: Tier-A
+CLM-0002:
+  bibkey: brette2005adaptive
+  section: P0-1 AdEx model
+  tier: Tier-A
+CLM-0003:
+  bibkey: jahr1990voltage
+  section: P0-2 NMDA block
+  tier: Tier-A
+CLM-0004:
+  bibkey: fremaux2016neuromodulated
+  section: P0-3 Three-factor learning
+  tier: Tier-A
+CLM-0005:
+  bibkey: izhikevich2007solving
+  section: P0-3 Neuromodulated STDP
+  tier: Tier-A
+CLM-0006:
+  bibkey: beggs2003neuronal
+  section: P0-4 Avalanche exponents
+  tier: Tier-A
+CLM-0007:
+  bibkey: beggs2003neuronal
+  section: P0-4 Branching parameter σ
+  tier: Tier-A
+CLM-0008:
+  bibkey: wilting2018inferring
+  section: P0-4 MR estimator
+  tier: Tier-A
+CLM-0009:
+  bibkey: clauset2009power
+  section: P0-4 Power-law fitting
+  tier: Tier-A
+CLM-0010:
+  bibkey: frey1997synaptic
+  section: P1-6 Synaptic tagging
+  tier: Tier-A
+CLM-0011:
+  bibkey: wilkinson2016fair
+  section: P2-8..12 FAIR principles
+  tier: Tier-A
+CLM-0012:
+  bibkey: neurips2026checklist
+  section: P2-8..12 Reproducibility checklist
+  tier: Tier-S
+CLM-0013:
+  bibkey: acm2020badges
+  section: P2-8..12 Artifact badges
+  tier: Tier-S
+CLM-0014:
+  bibkey: pytorch2026randomness
+  section: P2-8..12 Determinism docs
+  tier: Tier-S
+CLM-0015:
+  bibkey: trivers1971reciprocal
+  section: GOV-1 Result-based reciprocity (foundation)
+  tier: Tier-A
+CLM-0016:
+  bibkey: axelrod1981cooperation
+  section: GOV-1 Symmetric reciprocity (tit-for-tat)
+  tier: Tier-A
+CLM-0017:
+  bibkey: nowak1998imagescoring
+  section: GOV-1 Reputation / indirect reciprocity
+  tier: Tier-A
+CLM-0018:
+  bibkey: fehr2002punishment
+  section: GOV-1 Costly sanctioning / defector suppression
+  tier: Tier-A
+CLM-0019:
+  bibkey: kirkpatrick1983annealing
+  section: P1-5 Temperature schedule
+  tier: Tier-A
+CLM-0020:
+  bibkey: benna2016synaptic
+  section: P1-6 Dual-weight consolidation
+  tier: Tier-A
+CLM-0021:
+  bibkey: hopfield1982neural
+  section: P1-7 Energy regularization
+  tier: Tier-A
+CLM-0022:
+  bibkey: hairer1993solving
+  section: P2-8 Numerical methods
+  tier: Tier-A
+CLM-0023:
+  bibkey: matsumoto1998mersenne
+  section: P2-9 Determinism protocol
+  tier: Tier-A
+CLM-0024:
+  bibkey: bjorck1996least
+  section: P2-10 Calibration utilities
+  tier: Tier-A
+CLM-0025:
+  bibkey: izhikevich2003simple
+  section: P2-11 Reference network simulator
+  tier: Tier-A
+CLM-0026:
+  bibkey: cliguidelines2024
+  section: P2-12 Bench harness contract
+  tier: Tier-S

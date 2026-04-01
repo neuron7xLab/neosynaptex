@@ -1,0 +1,217 @@
+# ====================================================
+# Docker Compose - Production Configuration
+# ====================================================
+# Production-ready Docker Compose configuration for MLSDM
+# with monitoring, security, and high availability features.
+#
+# Usage:
+#   docker-compose -f deploy/docker/docker-compose.production.yaml up -d
+#
+# Prerequisites:
+#   - Docker Engine 20.10+
+#   - Docker Compose 2.0+
+#   - .env file with production secrets
+#
+# Note: For Kubernetes deployment, see deploy/k8s/
+# ====================================================
+
+version: "3.8"
+
+services:
+  # MLSDM API Service
+  mlsdm-api:
+    image: ghcr.io/neuron7xLab/mlsdm-neuro-engine:1.2.0
+    container_name: mlsdm-api
+    hostname: mlsdm-api
+
+    # Port mapping
+    ports:
+      - "8000:8000"
+
+    # Environment configuration
+    environment:
+      # Core configuration
+      - CONFIG_PATH=/etc/mlsdm/config.yaml
+      - HOST=0.0.0.0
+      - PORT=8000
+
+      # LLM Backend (local_stub, openai, anthropic)
+      - LLM_BACKEND=${LLM_BACKEND:-local_stub}
+
+      # API Key for authentication
+      - API_KEY=${API_KEY}
+
+      # OpenAI configuration (if using openai backend)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-3.5-turbo}
+
+      # Feature flags
+      - ENABLE_FSLGS=true
+      - ENABLE_METRICS=true
+      - EMBEDDING_DIM=384
+
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - JSON_LOGGING=true
+
+      # OpenTelemetry
+      - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-false}
+      - OTEL_EXPORTER_TYPE=${OTEL_EXPORTER_TYPE:-none}
+      - OTEL_SERVICE_NAME=mlsdm-api
+
+      # Python optimization
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+
+    # Volume mounts
+    volumes:
+      - ./config/production.yaml:/etc/mlsdm/config.yaml:ro
+      - mlsdm-logs:/app/logs
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4G
+        reservations:
+          cpus: "1.0"
+          memory: 2G
+
+    # Health check using wget (more commonly available than python requests)
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8000/health/liveness || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+    # Read-only root filesystem (if possible)
+    # read_only: true  # Uncomment if your app supports it
+
+    # Drop all capabilities
+    cap_drop:
+      - ALL
+
+    # User configuration (non-root)
+    user: "1000:1000"
+
+    # Networks
+    networks:
+      - mlsdm-network
+
+    # Labels for service discovery
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mlsdm-api.rule=Host(`mlsdm-api.${DOMAIN:-localhost}`)"
+      - "traefik.http.services.mlsdm-api.loadbalancer.server.port=8000"
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=8000"
+      - "prometheus.io/path=/health/metrics"
+
+  # Prometheus for metrics collection (optional)
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: mlsdm-prometheus
+
+    ports:
+      - "9090:9090"
+
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../../monitoring/alertmanager-rules.yaml:/etc/prometheus/rules/alertmanager-rules.yaml:ro
+      - prometheus-data:/prometheus
+
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    restart: unless-stopped
+
+    networks:
+      - mlsdm-network
+
+    depends_on:
+      - mlsdm-api
+
+    profiles:
+      - monitoring
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: mlsdm-grafana
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../../grafana/mlsdm_observability_dashboard.json:/var/lib/grafana/dashboards/mlsdm.json:ro
+      - ../../monitoring/grafana-dashboard.json:/var/lib/grafana/dashboards/slo.json:ro
+      - grafana-data:/var/lib/grafana
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    restart: unless-stopped
+
+    networks:
+      - mlsdm-network
+
+    depends_on:
+      - prometheus
+
+    profiles:
+      - monitoring
+
+# Networks
+networks:
+  mlsdm-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  mlsdm-logs:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local

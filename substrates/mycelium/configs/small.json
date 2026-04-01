@@ -1,0 +1,35 @@
+{
+  "name": "small",
+  "description": "Small configuration for local testing and development",
+  "validation": {
+    "seed": 42,
+    "epochs": 1,
+    "batch_size": 4,
+    "grid_size": 32,
+    "steps": 32,
+    "device": "cpu"
+  },
+  "model": {
+    "input_dim": 4,
+    "hidden_dim": 16,
+    "use_sparse_attention": true,
+    "use_stdp": true
+  },
+  "simulation": {
+    "turing_enabled": true,
+    "turing_threshold": 0.75,
+    "quantum_jitter": false,
+    "jitter_var": 0.0005
+  },
+  "federated": {
+    "num_clusters": 10,
+    "byzantine_fraction": 0.2,
+    "sample_fraction": 0.1
+  },
+  "expected_metrics": {
+    "runtime_seconds_max": 5,
+    "memory_mb_max": 100,
+    "fractal_dim_range": [1.0, 2.0],
+    "lyapunov_max": 0
+  }
+}

@@ -1,0 +1,31 @@
+protocol: "DE-TF-2026.03"
+tiers:
+  P0: [workflow_lint, toolchain_pin, install_repro, ruff, mypy, pytest, build, security_secrets, security_deps, required_checks_contract]
+  P1: [docs, coverage, mutation, benchmarks_regression]
+  P2: [perf_profiles, release_attestations]
+python:
+  version: "3.11"
+pip:
+  version: "26.0"
+install:
+  strategy: "extras"
+  extras: ["ci"]
+  lockfile: null
+tools:
+  ruff: {module: "ruff", cmd: "python -m ruff"}
+  mypy: {module: "mypy", cmd: "python -m mypy"}
+  pytest: {module: "pytest", cmd: "python -m pytest"}
+  build: {module: "build", cmd: "python -m build"}
+  pylint: {module: "pylint", cmd: "python -m pylint", required: false}
+security:
+  secrets: {tool: "gitleaks", required: true}
+  deps: {tool: "pip-audit", required: true}
+actions:
+  pin_by_sha: true
+  allow_unpinned: []
+required_checks:
+  manifest: ".github/required_checks.json"
+  enforce_in_ci: true
+determinism:
+  json_sorted_keys: true
+  stable_line_endings: true

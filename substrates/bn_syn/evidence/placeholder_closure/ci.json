@@ -1,0 +1,5 @@
+{
+  "workflow": ".github/workflows/ci-pr-atomic.yml",
+  "status": "NEEDS_EVIDENCE",
+  "reason": "Local environment does not provide GitHub Actions run execution context or run URL/ID."
+}

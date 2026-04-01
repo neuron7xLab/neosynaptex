@@ -1,0 +1,166 @@
+{
+  "version": "1.0",
+  "description": "Sample feature vectors from different simulation scenarios",
+  "generated": "2025-11-30",
+  "reference": "MFN_FEATURE_SCHEMA.md",
+  "schema_version": "v4.1",
+  "sample_features": [
+    {
+      "scenario": "scientific_small",
+      "description": "Small scientific validation run",
+      "parameters": {
+        "grid_size": 32,
+        "steps": 50,
+        "alpha": 0.1,
+        "turing_enabled": true,
+        "seed": 42
+      },
+      "features": {
+        "D_box": 1.762,
+        "D_r2": 0.95,
+        "V_min": -0.095,
+        "V_max": 0.040,
+        "V_mean": -0.055,
+        "V_std": 0.025,
+        "V_skew": 0.12,
+        "V_kurt": 2.8,
+        "dV_mean": 0.001,
+        "dV_max": 0.015,
+        "T_stable": 45,
+        "E_trend": -0.0001,
+        "f_active": 0.35,
+        "N_clusters_low": 12,
+        "N_clusters_med": 8,
+        "N_clusters_high": 3,
+        "max_cluster_size": 128,
+        "cluster_size_std": 45.6
+      },
+      "expected_ranges": {
+        "D_box": [1.0, 2.0],
+        "V_min": [-0.150, 0.0],
+        "V_max": [0.0, 0.150],
+        "f_active": [0.0, 1.0]
+      }
+    },
+    {
+      "scenario": "features_medium",
+      "description": "Medium ML feature extraction run",
+      "parameters": {
+        "grid_size": 64,
+        "steps": 100,
+        "alpha": 0.1,
+        "turing_enabled": true,
+        "seed": 123
+      },
+      "features": {
+        "D_box": 1.685,
+        "D_r2": 0.92,
+        "V_min": -0.093,
+        "V_max": 0.038,
+        "V_mean": -0.052,
+        "V_std": 0.028,
+        "V_skew": 0.08,
+        "V_kurt": 3.1,
+        "dV_mean": 0.0008,
+        "dV_max": 0.012,
+        "T_stable": 85,
+        "E_trend": -0.00008,
+        "f_active": 0.42,
+        "N_clusters_low": 24,
+        "N_clusters_med": 15,
+        "N_clusters_high": 5,
+        "max_cluster_size": 256,
+        "cluster_size_std": 78.3
+      },
+      "expected_ranges": {
+        "D_box": [1.0, 2.0],
+        "T_stable": [0, 100],
+        "f_active": [0.0, 1.0]
+      }
+    },
+    {
+      "scenario": "no_turing",
+      "description": "Simulation without Turing morphogenesis",
+      "parameters": {
+        "grid_size": 32,
+        "steps": 50,
+        "alpha": 0.1,
+        "turing_enabled": false,
+        "seed": 42
+      },
+      "features": {
+        "D_box": 1.45,
+        "D_r2": 0.88,
+        "V_min": -0.089,
+        "V_max": 0.035,
+        "V_mean": -0.060,
+        "V_std": 0.018,
+        "V_skew": 0.05,
+        "V_kurt": 2.5,
+        "dV_mean": 0.0005,
+        "dV_max": 0.008,
+        "T_stable": 48,
+        "E_trend": -0.00005,
+        "f_active": 0.25,
+        "N_clusters_low": 8,
+        "N_clusters_med": 4,
+        "N_clusters_high": 1,
+        "max_cluster_size": 64,
+        "cluster_size_std": 22.1
+      },
+      "notes": "Lower fractal dimension and activity without Turing patterns"
+    },
+    {
+      "scenario": "high_alpha",
+      "description": "High growth rate simulation",
+      "parameters": {
+        "grid_size": 32,
+        "steps": 50,
+        "alpha": 0.3,
+        "turing_enabled": true,
+        "seed": 42
+      },
+      "features": {
+        "D_box": 1.82,
+        "D_r2": 0.94,
+        "V_min": -0.098,
+        "V_max": 0.042,
+        "V_mean": -0.048,
+        "V_std": 0.032,
+        "V_skew": 0.15,
+        "V_kurt": 3.2,
+        "dV_mean": 0.003,
+        "dV_max": 0.025,
+        "T_stable": 35,
+        "E_trend": 0.0002,
+        "f_active": 0.55,
+        "N_clusters_low": 18,
+        "N_clusters_med": 12,
+        "N_clusters_high": 6,
+        "max_cluster_size": 180,
+        "cluster_size_std": 62.8
+      },
+      "notes": "Higher activity and fractal dimension with increased growth"
+    }
+  ],
+  "feature_descriptions": {
+    "D_box": "Box-counting fractal dimension",
+    "D_r2": "R² fit quality for dimension estimation",
+    "V_min": "Minimum membrane potential (V)",
+    "V_max": "Maximum membrane potential (V)",
+    "V_mean": "Mean membrane potential (V)",
+    "V_std": "Standard deviation of potential (V)",
+    "V_skew": "Skewness of potential distribution",
+    "V_kurt": "Kurtosis of potential distribution",
+    "dV_mean": "Mean rate of potential change (V/step)",
+    "dV_max": "Maximum rate of potential change (V/step)",
+    "T_stable": "Timestep when stability achieved",
+    "E_trend": "Energy trend (decreasing = stable)",
+    "f_active": "Fraction of active (above threshold) cells",
+    "N_clusters_low": "Number of clusters at low threshold",
+    "N_clusters_med": "Number of clusters at medium threshold",
+    "N_clusters_high": "Number of clusters at high threshold",
+    "max_cluster_size": "Size of largest cluster",
+    "cluster_size_std": "Standard deviation of cluster sizes"
+  }
+}

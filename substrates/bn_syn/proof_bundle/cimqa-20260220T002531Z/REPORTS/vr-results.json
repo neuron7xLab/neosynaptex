@@ -1,0 +1,60 @@
+{
+  "metrics": {
+    "M1_determinism": 1.0,
+    "M2_evidence_completeness": 1.0,
+    "M5_regression_rate": 0.0,
+    "M9_instruction_stability": 1.0
+  },
+  "status": "PASS",
+  "trials": [
+    {
+      "expected": "PASS",
+      "passed": true,
+      "path": "proof_bundle/cimqa-20260220T002531Z/TRIALS/T1",
+      "status": "PASS",
+      "trial_id": "T1"
+    },
+    {
+      "expected": "FAIL",
+      "passed": true,
+      "path": "proof_bundle/cimqa-20260220T002531Z/TRIALS/T2",
+      "status": "FAIL",
+      "trial_id": "T2"
+    },
+    {
+      "expected": "FAIL",
+      "passed": true,
+      "path": "proof_bundle/cimqa-20260220T002531Z/TRIALS/T3",
+      "status": "FAIL",
+      "trial_id": "T3"
+    },
+    {
+      "expected": "FAIL",
+      "passed": true,
+      "path": "proof_bundle/cimqa-20260220T002531Z/TRIALS/T4",
+      "status": "FAIL",
+      "trial_id": "T4"
+    },
+    {
+      "expected": "FAIL",
+      "passed": true,
+      "path": "proof_bundle/cimqa-20260220T002531Z/TRIALS/T5",
+      "status": "FAIL",
+      "trial_id": "T5"
+    },
+    {
+      "expected": "FAIL",
+      "passed": true,
+      "path": "proof_bundle/cimqa-20260220T002531Z/TRIALS/A1",
+      "status": "FAIL",
+      "trial_id": "A1"
+    },
+    {
+      "expected": "FAIL",
+      "passed": true,
+      "path": "proof_bundle/cimqa-20260220T002531Z/TRIALS/A2",
+      "status": "FAIL",
+      "trial_id": "A2"
+    }
+  ]
+}

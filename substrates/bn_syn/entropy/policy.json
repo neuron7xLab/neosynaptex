@@ -1,0 +1,18 @@
+{
+  "comparators": {
+    "dependencies.build_requires_unpinned_count": "lte",
+    "dependencies.lockfiles_present": "eq",
+    "dependencies.optional_unpinned_count": "lte",
+    "dependencies.project_unpinned_count": "lte",
+    "determinism.global_np_random_offenders": "lte",
+    "determinism.python_random_offenders": "lte",
+    "determinism.time_calls_offenders": "lte",
+    "docs.src_todo_fixme_count": "lte",
+    "process.gh_workflows_missing_job_permissions_count": "lte",
+    "process.gh_workflows_missing_job_timeout_count": "lte",
+    "process.gh_workflows_unpinned_actions_count": "lte",
+    "process.required_checks_files_present": "eq"
+  },
+  "hard_fail": true,
+  "version": 1
+}

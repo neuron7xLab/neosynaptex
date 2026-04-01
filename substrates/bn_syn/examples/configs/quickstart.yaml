@@ -1,0 +1,11 @@
+experiment:
+  name: quickstart
+  version: v1
+  seeds: [42, 43, 44]
+
+network:
+  size: 50
+
+simulation:
+  duration_ms: 500
+  dt_ms: 0.1

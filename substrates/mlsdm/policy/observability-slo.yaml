@@ -1,0 +1,255 @@
+# MLSDM Observability & SLO Policy
+# ===================================
+# Machine-readable SLO targets and monitoring requirements
+#
+# Version: 1.0.0
+# Last Updated: December 2025
+# Status: ACTIVE
+
+policy_contract_version: "1.1"
+version: "1.0"
+policy_name: "MLSDM Observability SLOs"
+enforcement_level: "advisory"  # SLO breaches warn but don't block
+updated_at: "2025-12-07"
+owner:
+  name: "Observability Team"
+  team: "Observability"
+  email: "observability@mlsdm.dev"
+rationale: >-
+  Defines end-to-end SLO targets, testing expectations, and observability
+  controls to prevent runtime drift and ensure deterministic performance
+  validation across CI and production monitoring.
+
+controls:
+  # Monitoring Requirements
+  monitoring:
+    metrics:
+      required_exporters:
+        - "prometheus"
+
+      collection_interval_seconds: 10
+      retention_days: 30
+
+      key_metrics:
+        - name: "total_events_processed"
+          type: "counter"
+          labels: ["endpoint", "status"]
+
+        - name: "process_event_latency_seconds"
+          type: "histogram"
+          buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 5.0]
+
+        - name: "memory_usage_bytes"
+          type: "gauge"
+
+        - name: "moral_filter_threshold"
+          type: "gauge"
+
+  logging:
+    structured_logging_required: true
+    log_levels:
+      production: "INFO"
+      development: "DEBUG"
+
+    required_fields:
+      - "timestamp"
+      - "level"
+      - "message"
+      - "component"
+      - "trace_id"
+
+  alerting:
+    alert_manager_required: true
+    notification_channels:
+      - "email"
+      - "slack"
+
+    critical_alerts:
+      - name: "SLOReadinessLatencyHigh"
+        condition: "p95_latency > 120ms for 5 minutes"
+        severity: "critical"
+
+      - name: "MemoryLeakDetected"
+        condition: "memory growth > 2x baseline"
+        severity: "high"
+
+      - name: "ErrorRateHigh"
+        condition: "error_rate > 1% for 5 minutes"
+        severity: "high"
+
+  # Test Configuration
+  testing:
+    slo_tests:
+      run_frequency: "on_pr_and_nightly"
+      timeout_seconds: 300
+      retry_on_flake: false  # No retries - tests must be deterministic
+
+      test_suites:
+        - name: "fast_perf_tests"
+          marker: "benchmark and not slow"
+          max_duration_seconds: 120
+
+        - name: "resilience_tests"
+          marker: "resilience and not slow"
+          max_duration_seconds: 120
+
+        - name: "full_suite"
+          marker: "perf or resilience"
+          max_duration_seconds: 600
+
+    memory_tests:
+      deterministic_seeding: true
+      noise_tolerance_mb: 5.0
+      sample_count_min: 5
+      warmup_iterations: 3
+
+  # Documentation
+  documentation:
+    slo_spec: "docs/SLO_SPEC.md"
+    validation_protocol: "docs/SLO_VALIDATION_PROTOCOL.md"
+    runbook: "docs/RUNBOOK.md"
+    observability_guide: "docs/OBSERVABILITY_GUIDE.md"
+
+thresholds:
+  # Service Level Objectives (SLOs)
+  slos:
+    api_defaults:
+      p50_latency_ms: 50.0
+      p95_latency_ms: 150.0
+      p99_latency_ms: 250.0
+      max_error_rate_percent: 1.0
+      min_availability_percent: 99.0
+
+    # API Endpoint SLOs
+    api_endpoints:
+      - name: "generate"
+        endpoint: "/generate"
+        targets:
+          p95_latency_ms: 120.0
+          p99_latency_ms: 200.0
+          max_error_rate_percent: 0.5
+          availability_percent: 99.9
+        ci_thresholds:
+          p95_latency_ms: 150.0
+          p99_latency_ms: 250.0
+          max_error_rate_percent: 1.0
+        test_location: "tests/perf/test_slo_api_endpoints.py::TestGenerateEndpointSLO"
+
+      - name: "infer"
+        endpoint: "/infer"
+        targets:
+          p95_latency_ms: 120.0
+          p99_latency_ms: 200.0
+          max_error_rate_percent: 0.5
+          availability_percent: 99.9
+        ci_thresholds:
+          p95_latency_ms: 150.0
+          p99_latency_ms: 250.0
+          max_error_rate_percent: 1.0
+        test_location: "tests/perf/test_slo_api_endpoints.py::TestInferEndpointSLO"
+
+      - name: "health-readiness"
+        endpoint: "/health/readiness"
+        targets:
+          p95_latency_ms: 120.0
+          p99_latency_ms: 200.0
+          max_error_rate_percent: 0.0
+          availability_percent: 99.9
+        ci_thresholds:  # More lenient for CI testing
+          p95_latency_ms: 150.0
+          p99_latency_ms: 250.0
+          max_error_rate_percent: 1.0
+        test_location: "tests/perf/test_slo_api_endpoints.py::TestHealthEndpointSLO::test_readiness_latency"
+
+      - name: "health-liveness"
+        endpoint: "/health/liveness"
+        targets:
+          p95_latency_ms: 50.0
+          p99_latency_ms: 100.0
+          max_error_rate_percent: 0.0
+          availability_percent: 99.9
+        ci_thresholds:
+          p95_latency_ms: 75.0
+          p99_latency_ms: 150.0
+          max_error_rate_percent: 0.0
+        test_location: "tests/perf/test_slo_api_endpoints.py::TestHealthEndpointSLO::test_liveness_latency"
+
+      - name: "event-processing"
+        endpoint: "/event"
+        targets:
+          p95_latency_ms: 500.0
+          p99_latency_ms: 1000.0
+          max_error_rate_percent: 0.5
+          throughput_rps: 100.0
+        ci_thresholds:
+          p95_latency_ms: 600.0
+          p99_latency_ms: 1200.0
+          max_error_rate_percent: 1.0
+
+    # System Resource SLOs
+    system_resources:
+      - name: "memory-usage"
+        metric: "memory_usage_bytes"
+        targets:
+          max_usage_mb: 1400.0
+          growth_rate_mb_per_hour: 10.0
+          leak_detection_threshold: 2.0  # later_growth <= initial_growth * 2
+        test_location: "tests/unit/test_cognitive_controller.py::TestCognitiveControllerMemoryLeak"
+
+      - name: "cpu-usage"
+        metric: "cpu_usage_percent"
+        targets:
+          p95_usage_percent: 80.0
+          max_usage_percent: 95.0
+
+    # Cognitive Engine SLOs
+    cognitive_engine:
+      - name: "moral-filter-stability"
+        targets:
+          threshold_drift_max: 0.15
+          convergence_steps_max: 200
+          min_threshold: 0.30
+          max_threshold: 0.90
+        test_location: "tests/property/test_moral_filter_properties.py"
+
+      - name: "memory-operations"
+        targets:
+          entangle_latency_ms: 10.0
+          retrieve_latency_ms: 50.0
+          corruption_rate_percent: 0.0
+        test_location: "tests/property/test_pelm_phase_behavior.py"
+
+  runtime_defaults:
+    latency:
+      api_p50_ms: 50.0
+      api_p95_ms: 150.0
+      api_p99_ms: 250.0
+      engine_total_p50_ms: 100.0
+      engine_total_p95_ms: 600.0
+      engine_preflight_p95_ms: 30.0
+      generation_p95_ms: 50.0
+    error_rate:
+      max_error_rate_percent: 1.0
+      min_availability_percent: 99.0
+      expected_rejection_rate_percent_min: 0.0
+      expected_rejection_rate_percent_max: 30.0
+    throughput:
+      min_rps: 50.0
+      max_queue_depth: 100
+      min_concurrent_capacity: 10
+    load_multipliers:
+      moderate_load_slo: 1.2
+      moderate_load_error: 1.5
+      readiness_check: 2.0
+      liveness_check: 2.0
+
+  # Error Budget
+  error_budgets:
+    monthly:
+      availability_target: 99.9
+      error_budget_percent: 0.1
+      downtime_minutes_allowed: 43.2  # 0.1% of month
+
+    burn_rate_thresholds:
+      fast_burn: 14.4  # Burn entire budget in 2 days
+      slow_burn: 1.0   # Burn budget evenly over month

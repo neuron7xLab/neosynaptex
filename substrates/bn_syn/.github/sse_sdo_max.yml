@@ -1,0 +1,41 @@
+protocol: "SSE-SDO-MAX-2026.05"
+toolchain:
+  python: "3.11"
+  pip: "26.0"
+determinism:
+  stable_ordering_required: 1.0
+  seed_required: true
+  nondeterminism_whitelist: []
+evidence:
+  required_ratio_P0: 1.0
+  anchors: "§REF"
+scope:
+  subsystem_paths:
+    - ".github/sse_sdo_max.yml"
+    - "scripts/sse_policy_load.py"
+    - "scripts/sse_inventory.py"
+    - "scripts/sse_drift_check.py"
+    - "scripts/sse_gate_runner.py"
+    - "scripts/sse_proof_index.py"
+    - "tests/test_policy_schema_contract.py"
+    - "tests/test_policy_to_execution_contract.py"
+    - "tests/test_required_checks_contract.py"
+    - "tests/test_ssot_alignment_contract.py"
+    - "tests/test_workflow_integrity_contract.py"
+    - ".github/workflows/sse-sdo-max-gate.yml"
+tests:
+  coverage:
+    line_pct_min: 0.90
+    branch_pct_min: 0.80
+  required_suites: ["unit", "integration", "contract"]
+  optional_suites: ["property", "mutation", "slow"]
+perf:
+  baseline_required: true
+  regression_threshold_pct: 3.0
+flags:
+  required_for: ["behavior_change", "cross_boundary_change"]
+ci:
+  required_checks_contract: true
+  pinned_actions: true
+  least_privilege: true
+  workflow_integrity: true

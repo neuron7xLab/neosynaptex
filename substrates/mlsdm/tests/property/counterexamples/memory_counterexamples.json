@@ -1,0 +1,128 @@
+[
+  {
+    "test_case": "capacity_overflow_handling",
+    "capacity": 10,
+    "vectors_inserted": 15,
+    "expected_final_size": 10,
+    "actual_final_size": 10,
+    "passed": true,
+    "notes": "Memory correctly enforces capacity limit by evicting old entries when full."
+  },
+  {
+    "test_case": "dimension_consistency",
+    "dimension": 384,
+    "vectors_with_wrong_dim": 0,
+    "total_vectors_checked": 50,
+    "passed": true,
+    "notes": "All vectors maintain consistent dimensionality throughout operations."
+  },
+  {
+    "test_case": "nearest_neighbor_empty_memory",
+    "query_vector_dim": 384,
+    "memory_size": 0,
+    "neighbors_found": 0,
+    "expected_neighbors": 0,
+    "passed": true,
+    "notes": "Querying empty memory correctly returns no neighbors."
+  },
+  {
+    "test_case": "nearest_neighbor_with_data",
+    "query_vector_dim": 384,
+    "memory_size": 20,
+    "k_requested": 5,
+    "neighbors_found": 5,
+    "passed": true,
+    "notes": "Nearest neighbor search correctly returns requested number of neighbors."
+  },
+  {
+    "test_case": "distance_ordering_violated",
+    "query_vector_dim": 384,
+    "memory_size": 10,
+    "k_requested": 5,
+    "neighbors_properly_ordered": false,
+    "distance_sequence": [0.45, 0.52, 0.48, 0.61, 0.73],
+    "passed": false,
+    "notes": "FAILURE: Retrieved neighbors not properly ordered by distance (index 2 has distance 0.48 < index 1's 0.52). This violates INV-MEM-M3 and suggests issue in retrieval ranking algorithm."
+  },
+  {
+    "test_case": "consolidation_vector_loss",
+    "vectors_before_consolidation": 15,
+    "vectors_after_consolidation": 15,
+    "passed": true,
+    "notes": "Consolidation preserves all vectors, no data loss."
+  },
+  {
+    "test_case": "consolidation_level_progression",
+    "L1_before": 8,
+    "L2_before": 5,
+    "L3_before": 2,
+    "L1_after": 6,
+    "L2_after": 6,
+    "L3_after": 3,
+    "passed": true,
+    "notes": "Consolidation correctly moves vectors from L1→L2→L3. Memory hierarchy flows from short-term to long-term."
+  },
+  {
+    "test_case": "phase_entanglement_separation",
+    "wake_vectors": 10,
+    "sleep_vectors": 10,
+    "wake_sleep_overlap": 0,
+    "passed": true,
+    "notes": "Phase-tagged vectors properly separated in QILM_v2."
+  },
+  {
+    "test_case": "gating_value_bounds_violation",
+    "gating12_value": 1.2,
+    "gating23_value": 0.5,
+    "passed": false,
+    "notes": "FAILURE: gating12 value 1.2 exceeds maximum bound of 1.0. This violates INV-MEM-S3. System should clamp or reject invalid gating values at initialization."
+  },
+  {
+    "test_case": "negative_lambda_decay",
+    "lambda_l1": 0.5,
+    "lambda_l2": -0.1,
+    "lambda_l3": 0.01,
+    "passed": false,
+    "notes": "FAILURE: Negative lambda_l2 value accepted. This violates INV-MEM-S4 and could cause memory growth instead of decay. Should validate and reject negative decay rates."
+  },
+  {
+    "test_case": "memory_bloat_under_load",
+    "initial_memory_mb": 150,
+    "after_10k_inserts_mb": 1420,
+    "memory_limit_mb": 1400,
+    "passed": false,
+    "notes": "FAILURE: Memory usage exceeded 1.4GB limit after sustained load. This violates INV-LLM-S1. Eviction policy not aggressive enough or memory leak present."
+  },
+  {
+    "test_case": "retrieval_latency_degradation",
+    "memory_size": 20000,
+    "query_latency_ms": 450,
+    "expected_max_latency_ms": 100,
+    "passed": false,
+    "notes": "FAILURE: Retrieval latency of 450ms at capacity significantly exceeds expected <100ms. While not a formal invariant, this indicates performance degradation that impacts liveness guarantees (INV-NCE-L2)."
+  },
+  {
+    "test_case": "concurrent_access_race_condition",
+    "concurrent_writes": 100,
+    "concurrent_reads": 100,
+    "data_corruption_detected": false,
+    "passed": true,
+    "notes": "Concurrent access handled correctly without data corruption. Thread safety maintained."
+  },
+  {
+    "test_case": "zero_vector_handling",
+    "vector": [0.0, 0.0, 0.0, 0.0, 0.0],
+    "normalization_successful": true,
+    "default_to_unit_vector": true,
+    "passed": true,
+    "notes": "Zero vector edge case handled by defaulting to unit vector [1,0,0,...]. Prevents division by zero in normalization."
+  },
+  {
+    "test_case": "extreme_values_overflow",
+    "vector_with_large_values": [1e10, 1e10, 1e10],
+    "normalization_successful": true,
+    "no_overflow": true,
+    "passed": true,
+    "notes": "Extreme vector values handled correctly with safe normalization."
+  }
+]

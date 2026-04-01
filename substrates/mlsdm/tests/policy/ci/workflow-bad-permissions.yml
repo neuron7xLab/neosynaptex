@@ -1,0 +1,14 @@
+name: Policy Fixture Bad Permissions
+
+on:
+  push:
+    branches: [main]
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4

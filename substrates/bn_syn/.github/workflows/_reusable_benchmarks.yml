@@ -1,0 +1,341 @@
+# REUSABLE NON-PR-GATE: long-running workflow_call; must not run on pull_request/push.
+name: reusable-benchmarks
+
+on:
+  workflow_call:
+    inputs:
+      tier:
+        description: "Benchmark tier to run (standard|elite)"
+        required: true
+        type: string
+      profile:
+        description: "Benchmark profile to run (micro|baseline|full|custom)"
+        required: true
+        type: string
+      scenario:
+        description: "Benchmark scenario (standard/custom profile only)"
+        required: false
+        type: string
+        default: ci_smoke
+      publish_baseline:
+        description: "Publish baseline artifacts (standard baseline/full only)"
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      BENCHMARK_GPG_PASSPHRASE:
+        required: false
+      SLACK_WEBHOOK_URL:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  scenario-benchmarks:
+    if: ${{ inputs.tier == 'standard' && inputs.profile == 'custom' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+      - name: Log pip version
+        run: python -m pip --version
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev,test]"
+
+      - name: Run benchmark
+        run: |
+          SCENARIO="${{ inputs.scenario }}"
+          echo "Running benchmark scenario: $SCENARIO"
+          python benchmarks/run_benchmarks.py \
+            --scenario "$SCENARIO" \
+            --repeats 3 \
+            --out "artifacts/bench_${SCENARIO}.csv" \
+            --json "artifacts/bench_${SCENARIO}.json"
+
+      - name: Generate report
+        run: |
+          SCENARIO="${{ inputs.scenario }}"
+          python benchmarks/report.py \
+            --input "artifacts/bench_${SCENARIO}.csv" \
+            --output "artifacts/bench_${SCENARIO}_report.md"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: benchmark-results-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: Summary
+        run: |
+          SCENARIO="${{ inputs.scenario }}"
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "## Benchmark Results"
+            echo ""
+            echo "**Scenario:** $SCENARIO"
+            echo "**Run ID:** ${{ github.run_id }}"
+            echo ""
+            cat "artifacts/bench_${SCENARIO}_report.md"
+          } >> "$summary_file"
+
+  nightly-benchmarks:
+    if: ${{ inputs.tier == 'standard' && (inputs.profile == 'baseline' || inputs.profile == 'full') }}
+    runs-on: ubuntu-latest
+
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+      BENCHMARK_GPG_PASSPHRASE: ${{ secrets.BENCHMARK_GPG_PASSPHRASE }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    strategy:
+      matrix:
+        scenario: [small_network, medium_network, large_network]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache pip
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml', 'requirements-lock.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+      - name: Log pip version
+        run: python -m pip --version
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev,test]"
+
+      - name: Dependency audit
+        run: |
+          mkdir -p artifacts
+          pip-audit --desc --format json --output artifacts/pip-audit.json
+          dependency-check --scan . --format JSON --out artifacts/dependency-check-report.json
+
+      - name: Run benchmark suite
+        run: |
+          python benchmarks/run_benchmarks.py \
+            --scenario "${{ matrix.scenario }}" \
+            --repeats 5 \
+            --json "artifacts/bench_${{ matrix.scenario }}.json"
+
+      - name: Encrypt artifacts
+        if: ${{ env.BENCHMARK_GPG_PASSPHRASE != '' }}
+        env:
+          GPG_PASSPHRASE: ${{ env.BENCHMARK_GPG_PASSPHRASE }}
+        run: |
+          for f in artifacts/*.json; do
+            echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 --symmetric --cipher-algo AES256 "$f"
+          done
+
+      - name: Publish baseline artifacts
+        if: ${{ inputs.publish_baseline }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view nightly >/dev/null 2>&1 || gh release create nightly --notes "Nightly benchmark baselines"
+          gh release upload nightly artifacts/*.json* --clobber
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: nightly-benchmark-results-${{ matrix.scenario }}-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: Notify on failure
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != '' }}
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
+        with:
+          payload: |
+            {
+              "text": "BN-Syn benchmarks failed for scenario ${{ matrix.scenario }} (run ${{ github.run_id }})."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+
+  micro-benchmarks:
+    if: ${{ inputs.tier == 'standard' && inputs.profile == 'micro' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+      - name: Log pip version
+        run: python -m pip --version
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev,test]"
+
+      - name: Run benchmarks
+        run: |
+          python -m scripts.run_benchmarks --suite ci
+
+      - name: Run performance baselines
+        run: |
+          python -m scripts.benchmark_physics --output benchmarks/physics_current.json
+          python -m scripts.profile_kernels --steps 100 --warmup 2 --repeats 5 --output benchmarks/kernel_profile_current.json
+
+      - name: Check benchmark regressions
+        run: |
+          python -m scripts.check_benchmark_regressions \
+            --physics-baseline benchmarks/baselines/physics_baseline_alloc_v2.json \
+            --physics-current benchmarks/physics_current.json \
+            --kernel-baseline benchmarks/baselines/kernel_profile_alloc_v2.json \
+            --kernel-current benchmarks/kernel_profile_current.json \
+            --threshold 0.10
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: benchmark-results-${{ github.run_id }}
+          path: |
+            benchmarks/results.json
+            benchmarks/summary.json
+            benchmarks/physics_current.json
+            benchmarks/kernel_profile_current.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  elite-benchmarks:
+    if: ${{ inputs.tier == 'elite' && (inputs.profile == 'baseline' || inputs.profile == 'full') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    concurrency:
+      group: ci-benchmarks-elite-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+      - name: Log pip version
+        run: python -m pip --version
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev,test]"
+
+      - name: Run benchmarks
+        id: run-benchmarks
+        run: |
+          # Run each benchmark and collect results
+          python benchmarks/bench_adex.py || echo "AdEx benchmark failed"
+          python benchmarks/bench_synapses.py || echo "Synapse benchmark failed"
+          python benchmarks/bench_plasticity.py || echo "Plasticity benchmark failed"
+          python benchmarks/bench_criticality.py || echo "Criticality benchmark failed"
+          python benchmarks/bench_dt_invariance.py || echo "dt-invariance benchmark failed"
+
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "##  Running Performance Benchmarks"
+            echo ""
+            echo "Benchmarks completed"
+          } >> "$summary_file"
+
+      - name: Compare against golden baseline
+        id: compare
+        run: |
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "##  Benchmark Regression Analysis"
+            echo ""
+            python -m scripts.compare_benchmarks --format markdown
+          } >> "$summary_file"
+          python -m scripts.compare_benchmarks --format json > benchmark_report.json
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: |
+            benchmarks/baseline.json
+            benchmark_report.json
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: Upload regression report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: regression-report-${{ github.sha }}
+          path: benchmark_report.json
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: Generate summary
+        if: always()
+        run: |
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo ""
+            echo "---"
+            echo ""
+            echo "**Status:** ${{ steps.run-benchmarks.outcome }}"
+            echo "**Comparison:** ${{ steps.compare.outcome }}"
+            echo ""
+            echo " This workflow is NON-BLOCKING and does not affect PR merge status."
+            echo "Review benchmark reports manually for performance insights."
+          } >> "$summary_file"

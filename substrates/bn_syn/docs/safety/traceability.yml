@@ -1,0 +1,108 @@
+requirements:
+  - id: REQ-INPUT-VALIDATION
+    description: Validate external arrays at API boundaries to prevent invalid state.
+    hazards:
+      - H1
+    safety_constraints:
+      - SC-1
+    status: enforced
+    status_reason: Input validators reject incorrect dtype/shape/NaN values.
+    enforcement:
+      - code: src/bnsyn/validation/inputs.py:L83-L197
+        notes: dtype/shape/NaN checks for state, spikes, and connectivity.
+    tests:
+      - path: tests/test_validation_inputs.py:L15-L53
+        notes: validates error paths for dtype/shape/NaN inputs.
+    verification:
+      - pytest tests/test_validation_inputs.py -q
+    gates:
+      - workflow: .github/workflows/ci-smoke.yml
+        job: tests-smoke
+        command: pytest -m "not (validation or property)"
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"
+  - id: REQ-NETWORK-BOUNDS
+    description: Reject invalid network parameters and external current shapes early.
+    hazards:
+      - H2
+    safety_constraints:
+      - SC-2
+    status: enforced
+    status_reason: Network init and step validation enforce bounds and shapes.
+    enforcement:
+      - code: src/bnsyn/sim/network.py:L132-L175
+        notes: parameter validation and connectivity checks.
+      - code: src/bnsyn/sim/network.py:L249-L255
+        notes: external current shape validation.
+    tests:
+      - path: tests/test_network_validation_edges.py:L21-L77
+        notes: invalid parameter and bounds assertions.
+      - path: tests/test_network_external_input.py:L92-L153
+        notes: external current shape validation.
+    verification:
+      - pytest tests/test_network_validation_edges.py -q
+      - pytest tests/test_network_external_input.py -q
+    gates:
+      - workflow: .github/workflows/ci-smoke.yml
+        job: tests-smoke
+        command: pytest -m "not (validation or property)"
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"
+  - id: REQ-DETERMINISM-SEEDING
+    description: Enforce deterministic RNG seeding across simulations.
+    hazards:
+      - H3
+    safety_constraints:
+      - SC-3
+    status: enforced
+    status_reason: seed_all and run_simulation enforce deterministic RNG creation.
+    enforcement:
+      - code: src/bnsyn/rng.py:L52-L88
+        notes: seed validation and deterministic generator creation.
+      - code: src/bnsyn/sim/network.py:L514-L533
+        notes: run_simulation seeds RNG via seed_all.
+    tests:
+      - path: tests/properties/test_properties_determinism.py:L12-L31
+        notes: property tests assert deterministic runs for identical seeds.
+    verification:
+      - pytest tests/properties/test_properties_determinism.py -q -m property
+    gates:
+      - workflow: .github/workflows/ci-validation.yml
+        job: property-tests
+        command: pytest -m property -v --tb=short --hypothesis-show-statistics
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"
+  - id: REQ-DETERMINISTIC-THREADS
+    description: Ensure deterministic execution in threaded/BLAS environments.
+    hazards:
+      - H4
+    safety_constraints:
+      - SC-4
+    status: unmitigated
+    status_reason: No repository-controlled thread/BLAS determinism settings.
+    enforcement: []
+    tests: []
+    verification:
+      - rg -n "OMP_NUM_THREADS|MKL|OPENBLAS|NUMEXPR" src docs
+    gates: []
+    follow_up: docs/safety/followups.md#FUP-001
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"
+  - id: REQ-NUMERIC-HEALTH
+    description: Detect and fail closed on NaN/Inf runtime state.
+    hazards:
+      - H5
+    safety_constraints:
+      - SC-5
+    status: unmitigated
+    status_reason: Numeric health utilities exist, but runtime does not enforce checks.
+    enforcement: []
+    tests:
+      - path: tests/validation/test_chaos_numeric.py:L46-L92
+        notes: numeric health utility behavior only.
+    verification:
+      - rg -n "validate_numeric_health" src/bnsyn
+    gates: []
+    follow_up: docs/safety/followups.md#FUP-002
+    owner: Safety Engineering
+    last_reviewed: "2026-02-02"

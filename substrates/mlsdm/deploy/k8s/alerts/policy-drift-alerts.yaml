@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlsdm-policy-drift-alerts
+  namespace: mlsdm
+data:
+  policy_drift_rules.yml: |
+    groups:
+    - name: mlsdm_policy_drift
+      interval: 30s
+      rules:
+      
+      # CRITICAL: Threshold at MIN boundary
+      - alert: MoralThresholdAtMinimum
+        expr: mlsdm_moral_threshold_current <= 0.31
+        for: 2m
+        labels:
+          severity: critical
+          component: moral_filter
+        annotations:
+          summary: "Moral threshold at minimum boundary"
+          description: "Moral filter {{ $labels.filter_id }} threshold is {{ $value }}, dangerously close to MIN (0.30)"
+      
+      # CRITICAL: Threshold at MAX boundary
+      - alert: MoralThresholdAtMaximum
+        expr: mlsdm_moral_threshold_current >= 0.89
+        for: 2m
+        labels:
+          severity: critical
+          component: moral_filter
+        annotations:
+          summary: "Moral threshold at maximum boundary"
+          description: "Moral filter {{ $labels.filter_id }} threshold is {{ $value }}, dangerously close to MAX (0.90)"
+      
+      # WARNING: Large EMA deviation
+      - alert: MoralEmaHighDeviation
+        expr: mlsdm_moral_ema_deviation > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          component: moral_filter
+        annotations:
+          summary: "EMA acceptance rate deviating from target"
+          description: "Filter {{ $labels.filter_id }} EMA deviation is {{ $value }}, target is 0.5"
+      
+      # CRITICAL: Sustained drift
+      - alert: MoralThresholdSustainedDrift
+        expr: abs(delta(mlsdm_moral_threshold_current[5m])) > 0.15
+        for: 1m
+        labels:
+          severity: critical
+          component: moral_filter
+        annotations:
+          summary: "Sustained policy drift detected"
+          description: "Filter {{ $labels.filter_id }} drifted {{ $value }} over 5 minutes"
+      
+      # WARNING: High drift event rate
+      - alert: MoralDriftEventRateHigh
+        expr: rate(mlsdm_moral_drift_events_total{severity="warning"}[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          component: moral_filter
+        annotations:
+          summary: "High rate of policy drift events"
+          description: "Filter {{ $labels.filter_id }} experiencing {{ $value }} drift events/sec"
+      
+      # CRITICAL: Critical drift events
+      - alert: MoralCriticalDriftEvents
+        expr: increase(mlsdm_moral_drift_events_total{severity="critical"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: moral_filter
+        annotations:
+          summary: "CRITICAL policy drift events detected"
+          description: "Filter {{ $labels.filter_id }} had {{ $value }} critical drift events in 5 min"

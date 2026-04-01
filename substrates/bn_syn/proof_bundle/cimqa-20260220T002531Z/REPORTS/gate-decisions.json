@@ -1,0 +1,64 @@
+{
+  "owned_gates": [
+    {
+      "id": "G.SEC.001",
+      "status": "PASS"
+    },
+    {
+      "id": "G.IM.001",
+      "status": "PASS"
+    },
+    {
+      "id": "G.IM.010",
+      "status": "PASS"
+    },
+    {
+      "id": "G.IM.020",
+      "status": "PASS"
+    },
+    {
+      "id": "G.IM.030",
+      "status": "FAIL"
+    },
+    {
+      "id": "G.QM.001",
+      "status": "FAIL"
+    },
+    {
+      "id": "G.QM.010",
+      "status": "PASS"
+    },
+    {
+      "id": "G.QM.020",
+      "status": "FAIL"
+    },
+    {
+      "id": "G.QM.030",
+      "status": "FAIL"
+    },
+    {
+      "id": "G.QM.040",
+      "status": "FAIL"
+    },
+    {
+      "id": "G.QM.050",
+      "status": "FAIL"
+    },
+    {
+      "id": "G.QM.060",
+      "status": "PASS"
+    },
+    {
+      "id": "G.CDX.PR.001",
+      "status": "FAIL"
+    },
+    {
+      "id": "G.CDX.CI.001",
+      "status": "FAIL"
+    },
+    {
+      "id": "G.EBS.001",
+      "status": "FAIL"
+    }
+  ]
+}

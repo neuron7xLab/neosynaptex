@@ -1,0 +1,14 @@
+{
+  "python_version_targets": {
+    "runtime": ">=3.11",
+    "classifiers": ["3.11", "3.12"],
+    "observed_runner": "3.12.12"
+  },
+  "dependency_files": ["pyproject.toml", "requirements-lock.txt", "bibliography/sources.lock"],
+  "docs_entrypoints": ["README.md", "docs/START_HERE.md", "docs/QUICKSTART.md", "docs/REPRODUCIBILITY.md"],
+  "reproducibility_hooks": {
+    "demo": "make demo",
+    "reproduce": "UNKNOWN",
+    "canonical_artifact_manifest": "manifest/repo_manifest.computed.json"
+  }
+}

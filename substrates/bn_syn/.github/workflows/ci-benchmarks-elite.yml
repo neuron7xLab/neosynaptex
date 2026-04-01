@@ -1,0 +1,22 @@
+# DEPRECATED: compatibility shim; remove after protection update
+# Guard: non-PR-gate workflow; must remain off PRs.
+# NON-PR-GATE: long-running workflow; must not run on pull_request/push.
+name: ci-benchmarks-elite
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'  # Weekly -- Sunday 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmarks:
+    uses: ./.github/workflows/_reusable_benchmarks.yml
+    with:
+      tier: elite
+      profile: baseline
+      scenario: ci_smoke
+      publish_baseline: false
+    secrets: inherit

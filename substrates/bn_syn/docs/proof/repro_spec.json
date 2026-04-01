@@ -1,0 +1,6 @@
+[
+  {
+    "artifact": "artifacts/demo.json",
+    "command": "python -m scripts.run_quickstart_demo"
+  }
+]

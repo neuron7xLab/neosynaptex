@@ -1,0 +1,1567 @@
+{
+  "adjusted_risk": {
+    "M0_audit_integrity_control": 56.16,
+    "M10_fraud_abuse_detector": 0.0,
+    "M11_arch_complexity_refactor": 0.0,
+    "M12_cost_scalability": 14.85,
+    "M13_security_policy_enforcement": 29.14,
+    "M14_failure_simulation_plan": 0.0,
+    "M15_board_report": 34.56,
+    "M1_zero_trust_threat_modeling": 39.44,
+    "M2_supply_chain_sbom": 34.32,
+    "M3_authn_authz_correctness": 0.0,
+    "M4_atomicity_idempotency": 24.4,
+    "M5_performance_profiling": 18.2,
+    "M6_multi_tenancy_isolation": 0.0,
+    "M7_deploy_rollback_resilience": 0.0,
+    "M8_observability_incident_readiness": 0.0,
+    "M9_data_governance_privacy": 13.2
+  },
+  "confidence_per_module": {
+    "M0_audit_integrity_control": 0.78,
+    "M10_fraud_abuse_detector": 0.2,
+    "M11_arch_complexity_refactor": 0.0,
+    "M12_cost_scalability": 0.45,
+    "M13_security_policy_enforcement": 0.62,
+    "M14_failure_simulation_plan": 0.0,
+    "M15_board_report": 0.64,
+    "M1_zero_trust_threat_modeling": 0.68,
+    "M2_supply_chain_sbom": 0.66,
+    "M3_authn_authz_correctness": 0.32,
+    "M4_atomicity_idempotency": 0.61,
+    "M5_performance_profiling": 0.52,
+    "M6_multi_tenancy_isolation": 0.2,
+    "M7_deploy_rollback_resilience": 0.0,
+    "M8_observability_incident_readiness": 0.0,
+    "M9_data_governance_privacy": 0.44
+  },
+  "cross_module_consistency": {
+    "consistency_ledger": [
+      {
+        "effect": "Maturity cap at L2",
+        "item": "M3 stayed UNKNOWN due to absent auth boundary evidence"
+      }
+    ],
+    "contradictions": [],
+    "deduped_risks_count": 1,
+    "score_adjustments": []
+  },
+  "depth_plan": {
+    "M0_audit_integrity_control": "standard",
+    "M10_fraud_abuse_detector": "quick",
+    "M11_arch_complexity_refactor": "quick",
+    "M12_cost_scalability": "quick",
+    "M13_security_policy_enforcement": "quick",
+    "M14_failure_simulation_plan": "quick",
+    "M15_board_report": "quick",
+    "M1_zero_trust_threat_modeling": "standard",
+    "M2_supply_chain_sbom": "standard",
+    "M3_authn_authz_correctness": "standard",
+    "M4_atomicity_idempotency": "standard",
+    "M5_performance_profiling": "quick",
+    "M6_multi_tenancy_isolation": "quick",
+    "M7_deploy_rollback_resilience": "quick",
+    "M8_observability_incident_readiness": "quick",
+    "M9_data_governance_privacy": "quick"
+  },
+  "evidence_strength_index": 0.1988,
+  "executive_decision_support_matrix": [
+    {
+      "decision": "Fix Now",
+      "evidence": [
+        {
+          "ref": "path:.github/workflows/ci.yml:1-260",
+          "reproducible": true,
+          "strength_score_1_5": 3,
+          "type": "static"
+        }
+      ],
+      "rationale": "High posterior risk with CI boundary crossing",
+      "risk_title": "CI workflow supply-chain exposure via third-party actions"
+    },
+    {
+      "decision": "Fix This Quarter",
+      "evidence": [
+        {
+          "ref": "cmd:rg -n \"SECRET|TOKEN|PASSWORD|API_KEY|PRIVATE KEY|BEGIN [A-Z ]*PRIVATE KEY\" -S log:proof_bundle/command_logs/13.log exit:0",
+          "reproducible": true,
+          "strength_score_1_5": 4,
+          "type": "dynamic"
+        }
+      ],
+      "rationale": "Moderate exposure and remediation is low effort",
+      "risk_title": "Secrets pattern indicators in repository content"
+    }
+  ],
+  "meta": {
+    "assumptions": [
+      "target_platform not provided",
+      "time_budget_sec defaulted to 3600",
+      "compliance_targets not provided"
+    ],
+    "audit_hash_sha256": "4d4f125d80bab4d755a79da3d133a0518aa599bd3e7ece48c501c13f757ef555",
+    "depth_level_per_module": {
+      "M0_audit_integrity_control": "standard",
+      "M10_fraud_abuse_detector": "quick",
+      "M11_arch_complexity_refactor": "quick",
+      "M12_cost_scalability": "quick",
+      "M13_security_policy_enforcement": "quick",
+      "M14_failure_simulation_plan": "quick",
+      "M15_board_report": "quick",
+      "M1_zero_trust_threat_modeling": "standard",
+      "M2_supply_chain_sbom": "standard",
+      "M3_authn_authz_correctness": "standard",
+      "M4_atomicity_idempotency": "standard",
+      "M5_performance_profiling": "quick",
+      "M6_multi_tenancy_isolation": "quick",
+      "M7_deploy_rollback_resilience": "quick",
+      "M8_observability_incident_readiness": "quick",
+      "M9_data_governance_privacy": "quick"
+    },
+    "explicit_trust_assumptions": [
+      "CI runners are trusted and ephemeral",
+      "Maintainers protect default branch",
+      "Local toolchain binaries are untampered"
+    ],
+    "git": {
+      "branch": "work",
+      "commit": "c84ec61da8184424909a7f819971f31996412843",
+      "dirty": true
+    },
+    "platform": {
+      "arch": "x86_64",
+      "os": "linux"
+    },
+    "repo_path": "/workspace/bnsyn-phase-controlled-emergent-dynamics",
+    "repo_scale_classification": "L",
+    "time_budget_allocation_strategy": {
+      "notes": "Prioritized M1-M4 under low-budget defaults.",
+      "per_module_sec": {
+        "M0": 600,
+        "M1": 600,
+        "M10": 120,
+        "M11": 120,
+        "M12": 180,
+        "M13": 180,
+        "M14": 120,
+        "M15": 260,
+        "M2": 300,
+        "M3": 300,
+        "M4": 300,
+        "M5": 200,
+        "M6": 200,
+        "M7": 120,
+        "M8": 120,
+        "M9": 180
+      },
+      "reserved_sec": 900
+    },
+    "time_budget_sec": 3600,
+    "timestamp_utc": "2026-02-15T20:13:58.803243Z",
+    "toolchain_fingerprint_artifact": "proof_bundle/generated/toolchain_fingerprint.json",
+    "trust_violation_sensitivity_analysis": [
+      {
+        "assumption": "CI runners are trusted and ephemeral",
+        "if_violated": "M1/M2 posterior risk +20, blast radius high"
+      }
+    ]
+  },
+  "modules": {
+    "M0_audit_integrity_control": {
+      "artifacts": [
+        "proof_bundle/index.json"
+      ],
+      "audit_quality_score_0_100": 74,
+      "blind_spots": [
+        "No runtime deployment environment",
+        "No production telemetry"
+      ],
+      "confidence_0_1": 0.78,
+      "coverage_completeness": {
+        "file_coverage_percent": 76.62,
+        "inspected_files": 603,
+        "loc_coverage_percent": 70,
+        "tracked_files": 787
+      },
+      "evidence_density": 6.301269419366665e-05,
+      "evidence_strength_index": 3.18,
+      "hallucination_risk_zones": [
+        "M3 authz",
+        "M6 tenant isolation",
+        "M10 fraud/abuse"
+      ],
+      "key_findings": [
+        {
+          "evidence": [
+            {
+              "ref": "cmd:git rev-parse HEAD log:proof_bundle/command_logs/01.log exit:0",
+              "reproducible": true,
+              "strength_score_1_5": 4,
+              "type": "dynamic"
+            },
+            {
+              "ref": "cmd:sed -n \"1,220p\" README.md log:proof_bundle/command_logs/09.log exit:0",
+              "reproducible": true,
+              "strength_score_1_5": 4,
+              "type": "dynamic"
+            }
+          ],
+          "title": "Coverage reached medium confidence with explicit blind spots"
+        }
+      ],
+      "risk_matrix": [],
+      "score_0_100": 72,
+      "status": "PARTIAL",
+      "termination_readiness": true,
+      "top_mitigations_roi": [
+        {
+          "roi": 0.7,
+          "title": "Automate evidence pointer validator in CI"
+        }
+      ]
+    },
+    "M10_fraud_abuse_detector": {
+      "artifacts": [],
+      "confidence_0_1": 0.2,
+      "key_findings": [],
+      "risk_matrix": [],
+      "score_0_100": 0,
+      "status": "UNKNOWN",
+      "top_mitigations_roi": []
+    },
+    "M11_arch_complexity_refactor": {
+      "artifacts": [],
+      "confidence_0_1": 0.0,
+      "key_findings": [],
+      "risk_matrix": [],
+      "score_0_100": 0,
+      "status": "UNKNOWN",
+      "top_mitigations_roi": []
+    },
+    "M12_cost_scalability": {
+      "artifacts": [],
+      "confidence_0_1": 0.45,
+      "key_findings": [
+        {
+          "evidence": [
+            {
+              "ref": "path:docs/benchmarks/README.md:1-200",
+              "reproducible": true,
+              "strength_score_1_5": 2,
+              "type": "static"
+            }
+          ],
+          "title": "10x scaling cost lacks measured baseline"
+        }
+      ],
+      "risk_matrix": [],
+      "score_0_100": 33,
+      "status": "PARTIAL",
+      "top_mitigations_roi": [
+        {
+          "roi": 0.58,
+          "title": "Collect baseline infra cost + saturation telemetry"
+        }
+      ]
+    },
+    "M13_security_policy_enforcement": {
+      "artifacts": [],
+      "confidence_0_1": 0.62,
+      "key_findings": [
+        {
+          "adjusted_risk_0_100": 37,
+          "attack_feasibility_score_0_100": 45,
+          "blast_radius_score_0_100": 48,
+          "evidence": [
+            {
+              "ref": "cmd:rg -n \"SECRET|TOKEN|PASSWORD|API_KEY|PRIVATE KEY|BEGIN [A-Z ]*PRIVATE KEY\" -S log:proof_bundle/command_logs/13.log exit:0",
+              "reproducible": true,
+              "strength_score_1_5": 4,
+              "type": "dynamic"
+            }
+          ],
+          "impact_1_5": 3,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "proof_bundle/command_logs/13.log"
+              ],
+              "roi": 0.78,
+              "steps": [
+                "Add gitleaks/trufflehog in CI",
+                "Rotate exposed tokens and document process"
+              ],
+              "title": "Adopt pre-commit secret scanning with allowlist"
+            }
+          ],
+          "posterior_risk_0_100": 62,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1552"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "I"
+            ]
+          },
+          "title": "Secrets pattern indicators in repository content"
+        }
+      ],
+      "risk_matrix": [
+        {
+          "adjusted_risk_0_100": 37,
+          "attack_feasibility_score_0_100": 45,
+          "blast_radius_score_0_100": 48,
+          "evidence": [
+            {
+              "ref": "cmd:rg -n \"SECRET|TOKEN|PASSWORD|API_KEY|PRIVATE KEY|BEGIN [A-Z ]*PRIVATE KEY\" -S log:proof_bundle/command_logs/13.log exit:0",
+              "reproducible": true,
+              "strength_score_1_5": 4,
+              "type": "dynamic"
+            }
+          ],
+          "impact_1_5": 3,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "proof_bundle/command_logs/13.log"
+              ],
+              "roi": 0.78,
+              "steps": [
+                "Add gitleaks/trufflehog in CI",
+                "Rotate exposed tokens and document process"
+              ],
+              "title": "Adopt pre-commit secret scanning with allowlist"
+            }
+          ],
+          "posterior_risk_0_100": 62,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1552"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "I"
+            ]
+          },
+          "title": "Secrets pattern indicators in repository content"
+        }
+      ],
+      "score_0_100": 47,
+      "status": "PARTIAL",
+      "top_mitigations_roi": [
+        {
+          "effort_points_1_5": 2,
+          "evidence_targets": [
+            "proof_bundle/command_logs/13.log"
+          ],
+          "roi": 0.78,
+          "steps": [
+            "Add gitleaks/trufflehog in CI",
+            "Rotate exposed tokens and document process"
+          ],
+          "title": "Adopt pre-commit secret scanning with allowlist"
+        }
+      ]
+    },
+    "M14_failure_simulation_plan": {
+      "artifacts": [],
+      "confidence_0_1": 0.0,
+      "key_findings": [],
+      "risk_matrix": [],
+      "score_0_100": 0,
+      "status": "UNKNOWN",
+      "top_mitigations_roi": []
+    },
+    "M15_board_report": {
+      "artifacts": [
+        "executive_summary.md"
+      ],
+      "confidence_0_1": 0.64,
+      "key_findings": [
+        {
+          "adjusted_risk_0_100": 46,
+          "attack_feasibility_score_0_100": 55,
+          "blast_radius_score_0_100": 64,
+          "evidence": [
+            {
+              "ref": "path:.github/workflows/ci.yml:1-260",
+              "reproducible": true,
+              "strength_score_1_5": 3,
+              "type": "static"
+            }
+          ],
+          "impact_1_5": 4,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "path:.github/workflows/ci.yml:1-260"
+              ],
+              "roi": 0.82,
+              "steps": [
+                "Replace tag-based action refs with immutable SHAs",
+                "Require CODEOWNERS review for workflow changes"
+              ],
+              "title": "Pin actions by commit SHA and enable branch protection"
+            }
+          ],
+          "posterior_risk_0_100": 68,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1195.001"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "T",
+              "E"
+            ]
+          },
+          "title": "CI workflow supply-chain exposure via third-party actions"
+        },
+        {
+          "adjusted_risk_0_100": 37,
+          "attack_feasibility_score_0_100": 45,
+          "blast_radius_score_0_100": 48,
+          "evidence": [
+            {
+              "ref": "cmd:rg -n \"SECRET|TOKEN|PASSWORD|API_KEY|PRIVATE KEY|BEGIN [A-Z ]*PRIVATE KEY\" -S log:proof_bundle/command_logs/13.log exit:0",
+              "reproducible": true,
+              "strength_score_1_5": 4,
+              "type": "dynamic"
+            }
+          ],
+          "impact_1_5": 3,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "proof_bundle/command_logs/13.log"
+              ],
+              "roi": 0.78,
+              "steps": [
+                "Add gitleaks/trufflehog in CI",
+                "Rotate exposed tokens and document process"
+              ],
+              "title": "Adopt pre-commit secret scanning with allowlist"
+            }
+          ],
+          "posterior_risk_0_100": 62,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1552"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "I"
+            ]
+          },
+          "title": "Secrets pattern indicators in repository content"
+        }
+      ],
+      "risk_matrix": [
+        {
+          "adjusted_risk_0_100": 46,
+          "attack_feasibility_score_0_100": 55,
+          "blast_radius_score_0_100": 64,
+          "evidence": [
+            {
+              "ref": "path:.github/workflows/ci.yml:1-260",
+              "reproducible": true,
+              "strength_score_1_5": 3,
+              "type": "static"
+            }
+          ],
+          "impact_1_5": 4,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "path:.github/workflows/ci.yml:1-260"
+              ],
+              "roi": 0.82,
+              "steps": [
+                "Replace tag-based action refs with immutable SHAs",
+                "Require CODEOWNERS review for workflow changes"
+              ],
+              "title": "Pin actions by commit SHA and enable branch protection"
+            }
+          ],
+          "posterior_risk_0_100": 68,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1195.001"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "T",
+              "E"
+            ]
+          },
+          "title": "CI workflow supply-chain exposure via third-party actions"
+        },
+        {
+          "adjusted_risk_0_100": 37,
+          "attack_feasibility_score_0_100": 45,
+          "blast_radius_score_0_100": 48,
+          "evidence": [
+            {
+              "ref": "cmd:rg -n \"SECRET|TOKEN|PASSWORD|API_KEY|PRIVATE KEY|BEGIN [A-Z ]*PRIVATE KEY\" -S log:proof_bundle/command_logs/13.log exit:0",
+              "reproducible": true,
+              "strength_score_1_5": 4,
+              "type": "dynamic"
+            }
+          ],
+          "impact_1_5": 3,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "proof_bundle/command_logs/13.log"
+              ],
+              "roi": 0.78,
+              "steps": [
+                "Add gitleaks/trufflehog in CI",
+                "Rotate exposed tokens and document process"
+              ],
+              "title": "Adopt pre-commit secret scanning with allowlist"
+            }
+          ],
+          "posterior_risk_0_100": 62,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1552"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "I"
+            ]
+          },
+          "title": "Secrets pattern indicators in repository content"
+        }
+      ],
+      "score_0_100": 54,
+      "status": "PARTIAL",
+      "top_mitigations_roi": [
+        {
+          "effort_points_1_5": 2,
+          "evidence_targets": [
+            "path:.github/workflows/ci.yml:1-260"
+          ],
+          "roi": 0.82,
+          "steps": [
+            "Replace tag-based action refs with immutable SHAs",
+            "Require CODEOWNERS review for workflow changes"
+          ],
+          "title": "Pin actions by commit SHA and enable branch protection"
+        },
+        {
+          "effort_points_1_5": 2,
+          "evidence_targets": [
+            "proof_bundle/command_logs/13.log"
+          ],
+          "roi": 0.78,
+          "steps": [
+            "Add gitleaks/trufflehog in CI",
+            "Rotate exposed tokens and document process"
+          ],
+          "title": "Adopt pre-commit secret scanning with allowlist"
+        }
+      ]
+    },
+    "M1_zero_trust_threat_modeling": {
+      "artifacts": [
+        "attack_paths_graph.json"
+      ],
+      "confidence_0_1": 0.68,
+      "key_findings": [
+        {
+          "adjusted_risk_0_100": 46,
+          "attack_feasibility_score_0_100": 55,
+          "blast_radius_score_0_100": 64,
+          "evidence": [
+            {
+              "ref": "path:.github/workflows/ci.yml:1-260",
+              "reproducible": true,
+              "strength_score_1_5": 3,
+              "type": "static"
+            }
+          ],
+          "impact_1_5": 4,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "path:.github/workflows/ci.yml:1-260"
+              ],
+              "roi": 0.82,
+              "steps": [
+                "Replace tag-based action refs with immutable SHAs",
+                "Require CODEOWNERS review for workflow changes"
+              ],
+              "title": "Pin actions by commit SHA and enable branch protection"
+            }
+          ],
+          "posterior_risk_0_100": 68,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1195.001"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "T",
+              "E"
+            ]
+          },
+          "title": "CI workflow supply-chain exposure via third-party actions"
+        }
+      ],
+      "risk_matrix": [
+        {
+          "adjusted_risk_0_100": 46,
+          "attack_feasibility_score_0_100": 55,
+          "blast_radius_score_0_100": 64,
+          "evidence": [
+            {
+              "ref": "path:.github/workflows/ci.yml:1-260",
+              "reproducible": true,
+              "strength_score_1_5": 3,
+              "type": "static"
+            }
+          ],
+          "impact_1_5": 4,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "path:.github/workflows/ci.yml:1-260"
+              ],
+              "roi": 0.82,
+              "steps": [
+                "Replace tag-based action refs with immutable SHAs",
+                "Require CODEOWNERS review for workflow changes"
+              ],
+              "title": "Pin actions by commit SHA and enable branch protection"
+            }
+          ],
+          "posterior_risk_0_100": 68,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1195.001"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "T",
+              "E"
+            ]
+          },
+          "title": "CI workflow supply-chain exposure via third-party actions"
+        }
+      ],
+      "score_0_100": 58,
+      "status": "PARTIAL",
+      "top_mitigations_roi": [
+        {
+          "effort_points_1_5": 2,
+          "evidence_targets": [
+            "path:.github/workflows/ci.yml:1-260"
+          ],
+          "roi": 0.82,
+          "steps": [
+            "Replace tag-based action refs with immutable SHAs",
+            "Require CODEOWNERS review for workflow changes"
+          ],
+          "title": "Pin actions by commit SHA and enable branch protection"
+        }
+      ]
+    },
+    "M2_supply_chain_sbom": {
+      "artifacts": [
+        "proof_bundle/generated/sbom_cyclonedx.json",
+        "proof_bundle/generated/sbom_spdx.json"
+      ],
+      "confidence_0_1": 0.66,
+      "key_findings": [
+        {
+          "adjusted_risk_0_100": 46,
+          "attack_feasibility_score_0_100": 55,
+          "blast_radius_score_0_100": 64,
+          "evidence": [
+            {
+              "ref": "path:.github/workflows/ci.yml:1-260",
+              "reproducible": true,
+              "strength_score_1_5": 3,
+              "type": "static"
+            }
+          ],
+          "impact_1_5": 4,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "path:.github/workflows/ci.yml:1-260"
+              ],
+              "roi": 0.82,
+              "steps": [
+                "Replace tag-based action refs with immutable SHAs",
+                "Require CODEOWNERS review for workflow changes"
+              ],
+              "title": "Pin actions by commit SHA and enable branch protection"
+            }
+          ],
+          "posterior_risk_0_100": 68,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1195.001"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "T",
+              "E"
+            ]
+          },
+          "title": "CI workflow supply-chain exposure via third-party actions"
+        }
+      ],
+      "risk_matrix": [
+        {
+          "adjusted_risk_0_100": 46,
+          "attack_feasibility_score_0_100": 55,
+          "blast_radius_score_0_100": 64,
+          "evidence": [
+            {
+              "ref": "path:.github/workflows/ci.yml:1-260",
+              "reproducible": true,
+              "strength_score_1_5": 3,
+              "type": "static"
+            }
+          ],
+          "impact_1_5": 4,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "path:.github/workflows/ci.yml:1-260"
+              ],
+              "roi": 0.82,
+              "steps": [
+                "Replace tag-based action refs with immutable SHAs",
+                "Require CODEOWNERS review for workflow changes"
+              ],
+              "title": "Pin actions by commit SHA and enable branch protection"
+            }
+          ],
+          "posterior_risk_0_100": 68,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1195.001"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "T",
+              "E"
+            ]
+          },
+          "title": "CI workflow supply-chain exposure via third-party actions"
+        }
+      ],
+      "score_0_100": 52,
+      "status": "PARTIAL",
+      "top_mitigations_roi": [
+        {
+          "effort_points_1_5": 2,
+          "evidence_targets": [
+            "path:.github/workflows/ci.yml:1-260"
+          ],
+          "roi": 0.82,
+          "steps": [
+            "Replace tag-based action refs with immutable SHAs",
+            "Require CODEOWNERS review for workflow changes"
+          ],
+          "title": "Pin actions by commit SHA and enable branch protection"
+        }
+      ]
+    },
+    "M3_authn_authz_correctness": {
+      "artifacts": [],
+      "confidence_0_1": 0.32,
+      "key_findings": [],
+      "risk_matrix": [],
+      "score_0_100": 0,
+      "status": "UNKNOWN",
+      "top_mitigations_roi": []
+    },
+    "M4_atomicity_idempotency": {
+      "artifacts": [
+        "proof_bundle/generated/state_machines.json"
+      ],
+      "confidence_0_1": 0.61,
+      "key_findings": [
+        {
+          "evidence": [
+            {
+              "ref": "artifact:proof_bundle/generated/state_machines.json",
+              "reproducible": true,
+              "strength_score_1_5": 2,
+              "type": "inferred"
+            }
+          ],
+          "title": "State-machine modeling inferred from docs/tests only"
+        }
+      ],
+      "risk_matrix": [],
+      "score_0_100": 40,
+      "status": "PARTIAL",
+      "top_mitigations_roi": [
+        {
+          "roi": 0.55,
+          "title": "Enforce idempotency keys in mutation flows"
+        }
+      ]
+    },
+    "M5_performance_profiling": {
+      "artifacts": [],
+      "confidence_0_1": 0.52,
+      "key_findings": [
+        {
+          "evidence": [
+            {
+              "ref": "path:benchmarks/README.md:1-120",
+              "reproducible": true,
+              "strength_score_1_5": 2,
+              "type": "static"
+            }
+          ],
+          "title": "Performance targets mostly undocumented"
+        }
+      ],
+      "risk_matrix": [],
+      "score_0_100": 35,
+      "status": "PARTIAL",
+      "top_mitigations_roi": [
+        {
+          "roi": 0.63,
+          "title": "Define p50/p95/p99 SLO per CLI/API path"
+        }
+      ]
+    },
+    "M6_multi_tenancy_isolation": {
+      "artifacts": [],
+      "confidence_0_1": 0.2,
+      "key_findings": [],
+      "risk_matrix": [],
+      "score_0_100": 0,
+      "status": "UNKNOWN",
+      "top_mitigations_roi": []
+    },
+    "M7_deploy_rollback_resilience": {
+      "artifacts": [],
+      "confidence_0_1": 0.0,
+      "key_findings": [],
+      "risk_matrix": [],
+      "score_0_100": 0,
+      "status": "UNKNOWN",
+      "top_mitigations_roi": []
+    },
+    "M8_observability_incident_readiness": {
+      "artifacts": [],
+      "confidence_0_1": 0.0,
+      "key_findings": [],
+      "risk_matrix": [],
+      "score_0_100": 0,
+      "status": "UNKNOWN",
+      "top_mitigations_roi": []
+    },
+    "M9_data_governance_privacy": {
+      "artifacts": [],
+      "confidence_0_1": 0.44,
+      "key_findings": [
+        {
+          "adjusted_risk_0_100": 37,
+          "attack_feasibility_score_0_100": 45,
+          "blast_radius_score_0_100": 48,
+          "evidence": [
+            {
+              "ref": "cmd:rg -n \"SECRET|TOKEN|PASSWORD|API_KEY|PRIVATE KEY|BEGIN [A-Z ]*PRIVATE KEY\" -S log:proof_bundle/command_logs/13.log exit:0",
+              "reproducible": true,
+              "strength_score_1_5": 4,
+              "type": "dynamic"
+            }
+          ],
+          "impact_1_5": 3,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "proof_bundle/command_logs/13.log"
+              ],
+              "roi": 0.78,
+              "steps": [
+                "Add gitleaks/trufflehog in CI",
+                "Rotate exposed tokens and document process"
+              ],
+              "title": "Adopt pre-commit secret scanning with allowlist"
+            }
+          ],
+          "posterior_risk_0_100": 62,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1552"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "I"
+            ]
+          },
+          "title": "Secrets pattern indicators in repository content"
+        }
+      ],
+      "risk_matrix": [
+        {
+          "adjusted_risk_0_100": 37,
+          "attack_feasibility_score_0_100": 45,
+          "blast_radius_score_0_100": 48,
+          "evidence": [
+            {
+              "ref": "cmd:rg -n \"SECRET|TOKEN|PASSWORD|API_KEY|PRIVATE KEY|BEGIN [A-Z ]*PRIVATE KEY\" -S log:proof_bundle/command_logs/13.log exit:0",
+              "reproducible": true,
+              "strength_score_1_5": 4,
+              "type": "dynamic"
+            }
+          ],
+          "impact_1_5": 3,
+          "likelihood_1_5": 3,
+          "mitigations": [
+            {
+              "effort_points_1_5": 2,
+              "evidence_targets": [
+                "proof_bundle/command_logs/13.log"
+              ],
+              "roi": 0.78,
+              "steps": [
+                "Add gitleaks/trufflehog in CI",
+                "Rotate exposed tokens and document process"
+              ],
+              "title": "Adopt pre-commit secret scanning with allowlist"
+            }
+          ],
+          "posterior_risk_0_100": 62,
+          "taxonomies": {
+            "compliance": [
+              "UNKNOWN"
+            ],
+            "mitre_attack": [
+              "T1552"
+            ],
+            "owasp_asvs_level": "L2",
+            "stride": [
+              "I"
+            ]
+          },
+          "title": "Secrets pattern indicators in repository content"
+        }
+      ],
+      "score_0_100": 30,
+      "status": "PARTIAL",
+      "top_mitigations_roi": [
+        {
+          "effort_points_1_5": 2,
+          "evidence_targets": [
+            "proof_bundle/command_logs/13.log"
+          ],
+          "roi": 0.78,
+          "steps": [
+            "Add gitleaks/trufflehog in CI",
+            "Rotate exposed tokens and document process"
+          ],
+          "title": "Adopt pre-commit secret scanning with allowlist"
+        }
+      ]
+    }
+  },
+  "proof_bundle_index": [
+    {
+      "path": "proof_bundle/build.log",
+      "sha256": "1707cc96c6ae877d9a39e003b37d4aeb08081dcb11afd1545edbd7a412964fc7",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/command_logs/01.log",
+      "sha256": "771fc1d899e4a9612c4bdca46d4c36af842432acc3cd8ee1cb6b50eb4397f312",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/02.log",
+      "sha256": "9a9fac8fe8e7ac1f43ea746c13808414d5c3b795f115839e5ae9d38f1ef1b009",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/03.log",
+      "sha256": "844af6ecd4c5c2c23a112406673a58c6a1bf3afb0bac8dd1eee94af402ace721",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/04.log",
+      "sha256": "bba816b1d8c292b65f0e386c84c16a302e17d683a3094778654a553de686bda6",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/05.log",
+      "sha256": "69a1e2c75282c304b78f43cbe2da6fe47450fbb5cb3f9afe11bb7d6488f9750e",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/06.log",
+      "sha256": "d4e8e99932bb6dfd30c28d5aecb9f19222db38db6c7d18883c21da8f3c1fe28d",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/07.log",
+      "sha256": "daf430d895c6f41117731389b94e94b75409379308cb376f0462885f9d8861b6",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/08.log",
+      "sha256": "dbbe467bc9fdf722253c8b02217e9d1dfcbf4b29b05a1b959c36b8ae3a8dabc4",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/09.log",
+      "sha256": "71382a787ac026b567b0aa47ce02f9bca19f9ed6145d943fd71d93753ec5ebc9",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/10.log",
+      "sha256": "35d0f3cf49e34d5b460b66fbdad525b3cf0247263c2093e63bb31857c3a24da5",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/11.log",
+      "sha256": "efe3a1bc8d0556bbd42132f93e0ac34b48aacafa617c0c1659bb565c1608a858",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/12.log",
+      "sha256": "5a8c33f1765ff0213971dd527320aecd8f7019439a1ba231a0683649f649699a",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/13.log",
+      "sha256": "a4e95f939880a4b4c00e0d0bc5b6a80c79c6d47c8b8d58e58127515427dd8b1e",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/14.log",
+      "sha256": "09948de13e46d9f7a45703cf110e7caccd1811a9af3d80872d78ffbdcfb4b5ba",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/15.log",
+      "sha256": "e3ebe761838092a612c2addfeff9fda2dea10bf7ece685c2acc803ff7a55501b",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/16.log",
+      "sha256": "f47a8cf19e47d1c2664964c2f70ed2bb4257a7a02dca47ab1ee8969481d2e4ee",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/17.log",
+      "sha256": "8a3ae2a2bcd041b8d9387e2f166dd0cd741e6034c427f383cbb13d5ef003474a",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/18.log",
+      "sha256": "1459442654a61fe8ff3cb441b9966aa5fbaee0022af38329475fb396cf76a6a4",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/19.log",
+      "sha256": "ba0b8015b6cce8210b7db6dc7167a4a02cec6ba6607252eb2a78882add653b68",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/20.log",
+      "sha256": "15a21bc462b94396d45fc6c00f61113edb937d7581cb7d73e2f230c6b9a5fd57",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/21.log",
+      "sha256": "cf98bb7057e2bb85cd6fe52520eb0c91c313e25aa5c144e7e1f6d8e0c2675f51",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/22.log",
+      "sha256": "6847f0aeb47ae3c2d29498961d338cce995efb06cbf9f1b7cc0fffd1b1854823",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/23.log",
+      "sha256": "e1581b4fa21033be70f225e4031e77920116413d770d06cd51d3cbf3eea38336",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/24.log",
+      "sha256": "22590996ee96ae31b065199c8279a0872532d0e6df3dbcd9b9255b29711b025a",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/25.log",
+      "sha256": "94c743ab2b9eee0f8a62385f84edf435c7a590f8c9b389d63b728dbf0bcc3d96",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/26.log",
+      "sha256": "bdb3c79b430e66622318410b2030f0b088b8c22dd191052c3bc1104b9fd9d2e0",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/27.log",
+      "sha256": "5eda0aa2e093667e1fc17d9b400cb67564b4fce812487d93f6a88f4120cb0111",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/28.log",
+      "sha256": "92b48a25080f80deb16c30a80ecbf05bc5c1c1ef8957f5785f640db23aa3f214",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/29.log",
+      "sha256": "d1cd98e3b4f1f047e1ef5c3927a15e5b501750a4c9b91c467b0f98e3f3d467df",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/30.log",
+      "sha256": "f09fb01c44f338793a7e396bde730c7614899210d9cb82414e9b73112a0eaad3",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/31.log",
+      "sha256": "9af2344604126b3dbe5003cd9f24e2367b396158d90e443e66047bdb90b75b1b",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/32.log",
+      "sha256": "a8c685fb54848c59b8f881c51a968e1b55c728a7ff4c71c7be37f816a9d5f4ed",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/33.log",
+      "sha256": "62b5f1d3098265640ba7a982e108f01e677e8f0b4a58923fa79b7e7d8373e857",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/command_logs/34.log",
+      "sha256": "3782aca29181506fcf63623689655a0f494cf09c8d4a2781aee47b4ec34e7af6",
+      "type": "command_log"
+    },
+    {
+      "path": "proof_bundle/commands_index.json",
+      "sha256": "0d619bc2e94f49158760f043964bb0f17238b3063e97eb8e47ccb37397a1222c",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/cpu.log",
+      "sha256": "c1f3e06ee1ccb3f7eff5f89ce0d39fa5ccc2f9faeb8fba882a0f3e28eec3c719",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/excerpts/architecture_excerpt.txt",
+      "sha256": "b312074b144f6fb2b4e1f4bb55a34795490aa3c7f3d228d0972bcfcfc9982350",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/excerpts/docker_excerpt.txt",
+      "sha256": "b0693e180554bc03c7c74de8f50abba7baec62d9e1685498fd3d9b914272a04b",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/excerpts/pyproject_excerpt.txt",
+      "sha256": "03a3b315eb992c4bcf908e6b8c8b1ca07f95c560e79223811d9d8ec0fa27528f",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/excerpts/readme_security_excerpt.txt",
+      "sha256": "f3c7c3570fc6b3dbbf803c12d39a7ebb503a0ccaf4d5ed9a36224bb6ff5babf7",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/excerpts/repo_summary.txt",
+      "sha256": "4b7d605001f1b5ec5c19c31bfd13b15395f801a7688a02409bb16f1f0925b2b9",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/excerpts/requirements_excerpt.txt",
+      "sha256": "51c2f571dde50b3ba4f508ae24e2c61f42faed893aec39660c81ce3a7b265900",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/excerpts/security_policy_excerpt.txt",
+      "sha256": "33611076385b2eeb3fbe2aec984fa23e62dedd8a11f83f77767eaf9cc1595825",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/excerpts/testing_excerpt.txt",
+      "sha256": "b585b4456447e123fb55ca5fd27afb6130634bb97e5c588e7fdaf88ead6593d9",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/excerpts/workflow_dependency_review_excerpt.txt",
+      "sha256": "7fae5e1a8993b72bfad6c8d17f4bf70580c521371fbb30d7f021225c8e37378b",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/excerpts/workflow_security_excerpt.txt",
+      "sha256": "68ae63f20059ee8c9ddef4344634fb4cbac57685cf3d785bb3f97a746d1a757d",
+      "type": "excerpt"
+    },
+    {
+      "path": "proof_bundle/ext_counts.log",
+      "sha256": "bb6a17d4febfa5954bc38aa4e5777a0c28750fc0c3bbd93805daceea20899d87",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/file_excerpts.md",
+      "sha256": "4f2c6ffe3828de8d9b23a5c6e3167ae850011bb0e597b5781faaa006128c18de",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/find_top.log",
+      "sha256": "1905d53dac6e114def169c16140b781bba6b5114bbe14b817ee1de9f088e8141",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/generated/command_manifest.json",
+      "sha256": "7b77b5226edc74b98b7258a3ffeb8a5e0e8b86f4bcd3cc7847e9e946818d6b09",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/generated/migration_graph.json",
+      "sha256": "2d999a55bb9ef8bbd5929b0ab224c42ebac9130f96deb99365f9a952d4761679",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/generated/sbom_cyclonedx.json",
+      "sha256": "ea0748d8239c14b7a8df9dac0034eed1c751adb1326e5e2871fd9e6a29407265",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/generated/sbom_spdx.json",
+      "sha256": "95ebf2dcb1873a17022a6051c788859f1d81b5cdda330d695d246855a778304c",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/generated/state_machines.json",
+      "sha256": "c5ff16ca8d69efcf7e7f670b64f7b87724207d0654fb90bb242a998608dc85c2",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/generated/toolchain_fingerprint.json",
+      "sha256": "ae8b9b6d077971073ceed0aed90fbc8a174e9e1b5625f2cd50305ef32ce65fe1",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/git_log.log",
+      "sha256": "dac6330a0755ead14b114a9f6aa2a0b5919d97b29a235a8816fd8add19df7175",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/git_status.log",
+      "sha256": "ab13706f0ce8be94c1452c04acd69e371fde5f01deac8c9a864cb1eae0699386",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/index.json",
+      "sha256": "3370b8ce69c18c40b1f7ba4a33edba60c178b672610cd9abbf25cfb05f0d132c",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/install_build.log",
+      "sha256": "d7c5ccf54332f258b92dc0afeec31062a588b4e228f88a1cba33abd1d94ea961",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/install_dev_test.log",
+      "sha256": "6762445b1c99d9c118feb39b5d2dc70410f4e8918453434f0e3b9e0af2c17278",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/manifests.log",
+      "sha256": "395c045bc54f0cce8f55f15fdd997050aee5debb838dc03e680ac342d1abd89d",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/mem.log",
+      "sha256": "c4df150251de34ea5f301788c6849652395205268f13e7467d4a7236faacc328",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/pip_version.log",
+      "sha256": "acf32fee7a32aa49f548f056bcbf2b89b42e62454c144a2ad8db41b53ac1895d",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/pytest_version.log",
+      "sha256": "7eefb56b8603b033e5b2d018412784ba0e721719641f8cf1a02dcb83f3e8389e",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/python_version.log",
+      "sha256": "e925235452b18521f223da6c5c94ce026f0bdb61938737a49b2e2afdb2c5bb13",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/test_all.log",
+      "sha256": "cc5a8375a5b10620c71d19e13a31112f23becd3c10f4b630a1a13553da3dd728",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/test_non_validation.log",
+      "sha256": "a63f290315d7bc1eac9f4cdb47953338e80e1b4d255aeedcf1654f69046631c9",
+      "type": "generated"
+    },
+    {
+      "path": "proof_bundle/uname.log",
+      "sha256": "c78c5ad7853e6e324a0a48930cacf3c8b9e9f9c39c1ef3bc47415fdffe65309b",
+      "type": "generated"
+    }
+  ],
+  "repo_scale_classification": "L",
+  "representator": {
+    "R0_identity_platform": {
+      "arch": "x86_64",
+      "branch": "work",
+      "dirty": true,
+      "git_commit": "c84ec61da8184424909a7f819971f31996412843",
+      "os": "Linux",
+      "timestamp_utc": "2026-02-15T20:06:09.017764Z"
+    },
+    "R1_inventory": {
+      "extension_counts": {
+        ".json": 80,
+        ".md": 121,
+        ".py": 350,
+        ".sh": 3,
+        ".toml": 2,
+        ".yaml": 5,
+        ".yml": 42
+      },
+      "inspected_repo_loc": 174568,
+      "top_level_dirs": [
+        "evidence",
+        "entropy",
+        "figures",
+        "docs",
+        "benchmarks",
+        "tools",
+        "schemas",
+        "examples",
+        "claims",
+        "quality",
+        "artifacts",
+        "scripts",
+        "experiments",
+        "manifest",
+        "src",
+        "proof_bundle",
+        "specs",
+        "bibliography",
+        "results",
+        "tests"
+      ]
+    },
+    "R2_stack_detection": {
+      "build_tools": [
+        "pytest",
+        "pyproject"
+      ],
+      "primary_languages": [
+        "Python"
+      ],
+      "runtime_targets": [
+        "CLI",
+        "tests"
+      ]
+    },
+    "R3_dependencies": {
+      "integrity_hashes": "UNKNOWN",
+      "lockfiles": [
+        "requirements-lock.txt"
+      ],
+      "manifests": [
+        "pyproject.toml",
+        "requirements-lock.txt"
+      ]
+    },
+    "R4_entry_points": {
+      "ci_workflows": [
+        ".github/workflows/ci.yml"
+      ],
+      "test_command": "pytest"
+    },
+    "R5_architecture_map": {
+      "coupling_hotspots": [
+        "tests -> src",
+        "tools -> manifest"
+      ],
+      "modules": [
+        "src/bnsyn",
+        "tools",
+        "tests"
+      ]
+    },
+    "R6_data_apis": {
+      "api_routes": "UNKNOWN",
+      "jobs": "UNKNOWN",
+      "schemas": [
+        "schemas/experiment.schema.json"
+      ]
+    },
+    "R7_security_observability_release": {
+      "deployment_descriptors": [
+        "Dockerfile"
+      ],
+      "observability": "UNKNOWN",
+      "security_docs": [
+        "SECURITY.md"
+      ]
+    },
+    "depth_level_per_module": {
+      "M0_audit_integrity_control": "standard",
+      "M10_fraud_abuse_detector": "quick",
+      "M11_arch_complexity_refactor": "quick",
+      "M12_cost_scalability": "quick",
+      "M13_security_policy_enforcement": "quick",
+      "M14_failure_simulation_plan": "quick",
+      "M15_board_report": "quick",
+      "M1_zero_trust_threat_modeling": "standard",
+      "M2_supply_chain_sbom": "standard",
+      "M3_authn_authz_correctness": "standard",
+      "M4_atomicity_idempotency": "standard",
+      "M5_performance_profiling": "quick",
+      "M6_multi_tenancy_isolation": "quick",
+      "M7_deploy_rollback_resilience": "quick",
+      "M8_observability_incident_readiness": "quick",
+      "M9_data_governance_privacy": "quick"
+    },
+    "repo_scale_classification": "L",
+    "time_budget_allocation_strategy": {
+      "notes": "Prioritized M1-M4 under low-budget defaults.",
+      "per_module_sec": {
+        "M0": 600,
+        "M1": 600,
+        "M10": 120,
+        "M11": 120,
+        "M12": 180,
+        "M13": 180,
+        "M14": 120,
+        "M15": 260,
+        "M2": 300,
+        "M3": 300,
+        "M4": 300,
+        "M5": 200,
+        "M6": 200,
+        "M7": 120,
+        "M8": 120,
+        "M9": 180
+      },
+      "reserved_sec": 900
+    }
+  },
+  "residual_uncertainty_index": 57,
+  "resource_allocation_optimizer": {
+    "critical_path_compression": [
+      "Run CI policy checks in parallel with secret scanning rollout"
+    ],
+    "parallelizable_groups": [
+      {
+        "dependencies": [
+          "Branch protections"
+        ],
+        "mitigations": [
+          "Action SHA pinning",
+          "Dependency lock verification"
+        ],
+        "title": "Supply chain hardening"
+      },
+      {
+        "dependencies": [],
+        "mitigations": [
+          "Pre-commit scanning",
+          "Rotation playbook"
+        ],
+        "title": "Secret management"
+      }
+    ],
+    "suggested_team_size_fte_range": "2-3"
+  },
+  "security_maturity_level": 2,
+  "time_budget_allocation": {
+    "notes": "Prioritized M1-M4 under low-budget defaults.",
+    "per_module_sec": {
+      "M0": 600,
+      "M1": 600,
+      "M10": 120,
+      "M11": 120,
+      "M12": 180,
+      "M13": 180,
+      "M14": 120,
+      "M15": 260,
+      "M2": 300,
+      "M3": 300,
+      "M4": 300,
+      "M5": 200,
+      "M6": 200,
+      "M7": 120,
+      "M8": 120,
+      "M9": 180
+    },
+    "reserved_sec": 900
+  }
+}

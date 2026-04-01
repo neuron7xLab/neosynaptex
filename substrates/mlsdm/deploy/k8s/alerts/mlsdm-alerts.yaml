@@ -1,0 +1,369 @@
+# MLSDM Production Alerting Rules
+# Based on SLO_SPEC.md and OBSERVABILITY_SPEC.md
+#
+# Alert Severity Levels:
+# - critical: Pages on-call immediately, indicates service degradation
+# - warning: Notifies team, indicates potential issues
+# - info: Informational, logged for analysis
+#
+# For detailed runbook procedures, see RUNBOOK.md
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mlsdm-core-alerts
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    prometheus: mlsdm
+    role: alert-rules
+spec:
+  groups:
+    # ---------------------------------------------------------------------------
+    # SLO-Based Alerts
+    # ---------------------------------------------------------------------------
+    - name: mlsdm-slo-alerts
+      interval: 30s
+      rules:
+        # HighErrorRate: Error rate exceeds SLO threshold
+        # SLO Target: 99.9% availability = 0.1% error budget
+        - alert: HighErrorRate
+          expr: |
+            (
+              sum(rate(mlsdm_http_requests_total{status=~"5.."}[5m]))
+              /
+              sum(rate(mlsdm_http_requests_total[5m]))
+            ) > 0.005
+          for: 5m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "High error rate detected (> 0.5%)"
+            description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes, exceeding the 0.1% SLO threshold. Check /health/detailed and recent logs."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-high-rejection-rate"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        - alert: HighErrorRateCritical
+          expr: |
+            (
+              sum(rate(mlsdm_http_requests_total{status=~"5.."}[5m]))
+              /
+              sum(rate(mlsdm_http_requests_total[5m]))
+            ) > 0.01
+          for: 2m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: Error rate exceeds 1%"
+            description: "Error rate is {{ $value | humanizePercentage }}. Error budget is being consumed rapidly. Immediate investigation required."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#p1-high-error-rate"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        # HighLatency: P95 latency exceeds SLO target
+        # SLO Target: P95 < 120ms
+        - alert: HighLatency
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(mlsdm_request_latency_seconds_bucket[5m])) by (le)
+            ) > 0.120
+          for: 5m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "P95 latency exceeds 120ms SLO target"
+            description: "P95 latency is {{ $value | humanizeDuration }}. Check for resource contention or slow LLM responses."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-high-latency"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        - alert: HighLatencyCritical
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(mlsdm_request_latency_seconds_bucket[5m])) by (le)
+            ) > 0.500
+          for: 2m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: P95 latency exceeds 500ms"
+            description: "P95 latency is {{ $value | humanizeDuration }}. System severely degraded."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-high-latency"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        # Error Budget Burn Rate
+        - alert: ErrorBudgetBurnRateHigh
+          expr: |
+            (
+              sum(rate(mlsdm_http_requests_total{status=~"5.."}[1h]))
+              /
+              sum(rate(mlsdm_http_requests_total[1h]))
+            ) / 0.001 > 2.0
+          for: 10m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "Error budget burn rate is elevated (>2x)"
+            description: "Current burn rate is {{ $value }}x normal. Consider slowing releases."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#error-budgets"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        - alert: ErrorBudgetBurnRateCritical
+          expr: |
+            (
+              sum(rate(mlsdm_http_requests_total{status=~"5.."}[1h]))
+              /
+              sum(rate(mlsdm_http_requests_total[1h]))
+            ) / 0.001 > 5.0
+          for: 5m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: Error budget burning at >5x rate"
+            description: "Error budget is being consumed at {{ $value }}x normal rate. Freeze releases and investigate."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#error-budgets"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+    # ---------------------------------------------------------------------------
+    # Emergency & Safety Alerts
+    # ---------------------------------------------------------------------------
+    - name: mlsdm-emergency-alerts
+      interval: 15s
+      rules:
+        # EmergencyShutdownSpike: Multiple emergency shutdowns in short period
+        - alert: EmergencyShutdownSpike
+          expr: |
+            sum(increase(mlsdm_emergency_shutdowns_total[15m])) > 3
+          for: 0m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: Multiple emergency shutdowns detected"
+            description: "{{ $value }} emergency shutdowns in the last 15 minutes. Check memory pressure and system health."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#p0-service-down"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-observability"
+
+        # EmergencyShutdownActive: System currently in emergency shutdown
+        - alert: EmergencyShutdownActive
+          expr: mlsdm_emergency_shutdown_active == 1
+          for: 0m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: Emergency shutdown is currently ACTIVE"
+            description: "System is in emergency shutdown state. Immediate intervention required."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#p0-service-down"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-observability"
+
+        # MoralFilterBlockSpike: Sudden increase in moral filter blocks
+        - alert: MoralFilterBlockSpike
+          expr: |
+            (
+              sum(rate(mlsdm_moral_filter_decisions_total{decision="block"}[5m]))
+              /
+              sum(rate(mlsdm_moral_filter_decisions_total[5m]))
+            ) > 0.3
+          for: 5m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "High moral filter block rate (>30%)"
+            description: "{{ $value | humanizePercentage }} of requests are being blocked by moral filter. Possible data drift or adversarial attack."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-high-rejection-rate"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        - alert: MoralFilterBlockSpikeCritical
+          expr: |
+            (
+              sum(rate(mlsdm_moral_filter_decisions_total{decision="block"}[5m]))
+              /
+              sum(rate(mlsdm_moral_filter_decisions_total[5m]))
+            ) > 0.5
+          for: 2m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: >50% of requests blocked by moral filter"
+            description: "Majority of requests being blocked. Investigate immediately for adversarial attack or system misconfiguration."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-high-rejection-rate"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+    # ---------------------------------------------------------------------------
+    # LLM Integration Alerts
+    # ---------------------------------------------------------------------------
+    - name: mlsdm-llm-alerts
+      interval: 30s
+      rules:
+        # LLMTimeoutSpike: Increase in LLM timeout failures
+        - alert: LLMTimeoutSpike
+          expr: |
+            sum(increase(mlsdm_llm_failures_total{reason="timeout"}[10m])) > 10
+          for: 0m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "LLM timeout failures increasing"
+            description: "{{ $value }} LLM timeouts in the last 10 minutes. Check LLM backend health and network connectivity."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-high-latency"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        - alert: LLMTimeoutSpikeCritical
+          expr: |
+            sum(increase(mlsdm_llm_failures_total{reason="timeout"}[5m])) > 20
+          for: 0m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: High LLM timeout rate"
+            description: "{{ $value }} LLM timeouts in the last 5 minutes. LLM backend may be down."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-high-latency"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        # LLM Quota Exceeded
+        - alert: LLMQuotaExceeded
+          expr: |
+            sum(increase(mlsdm_llm_failures_total{reason="quota"}[1h])) > 5
+          for: 0m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "LLM quota limit being hit"
+            description: "{{ $value }} quota-related failures in the last hour. Review LLM provider usage."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#llm-quota-issues"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+    # ---------------------------------------------------------------------------
+    # Reliability Pattern Alerts
+    # ---------------------------------------------------------------------------
+    - name: mlsdm-reliability-alerts
+      interval: 30s
+      rules:
+        # BulkheadSaturation: Bulkhead queue is nearly full
+        - alert: BulkheadSaturation
+          expr: |
+            mlsdm_bulkhead_queue_depth > 80
+          for: 2m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "Bulkhead queue depth is high"
+            description: "Queue depth is {{ $value }}, approaching capacity. Scale up or investigate slow requests."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-rate-limiting"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        - alert: BulkheadRejectionsHigh
+          expr: |
+            sum(increase(mlsdm_bulkhead_rejected_total[5m])) > 50
+          for: 0m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: High bulkhead rejection rate"
+            description: "{{ $value }} requests rejected in last 5 minutes due to capacity limits."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-rate-limiting"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+        # Request Timeout Alerts
+        - alert: HighTimeoutRate
+          expr: |
+            sum(increase(mlsdm_timeout_total[5m])) > 20
+          for: 0m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "High request timeout rate"
+            description: "{{ $value }} request timeouts in the last 5 minutes."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-high-latency"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-slo"
+
+    # ---------------------------------------------------------------------------
+    # Resource & Memory Alerts
+    # ---------------------------------------------------------------------------
+    - name: mlsdm-resource-alerts
+      interval: 30s
+      rules:
+        # HighMemoryUsage
+        - alert: HighMemoryUsage
+          expr: mlsdm_memory_usage_bytes > 45000000
+          for: 5m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "Memory usage approaching limit (>45MB)"
+            description: "Memory usage is {{ $value | humanize1024 }}B, approaching 50MB limit."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-memory-growth"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-observability"
+
+        - alert: MemoryLimitExceeded
+          expr: mlsdm_memory_usage_bytes > 50000000
+          for: 1m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: Memory limit exceeded"
+            description: "Memory usage is {{ $value | humanize1024 }}B, exceeding 50MB limit."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-memory-growth"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-observability"
+
+        # Memory Eviction Rate
+        - alert: HighMemoryEvictionRate
+          expr: |
+            sum(increase(mlsdm_memory_evictions_total[5m])) > 100
+          for: 0m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "High memory eviction rate"
+            description: "{{ $value }} memory evictions in the last 5 minutes. Memory may be under pressure."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#issue-memory-growth"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-observability"
+
+    # ---------------------------------------------------------------------------
+    # Availability & Health Alerts
+    # ---------------------------------------------------------------------------
+    - name: mlsdm-availability-alerts
+      interval: 15s
+      rules:
+        # ServiceDown
+        - alert: ServiceDown
+          expr: up{job="mlsdm-api"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            team: mlsdm-sre
+          annotations:
+            summary: "CRITICAL: MLSDM service is down"
+            description: "MLSDM service is not responding to scrapes."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#p0-service-down"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-observability"
+
+        # No requests (possible issue)
+        - alert: NoTraffic
+          expr: |
+            sum(rate(mlsdm_http_requests_total[5m])) == 0
+          for: 10m
+          labels:
+            severity: warning
+            team: mlsdm-sre
+          annotations:
+            summary: "No traffic to MLSDM service"
+            description: "No requests received in the last 10 minutes. Check load balancer and upstream services."
+            runbook_url: "https://github.com/neuron7xLab/mlsdm/blob/main/RUNBOOK.md#troubleshooting"
+            dashboard_url: "https://grafana.example.com/d/mlsdm-observability"

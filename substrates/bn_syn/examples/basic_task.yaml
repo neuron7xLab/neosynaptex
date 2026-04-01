@@ -1,0 +1,33 @@
+task_id: "basic-markdown-task"
+objective: "Summarize deterministic AOC orchestration outcomes"
+artifact_type: "markdown_document"
+max_iterations: 6
+coherence_threshold: 0.9
+innovation_band:
+  min_delta: 0.0
+  max_delta: 0.7
+delta_weights:
+  semantic: 0.4
+  structural: 0.3
+  functional: 0.3
+constraints:
+  required_sections:
+    - "Context"
+    - "Method"
+    - "Result"
+  forbidden_terms:
+    - "TODO"
+    - "lorem ipsum"
+  min_length: 120
+  max_length: 4000
+invariants:
+  must_include_objective: true
+  must_preserve_required_sections: false
+generator:
+  kind: "deterministic_markdown"
+  deterministic_seed: 7
+auditor:
+  verifier_kind: "required_checks_ground_truth"
+output:
+  artifact_filename: "final_artifact.md"
+output_dir: "aoc_output"

@@ -1,0 +1,55 @@
+{
+  "name": "staging",
+  "description": "Staging environment configuration with production-like settings but relaxed monitoring",
+  "environment": "staging",
+  "api": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "reload": false,
+    "debug": false,
+    "cors_origins": ["http://localhost:3000", "http://localhost:8080"],
+    "docs_enabled": true
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "json",
+    "include_request_body": false
+  },
+  "validation": {
+    "seed": 42,
+    "epochs": 3,
+    "batch_size": 16,
+    "grid_size": 64,
+    "steps": 64,
+    "device": "cpu"
+  },
+  "model": {
+    "input_dim": 4,
+    "hidden_dim": 32,
+    "use_sparse_attention": true,
+    "use_stdp": true
+  },
+  "simulation": {
+    "turing_enabled": true,
+    "turing_threshold": 0.75,
+    "quantum_jitter": true,
+    "jitter_var": 0.0005
+  },
+  "federated": {
+    "num_clusters": 50,
+    "byzantine_fraction": 0.2,
+    "sample_fraction": 0.1
+  },
+  "limits": {
+    "max_grid_size": 256,
+    "max_steps": 500,
+    "max_samples": 5000,
+    "request_timeout_seconds": 120
+  },
+  "expected_metrics": {
+    "runtime_seconds_max": 60,
+    "memory_mb_max": 500,
+    "fractal_dim_range": [1.0, 2.0],
+    "lyapunov_max": 0.5
+  }
+}

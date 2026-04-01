@@ -1,0 +1,66 @@
+# Gitleaks Configuration for MLSDM
+# ==================================
+# This configuration allowlists known-safe test fixtures and documentation examples
+# while keeping secrets scanning active for all production code.
+#
+# IMPORTANT: Do not add broad exclusions. Each allowlist must be justified.
+
+title = "MLSDM Gitleaks Configuration"
+
+# Allowlist for known-safe patterns in specific files
+# These are test fixtures and documentation examples, not real secrets
+[allowlist]
+  description = "Allowlist for test fixtures and documentation examples"
+
+  # Test files that contain fake secrets for testing the scrubber
+  # Justification: These files test secret-scrubbing functionality and must contain
+  # patterns that look like secrets to verify the scrubber works correctly.
+  paths = [
+    # Contract tests for no-secrets-in-logs verification
+    '''tests/contracts/test_no_secrets_in_logs\.py$''',
+    # Security tests for payload scrubber
+    '''tests/security/test_payload_scrubber\.py$''',
+    '''tests/security/test_adversarial_inputs\.py$''',
+    '''tests/security/test_llm_safety\.py$''',
+    # Unit tests for payload scrubber and LLM provider
+    '''tests/unit/test_payload_scrubber\.py$''',
+    '''tests/unit/test_llm_provider\.py$''',
+    # Unit fixtures containing fake secrets to validate scrubbers/guardrails
+    '''tests/unit/test_cli\.py$''',
+    '''tests/unit/test_failure_intelligence\.py$''',
+    '''tests/unit/test_llm_safety_comprehensive\.py$''',
+    '''tests/unit/test_payload_scrubber_comprehensive\.py$''',
+  ]
+
+  # Specific regex patterns that are known to be safe
+  # Only add patterns here that are CLEARLY test data
+  regexes = [
+    # Placeholder patterns used in documentation
+    '''YOUR_API_KEY''',
+    '''YOUR_TOKEN''',
+    '''YOUR_SECRET''',
+    # Test placeholder pattern
+    '''PLACEHOLDER''',
+  ]
+
+  # Known-safe commits (use sparingly)
+  # commits = []
+
+# Note: The payload_scrubber.py docstring example is also detected.
+# We allowlist it via path pattern matching in the stopwords below.
+
+# Additional path-based allowlists for documentation
+[[rules]]
+  id = "doc-examples"
+  description = "Documentation curl examples with placeholder tokens"
+  path = '''\.md$'''
+  regex = '''Authorization:\s*Bearer\s+(YOUR_API_KEY|YOUR_TOKEN|\$[A-Z_]+)'''
+  allowlist = { regexes = ['''YOUR_API_KEY''', '''YOUR_TOKEN''', '''\$[A-Z_]+'''] }
+
+# Allowlist the docstring example in payload_scrubber.py
+[[rules]]
+  id = "docstring-example"
+  description = "Docstring example showing scrubbing behavior"
+  path = '''src/mlsdm/security/payload_scrubber\.py$'''
+  regex = '''sk-123456789abcdef'''
+  allowlist = { regexes = ['''sk-123456789abcdef'''] }

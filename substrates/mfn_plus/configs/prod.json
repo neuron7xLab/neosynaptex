@@ -1,0 +1,55 @@
+{
+  "name": "prod",
+  "description": "Production environment configuration with strict limits and security settings",
+  "environment": "production",
+  "api": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "reload": false,
+    "debug": false,
+    "cors_origins": [],
+    "docs_enabled": false
+  },
+  "logging": {
+    "level": "WARNING",
+    "format": "json",
+    "include_request_body": false
+  },
+  "validation": {
+    "seed": 42,
+    "epochs": 5,
+    "batch_size": 32,
+    "grid_size": 128,
+    "steps": 128,
+    "device": "cpu"
+  },
+  "model": {
+    "input_dim": 4,
+    "hidden_dim": 64,
+    "use_sparse_attention": true,
+    "use_stdp": true
+  },
+  "simulation": {
+    "turing_enabled": true,
+    "turing_threshold": 0.75,
+    "quantum_jitter": true,
+    "jitter_var": 0.0005
+  },
+  "federated": {
+    "num_clusters": 100,
+    "byzantine_fraction": 0.2,
+    "sample_fraction": 0.1
+  },
+  "limits": {
+    "max_grid_size": 256,
+    "max_steps": 500,
+    "max_samples": 1000,
+    "request_timeout_seconds": 60
+  },
+  "expected_metrics": {
+    "runtime_seconds_max": 30,
+    "memory_mb_max": 300,
+    "fractal_dim_range": [1.4, 1.9],
+    "lyapunov_max": 0
+  }
+}

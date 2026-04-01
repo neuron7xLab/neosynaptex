@@ -1,0 +1,16 @@
+{
+  "fixture_id": "FIXTURE_C",
+  "total_criteria": 20,
+  "unknown_criteria": 2,
+  "evidence_items": 16,
+  "observed_risk": 0.31,
+  "risk_score": 0.4,
+  "contradictions": {
+    "authz_strong": true,
+    "tenant_leak": true,
+    "sbom_complete": true,
+    "runtime_dep_gap": true,
+    "observability_ok": true,
+    "no_failure_plan": false
+  }
+}

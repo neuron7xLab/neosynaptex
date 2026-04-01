@@ -1,0 +1,19 @@
+name: Good Workflow Pinned
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  safe-job:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Third-party pinned action
+        uses: example/secure-action@0123456789abcdef0123456789abcdef01234567

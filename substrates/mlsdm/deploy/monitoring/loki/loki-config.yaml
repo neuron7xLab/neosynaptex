@@ -1,0 +1,104 @@
+# Loki Server Configuration for MLSDM
+# ====================================
+# This configuration is optimized for MLSDM log aggregation.
+# Adjust retention and storage settings based on your requirements.
+#
+# Documentation: https://grafana.com/docs/loki/latest/configure/
+
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+  log_level: info
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  tsdb_shipper:
+    active_index_directory: /loki/tsdb-index
+    cache_location: /loki/tsdb-cache
+    cache_ttl: 24h
+
+ingester:
+  wal:
+    enabled: true
+    dir: /loki/wal
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+  chunk_idle_period: 30m
+  max_chunk_age: 1h
+  chunk_target_size: 1536000
+  chunk_retain_period: 30s
+
+# Retention settings (adjust based on compliance requirements)
+# NOTE: Default 30 days may be insufficient for compliance (SOX, HIPAA, etc.)
+# - SOX compliance may require 7 years for financial data
+# - HIPAA may require 6 years for healthcare data
+# - GDPR may require specific retention periods
+# Adjust retention_period based on your organizational requirements
+limits_config:
+  retention_period: 720h  # 30 days default retention
+  ingestion_rate_mb: 10
+  ingestion_burst_size_mb: 20
+  max_query_series: 5000
+  max_query_parallelism: 32
+  max_streams_per_user: 10000
+  max_line_size: 256kb
+
+# Compaction (for older indices)
+compactor:
+  working_directory: /loki/compactor
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+  delete_request_store: filesystem
+
+# Ruler for alerting (optional)
+ruler:
+  alertmanager_url: http://alertmanager:9093
+  storage:
+    type: local
+    local:
+      directory: /loki/rules
+  rule_path: /loki/rules-temp
+  enable_api: true
+
+# Table manager for index cleanup
+table_manager:
+  retention_deletes_enabled: true
+  retention_period: 720h  # 30 days
+
+# Analytics (opt-out)
+analytics:
+  reporting_enabled: false

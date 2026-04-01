@@ -1,0 +1,76 @@
+name: scientific-product-gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  scientific-product:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,test]"
+      - name: Build phase atlas
+        run: |
+          PYTHONPATH=src python -m scripts.phase_atlas --output artifacts/scientific_product/PHASE_ATLAS.json --seed 20260218
+      - name: Run scientific-product invariants
+        run: |
+          python -m pytest tests/test_scientific_product_gate.py -q
+      - name: Run operational smoke
+        run: |
+          PYTHONPATH=src python -m bnsyn smoke --out artifacts/operational_readiness/SMOKE_REPORT.json
+      - name: Validate context compressor gate
+        run: |
+          python - <<'PY'
+          import json
+          p = json.load(open('artifacts/context_compressor/quality.json', encoding='utf-8'))
+          assert p['verdict'] == 'PASS'
+          assert int(p.get('contradictions', 0)) == 0
+          PY
+      - name: Validate scientific product quality gate
+        run: |
+          python - <<'PY'
+          import json
+          p = json.load(open('artifacts/scientific_product/quality.json', encoding='utf-8'))
+          assert p['verdict'] == 'PASS'
+          assert p['phase_atlas_regression'] == 'PASS'
+          assert p['invariants'] == 'PASS'
+          assert p['determinism'] == 'PASS'
+          PY
+      - name: Validate operational readiness quality gate
+        run: |
+          python - <<'PY'
+          import json
+          p = json.load(open('artifacts/operational_readiness/quality.json', encoding='utf-8'))
+          assert p['verdict'] == 'PASS'
+          assert p['smoke'] == 'PASS'
+          assert p['runbook'] == 'PASS'
+          assert p['sbom'] == 'PASS'
+          assert p['security_scan'] == 'PASS'
+          PY
+      - name: Upload artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: scientific-product-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/context_compressor/
+            artifacts/scientific_product/
+            artifacts/operational_readiness/
+          if-no-files-found: warn
+          overwrite: true
+          retention-days: 30

@@ -1,0 +1,500 @@
+# MLSDM Safety Policy Configuration
+# Version: 1.0.0
+# Last Updated: November 2025
+# Owner: Principal AI Safety Engineer
+
+# =============================================================================
+# POLICY METADATA
+# =============================================================================
+metadata:
+  version: "1.0.0"
+  name: "MLSDM Content Safety Policy"
+  description: "Structured safety policy for MLSDM Governed Cognitive Memory"
+  effective_date: "2025-11-01"
+  review_date: "2026-02-01"
+  owner: "safety-team@mlsdm"
+  compliance:
+    - "IEEE 7010-2020"
+    - "NIST AI RMF"
+    - "Internal AI Safety Standards"
+
+# =============================================================================
+# GLOBAL SETTINGS
+# =============================================================================
+global:
+  # Default action when no specific rule matches
+  default_action: "allow"
+
+  # Enable safety filtering
+  safety_enabled: true
+
+  # Log all filtering decisions
+  log_decisions: true
+
+  # Audit trail retention (days)
+  audit_retention_days: 90
+
+  # Emergency shutdown thresholds
+  emergency_shutdown:
+    enabled: true
+    trigger_conditions:
+      - consecutive_rejections: 100
+      - rejection_rate_5min: 0.8
+      - memory_usage_percent: 95
+
+# =============================================================================
+# RISK CATEGORIES
+# =============================================================================
+risk_categories:
+
+  # ---------------------------------------------------------------------------
+  # Violence and Physical Harm
+  # ---------------------------------------------------------------------------
+  violence:
+    description: "Content promoting, instructing, or glorifying violence"
+    severity: "critical"
+    subcategories:
+      - physical_harm_instructions
+      - weapon_creation
+      - terrorism_content
+      - self_harm_promotion
+      - violence_glorification
+    action: "block"
+    log_level: "error"
+    alert: true
+    moral_threshold_override: 0.95  # Very high bar for acceptance
+
+  # ---------------------------------------------------------------------------
+  # Hate Speech and Harassment
+  # ---------------------------------------------------------------------------
+  hate_speech:
+    description: "Content targeting individuals or groups based on protected characteristics"
+    severity: "high"
+    subcategories:
+      - racial_discrimination
+      - religious_intolerance
+      - gender_based_hate
+      - sexual_orientation_hate
+      - disability_discrimination
+      - national_origin_hate
+    action: "block"
+    log_level: "error"
+    alert: true
+    moral_threshold_override: 0.90
+
+  # ---------------------------------------------------------------------------
+  # Illegal Activities
+  # ---------------------------------------------------------------------------
+  illegal_activities:
+    description: "Content instructing or promoting illegal activities"
+    severity: "critical"
+    subcategories:
+      - drug_manufacturing
+      - fraud_instructions
+      - hacking_instructions
+      - child_exploitation
+      - human_trafficking
+    action: "block"
+    log_level: "error"
+    alert: true
+    escalate: true
+    moral_threshold_override: 0.99  # Highest bar
+
+  # ---------------------------------------------------------------------------
+  # Self-Harm and Suicide
+  # ---------------------------------------------------------------------------
+  self_harm:
+    description: "Content promoting or instructing self-harm or suicide"
+    severity: "critical"
+    subcategories:
+      - suicide_instructions
+      - self_harm_methods
+      - eating_disorder_promotion
+      - self_injury_glorification
+    action: "block"
+    log_level: "error"
+    alert: true
+    escalate: true
+    response_override: "crisis_resources"
+    moral_threshold_override: 0.99
+
+  # ---------------------------------------------------------------------------
+  # Sexual Content
+  # ---------------------------------------------------------------------------
+  sexual_content:
+    description: "Sexually explicit or inappropriate content"
+    severity: "high"
+    subcategories:
+      - explicit_sexual_content
+      - non_consensual_content
+      - minor_related_content  # Always critical
+      - sexual_harassment
+    action: "block"
+    log_level: "warning"
+    alert: false
+    moral_threshold_override: 0.85
+    exceptions:
+      - context: "medical_education"
+        action: "allow_with_warning"
+      - context: "reproductive_health"
+        action: "allow_with_warning"
+
+  # ---------------------------------------------------------------------------
+  # Misinformation
+  # ---------------------------------------------------------------------------
+  misinformation:
+    description: "Demonstrably false or misleading information"
+    severity: "medium"
+    subcategories:
+      - health_misinformation
+      - election_misinformation
+      - conspiracy_theories
+      - scientific_denialism
+    action: "flag"
+    log_level: "warning"
+    alert: false
+    moral_threshold_override: 0.70
+    response_modification:
+      append_disclaimer: true
+      disclaimer_text: "Note: This response may contain unverified claims. Please consult authoritative sources."
+
+  # ---------------------------------------------------------------------------
+  # Privacy Violations
+  # ---------------------------------------------------------------------------
+  privacy:
+    description: "Content that violates personal privacy"
+    severity: "high"
+    subcategories:
+      - personal_data_exposure
+      - doxxing
+      - unauthorized_surveillance
+      - biometric_data_misuse
+    action: "block"
+    log_level: "error"
+    alert: true
+    moral_threshold_override: 0.90
+
+  # ---------------------------------------------------------------------------
+  # Deception
+  # ---------------------------------------------------------------------------
+  deception:
+    description: "Content designed to deceive or manipulate"
+    severity: "medium"
+    subcategories:
+      - impersonation
+      - social_engineering
+      - phishing_content
+      - manipulation_tactics
+    action: "flag"
+    log_level: "warning"
+    alert: false
+    moral_threshold_override: 0.75
+
+  # ---------------------------------------------------------------------------
+  # Copyright and IP
+  # ---------------------------------------------------------------------------
+  intellectual_property:
+    description: "Content that infringes intellectual property rights"
+    severity: "medium"
+    subcategories:
+      - copyright_infringement
+      - trademark_violation
+      - piracy_facilitation
+    action: "flag"
+    log_level: "info"
+    alert: false
+    moral_threshold_override: 0.65
+
+# =============================================================================
+# ACTION DEFINITIONS
+# =============================================================================
+actions:
+  block:
+    description: "Completely block the content from being processed or returned"
+    response_type: "rejection"
+    response_message: "This request cannot be processed due to safety concerns."
+    log_required: true
+    metric_increment: "mlsdm_content_blocked_total"
+
+  flag:
+    description: "Allow content but flag for review and add disclaimer"
+    response_type: "modified"
+    add_disclaimer: true
+    log_required: true
+    metric_increment: "mlsdm_content_flagged_total"
+
+  allow_with_warning:
+    description: "Allow content with a warning to the user"
+    response_type: "allowed"
+    add_warning: true
+    warning_message: "This content has been flagged for potential concerns."
+    log_required: false
+    metric_increment: "mlsdm_content_warned_total"
+
+  allow:
+    description: "Allow content to proceed without modification"
+    response_type: "allowed"
+    log_required: false
+
+  escalate:
+    description: "Block content and escalate for human review"
+    response_type: "rejection"
+    response_message: "This request requires human review."
+    log_required: true
+    create_incident: true
+    metric_increment: "mlsdm_content_escalated_total"
+
+# =============================================================================
+# SEVERITY LEVELS
+# =============================================================================
+severity_levels:
+  critical:
+    description: "Immediate safety risk, requires immediate action"
+    default_action: "block"
+    escalate: true
+    alert: true
+    log_level: "error"
+
+  high:
+    description: "Significant safety concern, should be blocked by default"
+    default_action: "block"
+    escalate: false
+    alert: true
+    log_level: "error"
+
+  medium:
+    description: "Moderate concern, flag for review but may allow with modification"
+    default_action: "flag"
+    escalate: false
+    alert: false
+    log_level: "warning"
+
+  low:
+    description: "Minor concern, typically allowed with optional warning"
+    default_action: "allow_with_warning"
+    escalate: false
+    alert: false
+    log_level: "info"
+
+# =============================================================================
+# MORAL FILTER INTEGRATION
+# =============================================================================
+moral_filter:
+  # Enable moral filter
+  enabled: true
+
+  # Initial threshold
+  initial_threshold: 0.50
+
+  # Threshold bounds
+  min_threshold: 0.30
+  max_threshold: 0.90
+
+  # Adaptation parameters
+  ema_alpha: 0.1
+  dead_band: 0.05
+  adaptation_rate: 0.05
+
+  # Category overrides (from risk_categories above)
+  category_thresholds:
+    violence: 0.95
+    hate_speech: 0.90
+    illegal_activities: 0.99
+    self_harm: 0.99
+    sexual_content: 0.85
+    misinformation: 0.70
+    privacy: 0.90
+    deception: 0.75
+    intellectual_property: 0.65
+
+# =============================================================================
+# SPEECH GOVERNANCE (APHASIA DETECTION)
+# =============================================================================
+speech_governance:
+  # Enable aphasia detection
+  enabled: true
+
+  # Enable automatic repair
+  repair_enabled: true
+
+  # Detection thresholds
+  detection:
+    min_avg_sentence_length: 6
+    min_function_word_ratio: 0.15
+    max_fragment_ratio: 0.50
+
+  # Severity thresholds
+  severity:
+    low: 0.30
+    medium: 0.50
+    high: 0.70
+    critical: 0.90
+
+  # Repair configuration
+  repair:
+    max_retries: 3
+    enhanced_prompt: true
+    increase_tokens: true
+
+# =============================================================================
+# MEMORY SAFETY
+# =============================================================================
+memory_safety:
+  # Maximum memory footprint (MB)
+  max_memory_mb: 30
+
+  # PELM capacity
+  pelm_capacity: 20000
+
+  # Eviction policy
+  eviction_policy: "fifo"
+
+  # Memory monitoring
+  monitoring:
+    enabled: true
+    alert_threshold_percent: 80
+    critical_threshold_percent: 95
+
+# =============================================================================
+# OBSERVABILITY
+# =============================================================================
+observability:
+  # Metrics export
+  metrics:
+    enabled: true
+    prefix: "mlsdm_"
+    export_format: "prometheus"
+
+  # Safety-specific metrics
+  safety_metrics:
+    - name: "content_blocked_total"
+      type: "counter"
+      labels: ["category", "severity"]
+
+    - name: "content_flagged_total"
+      type: "counter"
+      labels: ["category"]
+
+    - name: "moral_threshold"
+      type: "gauge"
+      labels: []
+
+    - name: "safety_score"
+      type: "histogram"
+      buckets: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+    - name: "aphasia_severity"
+      type: "histogram"
+      buckets: [0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1.0]
+
+  # Logging configuration
+  logging:
+    # Never log these fields (PII protection)
+    redact_fields:
+      - "prompt"
+      - "response"
+      - "user_id"
+      - "api_key"
+
+    # Always log these for audit
+    required_fields:
+      - "correlation_id"
+      - "timestamp"
+      - "event_type"
+      - "decision"
+      - "category"
+
+  # Alerting rules
+  alerts:
+    - name: "high_rejection_rate"
+      condition: "rejection_rate_5min > 0.5"
+      severity: "warning"
+
+    - name: "threshold_drift"
+      condition: "moral_threshold < 0.35 or moral_threshold > 0.85"
+      severity: "warning"
+
+    - name: "emergency_shutdown"
+      condition: "consecutive_rejections > 100"
+      severity: "critical"
+
+# =============================================================================
+# DEPLOYMENT PROFILES
+# =============================================================================
+deployment_profiles:
+  production:
+    safety_enabled: true
+    log_decisions: true
+    strict_mode: true
+    moral_filter:
+      initial_threshold: 0.50
+      min_threshold: 0.30
+    speech_governance:
+      repair_enabled: true
+
+  staging:
+    safety_enabled: true
+    log_decisions: true
+    strict_mode: false
+    moral_filter:
+      initial_threshold: 0.50
+      min_threshold: 0.25
+    speech_governance:
+      repair_enabled: true
+
+  development:
+    safety_enabled: true
+    log_decisions: true
+    strict_mode: false
+    moral_filter:
+      initial_threshold: 0.40
+      min_threshold: 0.20
+    speech_governance:
+      repair_enabled: false
+
+# =============================================================================
+# SECURE MODE
+# =============================================================================
+secure_mode:
+  description: "Locked-down mode for production with sensitive data"
+  trigger: "MLSDM_SECURE_MODE=1"
+  effects:
+    - neurolang_training: "disabled"
+    - checkpoint_loading: "disabled"
+    - aphasia_repair: "disabled"
+    - detection_only: true
+  required_for:
+    - "production_pii"
+    - "multi_tenant"
+    - "regulated_industries"
+
+# =============================================================================
+# INCIDENT RESPONSE
+# =============================================================================
+incident_response:
+  # Automatic incident creation conditions
+  auto_create_incident:
+    - category: "illegal_activities"
+      action: "escalate"
+    - category: "self_harm"
+      action: "escalate"
+    - severity: "critical"
+      action: "escalate"
+
+  # Incident fields
+  incident_template:
+    - correlation_id
+    - timestamp
+    - category
+    - severity
+    - action_taken
+    - threshold_at_time
+    - context_summary  # Sanitized, no raw content
+
+  # Escalation paths
+  escalation:
+    default: "safety-team@mlsdm"
+    critical: "safety-oncall@mlsdm"
+    legal_required:
+      - "illegal_activities"
+      - "child_exploitation"

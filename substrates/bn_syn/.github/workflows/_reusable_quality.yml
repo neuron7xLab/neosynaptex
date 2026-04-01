@@ -1,0 +1,242 @@
+# REUSABLE NON-PR-GATE: long-running workflow_call; must not run on pull_request/push.
+name: Reusable Quality Checks
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: 'Python version to use'
+        type: string
+        default: '3.11'
+      mypy-strict:
+        description: 'Enable mypy strict mode'
+        type: boolean
+        default: true
+      pylint-threshold:
+        description: 'Minimum pylint score (0.0-10.0)'
+        type: number
+        default: 7.5
+
+permissions:
+  contents: read
+
+jobs:
+  ruff:
+    name: Ruff (Format + Lint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          token: ${{ github.token }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ inputs['python-version'] }}
+          cache: 'pip'
+      
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+
+      - name: Log pip version
+        run: python -m pip --version
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev,test]"
+      
+      - name: Cache ruff
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        with:
+          path: ~/.cache/ruff
+          key: ruff-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+      
+      - name: Ruff format check
+        id: format
+        run: |
+          ruff format --check . 2>&1 | tee ruff-format.log
+          echo "FORMAT_RESULT=$?" >> "$GITHUB_ENV"
+      
+      - name: Ruff lint
+        id: lint
+        run: |
+          ruff check . 2>&1 | tee ruff-lint.log
+          echo "LINT_RESULT=$?" >> "$GITHUB_ENV"
+      
+      - name: Generate summary
+        if: always()
+        run: |
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "##  Ruff Quality Check"
+            echo ""
+            echo "| Check | Status |"
+            echo "|-------|--------|"
+            if [ "${{ env.FORMAT_RESULT }}" = "0" ]; then
+              echo "| Format |  PASS |"
+            else
+              echo "| Format |  FAIL |"
+            fi
+            if [ "${{ env.LINT_RESULT }}" = "0" ]; then
+              echo "| Lint |  PASS |"
+            else
+              echo "| Lint |  FAIL |"
+            fi
+            echo ""
+            echo "**Python Version:** ${{ inputs['python-version'] }}"
+          } >> "$summary_file"
+      
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ruff-logs-${{ github.sha }}
+          path: |
+            ruff-format.log
+            ruff-lint.log
+          if-no-files-found: ignore
+          retention-days: 7
+      
+      - name: Fail if checks failed
+        if: env.FORMAT_RESULT != '0' || env.LINT_RESULT != '0'
+        run: exit 1
+
+  mypy:
+    name: Mypy (Type Checking)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          token: ${{ github.token }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ inputs['python-version'] }}
+          cache: 'pip'
+      
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+
+      - name: Log pip version
+        run: python -m pip --version
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev,test]"
+      
+      - name: Cache mypy
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        with:
+          path: .mypy_cache
+          key: mypy-${{ runner.os }}-${{ inputs['python-version'] }}-${{ hashFiles('src/**/*.py', 'pyproject.toml') }}
+      
+      - name: Mypy type check
+        id: mypy
+        run: |
+          if [ "${{ inputs['mypy-strict'] }}" = "true" ]; then
+            mypy src --strict --config-file pyproject.toml 2>&1 | tee mypy.log
+          else
+            mypy src --config-file pyproject.toml 2>&1 | tee mypy.log
+          fi
+          echo "MYPY_RESULT=$?" >> "$GITHUB_ENV"
+      
+      - name: Generate summary
+        if: always()
+        run: |
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "##  Mypy Type Check"
+            echo ""
+            if [ "${{ env.MYPY_RESULT }}" = "0" ]; then
+              echo "| Status |  PASS |"
+            else
+              echo "| Status |  FAIL |"
+            fi
+            echo "|--------|---------|"
+            echo "| Strict Mode | ${{ inputs['mypy-strict'] }} |"
+            echo "| Python | ${{ inputs['python-version'] }} |"
+            echo ""
+            if [ -f mypy.log ]; then
+              ERROR_COUNT=$(grep -c "error:" mypy.log || echo "0")
+              echo "**Errors found:** $ERROR_COUNT"
+            fi
+          } >> "$summary_file"
+      
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: mypy-logs-${{ github.sha }}
+          path: mypy.log
+          if-no-files-found: ignore
+          retention-days: 7
+      
+      - name: Fail if check failed
+        if: env.MYPY_RESULT != '0'
+        run: exit 1
+
+  pylint:
+    name: Pylint (Code Quality)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          token: ${{ github.token }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ inputs['python-version'] }}
+          cache: 'pip'
+      
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+
+      - name: Log pip version
+        run: python -m pip --version
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev,test]"
+      
+      - name: Pylint check
+        id: pylint
+        run: |
+          pylint src/bnsyn --rcfile=pyproject.toml --fail-under="${{ inputs['pylint-threshold'] }}" 2>&1 | tee pylint.log
+          echo "PYLINT_RESULT=$?" >> "$GITHUB_ENV"
+      
+      - name: Generate summary
+        if: always()
+        run: |
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "##  Pylint Code Quality"
+            echo ""
+            if [ "${{ env.PYLINT_RESULT }}" = "0" ]; then
+              echo "| Status |  PASS |"
+            else
+              echo "| Status |  FAIL |"
+            fi
+            echo "|--------|---------|"
+            echo "| Threshold | ${{ inputs['pylint-threshold'] }}/10.0 |"
+            echo "| Python | ${{ inputs['python-version'] }} |"
+            echo ""
+            if [ -f pylint.log ]; then
+              SCORE=$(grep "Your code has been rated at" pylint.log | sed 's/.*rated at \([0-9.]*\).*/\1/' || echo "N/A")
+              echo "**Score:** $SCORE/10.0"
+            fi
+          } >> "$summary_file"
+      
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pylint-logs-${{ github.sha }}
+          path: pylint.log
+          if-no-files-found: ignore
+          retention-days: 7
+      
+      - name: Fail if check failed
+        if: env.PYLINT_RESULT != '0'
+        run: exit 1

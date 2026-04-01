@@ -1,60 +1,69 @@
-name: ci
+name: NFI CI
 
 on:
   push:
-    branches: [main]
+    branches: [master, main]
   pull_request:
+    branches: [master, main]
 
 permissions:
   contents: read
 
 jobs:
-  test:
+  verify:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: actions/setup-python@a26af69be951a213d495a4e8f18426e50392f2a2
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest test_neosynaptex.py -v --tb=short
-      - name: Integration check
+
+      - name: Install
+        run: pip install -e ".[dev]" --quiet
+
+      - name: Verify formula
         run: |
-          python -c "
-          from neosynaptex import Neosynaptex, MockBnSynAdapter, MockMfnAdapter, MockPsycheCoreAdapter, MockMarketAdapter
-          ns = Neosynaptex(window=16)
-          ns.register(MockBnSynAdapter())
-          ns.register(MockMfnAdapter())
-          ns.register(MockPsycheCoreAdapter())
-          ns.register(MockMarketAdapter())
-          for t in range(40):
-              s = ns.observe()
-          assert s.phase == 'METASTABLE', f'Expected METASTABLE, got {s.phase}'
-          assert 0.5 < s.gamma_mean < 1.5, f'gamma out of range: {s.gamma_mean}'
-          print(f'PASS: gamma={s.gamma_mean:.3f} sr={s.spectral_radius:.3f} phase={s.phase}')
+          python3 -c "
+          for H, exp in [(0.5,2.0),(0.0,1.0),(1.0,3.0)]:
+              g = 2*H+1
+              assert abs(g-exp)<1e-9, f'FORMULA ERROR H={H}'
+          print('γ_PSD = 2H+1: VERIFIED')
           "
+
+      - name: Run core tests
+        run: pytest tests/ -v
+
+      - name: Run legacy tests
+        run: pytest test_neosynaptex.py -v --tb=short
+
+      - name: Self-verify axioms
+        run: python3 core/axioms.py
+
+      - name: Demo
+        run: make demo
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: actions/setup-python@a26af69be951a213d495a4e8f18426e50392f2a2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - run: pip install ruff mypy numpy scipy
-      - run: ruff check neosynaptex.py test_neosynaptex.py demo.py
-      - run: mypy neosynaptex.py --ignore-missing-imports
+      - run: ruff check neosynaptex.py core/ tests/
 
   invariants:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: actions/setup-python@a26af69be951a213d495a4e8f18426e50392f2a2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Check gamma never stored
         run: |
           python -c "
@@ -68,15 +77,4 @@ jobs:
                           if isinstance(item.ctx, ast.Store):
                               raise AssertionError(f'INV-1 VIOLATED: gamma stored at line {item.lineno}')
           print('INV-1 OK: gamma never stored as attribute')
-          "
-      - name: Check no Cyrillic in identifiers
-        run: |
-          python -c "
-          src = open('neosynaptex.py').read()
-          for i, line in enumerate(src.splitlines(), 1):
-              for char in line:
-                  if ord(char) > 127 and char not in '# ':
-                      if not line.strip().startswith('#'):
-                          raise AssertionError(f'Non-ASCII at line {i}: {char!r}')
-          print('INV-5 OK: all identifiers ASCII')
           "

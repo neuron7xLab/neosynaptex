@@ -1,0 +1,21 @@
+# ====================================================
+# Kubernetes Service for NeuroCognitiveEngine
+# ====================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: neuro-engine
+  labels:
+    app: neuro-engine
+    component: api
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8000
+    targetPort: http
+    protocol: TCP
+  selector:
+    app: neuro-engine
+    component: api

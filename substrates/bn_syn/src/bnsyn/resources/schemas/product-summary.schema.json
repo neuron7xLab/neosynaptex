@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bnsyn.dev/schemas/product-summary.schema.json",
+  "title": "BN-Syn Product Summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "profile",
+    "seed",
+    "artifact_dir",
+    "primary_visual",
+    "proof_verdict",
+    "criticality_verdict",
+    "avalanche_verdict",
+    "generated_at",
+    "package_version",
+    "bundle_contract_version",
+    "primary_visual_sha256",
+    "primary_visual_data_artifact",
+    "primary_visual_data_sha256"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL"]
+    },
+    "profile": {
+      "type": "string",
+      "const": "canonical"
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "artifact_dir": {
+      "type": "string",
+      "minLength": 1
+    },
+    "primary_visual": {
+      "type": "string",
+      "const": "emergence_plot.png"
+    },
+    "proof_verdict": {
+      "type": "string",
+      "enum": ["PASS", "FAIL"]
+    },
+    "criticality_verdict": {
+      "type": "boolean"
+    },
+    "avalanche_verdict": {
+      "type": "boolean"
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "package_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "bundle_contract_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "primary_visual_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "primary_visual_data_artifact": {
+      "type": "string",
+      "const": "population_rate_trace.npy"
+    },
+    "primary_visual_data_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

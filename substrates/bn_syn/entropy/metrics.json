@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "baseline": {
+    "m1_dependency_pin_ratio": 0.9459,
+    "m1_lockfile_present": 1,
+    "m1_sha_pinned_actions_ratio": 0.0,
+    "m2_determinism_controls": 2,
+    "m3_contract_validation_signals": 2,
+    "m4_entropy_guard_tests": 0,
+    "m5_entropy_evidence_bundle_completeness": 0
+  },
+  "final": {
+    "m1_dependency_pin_ratio": 0.9459,
+    "m1_lockfile_present": 1,
+    "m1_sha_pinned_actions_ratio": 0.0,
+    "m2_determinism_controls": 2,
+    "m3_contract_validation_signals": 2,
+    "m4_entropy_guard_tests": 1,
+    "m5_entropy_evidence_bundle_completeness": 1
+  },
+  "selected_themes": [
+    "process_evidence_bundle",
+    "guarded_entropy_artifacts"
+  ],
+  "metric_commands": {
+    "m1_dependency_pin_ratio": "python - <<'PY' ... tomllib parse pyproject dependencies pinned by == ... PY",
+    "m1_sha_pinned_actions_ratio": "python - <<'PY' ... regex scan .github/workflows uses: entries ... PY",
+    "m2_determinism_controls": "python - <<'PY' ... check [tool.hypothesis].derandomize and PYTHONHASHSEED in ci-pr-atomic.yml ... PY",
+    "m4_entropy_guard_tests": "rg --files tests | rg 'test_entropy_artifacts_guard.py'",
+    "m5_entropy_evidence_bundle_completeness": "python entropy/guards/check_entropy_artifacts.py"
+  }
+}

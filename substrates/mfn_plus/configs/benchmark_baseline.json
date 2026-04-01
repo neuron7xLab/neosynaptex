@@ -1,0 +1,21 @@
+{
+  "schema_version": "mfn-benchmark-baseline-v1",
+  "benchmarks": {
+    "simulation_64x64_64steps": {
+      "mean_s": 0.0234,
+      "max_s": 0.035
+    },
+    "extract_64x64": {
+      "mean_s": 0.0046,
+      "max_s": 0.0092
+    },
+    "detect_64x64": {
+      "mean_s": 0.0197,
+      "max_s": 0.0394
+    },
+    "report_64x64_h4": {
+      "mean_s": 0.1235,
+      "max_s": 0.2471
+    }
+  }
+}

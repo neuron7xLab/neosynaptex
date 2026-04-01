@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Canonical Envelope Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "spec_version", "seed_set", "metric_checks", "verdict", "failure_reasons"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "spec_version": {"type": "string"},
+    "seed_set": {"type": "array", "minItems": 10, "maxItems": 10, "items": {"type": "integer"}},
+    "metric_checks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["observed_min", "observed_max", "allowed_min", "allowed_max", "status"],
+        "properties": {
+          "observed_min": {"type": "number"},
+          "observed_max": {"type": "number"},
+          "allowed_min": {"type": "number"},
+          "allowed_max": {"type": "number"},
+          "status": {"type": "string", "enum": ["PASS", "FAIL"]}
+        }
+      }
+    },
+    "verdict": {"type": "string", "enum": ["PASS", "FAIL"]},
+    "failure_reasons": {"type": "array", "items": {"type": "string"}}
+  }
+}

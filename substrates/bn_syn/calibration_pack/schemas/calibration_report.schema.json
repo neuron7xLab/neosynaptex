@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "meta",
+    "operational_readiness",
+    "calibration_artifacts",
+    "model_calibration",
+    "top_blockers",
+    "next_actions"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["timestamp_utc", "platform", "repo", "assumptions"],
+      "properties": {
+        "timestamp_utc": {"type": "string"},
+        "platform": {
+          "type": "object",
+          "required": ["os", "arch"],
+          "properties": {
+            "os": {"type": "string"},
+            "arch": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "repo": {
+          "type": "object",
+          "required": ["path", "git"],
+          "properties": {
+            "path": {"type": ["string", "null"]},
+            "git": {
+              "type": "object",
+              "required": ["commit", "branch", "dirty"],
+              "properties": {
+                "commit": {"type": ["string", "null"]},
+                "branch": {"type": ["string", "null"]},
+                "dirty": {"type": ["boolean", "null"]}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "assumptions": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "operational_readiness": {
+      "type": "object",
+      "required": ["score_0_100", "label", "gates"],
+      "properties": {
+        "score_0_100": {"type": "integer", "minimum": 0, "maximum": 100},
+        "label": {"enum": ["BROKEN", "PARTIAL", "WORKING", "CALIBRATED"]},
+        "gates": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "status", "weight", "evidence"],
+            "properties": {
+              "id": {"type": "string"},
+              "name": {"type": "string"},
+              "status": {"enum": ["PASS", "FAIL", "UNKNOWN"]},
+              "weight": {"type": "integer"},
+              "evidence": {"type": "array", "items": {"type": "string"}}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "calibration_artifacts": {
+      "type": "object",
+      "required": ["prompts", "schemas", "harness", "golden", "logs"],
+      "properties": {
+        "prompts": {"$ref": "#/$defs/hashedItems"},
+        "schemas": {"$ref": "#/$defs/hashedItems"},
+        "harness": {"$ref": "#/$defs/hashedItems"},
+        "golden": {"$ref": "#/$defs/hashedItems"},
+        "logs": {"$ref": "#/$defs/hashedItems"}
+      },
+      "additionalProperties": false
+    },
+    "model_calibration": {
+      "type": "object",
+      "required": ["priors", "confidence_model", "evidence_strength_index"],
+      "properties": {
+        "priors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["module", "pessimistic_prior_risk", "notes", "evidence"],
+            "properties": {
+              "module": {"type": "string"},
+              "pessimistic_prior_risk": {"type": "number"},
+              "notes": {"type": "string"},
+              "evidence": {"type": "array", "items": {"type": "string"}}
+            },
+            "additionalProperties": false
+          }
+        },
+        "confidence_model": {
+          "type": "object",
+          "required": ["description", "evidence"],
+          "properties": {
+            "description": {"type": "string"},
+            "evidence": {"type": "array", "items": {"type": "string"}}
+          },
+          "additionalProperties": false
+        },
+        "evidence_strength_index": {
+          "type": "object",
+          "required": ["definition", "range", "evidence"],
+          "properties": {
+            "definition": {"type": "string"},
+            "range": {"const": "1-5"},
+            "evidence": {"type": "array", "items": {"type": "string"}}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "top_blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "impact_points", "fix", "evidence"],
+        "properties": {
+          "title": {"type": "string"},
+          "impact_points": {"type": "integer"},
+          "fix": {"type": "string"},
+          "evidence": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "next_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action", "expected_gain_points", "steps", "evidence_targets"],
+        "properties": {
+          "action": {"type": "string"},
+          "expected_gain_points": {"type": "integer"},
+          "steps": {"type": "array", "items": {"type": "string"}},
+          "evidence_targets": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "hashedItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

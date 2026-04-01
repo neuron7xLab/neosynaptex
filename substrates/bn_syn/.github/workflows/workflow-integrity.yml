@@ -1,0 +1,220 @@
+name: Workflow Integrity
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-workflows:
+    name: Validate workflow files
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Enforce non-PR workflow triggers
+        shell: bash
+        run: |
+          set -euo pipefail
+          allowlist=(
+            "ci-pr-atomic.yml"
+            "canonical-proof-spine.yml"
+            "ci-pr.yml"
+            "ci-smoke.yml"
+            "codeql.yml"
+            "docs.yml"
+            "dependency-review.yml"
+            "scientific_product_gate.yml"
+            "sse-sdo-fhe-gate.yml"
+            "sse-sdo-max-gate.yml"
+            "workflow-integrity.yml"
+            "_reusable_benchmarks.yml"
+            "_reusable_chaos_tests.yml"
+            "_reusable_formal_science.yml"
+            "_reusable_gate_profile.yml"
+            "_reusable_property_tests.yml"
+            "_reusable_pytest.yml"
+            "_reusable_quality.yml"
+            "_reusable_ssot.yml"
+            "_reusable_validation_tests.yml"
+          )
+          declare -A allowed
+          for name in "${allowlist[@]}"; do
+            allowed["$name"]=1
+          done
+          mapfile -t files < <(ls .github/workflows/*.yml)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No workflow files found."
+            exit 1
+          fi
+          echo "Scanned ${#files[@]} workflows."
+          echo "Allowed PR-trigger workflows: ${allowlist[*]}"
+          violations=0
+          for file in "${files[@]}"; do
+            base="$(basename "$file")"
+            is_allowed="${allowed[$base]-}"
+            status=0
+            if ! awk '
+              BEGIN { in_on=0; found=0 }
+
+              /^on:[[:space:]]*\[/ {
+                if ($0 ~ /pull_request/ || $0 ~ /push/ ||
+                    $0 ~ /workflow_call/) {
+                  print FILENAME ":" NR ":" $0
+                  found=1
+                }
+                next
+              }
+
+              /^on:[[:space:]]*(pull_request|push|workflow_call)[[:space:]]*$/ {
+                print FILENAME ":" NR ":" $0
+                found=1
+                next
+              }
+
+              /^on:[[:space:]]*$/ { in_on=1; next }
+
+              in_on {
+                if ($0 ~ /^[^[:space:]]/) { exit }
+                pattern = "^[[:space:]]*(pull_request|push|workflow_call)"
+                pattern = pattern "[[:space:]]*:"
+                if ($0 ~ pattern) {
+                  print FILENAME ":" NR ":" $0
+                  found=1
+                }
+              }
+
+              END { if (found) exit 2 }
+            ' "$file"; then
+              status=$?
+            fi
+            if [ "$status" -eq 2 ]; then
+              if [ -z "$is_allowed" ]; then
+                violations=1
+              fi
+            elif [ "$status" -ne 0 ]; then
+              violations=1
+            fi
+          done
+          if [ "$violations" -ne 0 ]; then
+            echo "Non-PR workflow trigger violations detected."
+            echo "Workflows outside the allowlist MUST NOT declare"
+            echo "pull_request/push/workflow_call under on:."
+            exit 1
+          fi
+          echo "Guarded workflows: trigger policy OK."
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+      - name: Install actionlint
+        shell: bash
+        run: |
+          GOBIN="$HOME/.local/bin" go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.8
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Lint workflows with actionlint
+        shell: bash
+        run: actionlint -shellcheck=shellcheck -verbose
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+      - name: Log pip version
+        run: python -m pip --version
+      - name: Scan workflow files for tabs or non-ASCII
+        shell: bash
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          from pathlib import Path
+          import unicodedata
+
+          workflow_dir = Path(".github/workflows")
+          md_files = sorted(Path(".github").rglob("*.md"))
+          offenders = []
+
+          def scan_text(
+              path: Path,
+              allow_non_ascii: bool,
+          ) -> None:
+              text = path.read_text(encoding="utf-8", errors="replace")
+              for line_no, line in enumerate(text.splitlines(), 1):
+                  if "\t" in line:
+                      offenders.append((path, line_no, "TAB"))
+                  for ch in line:
+                      codepoint = ord(ch)
+                      category = unicodedata.category(ch)
+                      if category in {"Cf", "Cc"} and ch not in {"\n", "\r"}:
+                          detail = (
+                              f"CONTROL_OR_BIDI {category} "
+                              f"U+{codepoint:04X}"
+                          )
+                          offenders.append((path, line_no, detail))
+                      if not allow_non_ascii and codepoint > 0x7F:
+                          detail = f"NON_ASCII U+{codepoint:04X}"
+                          offenders.append((path, line_no, detail))
+
+          for path in sorted(workflow_dir.glob("*.yml")):
+              scan_text(path, allow_non_ascii=False)
+
+          for path in md_files:
+              scan_text(path, allow_non_ascii=True)
+
+          if offenders:
+              for path, line_no, detail in offenders:
+                  print(f"{path}:{line_no}:{detail}")
+              raise SystemExit(1)
+
+          print("Workflow integrity checks passed.")
+          PY
+      - name: Install safety checker dependencies
+        run: python -m pip install pyyaml jsonschema
+      - name: Validate PR gate definition
+        run: python -m scripts.validate_pr_gates
+      - name: Validate required checks
+        run: python -m scripts.validate_required_checks
+      - name: Validate required status contexts
+        run: python -m scripts.validate_required_status_contexts
+      - name: Emit CI run evidence
+        run: |
+          mkdir -p artifacts/ci-evidence
+          cat > artifacts/ci-evidence/workflow-integrity-${{ github.sha }}.json <<'JSON'
+          {
+            "workflow": "workflow-integrity",
+            "sha": "${{ github.sha }}",
+            "run_id": "${{ github.run_id }}",
+            "run_attempt": "${{ github.run_attempt }}",
+            "run_number": "${{ github.run_number }}",
+            "ref": "${{ github.ref }}",
+            "event": "${{ github.event_name }}"
+          }
+          JSON
+      - name: Upload CI run evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ci-evidence-workflow-integrity-${{ github.sha }}
+          path: artifacts/ci-evidence/workflow-integrity-${{ github.sha }}.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Validate branch protection governance document
+        run: python -m scripts.validate_branch_protection_governance
+      - name: Validate workflow contracts
+        run: python -m scripts.validate_workflow_contracts
+      - name: Validate long-running workflow triggers
+        run: python -m scripts.validate_long_running_triggers
+      - name: Render workflow policy documentation
+        run: python -m scripts.render_workflow_policy_docs
+      - name: Verify workflow policy documentation
+        run: git diff --exit-code -- .github/WORKFLOW_CONTRACTS.md
+      - name: Validate safety artifacts
+        run: python tools/safety/check_safety_artifacts.py
+      - name: Validate inventory snapshot
+        run: python tools/generate_inventory.py --check

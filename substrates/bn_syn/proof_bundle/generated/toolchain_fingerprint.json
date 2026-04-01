@@ -1,0 +1,151 @@
+{
+  "os": "Linux-6.12.47-x86_64-with-glibc2.39",
+  "python": "3.12.12",
+  "git_commit": "c84ec61da8184424909a7f819971f31996412843",
+  "branch": "work",
+  "command_policy": "read-only non-destructive",
+  "commands": [
+    {
+      "cmd": "git rev-parse HEAD",
+      "log": "proof_bundle/command_logs/01.log",
+      "exit": 0
+    },
+    {
+      "cmd": "git branch --show-current",
+      "log": "proof_bundle/command_logs/02.log",
+      "exit": 0
+    },
+    {
+      "cmd": "git status --porcelain",
+      "log": "proof_bundle/command_logs/03.log",
+      "exit": 0
+    },
+    {
+      "cmd": "git remote -v",
+      "log": "proof_bundle/command_logs/04.log",
+      "exit": 0
+    },
+    {
+      "cmd": "python --version",
+      "log": "proof_bundle/command_logs/05.log",
+      "exit": 0
+    },
+    {
+      "cmd": "pytest --version",
+      "log": "proof_bundle/command_logs/06.log",
+      "exit": 0
+    },
+    {
+      "cmd": "rg --files",
+      "log": "proof_bundle/command_logs/07.log",
+      "exit": 0
+    },
+    {
+      "cmd": "rg -n \"\\[tool\\.poetry\\]|dependencies|requires-python|pytest|ruff|mypy\" pyproject.toml",
+      "log": "proof_bundle/command_logs/08.log",
+      "exit": 0
+    },
+    {
+      "cmd": "sed -n \"1,220p\" README.md",
+      "log": "proof_bundle/command_logs/09.log",
+      "exit": 0
+    },
+    {
+      "cmd": "rg --files .github/workflows",
+      "log": "proof_bundle/command_logs/10.log",
+      "exit": 0
+    },
+    {
+      "cmd": "sed -n \"1,260p\" .github/workflows/ci.yml",
+      "log": "proof_bundle/command_logs/11.log",
+      "exit": 2
+    },
+    {
+      "cmd": "rg --files -g \"**/*migrat*\" -g \"infra/**\"",
+      "log": "proof_bundle/command_logs/12.log",
+      "exit": 1
+    },
+    {
+      "cmd": "rg -n \"SECRET|TOKEN|PASSWORD|API_KEY|PRIVATE KEY|BEGIN [A-Z ]*PRIVATE KEY\" -S",
+      "log": "proof_bundle/command_logs/13.log",
+      "exit": 1
+    },
+    {
+      "cmd": "git log --oneline -n 30",
+      "log": "proof_bundle/command_logs/14.log",
+      "exit": 0
+    }
+  ],
+  "deterministic_replay_instructions": [
+    {
+      "order": 1,
+      "cmd": "git rev-parse HEAD",
+      "timeout_sec": 30
+    },
+    {
+      "order": 2,
+      "cmd": "git branch --show-current",
+      "timeout_sec": 30
+    },
+    {
+      "order": 3,
+      "cmd": "git status --porcelain",
+      "timeout_sec": 30
+    },
+    {
+      "order": 4,
+      "cmd": "git remote -v",
+      "timeout_sec": 30
+    },
+    {
+      "order": 5,
+      "cmd": "python --version",
+      "timeout_sec": 30
+    },
+    {
+      "order": 6,
+      "cmd": "pytest --version",
+      "timeout_sec": 30
+    },
+    {
+      "order": 7,
+      "cmd": "rg --files",
+      "timeout_sec": 120
+    },
+    {
+      "order": 8,
+      "cmd": "rg -n \"\\[tool\\.poetry\\]|dependencies|requires-python|pytest|ruff|mypy\" pyproject.toml",
+      "timeout_sec": 30
+    },
+    {
+      "order": 9,
+      "cmd": "sed -n \"1,220p\" README.md",
+      "timeout_sec": 30
+    },
+    {
+      "order": 10,
+      "cmd": "rg --files .github/workflows",
+      "timeout_sec": 30
+    },
+    {
+      "order": 11,
+      "cmd": "sed -n \"1,260p\" .github/workflows/ci.yml",
+      "timeout_sec": 30
+    },
+    {
+      "order": 12,
+      "cmd": "rg --files -g \"**/*migrat*\" -g \"infra/**\"",
+      "timeout_sec": 30
+    },
+    {
+      "order": 13,
+      "cmd": "rg -n \"SECRET|TOKEN|PASSWORD|API_KEY|PRIVATE KEY|BEGIN [A-Z ]*PRIVATE KEY\" -S",
+      "timeout_sec": 60
+    },
+    {
+      "order": 14,
+      "cmd": "git log --oneline -n 30",
+      "timeout_sec": 30
+    }
+  ]
+}

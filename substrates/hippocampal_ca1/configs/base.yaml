@@ -1,0 +1,43 @@
+# Default CA1-LAM Configuration
+# This file defines the baseline configuration for reproducible experiments.
+# All parameters can be overridden in experiment-specific configs.
+
+name: "default"
+description: "Default CA1-LAM configuration for reproducible experiments"
+version: "1.0.0"
+
+core:
+  # Simulation parameters
+  n_neurons: 100
+  dt: 0.1  # ms
+  duration_ms: 1000.0
+  seed: 42  # For reproducibility
+
+  # Network architecture
+  n_layers: 4
+  connection_probability: 0.1
+
+  # Weight constraints
+  weight_min: 0.01
+  weight_max: 10.0
+  spectral_radius_target: 0.95  # For stability
+
+  # Plasticity
+  learning_rate: 0.001
+  weight_decay: 0.00001
+
+  # Oscillations
+  theta_frequency: 8.0  # Hz
+
+  # Runtime options
+  debug_mode: true
+  guards_enabled: true
+
+# Output configuration
+output_dir: "outputs"
+save_checkpoints: true
+checkpoint_interval: 100
+
+# Parameter overrides (for biophysical_parameters.py)
+# These override the default dataclass values
+overrides: {}

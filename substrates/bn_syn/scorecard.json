@@ -1,0 +1,125 @@
+{
+  "generated_at": "2026-02-18T14:08:15Z",
+  "phase_0": "PASS",
+  "ric_1": "PASS",
+  "phase_1": "PASS",
+  "ric_2": "PASS",
+  "gates": [
+    {
+      "gate": "A",
+      "process_steps": "executed",
+      "pass_criteria": "met",
+      "evidence": [
+        "manifests/prs/prs_A.json",
+        "manifests/jtb/jtb_A.json"
+      ],
+      "status": "PASS",
+      "blocker_protocol_invoked": false,
+      "ric3_checkpoint": false
+    },
+    {
+      "gate": "B",
+      "process_steps": "executed",
+      "pass_criteria": "met",
+      "evidence": [
+        "manifests/prs/prs_B.json",
+        "manifests/jtb/jtb_B.json"
+      ],
+      "status": "PASS",
+      "blocker_protocol_invoked": false,
+      "ric3_checkpoint": true
+    },
+    {
+      "gate": "C",
+      "process_steps": "executed",
+      "pass_criteria": "met",
+      "evidence": [
+        "manifests/prs/prs_C.json",
+        "manifests/jtb/jtb_C.json"
+      ],
+      "status": "PASS",
+      "blocker_protocol_invoked": false,
+      "ric3_checkpoint": false
+    },
+    {
+      "gate": "D",
+      "process_steps": "executed",
+      "pass_criteria": "met",
+      "evidence": [
+        "manifests/prs/prs_D.json",
+        "manifests/jtb/jtb_D.json"
+      ],
+      "status": "PASS",
+      "blocker_protocol_invoked": false,
+      "ric3_checkpoint": true
+    },
+    {
+      "gate": "E",
+      "process_steps": "executed",
+      "pass_criteria": "met",
+      "evidence": [
+        "manifests/prs/prs_E.json",
+        "manifests/jtb/jtb_E.json"
+      ],
+      "status": "PASS",
+      "blocker_protocol_invoked": false,
+      "ric3_checkpoint": false
+    },
+    {
+      "gate": "F",
+      "process_steps": "executed",
+      "pass_criteria": "met",
+      "evidence": [
+        "manifests/prs/prs_F.json",
+        "manifests/jtb/jtb_F.json"
+      ],
+      "status": "PASS",
+      "blocker_protocol_invoked": false,
+      "ric3_checkpoint": true
+    },
+    {
+      "gate": "G",
+      "process_steps": "executed",
+      "pass_criteria": "met",
+      "evidence": [
+        "manifests/prs/prs_G.json",
+        "manifests/jtb/jtb_G.json"
+      ],
+      "status": "PASS",
+      "blocker_protocol_invoked": false,
+      "ric3_checkpoint": false
+    },
+    {
+      "gate": "H",
+      "process_steps": "executed",
+      "pass_criteria": "met",
+      "evidence": [
+        "manifests/prs/prs_H.json",
+        "manifests/jtb/jtb_H.json"
+      ],
+      "status": "PASS",
+      "blocker_protocol_invoked": false,
+      "ric3_checkpoint": true
+    },
+    {
+      "gate": "I",
+      "process_steps": "executed",
+      "pass_criteria": "met",
+      "evidence": [
+        "manifests/prs/prs_I.json",
+        "manifests/jtb/jtb_I.json"
+      ],
+      "status": "PASS",
+      "blocker_protocol_invoked": false,
+      "ric3_checkpoint": false
+    }
+  ],
+  "ric_3": "PASS",
+  "phase_3_launch_readiness": {
+    "chk_launch_done": "PASS",
+    "rollback_tested": "PASS",
+    "production_metrics_collecting": "PASS_WITH_ASSUMPTION"
+  },
+  "ric_final": "PASS",
+  "overall": "PASS"
+}

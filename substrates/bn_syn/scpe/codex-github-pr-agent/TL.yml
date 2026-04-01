@@ -1,0 +1,92 @@
+scpe_release: v1.0
+schema_version: TL-2026.1
+terms:
+  - term: "Codex-executed"
+    operational_definition: "Executed in an automated agent runtime with shell access and captured stdout/stderr."
+    inclusion_rules: ["commands executed via shell are logged with exit codes"]
+    exclusion_rules: ["manual unstated steps"]
+    evidence_pointer: "ENV.txt"
+    counterexamples: ["unrecorded local edits", "actions performed in UI without logs"]
+    synonyms_allowed: []
+    forbidden_synonyms: ["manual"]
+
+  - term: "GitHub pull request"
+    operational_definition: "A GitHub PR object with a URL, base branch, head branch, and check suite context."
+    inclusion_rules: ["PR URL exists", "base=head mapping exists"]
+    exclusion_rules: ["patch file without PR", "issue without PR"]
+    evidence_pointer: "REPORTS/pr.json"
+    counterexamples: ["local branch only", "draft plan without PR URL"]
+    synonyms_allowed: ["PR"]
+    forbidden_synonyms: ["merge request"]
+
+  - term: "workflow run URL"
+    operational_definition: "A resolvable URL identifying a specific GitHub Actions run associated with the PR head SHA."
+    inclusion_rules: ["run URL recorded", "run contains head SHA reference"]
+    exclusion_rules: ["workflow name without run", "screenshots"]
+    evidence_pointer: "REPORTS/ci-after.json"
+    counterexamples: ["verbal claim of green CI", "link to workflow list page only"]
+    synonyms_allowed: ["run URL"]
+    forbidden_synonyms: ["CI link"]
+
+  - term: "required checks"
+    operational_definition: "A set of GitHub status checks that MUST be successful for merge eligibility."
+    inclusion_rules: ["check names listed or discovered", "statuses captured for head SHA"]
+    exclusion_rules: ["ad hoc checks not enforced"]
+    evidence_pointer: "REPORTS/checks.json"
+    counterexamples: ["tests passed locally only", "green badge without run details"]
+    synonyms_allowed: []
+    forbidden_synonyms: ["optional checks"]
+
+  - term: "allowlist"
+    operational_definition: "A set of path globs defining the only files the agent MAY modify."
+    inclusion_rules: ["explicit patterns provided", "denied paths computed"]
+    exclusion_rules: ["implicit scope", "verbal scope only"]
+    evidence_pointer: "REPORTS/inventory.json"
+    counterexamples: ["change outside scope for convenience", "modify configs without allowlist"]
+    synonyms_allowed: ["allowed paths"]
+    forbidden_synonyms: ["scope"]
+
+  - term: "minimal diff"
+    operational_definition: "The smallest scoped change that closes specific failing gates without unrelated modifications."
+    inclusion_rules: ["changes within allowlist", "no unrelated formatting churn"]
+    exclusion_rules: ["drive-by refactors", "mass formatting"]
+    evidence_pointer: "REPORTS/diff-summary.json"
+    counterexamples: ["format entire repo", "rename unrelated modules"]
+    synonyms_allowed: ["minimal change"]
+    forbidden_synonyms: ["cleanup"]
+
+  - term: "EBS-2026"
+    operational_definition: "Evidence Bundle Standard requiring ENV.txt, COMMANDS.txt, BASELINE/, AFTER/, REPORTS/, MANIFEST.json with sha256."
+    inclusion_rules: ["canonical root path", "manifest schema satisfied"]
+    exclusion_rules: ["logs without checksums"]
+    evidence_pointer: "MANIFEST.json"
+    counterexamples: ["screenshots", "prose-only proof"]
+    synonyms_allowed: []
+    forbidden_synonyms: ["proof by description"]
+
+  - term: "soft-launch"
+    operational_definition: "A mode permitting specified gates to continue-on-error only with explicit debt accounting artifacts."
+    inclusion_rules: ["enabled explicitly", "debt artifact emitted"]
+    exclusion_rules: ["silent bypassing", "ignore failures"]
+    evidence_pointer: "REPORTS/quality-debt.json"
+    counterexamples: ["skip tests under urgency", "merge despite failures"]
+    synonyms_allowed: []
+    forbidden_synonyms: ["relax mode"]
+
+  - term: "redaction policy"
+    operational_definition: "A deterministic rule set for masking secrets and sensitive tokens from logs and outputs."
+    inclusion_rules: ["SECURITY.redaction.yml exists", "patterns defined"]
+    exclusion_rules: ["manual ad hoc redaction"]
+    evidence_pointer: "SECURITY.redaction.yml"
+    counterexamples: ["print tokens for debugging", "paste private keys in logs"]
+    synonyms_allowed: []
+    forbidden_synonyms: ["common sense"]
+
+  - term: "gh CLI authenticated"
+    operational_definition: "gh auth status confirms valid credentials for the target repository with least privilege."
+    inclusion_rules: ["gh auth status succeeds", "repo access verified"]
+    exclusion_rules: ["assumed auth", "unknown token scopes"]
+    evidence_pointer: "REPORTS/gh-auth.json"
+    counterexamples: ["commands fail due to auth", "token scope not recorded"]
+    synonyms_allowed: []
+    forbidden_synonyms: ["logged in"]

@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SimulationSpec",
+  "version": "v1",
+  "type": "object",
+  "properties": {
+    "grid_size": {
+      "type": "integer"
+    },
+    "steps": {
+      "type": "integer"
+    },
+    "alpha": {
+      "type": "number"
+    },
+    "spike_probability": {
+      "type": "number"
+    },
+    "turing_enabled": {
+      "type": "boolean"
+    },
+    "turing_threshold": {
+      "type": "number"
+    },
+    "quantum_jitter": {
+      "type": "boolean"
+    },
+    "jitter_var": {
+      "type": "number"
+    },
+    "seed": {
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "neuromodulation": {
+      "oneOf": [
+        {
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": true
+}

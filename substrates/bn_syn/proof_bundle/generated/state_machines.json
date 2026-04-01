@@ -1,0 +1,47 @@
+{
+  "generated_at_utc": "2026-02-15T20:06:09.013755Z",
+  "flows": [
+    {
+      "name": "simulation_run",
+      "states": [
+        "PENDING",
+        "RUNNING",
+        "COMPLETED",
+        "FAILED"
+      ],
+      "transitions": [
+        {
+          "from": "PENDING",
+          "to": "RUNNING",
+          "guard": "input_validated"
+        },
+        {
+          "from": "RUNNING",
+          "to": "COMPLETED",
+          "guard": "simulation_finished"
+        },
+        {
+          "from": "RUNNING",
+          "to": "FAILED",
+          "guard": "error_raised"
+        }
+      ],
+      "illegal_transitions": [
+        {
+          "from": "PENDING",
+          "to": "COMPLETED",
+          "reason": "missing execution step"
+        }
+      ],
+      "missing_terminal_states": []
+    }
+  ],
+  "evidence": [
+    {
+      "ref": "path:README.md:1-120",
+      "type": "static",
+      "strength_score_1_5": 2,
+      "reproducible": true
+    }
+  ]
+}

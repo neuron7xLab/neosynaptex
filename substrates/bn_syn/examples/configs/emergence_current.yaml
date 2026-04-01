@@ -1,0 +1,13 @@
+experiment:
+  name: emergence_current
+  version: v1
+  seeds: [42]
+
+network:
+  size: 500
+
+simulation:
+  duration_ms: 2000.0
+  dt_ms: 0.1
+  external_current_pA: 410.0
+  artifact_dir: artifacts/emergence

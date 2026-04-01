@@ -1,0 +1,6 @@
+services:
+  bnsyn:
+    build: .
+    command: ["python", "benchmarks/run_benchmarks.py", "--scenario", "full", "--repeats", "5", "--json", "artifacts/bench_full.json"]
+    volumes:
+      - .:/app

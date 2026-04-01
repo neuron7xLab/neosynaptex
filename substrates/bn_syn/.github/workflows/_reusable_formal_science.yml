@@ -1,0 +1,399 @@
+# REUSABLE NON-PR-GATE: long-running workflow_call; must not run on pull_request/push.
+name: _reusable_formal_science
+
+on:
+  workflow_call:
+    inputs:
+      proof-suite:
+        description: "Formal or science suite to run (coq, tla, science)."
+        required: true
+        type: string
+      model-set:
+        description: "Model set or experiment identifier."
+        required: true
+        type: string
+      time-budget:
+        description: "Job timeout (minutes)."
+        required: true
+        type: number
+      max-steps:
+        description: "TLA+ max steps."
+        required: false
+        default: "100"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  formal-science:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.time-budget }}
+    env:
+      MODEL_SET: ${{ inputs.model-set }}
+      PROOF_SUITE: ${{ inputs.proof-suite }}
+      TLA2TOOLS_VERSION: "1.8.0"
+      TLA2TOOLS_SHA256: "a6ece2e543c87e6e7d90d1c6e0cc04d57b1f08e6e7f4f4db08ebafdd8b39c53e"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Set up OCaml and Coq
+        if: ${{ inputs.proof-suite == 'coq' }}
+        uses: ocaml/setup-ocaml@dec6499fef64fc5d7ed43d43a87251b7b1c306f5
+        with:
+          ocaml-compiler: "4.14.x"
+          dune-cache: true
+          opam-pin: false
+          opam-depext: true
+
+      - name: Install Coq
+        if: ${{ inputs.proof-suite == 'coq' }}
+        run: |
+          opam install -y coq.8.18.0
+          opam install -y coq-mathcomp-ssreflect.2.2.0
+          eval "$(opam env)"
+
+      - name: Verify Coq installation
+        if: ${{ inputs.proof-suite == 'coq' }}
+        run: |
+          eval "$(opam env)"
+          coqc --version | tee coq_version.txt
+          echo "Coq installed: $(cat coq_version.txt)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Compile Coq proofs
+        if: ${{ inputs.proof-suite == 'coq' }}
+        id: coq_compile
+        run: |
+          eval "$(opam env)"
+          cd "${MODEL_SET}"
+
+          COMPILATION_FAILED=0
+          summary_lines="##  Coq Proof Verification\n\n"
+          for vfile in *.v; do
+            if [ -f "$vfile" ]; then
+              echo "Compiling $vfile..." | tee -a coq_compile_log.txt
+              if coqc "$vfile" 2>&1 | tee "coq_output_${vfile%.v}.txt"; then
+                summary_lines="${summary_lines} $vfile compiled successfully\n"
+              else
+                summary_lines="${summary_lines} $vfile compilation failed\n"
+                COMPILATION_FAILED=1
+              fi
+            fi
+          done
+
+          if [ "$COMPILATION_FAILED" -eq 1 ]; then
+            summary_lines="${summary_lines}\n Some Coq proofs failed to compile\n"
+            printf '%b' "$summary_lines" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          else
+            summary_lines="${summary_lines}\n All Coq proofs verified successfully\n"
+            printf '%b' "$summary_lines" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Generate proof summary
+        if: ${{ inputs.proof-suite == 'coq' && always() }}
+        run: |
+          eval "$(opam env)"
+          cd "${MODEL_SET}"
+
+          cat > coq_summary.md << EOF
+          # Coq Proof Verification Summary
+
+          **Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Coq Version:** $(coqc --version | head -1)
+
+          ## Verified Proofs
+
+          EOF
+
+          for vfile in *.v; do
+            if [ -f "$vfile" ]; then
+              echo "- **$vfile**" >> coq_summary.md
+              if [ -f "coq_output_${vfile%.v}.txt" ]; then
+                grep -E "(Theorem|Lemma|Corollary|Definition)" "coq_output_${vfile%.v}.txt" || echo "  (compiled successfully)" >> coq_summary.md
+              fi
+            fi
+          done
+
+      - name: Upload Coq artifacts
+        if: ${{ inputs.proof-suite == 'coq' && always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: coq-proof-verification-${{ github.sha }}
+          path: |
+            ${{ inputs.model-set }}/coq_output_*.txt
+            ${{ inputs.model-set }}/coq_summary.md
+            ${{ inputs.model-set }}/*.vo
+            ${{ inputs.model-set }}/*.glob
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Check compilation status
+        if: ${{ inputs.proof-suite == 'coq' && always() }}
+        run: |
+          if [ "${{ steps.coq_compile.outcome }}" != "success" ]; then
+            echo " Coq proof verification failed" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+      - name: Set up Java
+        if: ${{ inputs.proof-suite == 'tla' }}
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download and verify TLA+ Tools
+        if: ${{ inputs.proof-suite == 'tla' }}
+        run: |
+          cd "${MODEL_SET}"
+          wget -q "https://github.com/tlaplus/tlaplus/releases/download/v${TLA2TOOLS_VERSION}/tla2tools.jar"
+
+          echo "${TLA2TOOLS_SHA256}  tla2tools.jar" | sha256sum -c - || {
+            echo " SHA256 verification failed for tla2tools.jar"
+            exit 1
+          }
+
+          echo " TLA+ tools v${TLA2TOOLS_VERSION} downloaded and verified"
+
+      - name: Generate TLA+ configuration with max_steps
+        if: ${{ inputs.proof-suite == 'tla' }}
+        run: |
+          cd "${MODEL_SET}"
+          MAX_STEPS="${{ inputs.max-steps }}"
+
+          cat > BNsyn_runtime.cfg << EOF
+          SPECIFICATION Spec
+
+          \* Constants configuration (aligned with src/bnsyn/config.py)
+          CONSTANTS
+              T0 = 1.0
+              Tmin = 0.001
+              Alpha = 0.95
+              Tc = 0.1
+              GateTau = 0.02
+              GainMin = 0.2
+              GainMax = 5.0
+              MaxSteps = ${MAX_STEPS}
+
+          \* State invariants to check (no primed variables)
+          INVARIANTS
+              TypeOK
+              GainClamp
+              TemperatureBounds
+              GateBounds
+              PhaseValid
+
+          \* Temporal properties to check
+          PROPERTIES
+              TemperatureMonotone
+              EventuallyCooled
+              GateCorrelation
+
+          \* Constraints for model checking
+          CONSTRAINT step <= MaxSteps
+          EOF
+
+          echo "Generated BNsyn_runtime.cfg with MaxSteps=${MAX_STEPS}"
+
+      - name: Verify TLA+ specification syntax
+        if: ${{ inputs.proof-suite == 'tla' }}
+        id: syntax
+        run: |
+          cd "${MODEL_SET}"
+          java -cp tla2tools.jar tla2sany.SANY BNsyn.tla
+          echo " TLA+ specification syntax is valid" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run TLC model checker
+        if: ${{ inputs.proof-suite == 'tla' }}
+        id: tlc
+        run: |
+          cd "${MODEL_SET}"
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "##  TLA+ Model Checking Results"
+            echo ""
+          } >> "$summary_file"
+
+          java -XX:+UseParallelGC -Xmx4g -jar tla2tools.jar \
+            -config BNsyn_runtime.cfg \
+            -workers auto \
+            -coverage 1 \
+            BNsyn.tla 2>&1 | tee tlc_output.txt
+
+      - name: Analyze TLC results
+        if: ${{ inputs.proof-suite == 'tla' && always() }}
+        run: |
+          cd "${MODEL_SET}"
+
+          if grep -q "Model checking completed. No error has been found." tlc_output.txt; then
+            STATUS="PASS"
+            SUMMARY_LINES=" **Model checking PASSED**\n\nAll invariants verified successfully.\n"
+          elif grep -q "Error:" tlc_output.txt; then
+            STATUS="FAIL"
+            SUMMARY_LINES=" **Model checking FAILED**\n\nInvariant violations detected!\n"
+          else
+            STATUS="INCOMPLETE"
+            SUMMARY_LINES=" **Model checking INCOMPLETE**\n\nModel checker did not complete successfully.\n"
+          fi
+          echo "STATUS=$STATUS" >> "$GITHUB_ENV"
+          printf '%b' "$SUMMARY_LINES" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Extract model checking statistics
+        if: ${{ inputs.proof-suite == 'tla' && always() }}
+        run: |
+          cd "${MODEL_SET}"
+
+          if [ -f tlc_output.txt ]; then
+            STATES=$(grep "distinct states" tlc_output.txt | tail -1 || echo "N/A")
+            DIAMETER=$(grep "diameter" tlc_output.txt | tail -1 || echo "N/A")
+            summary_lines="\n### Model Checking Statistics\n\n"
+            summary_lines="${summary_lines}| Metric | Value |\n"
+            summary_lines="${summary_lines}|--------|-------|\n"
+            summary_lines="${summary_lines}| States Checked | $STATES |\n"
+            summary_lines="${summary_lines}| State Graph Diameter | $DIAMETER |\n"
+            summary_lines="${summary_lines}| Max Steps | ${{ inputs.max-steps }} |\n"
+            printf '%b' "$summary_lines" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Generate detailed invariant report
+        if: ${{ inputs.proof-suite == 'tla' && always() }}
+        run: |
+          cd "${MODEL_SET}"
+
+          summary_lines="\n### Invariant Verification Status\n\n"
+          summary_lines="${summary_lines}| Invariant | Status |\n"
+          summary_lines="${summary_lines}|-----------|--------|\n"
+          for inv in "TypeOK" "GainClamp" "TemperatureBounds" "GateBounds" "PhaseValid"; do
+            if grep -q "Invariant $inv is violated" tlc_output.txt 2>/dev/null; then
+              summary_lines="${summary_lines}| $inv |  VIOLATED |\n"
+            elif grep -q "Model checking completed. No error has been found." tlc_output.txt 2>/dev/null; then
+              summary_lines="${summary_lines}| $inv |  VERIFIED |\n"
+            elif grep -q "Finished computing initial states" tlc_output.txt 2>/dev/null; then
+              summary_lines="${summary_lines}| $inv |  NOT_PROVEN |\n"
+            else
+              summary_lines="${summary_lines}| $inv |  NOT_CHECKED |\n"
+            fi
+          done
+          printf '%b' "$summary_lines" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create summary report file
+        if: ${{ inputs.proof-suite == 'tla' && always() }}
+        run: |
+          cd "${MODEL_SET}"
+
+          cat > tla_summary.md << EOF
+          # TLA+ Model Checking Summary
+
+          **Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Version:** ${TLA2TOOLS_VERSION}
+          **MaxSteps:** ${{ inputs.max-steps }}
+          **Status:** ${STATUS}
+
+          ## Output
+          \`\`\`
+          $(cat tlc_output.txt)
+          \`\`\`
+          EOF
+
+      - name: Upload TLC artifacts
+        if: ${{ inputs.proof-suite == 'tla' && always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: tla-model-check-report-${{ github.sha }}
+          path: |
+            ${{ inputs.model-set }}/tlc_output.txt
+            ${{ inputs.model-set }}/tla_summary.md
+            ${{ inputs.model-set }}/BNsyn_runtime.cfg
+            ${{ inputs.model-set }}/*.out
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Check for violations and fail if needed
+        if: ${{ inputs.proof-suite == 'tla' && always() }}
+        run: |
+          cd "${MODEL_SET}"
+
+          if [ "${STATUS}" = "FAIL" ]; then
+            summary_file="$GITHUB_STEP_SUMMARY"
+            {
+              echo ""
+              echo "###  Violation Details"
+              echo ""
+              echo '```'
+              grep -A 20 "Error:" tlc_output.txt || true
+              echo '```'
+            } >> "$summary_file"
+            exit 1
+          elif [ "${STATUS}" = "INCOMPLETE" ]; then
+            echo " Model checking incomplete - check artifacts" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+      - name: Set up Python
+        if: ${{ inputs.proof-suite == 'science' }}
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+
+      - name: Pin pip
+        if: ${{ inputs.proof-suite == 'science' }}
+        uses: ./.github/actions/pin-pip
+
+      - name: Log pip version
+        if: ${{ inputs.proof-suite == 'science' }}
+        run: python -m pip --version
+
+      - name: Install dependencies
+        if: ${{ inputs.proof-suite == 'science' }}
+        run: python -m pip install -e ".[dev,test,viz]"
+
+      - name: Run flagship experiment
+        if: ${{ inputs.proof-suite == 'science' }}
+        run: |
+          python -m experiments.runner "${MODEL_SET}" --seeds 20 --out results/ci_run
+
+      - name: Generate visualizations
+        if: ${{ inputs.proof-suite == 'science' }}
+        run: |
+          python -m scripts.visualize_experiment --run-id "${MODEL_SET}" --results results/ci_run --out figures/ci_run
+
+      - name: Verify hypothesis
+        if: ${{ inputs.proof-suite == 'science' }}
+        run: |
+          python -m experiments.verify_hypothesis docs/HYPOTHESIS.md results/ci_run
+
+      - name: Upload experiment results
+        if: ${{ inputs.proof-suite == 'science' && always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: experiment-results
+          path: results/ci_run/
+          if-no-files-found: ignore
+
+      - name: Upload visualizations
+        if: ${{ inputs.proof-suite == 'science' && always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: experiment-figures
+          path: figures/ci_run/
+          if-no-files-found: ignore
+
+      - name: Summary
+        if: ${{ inputs.proof-suite == 'science' && always() }}
+        run: |
+          summary_file="$GITHUB_STEP_SUMMARY"
+          {
+            echo "## Experiment Results"
+            echo ""
+            echo "Flagship experiment completed. Artifacts uploaded."
+            echo ""
+            if [ -f results/ci_run/manifest.json ]; then
+              echo "### Manifest"
+              echo '```json'
+              cat results/ci_run/manifest.json
+              echo '```'
+            fi
+          } >> "$summary_file"

@@ -1,0 +1,94 @@
+{
+  "scpe_release": "v1.0",
+  "schema_version": "CG-2026.1",
+  "name": "codex-github-pr-agent",
+  "nodes": [
+    {
+      "id": "OBSERVE.INVENTORY",
+      "type": "OBSERVE",
+      "outputs": ["REPORTS/inventory.json", "REPORTS/gh-auth.json", "REPORTS/ci-baseline.json", "ENV.txt", "COMMANDS.txt"],
+      "gates": ["G.CDX.OBS.001", "G.CDX.GH.001"]
+    },
+    {
+      "id": "DECIDE.GATES",
+      "type": "DECIDE",
+      "inputs": ["REPORTS/inventory.json", "REPORTS/ci-baseline.json", "REPORTS/gh-auth.json"],
+      "outputs": ["REPORTS/gate-decisions.json"],
+      "gates": ["G.CDX.OBS.001", "G.CDX.GH.001", "G.CDX.PR.001", "G.CDX.CI.001", "G.CDX.DIFF.001", "G.CDX.SEC.001", "G.CDX.PROOF.001"]
+    },
+    {
+      "id": "ACT.BRANCH",
+      "type": "ACT",
+      "precondition": "inputs complete AND (PR missing OR branch missing)",
+      "rule": "create head branch from base branch; do not touch default branch",
+      "outputs": ["AFTER/branch.txt"],
+      "closes": ["G.CDX.PR.001 prerequisites"]
+    },
+    {
+      "id": "ACT.INSTRUMENT",
+      "type": "ACT",
+      "precondition": "any gate UNKNOWN",
+      "rule": "instrument-first within allowlist only; emit REPORTS/* deterministically",
+      "outputs": ["AFTER/instrumentation.txt", "REPORTS/*"],
+      "closes": ["UNKNOWN -> MEASURED"]
+    },
+    {
+      "id": "ACT.MINIMAL_FIX",
+      "type": "ACT",
+      "precondition": "any gate FAIL AND allowlist permits",
+      "rule": "minimal diff only; budgets enforced; commit messages reference gate IDs",
+      "outputs": ["AFTER/diff.patch"],
+      "closes": ["specific FAIL gates referenced in OH actions"]
+    },
+    {
+      "id": "ACT.PR_CREATE_UPDATE",
+      "type": "ACT",
+      "precondition": "branch ready",
+      "rule": "create or update exactly one PR targeting base branch",
+      "outputs": ["REPORTS/pr.json"],
+      "closes": ["G.CDX.PR.001"]
+    },
+    {
+      "id": "PROVE.CI",
+      "type": "PROVE",
+      "precondition": "PR exists",
+      "rule": "capture CI run URLs and required checks for head SHA",
+      "outputs": ["REPORTS/ci-after.json", "REPORTS/checks.json"],
+      "gates": ["G.CDX.CI.001"]
+    },
+    {
+      "id": "PROVE.EBS",
+      "type": "PROVE",
+      "inputs": ["BASELINE/*", "AFTER/*", "REPORTS/*"],
+      "outputs": ["MANIFEST.json"],
+      "gates": ["G.CDX.PROOF.001"]
+    },
+    {
+      "id": "OUTPUT.OH",
+      "type": "PROVE",
+      "inputs": ["REPORTS/gate-decisions.json", "REPORTS/pr.json", "REPORTS/ci-after.json", "MANIFEST.json"],
+      "outputs": ["OH-output"],
+      "gates": []
+    }
+  ],
+  "edges": [
+    { "from": "OBSERVE.INVENTORY", "to": "DECIDE.GATES" },
+    { "from": "DECIDE.GATES", "to": "ACT.BRANCH", "when": "PR_or_branch_missing" },
+    { "from": "DECIDE.GATES", "to": "ACT.INSTRUMENT", "when": "UNKNOWN" },
+    { "from": "DECIDE.GATES", "to": "ACT.MINIMAL_FIX", "when": "FAIL" },
+    { "from": "ACT.BRANCH", "to": "ACT.PR_CREATE_UPDATE" },
+    { "from": "ACT.INSTRUMENT", "to": "ACT.PR_CREATE_UPDATE" },
+    { "from": "ACT.MINIMAL_FIX", "to": "ACT.PR_CREATE_UPDATE" },
+    { "from": "ACT.PR_CREATE_UPDATE", "to": "PROVE.CI" },
+    { "from": "PROVE.CI", "to": "PROVE.EBS" },
+    { "from": "PROVE.EBS", "to": "DECIDE.GATES" },
+    { "from": "DECIDE.GATES", "to": "OUTPUT.OH", "when": "no invariant violations" }
+  ],
+  "control_rules": [
+    "CR1: no ACT without DECIDE reference",
+    "CR2: no PASS without PROVE artifacts + sha256",
+    "CR3: UNKNOWN never becomes PASS",
+    "CR4: minimal-diff enforcement",
+    "CR5: one PR maximum"
+  ]
+}

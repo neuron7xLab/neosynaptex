@@ -1,0 +1,848 @@
+{
+  "RAW_SIGNAL_SET": {
+    "signals": [
+      {
+        "kind": "entity",
+        "name": "benchmarks",
+        "value": "module_dir",
+        "source": "src/bnsyn/benchmarks"
+      },
+      {
+        "kind": "entity",
+        "name": "calibration",
+        "value": "module_dir",
+        "source": "src/bnsyn/calibration"
+      },
+      {
+        "kind": "entity",
+        "name": "cli",
+        "value": "module_file",
+        "source": "src/bnsyn/cli.py"
+      },
+      {
+        "kind": "entity",
+        "name": "config",
+        "value": "module_file",
+        "source": "src/bnsyn/config.py"
+      },
+      {
+        "kind": "entity",
+        "name": "connectivity",
+        "value": "module_dir",
+        "source": "src/bnsyn/connectivity"
+      },
+      {
+        "kind": "entity",
+        "name": "consolidation",
+        "value": "module_dir",
+        "source": "src/bnsyn/consolidation"
+      },
+      {
+        "kind": "entity",
+        "name": "control",
+        "value": "module_file",
+        "source": "src/bnsyn/control.py"
+      },
+      {
+        "kind": "entity",
+        "name": "criticality",
+        "value": "module_dir",
+        "source": "src/bnsyn/criticality"
+      },
+      {
+        "kind": "entity",
+        "name": "emergence",
+        "value": "module_dir",
+        "source": "src/bnsyn/emergence"
+      },
+      {
+        "kind": "entity",
+        "name": "energy",
+        "value": "module_dir",
+        "source": "src/bnsyn/energy"
+      },
+      {
+        "kind": "entity",
+        "name": "experiments",
+        "value": "module_dir",
+        "source": "src/bnsyn/experiments"
+      },
+      {
+        "kind": "entity",
+        "name": "incremental",
+        "value": "module_file",
+        "source": "src/bnsyn/incremental.py"
+      },
+      {
+        "kind": "entity",
+        "name": "memory",
+        "value": "module_dir",
+        "source": "src/bnsyn/memory"
+      },
+      {
+        "kind": "entity",
+        "name": "neuron",
+        "value": "module_dir",
+        "source": "src/bnsyn/neuron"
+      },
+      {
+        "kind": "entity",
+        "name": "neurons",
+        "value": "module_file",
+        "source": "src/bnsyn/neurons.py"
+      },
+      {
+        "kind": "entity",
+        "name": "numerics",
+        "value": "module_dir",
+        "source": "src/bnsyn/numerics"
+      },
+      {
+        "kind": "entity",
+        "name": "plasticity",
+        "value": "module_dir",
+        "source": "src/bnsyn/plasticity"
+      },
+      {
+        "kind": "entity",
+        "name": "production",
+        "value": "module_dir",
+        "source": "src/bnsyn/production"
+      },
+      {
+        "kind": "entity",
+        "name": "provenance",
+        "value": "module_dir",
+        "source": "src/bnsyn/provenance"
+      },
+      {
+        "kind": "entity",
+        "name": "py",
+        "value": "module_file",
+        "source": "src/bnsyn/py.typed"
+      },
+      {
+        "kind": "entity",
+        "name": "rng",
+        "value": "module_file",
+        "source": "src/bnsyn/rng.py"
+      },
+      {
+        "kind": "entity",
+        "name": "schemas",
+        "value": "module_dir",
+        "source": "src/bnsyn/schemas"
+      },
+      {
+        "kind": "entity",
+        "name": "sim",
+        "value": "module_dir",
+        "source": "src/bnsyn/sim"
+      },
+      {
+        "kind": "entity",
+        "name": "simulation",
+        "value": "module_file",
+        "source": "src/bnsyn/simulation.py"
+      },
+      {
+        "kind": "entity",
+        "name": "sleep",
+        "value": "module_dir",
+        "source": "src/bnsyn/sleep"
+      },
+      {
+        "kind": "entity",
+        "name": "synapse",
+        "value": "module_dir",
+        "source": "src/bnsyn/synapse"
+      },
+      {
+        "kind": "entity",
+        "name": "synapses",
+        "value": "module_file",
+        "source": "src/bnsyn/synapses.py"
+      },
+      {
+        "kind": "entity",
+        "name": "temperature",
+        "value": "module_dir",
+        "source": "src/bnsyn/temperature"
+      },
+      {
+        "kind": "entity",
+        "name": "testing",
+        "value": "module_dir",
+        "source": "src/bnsyn/testing"
+      },
+      {
+        "kind": "entity",
+        "name": "tools",
+        "value": "module_dir",
+        "source": "src/bnsyn/tools"
+      },
+      {
+        "kind": "entity",
+        "name": "validation",
+        "value": "module_dir",
+        "source": "src/bnsyn/validation"
+      },
+      {
+        "kind": "entity",
+        "name": "vcg",
+        "value": "module_file",
+        "source": "src/bnsyn/vcg.py"
+      },
+      {
+        "kind": "entity",
+        "name": "viz",
+        "value": "module_dir",
+        "source": "src/bnsyn/viz"
+      },
+      {
+        "kind": "metric",
+        "name": "python_requirement",
+        "value": ">=3.11",
+        "source": "pyproject.toml"
+      },
+      {
+        "kind": "metric",
+        "name": "runtime_dependency_count",
+        "value": "5",
+        "source": "pyproject.toml"
+      },
+      {
+        "kind": "metric",
+        "name": "optional_dependency_groups",
+        "value": "6",
+        "source": "pyproject.toml"
+      },
+      {
+        "kind": "metric",
+        "name": "test_module_count",
+        "value": "108",
+        "source": "tests"
+      }
+    ],
+    "sources": [
+      "README.md",
+      "pyproject.toml",
+      "docs/SPEC.md",
+      "docs/ARCHITECTURE_INVARIANTS.md",
+      "manifest/repo_manifest.yml"
+    ],
+    "timestamps": [
+      "2026-02-11T07:16:54.762612+00:00",
+      "2026-02-11T12:03:16.454821+00:00",
+      "2026-02-11T07:16:54.782612+00:00",
+      "2026-02-11T07:16:54.778612+00:00",
+      "2026-02-11T07:16:54.794612+00:00"
+    ],
+    "uncertainty_level": 0.0
+  },
+  "FILTERED_CORE": {
+    "essential_elements": [
+      {
+        "kind": "entity",
+        "name": "benchmarks",
+        "value": "module_dir",
+        "source": "src/bnsyn/benchmarks",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "calibration",
+        "value": "module_dir",
+        "source": "src/bnsyn/calibration",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "cli",
+        "value": "module_file",
+        "source": "src/bnsyn/cli.py",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "config",
+        "value": "module_file",
+        "source": "src/bnsyn/config.py",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "connectivity",
+        "value": "module_dir",
+        "source": "src/bnsyn/connectivity",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "consolidation",
+        "value": "module_dir",
+        "source": "src/bnsyn/consolidation",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "control",
+        "value": "module_file",
+        "source": "src/bnsyn/control.py",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "criticality",
+        "value": "module_dir",
+        "source": "src/bnsyn/criticality",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "emergence",
+        "value": "module_dir",
+        "source": "src/bnsyn/emergence",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "energy",
+        "value": "module_dir",
+        "source": "src/bnsyn/energy",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "experiments",
+        "value": "module_dir",
+        "source": "src/bnsyn/experiments",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "incremental",
+        "value": "module_file",
+        "source": "src/bnsyn/incremental.py",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "memory",
+        "value": "module_dir",
+        "source": "src/bnsyn/memory",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "neuron",
+        "value": "module_dir",
+        "source": "src/bnsyn/neuron",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "neurons",
+        "value": "module_file",
+        "source": "src/bnsyn/neurons.py",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "numerics",
+        "value": "module_dir",
+        "source": "src/bnsyn/numerics",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "plasticity",
+        "value": "module_dir",
+        "source": "src/bnsyn/plasticity",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "production",
+        "value": "module_dir",
+        "source": "src/bnsyn/production",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "provenance",
+        "value": "module_dir",
+        "source": "src/bnsyn/provenance",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "py",
+        "value": "module_file",
+        "source": "src/bnsyn/py.typed",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "rng",
+        "value": "module_file",
+        "source": "src/bnsyn/rng.py",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "schemas",
+        "value": "module_dir",
+        "source": "src/bnsyn/schemas",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "sim",
+        "value": "module_dir",
+        "source": "src/bnsyn/sim",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "simulation",
+        "value": "module_file",
+        "source": "src/bnsyn/simulation.py",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "sleep",
+        "value": "module_dir",
+        "source": "src/bnsyn/sleep",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "synapse",
+        "value": "module_dir",
+        "source": "src/bnsyn/synapse",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "synapses",
+        "value": "module_file",
+        "source": "src/bnsyn/synapses.py",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "temperature",
+        "value": "module_dir",
+        "source": "src/bnsyn/temperature",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "testing",
+        "value": "module_dir",
+        "source": "src/bnsyn/testing",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "tools",
+        "value": "module_dir",
+        "source": "src/bnsyn/tools",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "validation",
+        "value": "module_dir",
+        "source": "src/bnsyn/validation",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "vcg",
+        "value": "module_file",
+        "source": "src/bnsyn/vcg.py",
+        "relevance": 0.85
+      },
+      {
+        "kind": "entity",
+        "name": "viz",
+        "value": "module_dir",
+        "source": "src/bnsyn/viz",
+        "relevance": 0.85
+      },
+      {
+        "kind": "metric",
+        "name": "python_requirement",
+        "value": ">=3.11",
+        "source": "pyproject.toml",
+        "relevance": 0.95
+      },
+      {
+        "kind": "metric",
+        "name": "runtime_dependency_count",
+        "value": "5",
+        "source": "pyproject.toml",
+        "relevance": 0.95
+      },
+      {
+        "kind": "metric",
+        "name": "optional_dependency_groups",
+        "value": "6",
+        "source": "pyproject.toml",
+        "relevance": 0.95
+      },
+      {
+        "kind": "metric",
+        "name": "test_module_count",
+        "value": "108",
+        "source": "tests",
+        "relevance": 0.95
+      }
+    ],
+    "rejected_noise": [],
+    "relevance_map": {
+      "entity|benchmarks|module_dir": 0.85,
+      "entity|calibration|module_dir": 0.85,
+      "entity|cli|module_file": 0.85,
+      "entity|config|module_file": 0.85,
+      "entity|connectivity|module_dir": 0.85,
+      "entity|consolidation|module_dir": 0.85,
+      "entity|control|module_file": 0.85,
+      "entity|criticality|module_dir": 0.85,
+      "entity|emergence|module_dir": 0.85,
+      "entity|energy|module_dir": 0.85,
+      "entity|experiments|module_dir": 0.85,
+      "entity|incremental|module_file": 0.85,
+      "entity|memory|module_dir": 0.85,
+      "entity|neuron|module_dir": 0.85,
+      "entity|neurons|module_file": 0.85,
+      "entity|numerics|module_dir": 0.85,
+      "entity|plasticity|module_dir": 0.85,
+      "entity|production|module_dir": 0.85,
+      "entity|provenance|module_dir": 0.85,
+      "entity|py|module_file": 0.85,
+      "entity|rng|module_file": 0.85,
+      "entity|schemas|module_dir": 0.85,
+      "entity|sim|module_dir": 0.85,
+      "entity|simulation|module_file": 0.85,
+      "entity|sleep|module_dir": 0.85,
+      "entity|synapse|module_dir": 0.85,
+      "entity|synapses|module_file": 0.85,
+      "entity|temperature|module_dir": 0.85,
+      "entity|testing|module_dir": 0.85,
+      "entity|tools|module_dir": 0.85,
+      "entity|validation|module_dir": 0.85,
+      "entity|vcg|module_file": 0.85,
+      "entity|viz|module_dir": 0.85,
+      "metric|python_requirement|>=3.11": 0.95,
+      "metric|runtime_dependency_count|5": 0.95,
+      "metric|optional_dependency_groups|6": 0.95,
+      "metric|test_module_count|108": 0.95
+    }
+  },
+  "COMPRESSED_SCHEMA": {
+    "axioms": [],
+    "abstractions": [
+      "MODULE_SURFACE=33",
+      "METRIC_SURFACE=4",
+      "CONSTRAINT_SURFACE=0"
+    ],
+    "minimal_definitions": [
+      "entity := top-level component in src/bnsyn",
+      "constraint := normative statement with MUST|SHALL|DO NOT|NEVER",
+      "metric := deterministic scalar from pyproject/tests"
+    ]
+  },
+  "SYSTEM_MODEL": {
+    "nodes": [
+      "entity:benchmarks",
+      "entity:calibration",
+      "entity:cli",
+      "entity:config",
+      "entity:connectivity",
+      "entity:consolidation",
+      "entity:control",
+      "entity:criticality",
+      "entity:emergence",
+      "entity:energy",
+      "entity:experiments",
+      "entity:incremental",
+      "entity:memory",
+      "entity:neuron",
+      "entity:neurons",
+      "entity:numerics",
+      "entity:plasticity",
+      "entity:production",
+      "entity:provenance",
+      "entity:py",
+      "entity:rng",
+      "entity:schemas",
+      "entity:sim",
+      "entity:simulation",
+      "entity:sleep",
+      "entity:synapse",
+      "entity:synapses",
+      "entity:temperature",
+      "entity:testing",
+      "entity:tools",
+      "entity:validation",
+      "entity:vcg",
+      "entity:viz",
+      "metric:optional_dependency_groups",
+      "metric:python_requirement",
+      "metric:runtime_dependency_count",
+      "metric:test_module_count"
+    ],
+    "relations": [
+      {
+        "from": "core:repo",
+        "to": "schema:MODULE_SURFACE=33",
+        "type": "summarizes"
+      },
+      {
+        "from": "core:repo",
+        "to": "schema:METRIC_SURFACE=4",
+        "type": "summarizes"
+      },
+      {
+        "from": "core:repo",
+        "to": "schema:CONSTRAINT_SURFACE=0",
+        "type": "summarizes"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:benchmarks",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:calibration",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:cli",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:config",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:connectivity",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:consolidation",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:control",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:criticality",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:emergence",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:energy",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:experiments",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:incremental",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:memory",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:neuron",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:neurons",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:numerics",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:plasticity",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:production",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:provenance",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:py",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:rng",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:schemas",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:sim",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:simulation",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:sleep",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:synapse",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:synapses",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:temperature",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:testing",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:tools",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:validation",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:vcg",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "entity:viz",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "metric:python_requirement",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "metric:runtime_dependency_count",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "metric:optional_dependency_groups",
+        "type": "contains"
+      },
+      {
+        "from": "core:repo",
+        "to": "metric:test_module_count",
+        "type": "contains"
+      }
+    ],
+    "constraints": [],
+    "governing_rules": [
+      "all signals are immutable records",
+      "noise reduction keeps relevance >= 0.8",
+      "compression must preserve all constraint axioms"
+    ]
+  },
+  "VALIDATED_MODEL": {
+    "verified_components": [
+      "non_empty_nodes",
+      "entropy_non_increasing",
+      "source_coverage_complete"
+    ],
+    "risk_vectors": [],
+    "correction_log": [
+      "no corrections required"
+    ]
+  },
+  "INTELLECTUAL_OBJECT": {
+    "final_prompt/system": {
+      "verified_components": [
+        "non_empty_nodes",
+        "entropy_non_increasing",
+        "source_coverage_complete"
+      ],
+      "risk_vectors": [],
+      "correction_log": [
+        "no corrections required"
+      ]
+    },
+    "execution_rules": [
+      "run collect_raw_signal_set before each analysis cycle",
+      "run reduce_noise and compress_semantics deterministically",
+      "reject model release if risk_vectors is non-empty"
+    ],
+    "integration_points": [
+      "scripts/intelligence_cycle.py",
+      "docs/ARCHITECTURE_INVARIANTS.md",
+      "docs/SPEC.md"
+    ],
+    "operational_spec": {
+      "input": "repository filesystem state",
+      "output": "cycle JSON report",
+      "termination": "single pass deterministic pipeline",
+      "validation_gate": "validated_model.risk_vectors == []"
+    }
+  }
+}

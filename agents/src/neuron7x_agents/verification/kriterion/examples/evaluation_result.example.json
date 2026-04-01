@@ -1,0 +1,93 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "GPT5.4-AUDIT-HARDENING-PROTOCOL-2026",
+    "protocol_version": "2026.2",
+    "target_protocol_id": "SE-OPS-PROTOCOL-2026.1",
+    "execution_mode": "MODE_STRICT_AUDIT",
+    "evaluation_timestamp": "2026-03-06T12:00:00Z",
+    "model_identifier": "gpt-5.4",
+    "artifact_count": 1,
+    "evaluation_hash": "2d3fefb4f1c048dfa559656ab10a201ffbc4403cf9c8f02db142065040b68221"
+  },
+  "artifact_validation_results": [
+    {
+      "artifact_id": "ART.RUNBOOK.IDENTITY.001",
+      "schema_status": "VALID",
+      "integrity_status": "VALID",
+      "admissible": true,
+      "reason_codes": []
+    }
+  ],
+  "task_scores": [
+    {
+      "protocol_id": "SE-OPS-PROTOCOL-2026.1",
+      "domain_id": "SE.OPS.READINESS",
+      "task_id": "SE.OPS.READINESS.T1",
+      "task_weight": 20,
+      "evidence_artifact_ids": [
+        "ART.RUNBOOK.IDENTITY.001"
+      ],
+      "raw_score": 4,
+      "evidence_cap": 5,
+      "penalties_applied": [],
+      "final_score": 4,
+      "reason_codes": []
+    }
+  ],
+  "domain_scores": [
+    {
+      "domain_id": "SE.OPS.READINESS",
+      "domain_name": "Operational Readiness",
+      "must_have": true,
+      "weighted_score": 0.8,
+      "evidence_class_distribution": {
+        "LOW": 0,
+        "MED": 0,
+        "HIGH": 1
+      },
+      "domain_cap": 5,
+      "final_domain_score": 0.8
+    }
+  ],
+  "gate_results": [
+    {
+      "gate_id": "G0_INTEGRITY",
+      "status": "PASS",
+      "blocking": false,
+      "reason_codes": [],
+      "affected_artifact_ids": []
+    },
+    {
+      "gate_id": "G1_MINIMUM_READINESS",
+      "status": "PASS",
+      "blocking": false,
+      "reason_codes": [],
+      "affected_artifact_ids": []
+    },
+    {
+      "gate_id": "G2_EVIDENCE_SUFFICIENCY",
+      "status": "PASS",
+      "blocking": false,
+      "reason_codes": [],
+      "affected_artifact_ids": []
+    }
+  ],
+  "final_classification": {
+    "status": "PASS",
+    "classification_label": "READY_WITH_EVIDENCE",
+    "composite_score": 0.8,
+    "integrity_hash": "2d3fefb4f1c048dfa559656ab10a201ffbc4403cf9c8f02db142065040b68221"
+  },
+  "evidence_trace_table": [
+    {
+      "artifact_id": "ART.RUNBOOK.IDENTITY.001",
+      "artifact_type": "RUNBOOK",
+      "domain_id": "SE.OPS.READINESS",
+      "task_id": "SE.OPS.READINESS.T1",
+      "task_score_contribution": 4,
+      "domain_score_contribution": 0.8,
+      "evidence_class": "HIGH",
+      "trace_status": "USED"
+    }
+  ]
+}

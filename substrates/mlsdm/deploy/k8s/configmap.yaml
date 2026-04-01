@@ -1,0 +1,108 @@
+# ====================================================
+# ConfigMap for MLSDM Production Configuration
+# ====================================================
+# This ConfigMap contains the production configuration
+# for the MLSDM Governed Cognitive Memory system.
+#
+# Usage:
+#   kubectl apply -f configmap.yaml -n mlsdm-production
+# ====================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlsdm-config
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: config
+data:
+  # Main application configuration
+  config.yaml: |
+    # MLSDM Production Configuration
+    # See CONFIGURATION_GUIDE.md for details
+
+    # Vector dimension for embeddings (must match embedding model)
+    dimension: 384
+
+    # Multi-level memory configuration
+    multi_level_memory:
+      lambda_l1: 0.5
+      lambda_l2: 0.1
+      lambda_l3: 0.01
+      theta_l1: 1.0
+      theta_l2: 2.0
+      gating12: 0.5
+      gating23: 0.3
+
+    # Moral filter settings
+    moral_filter:
+      threshold: 0.50
+      adapt_rate: 0.05
+      min_threshold: 0.30
+      max_threshold: 0.90
+
+    # Cognitive rhythm configuration
+    cognitive_rhythm:
+      wake_duration: 8
+      sleep_duration: 3
+
+    # Observability settings
+    observability:
+      logging:
+        level: "INFO"
+        format: "json"
+      metrics:
+        enabled: true
+        port: 8000
+        path: "/health/metrics"
+
+    # Security settings
+    security:
+      rate_limiting:
+        enabled: true
+        requests_per_second: 5.0
+        burst_capacity: 10
+
+    # NeuroLang configuration
+    neurolang:
+      mode: "disabled"
+      checkpoint_path: "config/neurolang_grammar.pt"
+
+    # Strict mode (set to false for production)
+    strict_mode: false
+
+---
+# Environment-specific overrides ConfigMap
+# Use this for environment-specific settings
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlsdm-env-config
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: config
+data:
+  # Logging configuration
+  LOG_LEVEL: "INFO"
+  JSON_LOGGING: "true"
+
+  # API configuration
+  HOST: "0.0.0.0"
+  PORT: "8000"
+
+  # LLM backend configuration
+  LLM_BACKEND: "local_stub"
+
+  # Feature flags
+  ENABLE_FSLGS: "true"
+  ENABLE_METRICS: "true"
+
+  # Embedding dimension
+  EMBEDDING_DIM: "384"
+
+  # OpenTelemetry configuration
+  OTEL_SDK_DISABLED: "false"
+  OTEL_EXPORTER_TYPE: "none"
+  OTEL_SERVICE_NAME: "mlsdm-api"

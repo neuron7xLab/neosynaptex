@@ -1,0 +1,67 @@
+{
+  "chains": [
+    {
+      "feasibility_score_0_100": 55,
+      "path": [
+        "actor:external_contributor",
+        "boundary:ci_pipeline",
+        "asset:release_artifacts"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "evidence": [
+        {
+          "ref": "path:.github/workflows/ci.yml:1-120",
+          "reproducible": true,
+          "strength_score_1_5": 3,
+          "type": "static"
+        }
+      ],
+      "from": "actor:external_contributor",
+      "kind": "trust_crossing",
+      "to": "boundary:ci_pipeline"
+    },
+    {
+      "evidence": [
+        {
+          "ref": "path:.github/workflows/ci.yml:1-220",
+          "reproducible": true,
+          "strength_score_1_5": 3,
+          "type": "static"
+        }
+      ],
+      "from": "boundary:ci_pipeline",
+      "kind": "data_flow",
+      "to": "asset:release_artifacts"
+    }
+  ],
+  "meta": {
+    "git_commit": "c84ec61da8184424909a7f819971f31996412843",
+    "timestamp_utc": "2026-02-15T20:06:09.016596Z"
+  },
+  "minimal_cut_sets": [
+    [
+      "enforce_action_pinning",
+      "require_protected_branches"
+    ]
+  ],
+  "nodes": [
+    {
+      "criticality_1_5": 3,
+      "id": "actor:external_contributor",
+      "type": "actor"
+    },
+    {
+      "criticality_1_5": 5,
+      "id": "boundary:ci_pipeline",
+      "type": "boundary"
+    },
+    {
+      "criticality_1_5": 4,
+      "id": "asset:release_artifacts",
+      "type": "asset"
+    }
+  ]
+}

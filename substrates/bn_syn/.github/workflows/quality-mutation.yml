@@ -1,0 +1,92 @@
+---
+# NON-PR-GATE: long-running workflow; must not run on pull_request/push.
+name: quality-mutation
+
+"on":
+  schedule:
+    - cron: '0 4 * * 3'  # Weekly -- Wednesday 04:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mutation-testing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+
+      - name: Log pip version
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip --version
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e ".[dev,test]"
+          python -m pip install mutmut==2.4.5
+
+      - name: Validate mutation baseline schema
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.validate_mutation_baseline
+
+      - name: Run mutation testing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.run_mutation_pipeline
+
+      - name: Emit canonical mutation metrics
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.mutation_ci_summary --write-output --write-summary
+
+      - name: Upload mutation artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: mutation-report-${{ github.sha }}
+          path: |
+            mutation_results.txt
+            mutation_results.stderr.txt
+            survived_mutants.txt
+            .mutmut-cache
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Check mutation score threshold
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.check_mutation_score --strict
+
+      - name: Generate mutation report
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.mutation_survivors_summary

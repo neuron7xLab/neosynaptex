@@ -1,0 +1,14 @@
+{
+  "adjusted_risk": 0.261,
+  "audit_quality_score": 0.755,
+  "completeness": 0.9,
+  "confidence": 0.6525,
+  "contradiction_flag": true,
+  "contradiction_penalty": 0.25,
+  "evidence_density": 0.8,
+  "evidence_strength_index": 4,
+  "fixture_id": "FIXTURE_C",
+  "non_zero_reset_triggered": false,
+  "posterior_risk": 0.388,
+  "termination_status": "partial"
+}

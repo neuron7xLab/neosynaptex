@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "build_requires_unpinned_count": 0,
+    "lockfiles_present": true,
+    "optional_unpinned_count": 0,
+    "project_unpinned_count": 0
+  },
+  "determinism": {
+    "global_np_random_offenders": 1,
+    "python_random_offenders": 2,
+    "time_calls_offenders": 3
+  },
+  "docs": {
+    "src_todo_fixme_count": 0
+  },
+  "offenders": {
+    "np": [],
+    "py": [],
+    "time": []
+  },
+  "process": {
+    "gh_workflows_missing_job_permissions_count": 43,
+    "gh_workflows_missing_job_timeout_count": 33,
+    "gh_workflows_unpinned_actions_count": 0,
+    "required_checks_files_present": true
+  },
+  "version": 1
+}

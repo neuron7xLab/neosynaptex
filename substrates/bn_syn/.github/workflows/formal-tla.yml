@@ -1,0 +1,30 @@
+# NON-PR-GATE: long-running workflow; must not run on pull_request/push.
+name: formal-tla
+# Guard: non-PR-gate workflow; must remain off PRs.
+
+on:
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      max-steps:
+        description: 'Maximum steps for model checking'
+        required: false
+        default: '100'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formal-tla-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tla-model-check:
+    uses: ./.github/workflows/_reusable_formal_science.yml
+    with:
+      proof-suite: tla
+      model-set: specs/tla
+      time-budget: 30
+      max-steps: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs['max-steps'] || '100' }}

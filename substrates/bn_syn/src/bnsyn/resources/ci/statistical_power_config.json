@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.2.0",
+  "policy_scope": "canonical_avalanche_admission_stub",
+  "enforcement_status": "planned",
+  "avalanche_admission": {
+    "N_min": 500,
+    "duration_min_ms": 2000,
+    "bin_width_ms": 1.0,
+    "min_avalanche_count": 200,
+    "min_tail_count": 40,
+    "p_value_threshold": 0.05,
+    "ks_max": 0.1,
+    "monte_carlo_simulations": 64
+  },
+  "notes": "Policy targets for future canonical avalanche admission evaluators; recorded now for control-plane normalization and not as a present scientific sufficiency claim."
+}

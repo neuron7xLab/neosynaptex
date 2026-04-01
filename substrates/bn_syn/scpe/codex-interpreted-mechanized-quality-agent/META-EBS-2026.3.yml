@@ -1,0 +1,8 @@
+scpe_release: v1.0
+schema_version: META-EBS-2026.3
+name: META-EBS-2026.3
+requirements:
+  - meta_manifest_sha256_complete
+  - command_exit_codes_recorded
+  - isolation_proof_present
+  - redaction_enforced

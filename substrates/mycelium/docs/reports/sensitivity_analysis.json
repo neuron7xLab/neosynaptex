@@ -1,0 +1,242 @@
+[
+  {
+    "threshold": "DYNAMIC_ANOMALY_BASELINE",
+    "value": 0.45,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  },
+  {
+    "threshold": "STABLE_CEILING",
+    "value": 0.7,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  },
+  {
+    "threshold": "THRESHOLD_FLOOR",
+    "value": 0.25,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  },
+  {
+    "threshold": "THRESHOLD_CEILING",
+    "value": 0.85,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  },
+  {
+    "threshold": "WATCH_THRESHOLD_FLOOR",
+    "value": 0.3,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  },
+  {
+    "threshold": "WATCH_THRESHOLD_GAP",
+    "value": 0.18,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  },
+  {
+    "threshold": "PATHOLOGICAL_NOISE_THRESHOLD",
+    "value": 0.55,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  },
+  {
+    "threshold": "REORGANIZED_COMPLEXITY_THRESHOLD",
+    "value": 0.55,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  },
+  {
+    "threshold": "REORGANIZED_PLASTICITY_FLOOR",
+    "value": 0.08,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  },
+  {
+    "threshold": "STRUCTURE_FLOOR",
+    "value": 0.1,
+    "perturbations": {
+      "\u00b15%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b110%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      },
+      "\u00b120%": {
+        "flips_up": 0,
+        "flips_down": 0,
+        "flip_rate": 0.0,
+        "fragile": false
+      }
+    }
+  }
+]

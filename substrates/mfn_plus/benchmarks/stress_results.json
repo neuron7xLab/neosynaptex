@@ -1,0 +1,162 @@
+{
+  "simulate N=8": {
+    "ms": 6.7721090745180845,
+    "mem_mb": 0.0078125,
+    "ok": true
+  },
+  "simulate N=16": {
+    "ms": 6.810783059336245,
+    "mem_mb": 0.07421875,
+    "ok": true
+  },
+  "simulate N=32": {
+    "ms": 7.6586289796978235,
+    "mem_mb": 0.37890625,
+    "ok": true
+  },
+  "simulate N=64": {
+    "ms": 10.436526034027338,
+    "mem_mb": 0.9453125,
+    "ok": true
+  },
+  "simulate N=96": {
+    "ms": 14.318548957817256,
+    "mem_mb": 3.0,
+    "ok": true
+  },
+  "simulate steps=30": {
+    "ms": 6.7460109712556005,
+    "mem_mb": 0.00390625,
+    "ok": true
+  },
+  "simulate steps=100": {
+    "ms": 20.979211083613336,
+    "mem_mb": 0.07421875,
+    "ok": true
+  },
+  "simulate steps=300": {
+    "ms": 63.85105196386576,
+    "mem_mb": 0.01171875,
+    "ok": true
+  },
+  "simulate steps=1000": {
+    "ms": 206.17053390014917,
+    "mem_mb": 2.765625,
+    "ok": true
+  },
+  "BioExtension.step(1)": {
+    "ms": 11.229847907088697,
+    "mem_mb": 2.8671875,
+    "ok": true
+  },
+  "BioExtension.step(5)": {
+    "ms": 25.039065978489816,
+    "mem_mb": 1.6953125,
+    "ok": true
+  },
+  "BioExtension.step(20)": {
+    "ms": 87.06975099630654,
+    "mem_mb": 0.66015625,
+    "ok": true
+  },
+  "BioExtension.step(50)": {
+    "ms": 210.94235102646053,
+    "mem_mb": 0.3671875,
+    "ok": true
+  },
+  "BioExtension.step(100)": {
+    "ms": 417.03610902186483,
+    "mem_mb": 0.203125,
+    "ok": true
+  },
+  "Physarum N=16 (10 steps)": {
+    "ms": 9.680532035417855,
+    "mem_mb": 0.0234375,
+    "ok": true
+  },
+  "Physarum N=32 (10 steps)": {
+    "ms": 31.87801397871226,
+    "mem_mb": 0.0,
+    "ok": true
+  },
+  "Physarum N=48 (10 steps)": {
+    "ms": 43.696763925254345,
+    "mem_mb": 0.47265625,
+    "ok": true
+  },
+  "Physarum N=64 (10 steps)": {
+    "ms": 73.80610902328044,
+    "mem_mb": 2.22265625,
+    "ok": true
+  },
+  "MemAnon N=8 D=500": {
+    "ms": 9.156832005828619,
+    "mem_mb": 1.8203125,
+    "ok": true
+  },
+  "MemAnon N=16 D=1000": {
+    "ms": 67.73662101477385,
+    "mem_mb": -0.27734375,
+    "ok": true
+  },
+  "MemAnon N=32 D=1000": {
+    "ms": 140.94435796141624,
+    "mem_mb": -1.60546875,
+    "ok": true
+  },
+  "MemAnon N=32 D=5000": {
+    "ms": 849.4098919909447,
+    "mem_mb": 8.2109375,
+    "ok": true
+  },
+  "MemAnon N=64 D=1000": {
+    "ms": 611.4448820007965,
+    "mem_mb": -7.6640625,
+    "ok": true
+  },
+  "Morphospace N=16 T=30": {
+    "ms": 11.338384938426316,
+    "mem_mb": 0.62890625,
+    "ok": true
+  },
+  "Morphospace N=32 T=60": {
+    "ms": 17.32533099129796,
+    "mem_mb": 2.13671875,
+    "ok": true
+  },
+  "Morphospace N=64 T=30": {
+    "ms": 19.595876918174326,
+    "mem_mb": 3.4921875,
+    "ok": true
+  },
+  "Morphospace N=32 T=200": {
+    "ms": 55.342125007882714,
+    "mem_mb": 1.90234375,
+    "ok": true
+  },
+  "10x diagnose serial": {
+    "ms": 319.5041619474068,
+    "mem_mb": 0.375,
+    "ok": true
+  },
+  "LevinPipeline N=8 samples=20": {
+    "ms": 19.86853696871549,
+    "mem_mb": 0.484375,
+    "ok": true
+  },
+  "LevinPipeline N=16 samples=50": {
+    "ms": 59.38702402636409,
+    "mem_mb": 0.0,
+    "ok": true
+  },
+  "LevinPipeline N=16 samples=200": {
+    "ms": 46.19856597855687,
+    "mem_mb": 0.0,
+    "ok": true
+  },
+  "LevinPipeline N=32 samples=50": {
+    "ms": 62.9471589345485,
+    "mem_mb": 5.0625,
+    "ok": true
+  }
+}

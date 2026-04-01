@@ -1,0 +1,43 @@
+name: Secret Scanning (Gitleaks)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: Scan for secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0  # Full history for accurate scanning
+
+      - name: Run Gitleaks
+        id: gitleaks
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+        continue-on-error: true
+
+      - name: Upload Gitleaks report
+        if: failure() || steps.gitleaks.outcome == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gitleaks-report
+          path: results.sarif
+          retention-days: 30
+
+      - name: Fail on secrets found
+        if: steps.gitleaks.outcome == 'failure'
+        run: |
+          echo "::error::Gitleaks detected secrets in the codebase!"
+          echo "Review the uploaded artifact 'gitleaks-report' for details."
+          exit 1

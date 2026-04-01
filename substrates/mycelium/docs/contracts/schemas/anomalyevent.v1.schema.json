@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AnomalyEvent",
+  "version": "v1",
+  "type": "object",
+  "properties": {
+    "score": {
+      "type": "number"
+    },
+    "label": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number"
+    },
+    "evidence": {
+      "type": "number"
+    },
+    "contributing_features": {
+      "type": "string"
+    },
+    "regime": {
+      "oneOf": [
+        {
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ComparisonResult",
+  "version": "v1",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "distance": {
+      "type": "number"
+    },
+    "cosine_similarity": {
+      "type": "number"
+    },
+    "label": {
+      "type": "string"
+    },
+    "nearest_structural_analog": {
+      "type": "string"
+    },
+    "changed_dimensions": {
+      "type": "string"
+    },
+    "drift_summary": {
+      "type": "number"
+    },
+    "topology_summary": {
+      "type": "number"
+    },
+    "topology_label": {
+      "type": "string"
+    },
+    "reorganization_label": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

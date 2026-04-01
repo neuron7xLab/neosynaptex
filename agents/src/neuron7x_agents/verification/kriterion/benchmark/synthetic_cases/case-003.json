@@ -1,0 +1,126 @@
+{
+  "bundle_id": "case-003",
+  "target_protocol_id": "ESA-SECURITY-ARCHITECT-PROTOCOL-2026.1",
+  "execution_mode": "MODE_STRICT_AUDIT",
+  "model_identifier": "reference-runner-1.0",
+  "artifacts": [
+    {
+      "artifact_id": "ART.C1",
+      "artifact_type": "ARCHITECTURE_DIAGRAM",
+      "title": "Identity trust boundary",
+      "provenance": {
+        "origin_actor": "demo-author",
+        "origin_system": "demo-repository",
+        "acquisition_method": "DIRECT_EXPORT",
+        "source_class": "PRIMARY"
+      },
+      "reviewer": {
+        "reviewer_id": "reviewer-001",
+        "reviewer_independence": true,
+        "review_status": "INDEPENDENTLY_REVIEWED"
+      },
+      "timestamps": {
+        "creation_time": "2026-03-06T10:00:00Z",
+        "evaluation_capture_time": "2026-03-06T12:00:00Z"
+      },
+      "references": [
+        "https://example.org/c1"
+      ],
+      "fingerprint": {
+        "algorithm": "SHA-256",
+        "sha256": "2b2776641a2e892c366f0e804f397f8af4f60062673f50bb89f63b256593cbc3"
+      },
+      "evidence_class": "HIGH",
+      "domain_mapping": [
+        "ESA.ARCH"
+      ],
+      "payload": {
+        "components": [
+          "idp",
+          "gateway",
+          "audit"
+        ],
+        "trust_boundaries": 3
+      }
+    },
+    {
+      "artifact_id": "ART.C2",
+      "artifact_type": "POLICY",
+      "title": "AuthZ invariants",
+      "provenance": {
+        "origin_actor": "demo-author",
+        "origin_system": "demo-repository",
+        "acquisition_method": "DIRECT_EXPORT",
+        "source_class": "PRIMARY"
+      },
+      "reviewer": {
+        "reviewer_id": "reviewer-001",
+        "reviewer_independence": true,
+        "review_status": "INDEPENDENTLY_REVIEWED"
+      },
+      "timestamps": {
+        "creation_time": "2026-03-06T10:00:00Z",
+        "evaluation_capture_time": "2026-03-06T12:00:00Z"
+      },
+      "references": [
+        "https://example.org/c2"
+      ],
+      "fingerprint": {
+        "algorithm": "SHA-256",
+        "sha256": "0d37e2593c3206acf52127ed6be023a3e0fcb7dc48dddeb859e64f0a86ceb041"
+      },
+      "evidence_class": "HIGH",
+      "domain_mapping": [
+        "ESA.GOV"
+      ],
+      "payload": {
+        "deny_by_default": true,
+        "exceptions": 1
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "domain_id": "ESA.ARCH",
+      "domain_name": "Architecture",
+      "must_have": true,
+      "task_id": "T1",
+      "task_weight": 50,
+      "required_artifact_ids": [
+        "ART.C1"
+      ],
+      "evidence_artifact_ids": [
+        "ART.C1"
+      ],
+      "raw_score": 4,
+      "evidence_cap": 5
+    },
+    {
+      "domain_id": "ESA.GOV",
+      "domain_name": "Governance",
+      "must_have": true,
+      "task_id": "T2",
+      "task_weight": 50,
+      "required_artifact_ids": [
+        "ART.C2"
+      ],
+      "evidence_artifact_ids": [
+        "ART.C2"
+      ],
+      "raw_score": 5,
+      "evidence_cap": 5
+    }
+  ],
+  "expected": {
+    "human_overall_score": 2,
+    "human_final_classification": "NOT_READY",
+    "human_gates": {
+      "G0_INTEGRITY": "PASS",
+      "G1_MINIMUM_READINESS": "FAIL",
+      "G2_EVIDENCE_SUFFICIENCY": "PASS"
+    },
+    "runtime_seconds": 1.3,
+    "cost_usd": 0.003,
+    "adversarial": false
+  }
+}

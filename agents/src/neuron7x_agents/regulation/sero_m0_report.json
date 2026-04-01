@@ -1,0 +1,239 @@
+{
+  "version": "SERO M0 v0.5",
+  "date": "2026-03-01",
+  "all_pass": true,
+  "global_safety_invariant": true,
+  "global_stress_bounded": true,
+  "scenarios": [
+    {
+      "name": "Step-Input Fault (50% error spike)",
+      "pass": true,
+      "criteria": {
+        "safety_invariant": true,
+        "stress_bounded": true,
+        "low_oscillation": true,
+        "recovery": true
+      },
+      "stress_range": [
+        0.0,
+        8.831
+      ],
+      "throughput_range": [
+        0.0615,
+        1.0
+      ]
+    },
+    {
+      "name": "Burst Load (10x spike)",
+      "pass": true,
+      "criteria": {
+        "safety_invariant": true,
+        "stress_bounded": true,
+        "fast_shedding": true
+      },
+      "stress_range": [
+        0.0,
+        5.972
+      ],
+      "throughput_range": [
+        0.098,
+        1.0
+      ]
+    },
+    {
+      "name": "Dependency Blackhole",
+      "pass": true,
+      "criteria": {
+        "safety_invariant": true,
+        "stress_bounded": true,
+        "stress_responded": true
+      },
+      "stress_range": [
+        0.0,
+        6.571
+      ],
+      "throughput_range": [
+        0.0855,
+        1.0
+      ]
+    },
+    {
+      "name": "False Alarm (noise, no degradation)",
+      "pass": true,
+      "criteria": {
+        "safety_invariant": true,
+        "no_sustained_reduction": true,
+        "stress_returned": true
+      },
+      "stress_range": [
+        0.0,
+        1.84
+      ],
+      "throughput_range": [
+        0.4286,
+        1.0
+      ]
+    },
+    {
+      "name": "Gradual Degradation (linear latency increase)",
+      "pass": true,
+      "criteria": {
+        "safety_invariant": true,
+        "stress_bounded": true,
+        "smooth_response": true,
+        "observability_triggered": true
+      },
+      "stress_range": [
+        0.0,
+        7.26
+      ],
+      "throughput_range": [
+        0.0752,
+        1.0
+      ]
+    }
+  ],
+  "sensitivity": {
+    "alpha": {
+      "range_tested": [
+        0.05,
+        2.0
+      ],
+      "step_fault_boundary": {
+        "last_pass": 2.0,
+        "first_fail": null
+      },
+      "coma_threshold": 0.45,
+      "false_alarm_overreact_threshold": 0.55,
+      "optimal_range": [
+        0.3,
+        0.55
+      ]
+    },
+    "gamma": {
+      "range_tested": [
+        0.05,
+        1.0
+      ],
+      "step_fault_boundary": {
+        "last_pass": 1.0,
+        "first_fail": 0.05
+      },
+      "oscillation_threshold": null,
+      "optimal_range": [
+        0.15,
+        0.5
+      ]
+    },
+    "T_min": {
+      "range_tested": [
+        0.01,
+        0.2
+      ],
+      "capacity_loss_at_max_stress": [
+        {
+          "T_min": 0.01,
+          "floor_percent": 1.0,
+          "min_throughput": 2.2
+        },
+        {
+          "T_min": 0.02,
+          "floor_percent": 2.0,
+          "min_throughput": 3.2
+        },
+        {
+          "T_min": 0.03,
+          "floor_percent": 3.0,
+          "min_throughput": 4.2
+        },
+        {
+          "T_min": 0.04,
+          "floor_percent": 4.0,
+          "min_throughput": 5.2
+        },
+        {
+          "T_min": 0.05,
+          "floor_percent": 5.0,
+          "min_throughput": 6.1
+        },
+        {
+          "T_min": 0.06,
+          "floor_percent": 6.0,
+          "min_throughput": 7.1
+        },
+        {
+          "T_min": 0.07,
+          "floor_percent": 7.0,
+          "min_throughput": 8.1
+        },
+        {
+          "T_min": 0.08,
+          "floor_percent": 8.0,
+          "min_throughput": 9.1
+        },
+        {
+          "T_min": 0.09,
+          "floor_percent": 9.0,
+          "min_throughput": 10.1
+        },
+        {
+          "T_min": 0.1,
+          "floor_percent": 10.0,
+          "min_throughput": 11.1
+        },
+        {
+          "T_min": 0.11,
+          "floor_percent": 11.0,
+          "min_throughput": 12.1
+        },
+        {
+          "T_min": 0.12,
+          "floor_percent": 12.0,
+          "min_throughput": 13.1
+        },
+        {
+          "T_min": 0.13,
+          "floor_percent": 13.0,
+          "min_throughput": 14.1
+        },
+        {
+          "T_min": 0.14,
+          "floor_percent": 14.0,
+          "min_throughput": 15.0
+        },
+        {
+          "T_min": 0.15,
+          "floor_percent": 15.0,
+          "min_throughput": 16.0
+        },
+        {
+          "T_min": 0.16,
+          "floor_percent": 16.0,
+          "min_throughput": 17.0
+        },
+        {
+          "T_min": 0.17,
+          "floor_percent": 17.0,
+          "min_throughput": 18.0
+        },
+        {
+          "T_min": 0.18,
+          "floor_percent": 18.0,
+          "min_throughput": 19.0
+        },
+        {
+          "T_min": 0.19,
+          "floor_percent": 19.0,
+          "min_throughput": 20.0
+        },
+        {
+          "T_min": 0.2,
+          "floor_percent": 20.0,
+          "min_throughput": 21.0
+        }
+      ],
+      "recommended": 0.05,
+      "rationale": "5% floor balances safety (system always alive) vs capacity (95% available for shedding)"
+    }
+  }
+}

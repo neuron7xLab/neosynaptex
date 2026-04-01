@@ -1,0 +1,22 @@
+{
+  "run_mode": "audit-grade fail-closed",
+  "summary": {
+    "candidates": 0,
+    "approved_for_delete": 0,
+    "deleted": 0,
+    "kept": 0
+  },
+  "items": [],
+  "notes": [
+    "Candidate discovery commands found no ignored/untracked cache or OS detritus paths.",
+    "No deletions executed in this run to preserve fail-closed behavior."
+  ],
+  "evidence_logs": [
+    "proof_bundle/logs/102_status_porcelain.log",
+    "proof_bundle/logs/103_ls_untracked_ignored.log",
+    "proof_bundle/logs/104_find_cache_dirs.log",
+    "proof_bundle/logs/105_find_noise_files.log",
+    "proof_bundle/logs/106_dryrun_clean_ignored.log",
+    "proof_bundle/logs/107_dryrun_clean_all.log"
+  ]
+}

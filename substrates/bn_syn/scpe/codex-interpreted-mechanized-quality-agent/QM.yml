@@ -1,0 +1,93 @@
+scpe_release: v1.0
+schema_version: QM-2026.2
+measurement_contract:
+  baseline_and_after_must_match:
+    - "command_list"
+    - "tool_versions"
+    - "report_paths"
+hard_blockers:
+  - id: "HB.LINT"
+    expr: "lint.error_count==0"
+  - id: "HB.TEST"
+    expr: "tests.fail_count==0"
+  - id: "HB.SEC"
+    expr: "security.high_count==0"
+quality_dimensions:
+  - id: "Q.LINT"
+    weight: 0.18
+    metrics:
+      - key: "lint.error_count"
+        source: "REPORTS/quality/lint.json"
+        type: "int"
+        better: "lower"
+        pass: "==0"
+  - id: "Q.TEST"
+    weight: 0.20
+    metrics:
+      - key: "tests.fail_count"
+        source: "REPORTS/quality/tests.json"
+        type: "int"
+        better: "lower"
+        pass: "==0"
+  - id: "Q.SEC"
+    weight: 0.20
+    metrics:
+      - key: "security.high_count"
+        source: "REPORTS/quality/security.json"
+        type: "int"
+        better: "lower"
+        pass: "==0"
+  - id: "Q.MAINT"
+    weight: 0.14
+    metrics:
+      - key: "complexity.p95"
+        source: "REPORTS/quality/maintainability.json"
+        type: "number"
+        better: "lower"
+        threshold_key: "complexity.p95_max"
+      - key: "duplication.lines"
+        source: "REPORTS/quality/maintainability.json"
+        type: "int"
+        better: "lower"
+        threshold_key: "duplication.max_lines"
+  - id: "Q.DOC"
+    weight: 0.08
+    metrics:
+      - key: "docs.broken_links"
+        source: "REPORTS/quality/docs.json"
+        type: "int"
+        better: "lower"
+        pass: "==0"
+  - id: "Q.PERF"
+    weight: 0.10
+    metrics:
+      - key: "perf.regression_detected"
+        source: "REPORTS/quality/perf.json"
+        type: "bool"
+        better: "lower"
+        pass: "==false"
+  - id: "Q.STAB"
+    weight: 0.10
+    metrics:
+      - key: "ci.required_checks_failed"
+        source: "REPORTS/checks.json"
+        type: "int"
+        better: "lower"
+        pass: "==0"
+thresholds:
+  complexity.p95_max: 18
+  duplication.max_lines: 250
+score:
+  scale: "0..100"
+  aggregation: "weighted_pass_ratio"
+  pass_requirement:
+    min_score: 92
+    hard_blockers: ["HB.LINT","HB.TEST","HB.SEC"]
+optimization_policy:
+  objective_order:
+    - "satisfy_hard_blockers"
+    - "minimize_scope_delta"
+    - "maximize_score_delta"
+  pareto_bounds:
+    max_files_changed: 30
+    max_loc_changed: 1200

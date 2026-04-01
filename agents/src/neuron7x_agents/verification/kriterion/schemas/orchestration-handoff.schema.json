@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OrchestrationHandoff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "handoff_id",
+    "producer_agent",
+    "consumer_agent",
+    "object_type",
+    "object_ref",
+    "integrity_state",
+    "timestamp"
+  ],
+  "properties": {
+    "handoff_id": {
+      "type": "string"
+    },
+    "producer_agent": {
+      "type": "string",
+      "enum": [
+        "ARTIFACT_AGENT",
+        "VALIDATION_AGENT",
+        "INTEGRITY_AGENT",
+        "EVALUATION_AGENT",
+        "CLASSIFICATION_AGENT",
+        "AUDIT_TRACE_AGENT"
+      ]
+    },
+    "consumer_agent": {
+      "type": "string",
+      "enum": [
+        "ARTIFACT_AGENT",
+        "VALIDATION_AGENT",
+        "INTEGRITY_AGENT",
+        "EVALUATION_AGENT",
+        "CLASSIFICATION_AGENT",
+        "AUDIT_TRACE_AGENT"
+      ]
+    },
+    "object_type": {
+      "type": "string",
+      "enum": [
+        "CanonicalArtifact",
+        "ArtifactValidationResult",
+        "TaskScore",
+        "DomainScore",
+        "GateResult",
+        "EvaluationResult"
+      ]
+    },
+    "object_ref": {
+      "type": "string"
+    },
+    "integrity_state": {
+      "type": "string",
+      "enum": [
+        "VALID",
+        "INVALID",
+        "UNKNOWN"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

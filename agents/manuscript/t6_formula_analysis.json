@@ -1,0 +1,14 @@
+{
+  "formulas_tested": [
+    "nu*z/d",
+    "2-eta (eta=nu*z/d)",
+    "d/(nu*z)",
+    "z/d",
+    "nu*d/z"
+  ],
+  "ising_2d_measured": 1.329,
+  "best_formula": "nu*z/d",
+  "best_formula_prediction": 1.084,
+  "best_formula_error": 0.245,
+  "conclusion": "No exact match. Universality is empirical, not derived from known critical exponents."
+}

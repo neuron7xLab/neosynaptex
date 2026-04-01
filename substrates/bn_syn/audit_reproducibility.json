@@ -1,0 +1,16 @@
+{
+  "artifact_hashes": {
+    "attack_paths_graph.json": "1bb4cb055e51af5c377f705e04a84614df55d958caa61bb5473a3768bb407fed",
+    "audit_suite_report.json": "698f57f1dc19ca92a304e17370fbb134a1b1bd92c0f19823de38e28a30c416b5",
+    "proof_bundle/index.json": "621b223f9c189eee4cfa8458d9a0c27d14518601f144b412ecce39c67add978e",
+    "readiness_report.json": "77de031acd1588b235424fdee1499dcc09d4ab692684a94d4ae1efc142451760"
+  },
+  "audit_hash": "4d4f125d80bab4d755a79da3d133a0518aa599bd3e7ece48c501c13f757ef555",
+  "deterministic_replay_steps": [
+    "python scripts/build_readiness_artifacts.py",
+    "pytest -q tests/test_readiness_artifact_schemas.py tests/test_audit_suite_artifacts.py"
+  ],
+  "proof_bundle_entries": 69,
+  "timestamp_utc": "2026-02-15T20:32:01.333357+00:00",
+  "toolchain_fingerprint_artifact": "proof_bundle/generated/toolchain_fingerprint.json"
+}

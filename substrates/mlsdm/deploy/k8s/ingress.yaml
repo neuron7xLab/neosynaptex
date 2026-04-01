@@ -1,0 +1,125 @@
+# ====================================================
+# Ingress Configuration for MLSDM API
+# ====================================================
+# Provides external HTTP/HTTPS access to the MLSDM API.
+# Configure according to your ingress controller.
+#
+# Prerequisites:
+#   - Ingress controller installed (nginx-ingress, traefik, etc.)
+#   - cert-manager installed (for automatic TLS)
+#   - DNS record pointing to ingress IP/hostname
+#
+# Usage:
+#   kubectl apply -f ingress.yaml -n mlsdm-production
+# ====================================================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mlsdm-api-ingress
+  namespace: mlsdm-production
+  labels:
+    app: mlsdm
+    component: ingress
+  annotations:
+    # Ingress class - adjust based on your controller
+    kubernetes.io/ingress.class: "nginx"
+
+    # TLS configuration with cert-manager
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # NGINX-specific annotations
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+
+    # Rate limiting at ingress level (additional to application rate limiting)
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+    nginx.ingress.kubernetes.io/limit-connections: "5"
+
+    # CORS headers (adjust origins for your deployment)
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://your-frontend.example.com"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Request-ID"
+
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "DENY" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+spec:
+  ingressClassName: nginx
+
+  # TLS configuration
+  tls:
+    - hosts:
+        - mlsdm-api.example.com
+      secretName: mlsdm-tls-certificate
+
+  # Routing rules
+  rules:
+    - host: mlsdm-api.example.com
+      http:
+        paths:
+          # Main API endpoint
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mlsdm-api
+                port:
+                  number: 80
+
+---
+# Alternative: Traefik IngressRoute (if using Traefik)
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: mlsdm-api-ingressroute
+#   namespace: mlsdm-production
+# spec:
+#   entryPoints:
+#     - websecure
+#   routes:
+#     - match: Host(`mlsdm-api.example.com`)
+#       kind: Rule
+#       services:
+#         - name: mlsdm-api
+#           port: 80
+#       middlewares:
+#         - name: mlsdm-rate-limit
+#         - name: mlsdm-headers
+#   tls:
+#     certResolver: letsencrypt
+
+---
+# Alternative: AWS ALB Ingress (if using AWS Load Balancer Controller)
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: mlsdm-api-alb-ingress
+#   namespace: mlsdm-production
+#   annotations:
+#     kubernetes.io/ingress.class: alb
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#     alb.ingress.kubernetes.io/target-type: ip
+#     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:region:account:certificate/xxx
+#     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+#     alb.ingress.kubernetes.io/ssl-redirect: '443'
+#     alb.ingress.kubernetes.io/healthcheck-path: /health/liveness
+# spec:
+#   rules:
+#     - host: mlsdm-api.example.com
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: mlsdm-api
+#                 port:
+#                   number: 80

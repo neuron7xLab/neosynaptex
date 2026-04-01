@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "build_requires_unpinned_count": 0,
+    "lockfiles_present": true,
+    "optional_unpinned_count": 0,
+    "project_unpinned_count": 0
+  },
+  "determinism": {
+    "global_np_random_offenders": 0,
+    "python_random_offenders": 0,
+    "time_calls_offenders": 0
+  },
+  "docs": {
+    "src_todo_fixme_count": 0
+  },
+  "offenders": {
+    "np": [],
+    "py": [],
+    "time": []
+  },
+  "process": {
+    "gh_workflows_unpinned_actions_count": 0,
+    "required_checks_files_present": true
+  },
+  "version": 1
+}

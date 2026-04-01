@@ -1,0 +1,16 @@
+{
+  "cycle": "C0",
+  "metrics_snapshot": {
+    "m1_dependency_pin_ratio": 0.9459,
+    "m1_lockfile_present": 1,
+    "m1_sha_pinned_actions_ratio": 0.0,
+    "m2_determinism_controls": 2,
+    "m3_contract_validation_signals": 2,
+    "m4_entropy_guard_tests": 0,
+    "m5_entropy_evidence_bundle_completeness": 0
+  },
+  "notes": [
+    "Required entropy artifact bundle absent at baseline.",
+    "Entropy guard test absent at baseline."
+  ]
+}

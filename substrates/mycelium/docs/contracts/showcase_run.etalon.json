@@ -1,0 +1,28 @@
+{
+  "contract_version": "showcase-etalon-v1",
+  "spec": {
+    "grid_size": 32,
+    "steps": 24,
+    "alpha": 0.16,
+    "spike_probability": 0.22,
+    "turing_enabled": true,
+    "turing_threshold": 0.75,
+    "quantum_jitter": false,
+    "jitter_var": 0.0005,
+    "seed": 42,
+    "neuromodulation": null
+  },
+  "descriptor_version": "mfn-morphology-v2",
+  "anomaly_label": "nominal",
+  "regime_label": "stable",
+  "forecast_method": "adaptive_descriptor_extrapolation",
+  "comparison_label": "near-identical",
+  "comparison_topology_label": "nominal",
+  "comparison_reorganization_label": "stable",
+  "forecast_benchmark_metrics": {
+    "descriptor_shift": 0.006141981449568901,
+    "activity_shift": 0.017578125,
+    "forecast_structural_error": 0.01186005322478445,
+    "adaptive_damping": 0.85
+  }
+}

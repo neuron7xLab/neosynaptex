@@ -1,0 +1,68 @@
+# ====================================================
+# Docker Compose for NeuroCognitiveEngine Service
+# ====================================================
+
+version: '3.8'
+
+services:
+  neuro-engine:
+    build:
+      context: ..
+      dockerfile: Dockerfile.neuro-engine-service
+    image: neuron7xLab/mlsdm-neuro-engine:latest
+    container_name: mlsdm-neuro-engine
+    ports:
+      - "8000:8000"
+    environment:
+      # Server configuration
+      - HOST=0.0.0.0
+      - PORT=8000
+
+      # LLM Backend configuration
+      # Options: "local_stub" (default, no API key needed) or "openai"
+      - LLM_BACKEND=${LLM_BACKEND:-local_stub}
+
+      # OpenAI configuration (required when LLM_BACKEND=openai)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-3.5-turbo}
+
+      # Engine configuration
+      - EMBEDDING_DIM=${EMBEDDING_DIM:-384}
+      - ENABLE_FSLGS=${ENABLE_FSLGS:-true}
+      - ENABLE_METRICS=${ENABLE_METRICS:-true}
+
+      # Security configuration
+      - LOG_PAYLOADS=${LOG_PAYLOADS:-false}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/healthz').raise_for_status()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+# Usage examples:
+#
+# 1. Start with local_stub backend (default):
+#    docker-compose -f examples/docker-compose.neuro-engine.yml up
+#
+# 2. Start with OpenAI backend:
+#    OPENAI_API_KEY=sk-... LLM_BACKEND=openai docker-compose -f examples/docker-compose.neuro-engine.yml up
+#
+# 3. Build and start in detached mode:
+#    docker-compose -f examples/docker-compose.neuro-engine.yml up -d --build
+#
+# 4. View logs:
+#    docker-compose -f examples/docker-compose.neuro-engine.yml logs -f
+#
+# 5. Stop service:
+#    docker-compose -f examples/docker-compose.neuro-engine.yml down

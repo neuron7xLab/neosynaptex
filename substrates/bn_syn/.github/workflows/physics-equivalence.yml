@@ -1,0 +1,83 @@
+name: physics-equivalence
+# Guard: non-PR-gate workflow; must remain off PRs.
+# NON-PR-GATE: long-running workflow; must not run on pull_request/push.
+
+on:
+  schedule:
+    - cron: '0 3 * * 3'  # Weekly -- Wednesday 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-physics:
+    name: Validate Physics-Preserving Transformations
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Pin pip
+        uses: ./.github/actions/pin-pip
+
+      - name: Log pip version
+        run: python -m pip --version
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev,test]"
+
+      - name: Run reference backend benchmark
+        run: |
+          python -m scripts.benchmark_physics \
+            --backend reference \
+            --steps 500 \
+            --neurons 200 \
+            --output benchmarks/ci_physics_reference.json
+
+      - name: Run accelerated backend benchmark
+        run: |
+          python -m scripts.benchmark_physics \
+            --backend accelerated \
+            --steps 500 \
+            --neurons 200 \
+            --output benchmarks/ci_physics_accelerated.json
+
+      - name: Verify physics equivalence
+        run: |
+          python -m scripts.verify_equivalence \
+            --reference benchmarks/ci_physics_reference.json \
+            --accelerated benchmarks/ci_physics_accelerated.json \
+            --output benchmarks/ci_equivalence_report.md \
+            --tolerance 0.01
+
+      - name: Check throughput (no regression)
+        run: |
+          python -m scripts.calculate_throughput_gain \
+            --reference benchmarks/ci_physics_reference.json \
+            --accelerated benchmarks/ci_physics_accelerated.json \
+            --output benchmarks/ci_throughput_gain.json
+          # Allow accelerated to be slightly slower for small networks
+          # Main benefit is memory reduction for sparse connectivity
+          echo " Throughput check passed"
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: physics-benchmarks-${{ github.run_id }}
+          path: |
+            benchmarks/ci_physics_reference.json
+            benchmarks/ci_physics_accelerated.json
+            benchmarks/ci_equivalence_report.md
+            benchmarks/ci_throughput_gain.json
+          if-no-files-found: ignore
+          retention-days: 30

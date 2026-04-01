@@ -1,0 +1,184 @@
+name: API Contract Validation
+
+on:
+  pull_request:
+    paths:
+      - 'src/mlsdm/api/**'
+      - 'src/mlsdm/api.py'
+      - 'docs/openapi-baseline.json'
+      - '.github/workflows/api-contract-validation.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/mlsdm/api/**'
+      - 'docs/openapi-baseline.json'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-api-contract:
+    name: Validate API Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e ".[test]"
+
+      - name: Generate current OpenAPI spec
+        run: |
+          python scripts/export_openapi.py --output docs/openapi-current.json
+        env:
+          DISABLE_RATE_LIMIT: "1"
+
+      - name: Check for breaking changes
+        id: check
+        run: |
+          python scripts/openapi_contract_check.py \
+            --baseline docs/openapi-baseline.json \
+            --candidate docs/openapi-current.json \
+            > contract-check-output.txt 2>&1 || echo "BREAKING_CHANGES=true" >> $GITHUB_OUTPUT
+          
+          # Display the output
+          cat contract-check-output.txt
+
+      - name: Comment on PR with breaking changes
+        if: steps.check.outputs.BREAKING_CHANGES == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('contract-check-output.txt', 'utf8');
+            
+            const body = `## ⚠️ API Contract Breaking Changes Detected
+
+            The following breaking changes were detected in the API contract:
+
+            \`\`\`
+            ${output}
+            \`\`\`
+
+            **What this means:**
+            - These changes may break existing API clients
+            - Consider if a new API version (v3, v4, etc.) is needed
+            - Or update the baseline if these changes are intentional
+
+            **To resolve:**
+            1. If breaking changes are intentional and a new version is being released:
+               - Update the baseline: \`make update-api-baseline\`
+               - Commit the updated \`docs/openapi-baseline.json\`
+            2. If breaking changes are unintentional:
+               - Revert the breaking changes
+               - Add new functionality without breaking existing APIs
+
+            **To bypass this check (not recommended):**
+            Add label \`api-breaking-change-approved\` to this PR.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              body: body
+            });
+
+      - name: Check for approval label
+        if: steps.check.outputs.BREAKING_CHANGES == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              pull_number: context.issue.number
+            });
+            
+            const hasApprovalLabel = pullRequest.labels.some(
+              label => label.name === 'api-breaking-change-approved'
+            );
+            
+            if (!hasApprovalLabel) {
+              core.setFailed('Breaking API changes detected and not approved. Add label "api-breaking-change-approved" to bypass this check.');
+            } else {
+              core.notice('Breaking API changes approved via label');
+            }
+
+      - name: Fail if breaking changes on main branch
+        if: steps.check.outputs.BREAKING_CHANGES == 'true' && github.ref == 'refs/heads/main'
+        run: |
+          echo "❌ Breaking API changes detected on main branch"
+          echo "This should not happen - PR checks should have caught this"
+          exit 1
+
+      - name: Upload OpenAPI specs as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-specs
+          path: |
+            docs/openapi-baseline.json
+            docs/openapi-current.json
+            contract-check-output.txt
+          retention-days: 30
+
+      - name: Success message
+        if: steps.check.outputs.BREAKING_CHANGES != 'true'
+        run: |
+          echo "✅ No breaking API changes detected"
+          echo "API contract is compatible with baseline"
+
+  validate-api-versioning:
+    name: Validate API Versioning
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for version prefixes in API routes
+        run: |
+          echo "Checking that all API routes use versioned prefixes..."
+          
+          # Check for non-versioned API endpoints (excluding health checks)
+          if grep -r "@app\.(get|post|put|delete|patch)" src/mlsdm/api/app.py | \
+             grep -v "health" | \
+             grep -v "metrics" | \
+             grep -v "# " ; then
+            echo "❌ Found non-versioned API endpoints"
+            echo "All API endpoints should use @v1_router or @v2_router"
+            exit 1
+          fi
+          
+          echo "✅ All API endpoints are properly versioned"
+
+      - name: Verify v1 router exists
+        run: |
+          if ! grep -q "v1_router = APIRouter(prefix=\"/v1\")" src/mlsdm/api/app.py; then
+            echo "❌ v1_router not found or not properly configured"
+            exit 1
+          fi
+          echo "✅ v1 router is properly configured"
+
+      - name: Verify routers are included
+        run: |
+          if ! grep -q "app.include_router(v1_router)" src/mlsdm/api/app.py; then
+            echo "❌ v1_router not included in app"
+            exit 1
+          fi
+          echo "✅ Versioned routers are included in app"

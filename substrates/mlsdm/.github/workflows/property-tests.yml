@@ -1,0 +1,223 @@
+name: Property-Based Tests
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/*'
+    paths:
+      - 'src/mlsdm/**'
+      - 'tests/property/**'
+      - 'tests/unit/**'
+      - '.github/workflows/property-tests.yml'
+  pull_request:
+    branches:
+      - main
+      - 'feature/*'
+    paths:
+      - 'src/mlsdm/**'
+      - 'tests/property/**'
+      - 'tests/unit/**'
+      - '.github/workflows/property-tests.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  property-tests:
+    name: Property-Based Invariants Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        # Conditional matrix: test all versions on schedule/main/labeled PRs, otherwise only 3.11
+        python-version: >-
+          ${{
+            (github.event_name == 'schedule' ||
+             (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+             contains(github.event.pull_request.labels.*.name, 'test-all-versions'))
+            && fromJSON('["3.10", "3.11"]')
+            || fromJSON('["3.11"]')
+          }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            pyproject.toml
+
+      - name: Restore Python cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt', '**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-py${{ matrix.python-version }}-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e ".[test]"
+
+      - name: Verify test dependencies
+        run: python -c "import hypothesis, pytest, pytest_benchmark"
+
+      - name: Run property-based tests
+        run: |
+          set -o pipefail
+          pytest tests/property/ -v --tb=short --maxfail=5 | tee property_test_output.txt
+        timeout-minutes: 15
+
+      - name: Generate property test report
+        if: always()
+        run: |
+          echo "## Property Test Results" > property_test_summary.md
+          echo "" >> property_test_summary.md
+          echo "**Python Version**: ${{ matrix.python-version }}" >> property_test_summary.md
+          echo "" >> property_test_summary.md
+          echo "\`\`\`" >> property_test_summary.md
+          if [ -f property_test_output.txt ]; then
+            tail -n 50 property_test_output.txt >> property_test_summary.md
+          else
+            echo "No property test output captured." >> property_test_summary.md
+          fi
+          echo "\`\`\`" >> property_test_summary.md
+
+      - name: Upload property test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: property-test-results-py${{ matrix.python-version }}
+          path: |
+            property_test_summary.md
+            property_test_output.txt
+          retention-days: 30
+
+  counterexamples-regression:
+    name: Counterexamples Regression Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            pyproject.toml
+
+      - name: Restore Python cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-py3.11-${{ hashFiles('**/requirements.txt', '**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-py3.11-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e ".[test]"
+
+      - name: Verify test dependencies
+        run: python -c "import hypothesis, pytest, pytest_benchmark"
+
+      - name: Run counterexamples regression tests
+        run: |
+          pytest tests/property/test_counterexamples_regression.py -v -s
+        timeout-minutes: 10
+
+      - name: Generate counterexamples statistics
+        if: always()
+        run: |
+          pytest tests/property/test_counterexamples_regression.py::test_counterexamples_statistics -v -s > counterexamples_stats.txt 2>&1 || true
+
+      - name: Upload counterexamples report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: counterexamples-report
+          path: |
+            counterexamples_stats.txt
+          retention-days: 90
+
+  invariant-coverage:
+    name: Invariant Coverage Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check invariants documentation
+        run: |
+          if [ ! -f "docs/FORMAL_INVARIANTS.md" ]; then
+            echo "ERROR: docs/FORMAL_INVARIANTS.md not found"
+            exit 1
+          fi
+          echo "✓ Formal invariants documented"
+
+      - name: Check counterexamples exist
+        run: |
+          if [ ! -f "tests/property/counterexamples/moral_filter_counterexamples.json" ]; then
+            echo "ERROR: Moral filter counterexamples not found"
+            exit 1
+          fi
+          if [ ! -f "tests/property/counterexamples/coherence_counterexamples.json" ]; then
+            echo "ERROR: Coherence counterexamples not found"
+            exit 1
+          fi
+          if [ ! -f "tests/property/counterexamples/memory_counterexamples.json" ]; then
+            echo "ERROR: Memory counterexamples not found"
+            exit 1
+          fi
+          echo "✓ All counterexample files present"
+
+      - name: Count invariants
+        run: |
+          echo "## Invariant Coverage" > invariant_coverage.md
+          echo "" >> invariant_coverage.md
+          echo "### Safety Invariants" >> invariant_coverage.md
+          grep -c '\*\*INV-.*-S[0-9]' docs/FORMAL_INVARIANTS.md >> invariant_coverage.md || echo "0" >> invariant_coverage.md
+          echo "" >> invariant_coverage.md
+          echo "### Liveness Invariants" >> invariant_coverage.md
+          grep -c '\*\*INV-.*-L[0-9]' docs/FORMAL_INVARIANTS.md >> invariant_coverage.md || echo "0" >> invariant_coverage.md
+          echo "" >> invariant_coverage.md
+          echo "### Metamorphic Invariants" >> invariant_coverage.md
+          grep -c '\*\*INV-.*-M[0-9]' docs/FORMAL_INVARIANTS.md >> invariant_coverage.md || echo "0" >> invariant_coverage.md
+          cat invariant_coverage.md
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: invariant-coverage
+          path: invariant_coverage.md
+          retention-days: 30

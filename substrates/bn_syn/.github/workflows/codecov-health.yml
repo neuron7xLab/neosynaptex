@@ -1,0 +1,32 @@
+# NON-PR-GATE: long-running workflow; must not run on pull_request/push.
+name: codecov-health-check
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'  # Weekly -- Monday 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Codecov API availability
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://codecov.io/upload/v4)
+          if [ "$STATUS" != "400" ] && [ "$STATUS" != "405" ]; then
+            echo " Codecov API may be unavailable (HTTP $STATUS)"
+            exit 1
+          fi
+          echo " Codecov API is healthy"
+      - name: Verify token validity
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          if [ -z "$CODECOV_TOKEN" ]; then
+            echo " CODECOV_TOKEN secret not configured"
+            exit 1
+          fi
+          echo " CODECOV_TOKEN secret is configured"

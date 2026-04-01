@@ -1,0 +1,27 @@
+{
+  "outcome": "STOP_MISSING_INPUTS",
+  "missing_required_inputs": [
+    {
+      "name": "BASE_BRANCH",
+      "reason": "Required by S2 INPUT CONTRACT and not provided in the request."
+    },
+    {
+      "name": "ALLOWLIST",
+      "reason": "Required by S2 INPUT CONTRACT and not provided in the request."
+    },
+    {
+      "name": "BASELINE",
+      "reason": "Required by S2 INPUT CONTRACT and not provided in the request."
+    }
+  ],
+  "provided_inputs": {
+    "REPO": "/workspace/bnsyn-phase-controlled-emergent-dynamics",
+    "ARTIFACT_TARGET": "default"
+  },
+  "notes": [
+    "Execution stopped before implementation gates because required input contract was incomplete."
+  ],
+  "evidence": {
+    "precheck_log": "proof_bundle/logs/pfri_precheck_20260220.log"
+  }
+}

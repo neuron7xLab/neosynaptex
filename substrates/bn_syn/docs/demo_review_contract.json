@@ -1,0 +1,111 @@
+{
+  "version": "1.0.0",
+  "system_model": {
+    "canonical_command": "bnsyn run --profile canonical --plot --export-proof",
+    "invariants": [
+      "canonical proof command remains singular and stable",
+      "export-proof output contains proof artifacts and human review surface",
+      "index.html is the first human review target",
+      "validate-bundle validates the product surface",
+      "proof-validate-bundle validates the proof surface",
+      "documentation stays aligned with runtime behavior"
+    ],
+    "dependencies": [
+      "src/bnsyn/cli.py",
+      "src/bnsyn/experiments/declarative.py",
+      "src/bnsyn/viz/product_report.py",
+      "src/bnsyn/proof/bundle_validator.py",
+      "schemas/product-summary.schema.json",
+      "src/bnsyn/resources/schemas/product-summary.schema.json"
+    ]
+  },
+  "transformation_model": {
+    "changed_states": [
+      "canonical CLI output now emits product surface files",
+      "bundle validation now checks semantic product-surface contract",
+      "docs now expose demo readiness and merge review artifacts"
+    ],
+    "introduced_invariants": [
+      "product_summary.json must satisfy schema and typed contract",
+      "index.html must expose required navigation and command snippets",
+      "review contract contains exactly 10 prioritized tasks"
+    ],
+    "side_effects_controlled": [
+      "stdout machine payload remains intact",
+      "terminal cosmetics stay on stderr",
+      "proof-bundle validation remains separately available"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "T01",
+      "priority_group": "correctness",
+      "rank": 1,
+      "task": "Preserve the canonical proof command as the single authoritative entry path.",
+      "status": "closed"
+    },
+    {
+      "id": "T02",
+      "priority_group": "correctness",
+      "rank": 2,
+      "task": "Emit index.html and product_summary.json on canonical export-proof runs.",
+      "status": "closed"
+    },
+    {
+      "id": "T03",
+      "priority_group": "correctness",
+      "rank": 3,
+      "task": "Validate product_summary.json with a formal schema-backed contract.",
+      "status": "closed"
+    },
+    {
+      "id": "T04",
+      "priority_group": "correctness",
+      "rank": 4,
+      "task": "Validate index.html semantic navigation and command affordances.",
+      "status": "closed"
+    },
+    {
+      "id": "T05",
+      "priority_group": "stability",
+      "rank": 5,
+      "task": "Centralize product-surface validation rules to remove renderer/validator drift.",
+      "status": "closed"
+    },
+    {
+      "id": "T06",
+      "priority_group": "stability",
+      "rank": 6,
+      "task": "Keep terminal presentation isolated from CLI orchestration logic.",
+      "status": "closed"
+    },
+    {
+      "id": "T07",
+      "priority_group": "integration",
+      "rank": 7,
+      "task": "Ensure validate-bundle passes directly on raw canonical export-proof output.",
+      "status": "closed"
+    },
+    {
+      "id": "T08",
+      "priority_group": "integration",
+      "rank": 8,
+      "task": "Keep README, canonical proof doc, demo doc, and review artifact synchronized.",
+      "status": "closed"
+    },
+    {
+      "id": "T09",
+      "priority_group": "merge_readiness",
+      "rank": 9,
+      "task": "Protect the demo surface with regression tests for runtime, docs, and validator behavior.",
+      "status": "closed"
+    },
+    {
+      "id": "T10",
+      "priority_group": "merge_readiness",
+      "rank": 10,
+      "task": "Publish the architecture/engineering review as a machine-readable contract artifact.",
+      "status": "closed"
+    }
+  ]
+}

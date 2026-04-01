@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-03-17T06:42:19.553201",
+  "benchmarks": [
+    {
+      "name": "forward_pass_latency",
+      "metric_value": 340.2313861000039,
+      "metric_unit": "ms",
+      "target_value": 1000.0,
+      "passed": true,
+      "timestamp": "2026-03-17T06:42:19.245277"
+    },
+    {
+      "name": "field_simulation",
+      "metric_value": 5.6858919999740465,
+      "metric_unit": "ms",
+      "target_value": 250.0,
+      "passed": true,
+      "timestamp": "2026-03-17T06:42:19.459575"
+    },
+    {
+      "name": "fractal_dimension",
+      "metric_value": 1.7211240800043015,
+      "metric_unit": "ms",
+      "target_value": 50.0,
+      "passed": true,
+      "timestamp": "2026-03-17T06:42:19.548008"
+    },
+    {
+      "name": "model_initialization",
+      "metric_value": 0.46561059998566634,
+      "metric_unit": "ms",
+      "target_value": 250.0,
+      "passed": true,
+      "timestamp": "2026-03-17T06:42:19.553117"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0
+  }
+}

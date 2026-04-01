@@ -1,0 +1,257 @@
+[
+  {
+    "cmd": "git status --short",
+    "log": "proof_bundle/logs/001_20260216T120112Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "git rev-parse HEAD",
+    "log": "proof_bundle/logs/002_20260216T120112Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "git branch --show-current || true",
+    "log": "proof_bundle/logs/003_20260216T120112Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "git remote -v || true",
+    "log": "proof_bundle/logs/004_20260216T120112Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python -V || true",
+    "log": "proof_bundle/logs/005_20260216T120112Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python -m pip --version || true",
+    "log": "proof_bundle/logs/006_20260216T120112Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "node -v || true",
+    "log": "proof_bundle/logs/007_20260216T120113Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "npm -v || true",
+    "log": "proof_bundle/logs/008_20260216T120113Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "go version || true",
+    "log": "proof_bundle/logs/009_20260216T120113Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "rustc --version || true",
+    "log": "proof_bundle/logs/010_20260216T120113Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "find .. -name AGENTS.md",
+    "log": "proof_bundle/logs/011_20260216T120113Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '1,220p' AGENTS.md",
+    "log": "proof_bundle/logs/012_20260216T120113Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "rg --files README* docs .github/workflows pyproject.toml setup.cfg setup.py requirements*.txt Makefile",
+    "log": "proof_bundle/logs/013_20260216T120113Z.log",
+    "exit": 2
+  },
+  {
+    "cmd": "sed -n '1,260p' README.md",
+    "log": "proof_bundle/logs/014_20260216T120113Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "find docs -maxdepth 3 -type f",
+    "log": "proof_bundle/logs/015_20260216T120113Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '1,260p' docs/ARCHITECTURE.md",
+    "log": "proof_bundle/logs/016_20260216T120113Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '1,260p' docs/merge-gates.md",
+    "log": "proof_bundle/logs/017_20260216T120114Z.log",
+    "exit": 2
+  },
+  {
+    "cmd": "find .github/workflows -maxdepth 2 -type f",
+    "log": "proof_bundle/logs/018_20260216T120114Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '1,260p' .github/workflows/ci-pr-atomic.yml",
+    "log": "proof_bundle/logs/019_20260216T120114Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "find . -maxdepth 2 -type f \\( -name 'pyproject.toml' -o -name 'setup.py' -o -name 'requirements*.txt' -o -name 'poetry.lock' -o -name 'Pipfile.lock' -o -name 'package.json' -o -name 'pnpm-lock.yaml' -o -name 'Makefile' \\)",
+    "log": "proof_bundle/logs/020_20260216T120114Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "find . -maxdepth 3 -type d \\( -name 'src' -o -name 'tests' -o -name 'examples' -o -name 'scripts' -o -name 'notebooks' \\)",
+    "log": "proof_bundle/logs/021_20260216T120114Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python -m pytest -m 'not validation' -q",
+    "log": "proof_bundle/logs/022_20260216T120114Z.log",
+    "exit": 2
+  },
+  {
+    "cmd": "ruff check .",
+    "log": "proof_bundle/logs/023_20260216T120120Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "pylint src/bnsyn",
+    "log": "proof_bundle/logs/024_20260216T120120Z.log",
+    "exit": 127
+  },
+  {
+    "cmd": "mypy src --strict --config-file pyproject.toml",
+    "log": "proof_bundle/logs/025_20260216T120120Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python -m build",
+    "log": "proof_bundle/logs/026_20260216T120133Z.log",
+    "exit": 1
+  },
+  {
+    "cmd": "python -m pip install -e '.[dev]'",
+    "log": "proof_bundle/logs/248_20260216T120209Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python -m bnsyn.cli --help",
+    "log": "proof_bundle/logs/249_20260216T120236Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python -m pytest tests -q",
+    "log": "proof_bundle/logs/250_20260216T120237Z.log",
+    "exit": 1
+  },
+  {
+    "cmd": "python -m scripts.check_quickstart_consistency",
+    "log": "proof_bundle/logs/251_20260216T120448Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "make docs",
+    "log": "proof_bundle/logs/252_20260216T120448Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python -m pytest -m 'not validation' -q",
+    "log": "proof_bundle/logs/253_20260216T120524Z.log",
+    "exit": 1
+  },
+  {
+    "cmd": "ruff check .",
+    "log": "proof_bundle/logs/254_20260216T120711Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "pylint src/bnsyn",
+    "log": "proof_bundle/logs/255_20260216T120711Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "mypy src --strict --config-file pyproject.toml",
+    "log": "proof_bundle/logs/256_20260216T120742Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python -m build",
+    "log": "proof_bundle/logs/257_20260216T120748Z.log",
+    "exit": 1
+  },
+  {
+    "cmd": "git status --short",
+    "log": "proof_bundle/logs/258_20260216T120748Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "find . -maxdepth 1 -mindepth 1 -printf '%P\n' | sort",
+    "log": "proof_bundle/logs/259_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '1,220p' docs/usage_workflows.md",
+    "log": "proof_bundle/logs/260_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '1,220p' docs/repo_map.md",
+    "log": "proof_bundle/logs/261_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '1,220p' Makefile",
+    "log": "proof_bundle/logs/262_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '1,220p' pyproject.toml",
+    "log": "proof_bundle/logs/263_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '1,220p' proof_bundle/index.json",
+    "log": "proof_bundle/logs/264_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "git status --short",
+    "log": "proof_bundle/logs/265_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "git rev-parse HEAD",
+    "log": "proof_bundle/logs/266_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "git branch --show-current",
+    "log": "proof_bundle/logs/267_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "uname -s",
+    "log": "proof_bundle/logs/268_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "uname -m",
+    "log": "proof_bundle/logs/269_20260216T120811Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "sed -n '220,360p' .github/workflows/ci-pr-atomic.yml",
+    "log": "proof_bundle/logs/270_20260216T120835Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python <<PY (artifact generation script for reports/proof bundle)",
+    "log": "proof_bundle/logs/271_20260216T120955Z.log",
+    "exit": 0
+  },
+  {
+    "cmd": "python <<PY (recompute proof_bundle index/hashes)",
+    "log": "proof_bundle/logs/272_20260216T121009Z.log",
+    "exit": 0
+  }
+]

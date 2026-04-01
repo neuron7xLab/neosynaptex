@@ -1,0 +1,156 @@
+{
+  "metadata": {
+    "author": "Yaroslav Vasylenko / neuron7xLab",
+    "date": "2026-03-30",
+    "seed": 42,
+    "description": "γ as function of competition_strength and spatial_locality"
+  },
+  "axis_x": "competition_strength",
+  "axis_y": "gamma (NMO activity field)",
+  "fine_sweep_10pt": [
+    {"competition": 0.0, "gamma": 4.547, "r2": 0.272, "ci_low": 1.988, "ci_high": 4.396},
+    {"competition": 0.111, "gamma": 1.977, "r2": 0.063, "ci_low": 0.615, "ci_high": 2.079},
+    {"competition": 0.222, "gamma": 1.133, "r2": 0.038, "ci_low": -0.098, "ci_high": 1.522},
+    {"competition": 0.333, "gamma": 2.424, "r2": 0.126, "ci_low": 1.379, "ci_high": 3.054},
+    {"competition": 0.444, "gamma": 2.080, "r2": 0.300, "ci_low": 1.683, "ci_high": 2.494},
+    {"competition": 0.556, "gamma": 1.117, "r2": 0.089, "ci_low": 0.779, "ci_high": 1.447},
+    {"competition": 0.667, "gamma": 0.903, "r2": 0.080, "ci_low": 0.506, "ci_high": 1.310},
+    {"competition": 0.778, "gamma": 0.756, "r2": 0.103, "ci_low": 0.574, "ci_high": 1.264},
+    {"competition": 0.889, "gamma": 1.236, "r2": 0.162, "ci_low": 0.923, "ci_high": 1.656},
+    {"competition": 1.0, "gamma": 1.930, "r2": 0.171, "ci_low": 1.492, "ci_high": 2.259}
+  ],
+  "minimum_point": {
+    "competition": 0.778,
+    "gamma": 0.756,
+    "interpretation": "Metastable operating point — γ converges to bio-morphogenetic range"
+  },
+  "sweep_points": [
+    {
+      "competition": 0.0,
+      "gamma_nmo": 4.5468,
+      "gamma_pe": 0.6247,
+      "gamma_ctrl": 0.0002,
+      "r2_nmo": 0.2718,
+      "r2_pe": 0.1103,
+      "ci_low_nmo": 2.0079,
+      "ci_high_nmo": 4.3161,
+      "ci_low_pe": 0.4336,
+      "ci_high_pe": 0.8166,
+      "n_pairs_nmo": 447,
+      "n_pairs_pe": 449,
+      "verdict_nmo": "ORGANIZED (γ > 0, different scale)",
+      "verdict_pe": "ORGANIZED (γ > 0, different scale)"
+    },
+    {
+      "competition": 0.25,
+      "gamma_nmo": 2.0674,
+      "gamma_pe": 0.9979,
+      "gamma_ctrl": 0.0035,
+      "r2_nmo": 0.1025,
+      "r2_pe": 0.1563,
+      "ci_low_nmo": 0.7825,
+      "ci_high_nmo": 2.5483,
+      "ci_low_pe": 0.7358,
+      "ci_high_pe": 1.0893,
+      "n_pairs_nmo": 448,
+      "n_pairs_pe": 449,
+      "verdict_nmo": "ORGANIZED (γ > 0, different scale)",
+      "verdict_pe": "CONSISTENT WITH γ_WT"
+    },
+    {
+      "competition": 0.5,
+      "gamma_nmo": 1.6616,
+      "gamma_pe": 0.7834,
+      "gamma_ctrl": 0.034,
+      "r2_nmo": 0.1934,
+      "r2_pe": 0.2174,
+      "ci_low_nmo": 1.3488,
+      "ci_high_nmo": 2.166,
+      "ci_low_pe": 0.6661,
+      "ci_high_pe": 1.0865,
+      "n_pairs_nmo": 448,
+      "n_pairs_pe": 449,
+      "verdict_nmo": "ORGANIZED (γ > 0, different scale)",
+      "verdict_pe": "ORGANIZED (γ > 0, different scale)"
+    },
+    {
+      "competition": 0.75,
+      "gamma_nmo": 0.8608,
+      "gamma_pe": 0.7182,
+      "gamma_ctrl": 0.0681,
+      "r2_nmo": 0.1135,
+      "r2_pe": 0.1816,
+      "ci_low_nmo": 0.5896,
+      "ci_high_nmo": 1.2584,
+      "ci_low_pe": 0.5575,
+      "ci_high_pe": 0.974,
+      "n_pairs_nmo": 449,
+      "n_pairs_pe": 449,
+      "verdict_nmo": "CONSISTENT WITH γ_WT",
+      "verdict_pe": "ORGANIZED (γ > 0, different scale)"
+    },
+    {
+      "competition": 1.0,
+      "gamma_nmo": 1.93,
+      "gamma_pe": 0.7388,
+      "gamma_ctrl": -0.0113,
+      "r2_nmo": 0.1708,
+      "r2_pe": 0.1672,
+      "ci_low_nmo": 1.4403,
+      "ci_high_nmo": 2.2184,
+      "ci_low_pe": 0.62,
+      "ci_high_pe": 1.043,
+      "n_pairs_nmo": 449,
+      "n_pairs_pe": 449,
+      "verdict_nmo": "ORGANIZED (γ > 0, different scale)",
+      "verdict_pe": "ORGANIZED (γ > 0, different scale)"
+    }
+  ],
+  "spatial_point": {
+    "substrate": "SpatialDNCA",
+    "grid_size": 8,
+    "spatial": true,
+    "competition": 1.0,
+    "gamma_nmo": 3.8696,
+    "gamma_pe": 0.6804,
+    "gamma_ctrl": -0.0002,
+    "r2_nmo": 0.2042,
+    "r2_pe": 0.1359,
+    "ci_low_nmo": 2.2946,
+    "ci_high_nmo": 4.3181,
+    "ci_low_pe": 0.5672,
+    "ci_high_pe": 0.9084,
+    "n_pairs_nmo": 447,
+    "verdict_nmo": "ORGANIZED (γ > 0, different scale)"
+  },
+  "reference_points": [
+    {
+      "substrate": "zebrafish",
+      "gamma": 1.043,
+      "spatial": true,
+      "competition": 0.0,
+      "source": "McGuirl et al. 2020 PNAS"
+    },
+    {
+      "substrate": "MFN+",
+      "gamma": 0.865,
+      "spatial": true,
+      "competition": 0.0,
+      "source": "Vasylenko 2026, Gray-Scott R-D"
+    },
+    {
+      "substrate": "market",
+      "gamma": 1.081,
+      "spatial": false,
+      "competition": 0.3,
+      "source": "mvstack Kuramoto synchronization"
+    },
+    {
+      "substrate": "DNCA (original)",
+      "gamma": 2.185,
+      "spatial": false,
+      "competition": 1.0,
+      "source": "neuron7x-agents DNCA full validation"
+    }
+  ]
+}

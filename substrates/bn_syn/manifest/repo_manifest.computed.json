@@ -1,0 +1,76 @@
+{
+  "evidence_rules": {
+    "accepted_pointer_formats": [
+      "path:line-span",
+      "artifact"
+    ]
+  },
+  "generated_at": "deterministic",
+  "invariants": [
+    {
+      "enforcement": "python -m tools.manifest generate && git diff --exit-code -- .github/REPO_MANIFEST.md manifest/repo_manifest.computed.json",
+      "evidence_kind": "artifact",
+      "id": "INV-001",
+      "statement": "Repository manifest markdown and computed snapshot are generated artifacts."
+    },
+    {
+      "enforcement": "python -m tools.manifest validate",
+      "evidence_kind": "path:line-span",
+      "id": "INV-002",
+      "statement": "PR gate workflows required by .github/PR_GATES.yml exist in .github/workflows/."
+    },
+    {
+      "enforcement": "python -m tools.manifest validate",
+      "evidence_kind": "path:line-span",
+      "id": "INV-003",
+      "statement": "Coverage gate baseline is defined and parseable from quality/coverage_gate.json."
+    },
+    {
+      "enforcement": "python -m tools.manifest validate",
+      "evidence_kind": "path:line-span",
+      "id": "INV-004",
+      "statement": "Mutation baseline is defined and parseable from quality/mutation_baseline.json."
+    },
+    {
+      "enforcement": "python -m tools.manifest validate",
+      "evidence_kind": "artifact",
+      "id": "INV-005",
+      "statement": "ci_manifest.json is not used by automation and must remain absent."
+    }
+  ],
+  "manifest_version": "1.0",
+  "metrics": {
+    "ci_manifest_exists": false,
+    "ci_manifest_reference_count": 0,
+    "ci_manifest_reference_scope": [
+      ".github/workflows",
+      "scripts",
+      "docs",
+      "Makefile",
+      "README.md"
+    ],
+    "coverage_baseline_percent": 95.98,
+    "coverage_minimum_percent": 95.0,
+    "mutation_baseline_score": 51.61,
+    "mutation_total_mutants": 31,
+    "required_pr_gate_total": 7,
+    "workflow_call_total": 11,
+    "workflow_reusable_total": 9,
+    "workflow_total": 40
+  },
+  "policies": {
+    "deterministic_sorting": true,
+    "drift_is_failure": true,
+    "generated_files": [
+      ".github/REPO_MANIFEST.md",
+      "manifest/repo_manifest.computed.json"
+    ],
+    "generated_files_are_readonly": true
+  },
+  "repo_ref": "7575b122eb42ac1d586886b25eb9738bb57f429c66d210ddde5f42d52f954bc1",
+  "required_pr_gates": {
+    "required_pr_gate_total": 7,
+    "sha256": "5ec87b49db654362aceda66d6cb036ee6b94ef7046d8bf5c89a620e909683b17",
+    "source": ".github/PR_GATES.yml"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "gate": "G2_falsification",
+  "pass": true,
+  "critical_correct": true,
+  "total_correct": 5,
+  "n_cases": 5,
+  "elapsed_s": 0.33,
+  "cases": [
+    {
+      "case": "pure_noise",
+      "cognitive": false,
+      "D_f": 2.082153928807691,
+      "R": 0.027758174571035556,
+      "expected_cognitive": false,
+      "correct": true
+    },
+    {
+      "case": "flat_field",
+      "cognitive": false,
+      "D_f": 2.1265542782147215,
+      "R": 1.0,
+      "expected_cognitive": false,
+      "correct": true
+    },
+    {
+      "case": "checkerboard",
+      "cognitive": false,
+      "D_f": 2.1265542782147215,
+      "R": 0.8789062500006664,
+      "expected_cognitive": false,
+      "correct": true
+    },
+    {
+      "case": "healthy_mfn",
+      "cognitive": true,
+      "D_f": 1.7095251731642926,
+      "R": 0.7660394985860943,
+      "expected_cognitive": true,
+      "correct": true
+    },
+    {
+      "case": "extreme_spike",
+      "cognitive": false,
+      "D_f": 0.0,
+      "R": 0.9960937500000004,
+      "expected_cognitive": false,
+      "correct": true
+    }
+  ]
+}

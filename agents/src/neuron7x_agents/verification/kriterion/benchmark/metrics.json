@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "synthetic-harness-validation-2026",
+  "status": "DEMO_VALIDATION_ONLY",
+  "case_count": 10,
+  "adversarial_case_count": 4,
+  "task_level_weighted_kappa": 1.0,
+  "final_classification_agreement": 1.0,
+  "gate_agreement": 0.9333,
+  "anti_gaming_recall": 1.0,
+  "integrity_violation_count": 5,
+  "anti_gaming_false_positive_rate": 0.0,
+  "median_runtime_seconds": 0.95,
+  "median_cost_usd": 0.0022
+}

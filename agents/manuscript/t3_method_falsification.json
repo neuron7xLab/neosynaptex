@@ -1,0 +1,67 @@
+{
+  "results": {
+    "white_noise": {
+      "gamma": 1.6107,
+      "r2": 0.3896,
+      "ci_low": 1.2644,
+      "ci_high": 1.8794,
+      "n_pairs": 446,
+      "gamma_ctrl": 0.1587
+    },
+    "sine_pure": {
+      "gamma": 1.2507,
+      "r2": 0.3833,
+      "ci_low": 1.0326,
+      "ci_high": 1.4002,
+      "n_pairs": 216,
+      "gamma_ctrl": -0.0
+    },
+    "pink_noise_1f": {
+      "gamma": 1.3771,
+      "r2": 0.31,
+      "ci_low": 1.1184,
+      "ci_high": 1.674,
+      "n_pairs": 449,
+      "gamma_ctrl": 0.0679
+    },
+    "logistic_edge": {
+      "gamma": 0.2599,
+      "r2": 0.034,
+      "ci_low": 0.0421,
+      "ci_high": 0.7633,
+      "n_pairs": 449,
+      "gamma_ctrl": -0.0362
+    },
+    "logistic_chaos": {
+      "gamma": 1.4257,
+      "r2": 0.3847,
+      "ci_low": 1.2266,
+      "ci_high": 1.6969,
+      "n_pairs": 440,
+      "gamma_ctrl": -0.1634
+    },
+    "AR1_correlated": {
+      "gamma": 1.0522,
+      "r2": 0.2032,
+      "ci_low": 0.848,
+      "ci_high": 1.3671,
+      "n_pairs": 421,
+      "gamma_ctrl": -0.0128
+    },
+    "metastable_switch": {
+      "gamma": 1.2437,
+      "r2": 0.2471,
+      "ci_low": 1.0767,
+      "ci_high": 1.6352,
+      "n_pairs": 443,
+      "gamma_ctrl": 0.1953
+    }
+  },
+  "gates": {
+    "T3-G1: white_noise gamma~0": false,
+    "T3-G2: sine gamma!=1.0": false,
+    "T3-G3: pink_noise gamma~1.0": false,
+    "T3-G4: logistic_edge gamma~1.0": false,
+    "T3-G5: logistic_chaos gamma!=1.0": true
+  }
+}

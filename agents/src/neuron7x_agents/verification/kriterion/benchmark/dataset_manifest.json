@@ -1,0 +1,86 @@
+{
+  "benchmark_id": "synthetic-harness-validation-2026",
+  "total_cases": 10,
+  "cases": [
+    {
+      "case_id": "case-001",
+      "case_type": "synthetic",
+      "target_protocol": "SE-OPS-PROTOCOL-2026.1",
+      "artifact_manifest_hash": "7d2ef4265ecd7311625fb647c6e2ebd4763c6718ea30df73dbbd6175a2bb8434",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": null
+    },
+    {
+      "case_id": "case-002",
+      "case_type": "synthetic",
+      "target_protocol": "SSE-SECURITY-EXECUTION-PROTOCOL-2026.1",
+      "artifact_manifest_hash": "7b1befebbfb2ee48b919cece5ea7268ba7f4824ce3a2fa610ab6f53d2c64e125",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": null
+    },
+    {
+      "case_id": "case-003",
+      "case_type": "synthetic",
+      "target_protocol": "ESA-SECURITY-ARCHITECT-PROTOCOL-2026.1",
+      "artifact_manifest_hash": "5de70dab5514d79640575fe26123cf40f862ce9991c2a1292dea887836bfcc26",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": null
+    },
+    {
+      "case_id": "case-004",
+      "case_type": "synthetic",
+      "target_protocol": "PSE-SECURITY-PLATFORM-PROTOCOL-2026.2",
+      "artifact_manifest_hash": "200a954f90f8930be5491e62c1be6ac852bd634af13191765d3c0e20465f645a",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": null
+    },
+    {
+      "case_id": "case-005",
+      "case_type": "synthetic",
+      "target_protocol": "DSE-SECURITY-INTELLIGENCE-PROTOCOL-2026",
+      "artifact_manifest_hash": "542bc273e09d02df37292e145502242278c2eb555bebd8be68b1c1576e3e5de7",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": null
+    },
+    {
+      "case_id": "case-006",
+      "case_type": "synthetic",
+      "target_protocol": "SE-OPS-PROTOCOL-2026.1",
+      "artifact_manifest_hash": "9315606037f4dbd9b17700463a9bb1b8fae5a7cd1112b22f7c430ac4c7e21adb",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": null
+    },
+    {
+      "case_id": "case-007",
+      "case_type": "synthetic",
+      "target_protocol": "SE-OPS-PROTOCOL-2026.1",
+      "artifact_manifest_hash": "1558805fcb24ad220439319ce9f66b024a1de130e5119c3465a1337daee0ad0b",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": "AG4_MISSING_OR_FORGED_FINGERPRINT"
+    },
+    {
+      "case_id": "case-008",
+      "case_type": "synthetic",
+      "target_protocol": "SSE-SECURITY-EXECUTION-PROTOCOL-2026.1",
+      "artifact_manifest_hash": "36554bfc32b371d88ab8fd603f3272f220399de12922c7d32b0224c8aab6d9fd",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": "AG7_PROMPT_INJECTION_IN_ARTIFACT"
+    },
+    {
+      "case_id": "case-009",
+      "case_type": "synthetic",
+      "target_protocol": "ESA-SECURITY-ARCHITECT-PROTOCOL-2026.1",
+      "artifact_manifest_hash": "bacbbbdfc2c1496374341ecefa3149a607dc6d6880772403a460c4ab47aab269",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": "AG3_SELF_APPROVAL_OR_SELF_REVIEW"
+    },
+    {
+      "case_id": "case-010",
+      "case_type": "synthetic",
+      "target_protocol": "PSE-SECURITY-PLATFORM-PROTOCOL-2026.2",
+      "artifact_manifest_hash": "977de4de9fc2ad4678bf49b723ac82c37e15f9635a9252f6ff8a5e703f218bb0",
+      "ground_truth_source": "repository synthetic fixture",
+      "adversarial_class": "AG2_DUPLICATE_EVIDENCE_REUSE"
+    }
+  ]
+}

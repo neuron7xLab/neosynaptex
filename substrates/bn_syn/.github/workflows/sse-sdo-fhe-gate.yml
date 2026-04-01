@@ -1,0 +1,50 @@
+name: sse-sdo-fhe-gate
+
+on:
+  schedule:
+    - cron: '0 2 * * 5'  # Weekly -- Friday 02:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sse_sdo_fhe_gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-lock.txt
+      - name: HEL-0 bootstrap
+        run: |
+          scripts/xrun "python -V" --id hel0_python
+          scripts/xrun "python -m pip --version" --id hel0_pip
+          scripts/xrun "git status --porcelain" --id hel0_git
+          scripts/xrun "python -m pytest -q --collect-only" --id hel0_collect
+      - name: Run SSE-SDO-FHE gate
+        run: |
+          python scripts/sse_gate_runner.py --all --out artifacts/sse_sdo/07_quality/quality.json
+          python scripts/sse_proof_index.py --out artifacts/sse_sdo/07_quality/EVIDENCE_INDEX.md
+      - name: Upload SSE-SDO artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sse-sdo-fhe-artifacts
+          path: artifacts/sse_sdo/**
+      - name: Enforce PASS verdict
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          quality = json.loads(Path('artifacts/sse_sdo/07_quality/quality.json').read_text(encoding='utf-8'))
+          if quality['verdict'] != 'PASS' or quality['contradictions'] != 0:
+              raise SystemExit(1)
+          PY

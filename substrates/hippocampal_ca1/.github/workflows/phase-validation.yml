@@ -1,0 +1,54 @@
+name: Phase Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Validate PR metadata
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [[ -z "$PR_BODY" ]]; then
+            echo "::error::PR body is empty."
+            exit 1
+          fi
+
+          phase_pattern="Phase:[[:space:]]*[0-9]{1,2}\.[0-9]{1,2}"
+          closes_pattern="Closes #[0-9]+"
+
+          if ! echo "$PR_BODY" | grep -qiE "$phase_pattern" && ! echo "$PR_BODY" | grep -qE "$closes_pattern" ; then
+            echo "::error::PR should reference a Phase issue from Evolution Plan (e.g., 'Closes #123' or 'Phase: X.Y')."
+            exit 1
+          fi
+
+          if ! echo "$PR_BODY" | grep -qi "Verification:" ; then
+            echo "::error::PR must include a 'Verification:' section listing commands that were run."
+            exit 1
+          fi
+
+          verification_block=$(printf "%s\n" "$PR_BODY" | awk 'BEGIN{IGNORECASE=1} /Verification:/ {capture=1; next} capture {print}')
+          if ! printf "%s\n" "$verification_block" | grep -qE '\S'; then
+            echo "::error::Add at least one verification command under the 'Verification:' section."
+            exit 1
+          fi
+
+          echo "✓ PR metadata requirements satisfied"
+
+      - name: Verify PR template exists
+        run: |
+          if [[ -f .github/PULL_REQUEST_TEMPLATE.md ]]; then
+            echo "✓ PR template found"
+          else
+            echo "⚠️  PR template not found"
+            exit 1
+          fi

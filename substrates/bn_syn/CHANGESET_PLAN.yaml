@@ -1,0 +1,36 @@
+goals:
+  - Produce implementation-evidence artifacts required by the execution-engineer system prompt.
+  - Capture reproducible verification evidence from this repository state.
+constraints:
+  - Keep code behavior unchanged; documentation/evidence-only patch.
+  - Fail-closed reporting: mark unresolved checks as FAIL/UNKNOWN.
+  - Use repository-native commands and deterministic logs.
+acceptance_criteria:
+  - Required deliverables exist: IMPLEMENTATION_SUMMARY.md, CHANGESET_PLAN.yaml, VERIFICATION_REPORT.md, PR_READY_CHECKLIST.md, PROOF_BUNDLE/.
+  - Verification logs include exact command, timeout, exit code, and log path.
+  - Toolchain fingerprint and reproducibility audit hash are generated.
+assumptions:
+  - No feature diff/PR ref was supplied; task is interpreted as execution/readiness evidence generation.
+  - Existing lint failures outside this patch are pre-existing and reported, not silently fixed.
+tasks:
+  - id: T1
+    description: Capture repo identity, toolchain, lockfile hashes, and baseline commands.
+    risk: low
+    rollback: Remove PROOF_BUNDLE artifacts.
+  - id: T2
+    description: Run verification gates (lint, tests, type-check, build, security-tool discovery) and store logs.
+    risk: medium
+    rollback: None needed (read-only execution).
+  - id: T3
+    description: Write mandatory artifacts (summary/verification/checklist) with explicit PASS/FAIL/UNKNOWN.
+    risk: low
+    rollback: Revert artifact files.
+files_touched_expected:
+  - CHANGESET_PLAN.yaml
+  - IMPLEMENTATION_SUMMARY.md
+  - VERIFICATION_REPORT.md
+  - PR_READY_CHECKLIST.md
+  - PROOF_BUNDLE/toolchain_fingerprint.txt
+  - PROOF_BUNDLE/commands_executed.txt
+  - PROOF_BUNDLE/audit_hash.txt
+  - PROOF_BUNDLE/logs/*

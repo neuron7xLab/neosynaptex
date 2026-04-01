@@ -1,0 +1,294 @@
+{
+  "calibration_artifacts": {
+    "golden": [
+      {
+        "path": "calibration_pack/golden/FIXTURE_A.output.json",
+        "sha256": "89c92864fe77fac045a07ae8fcfabd0a1e6b7bb0c712a9420d4ec3ce9aa1e955"
+      },
+      {
+        "path": "calibration_pack/golden/FIXTURE_B.output.json",
+        "sha256": "9f2fd41fdb83097b94d076d4f87b4f61266c565b2284fd9bf02da1e6ca214868"
+      },
+      {
+        "path": "calibration_pack/golden/FIXTURE_C.output.json",
+        "sha256": "13731c76c0275b80aa02cd147ea29f5bce73527be0a7c94fc408207cde5df3f8"
+      }
+    ],
+    "harness": [
+      {
+        "path": "calibration_pack/harness/TEST_MATRIX.yaml",
+        "sha256": "f7e156691f08be8efb002fffd79ec79fdf296a8ab8ae0769b5f0d1930a0e6298"
+      },
+      {
+        "path": "calibration_pack/harness/build_report.py",
+        "sha256": "fb20506c138fd502718c53f38a035c99c1e17a29da66f48a32e29de240712db5"
+      },
+      {
+        "path": "calibration_pack/harness/fixtures/FIXTURE_A.json",
+        "sha256": "3d451a973a6645f59a7eb5f9cf560edb85b6e255f0d6cf6c4fa2e4f95ed542be"
+      },
+      {
+        "path": "calibration_pack/harness/fixtures/FIXTURE_B.json",
+        "sha256": "c1ef4d01c8f8f63c689f883a2e08d037689f5ebc5bcaf0f9023c7c6932ba9daa"
+      },
+      {
+        "path": "calibration_pack/harness/fixtures/FIXTURE_C.json",
+        "sha256": "4abf528f146dddb6e57def384dad9f2899b819c938c573de5b1ae73a3ea7945f"
+      },
+      {
+        "path": "calibration_pack/harness/run_calibration.py",
+        "sha256": "a551340d6bfb70d1cf13cdb90512c5db32d322a989b5b3ded3b9c8f71803c23d"
+      },
+      {
+        "path": "calibration_pack/harness/validate_summary.py",
+        "sha256": "1783906e1adc5f47dba6ac54c269ef2581b8725e742dc5648712f4061e115458"
+      }
+    ],
+    "logs": [
+      {
+        "path": "calibration_pack/logs/build_report_cmd.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "calibration_pack/logs/determinism_check.log",
+        "sha256": "5b3310197b12c640e3af308055f3d87452797fb9d679cbaa2f43ecd0da60223a"
+      },
+      {
+        "path": "calibration_pack/logs/determinism_replay.log",
+        "sha256": "e5a9a421938e64e115ee06022902a8eed42aa7765af12961511f595d28556abe"
+      },
+      {
+        "path": "calibration_pack/logs/git_identity.log",
+        "sha256": "61b14accdaa0693f003dfe013dcca15bac2ee1438725e9e6847b912aa0d60141"
+      },
+      {
+        "path": "calibration_pack/logs/golden_hash_after.log",
+        "sha256": "d672f0eb6be6134ccc18eb8c39de77c370796e221e7a5ddf3fb0e9ec364604bf"
+      },
+      {
+        "path": "calibration_pack/logs/golden_hash_before.log",
+        "sha256": "d672f0eb6be6134ccc18eb8c39de77c370796e221e7a5ddf3fb0e9ec364604bf"
+      },
+      {
+        "path": "calibration_pack/logs/golden_hash_diff.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "calibration_pack/logs/harness_run.log",
+        "sha256": "8e42bc152d166b927c4e8e6a3b9f98f7de5263950ccf91e0baea0afd1cbbb40f"
+      },
+      {
+        "path": "calibration_pack/logs/make_test.log",
+        "sha256": "838d957dbfa53ee9f65f2dd56cdc24cf9cccebfc5141f87f26c3fff04652cc88"
+      },
+      {
+        "path": "calibration_pack/logs/ruff_harness.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "calibration_pack/logs/run_calibration_cmd.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "calibration_pack/logs/schema_validation.log",
+        "sha256": "1c087dd5c69ac2feb003fcf21877a22a40f7717798151b0854d91390f837f370"
+      },
+      {
+        "path": "calibration_pack/logs/schema_validation_final.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "calibration_pack/logs/summary_validation.log",
+        "sha256": "d7db90d3ee6b2f7ad5e98c87b58ba2716a0bc2fcfff5e4d308e528c7d7100f88"
+      }
+    ],
+    "prompts": [
+      {
+        "path": "calibration_pack/prompts/calibration_contract_v2026_02.md",
+        "sha256": "bbd3610fd5a15b542236c53e17ad1b8ca294e9b6bdb8a0dd0060f39660f9398e"
+      }
+    ],
+    "schemas": [
+      {
+        "path": "calibration_pack/schemas/calibration_report.schema.json",
+        "sha256": "83812fe7075a45bfc8b57b8be43a45ff75c0d83ebd93a15526999ed574f3b66c"
+      },
+      {
+        "path": "calibration_pack/schemas/summary_rules.json",
+        "sha256": "3a274dc897a1239df8be14cbcc0fc1b4704e53f116f1c9e5ec5afada95797b8b"
+      }
+    ]
+  },
+  "meta": {
+    "assumptions": [
+      "repo_path is current working repository",
+      "fixtures A/B/C are synthetic slices derived from gating requirements"
+    ],
+    "platform": {
+      "arch": "x86_64",
+      "os": "Linux"
+    },
+    "repo": {
+      "git": {
+        "branch": "work",
+        "commit": "ebf9b1908b8c4a368735c20267515ccdf93e2235",
+        "dirty": true
+      },
+      "path": "/workspace/bnsyn-phase-controlled-emergent-dynamics"
+    },
+    "timestamp_utc": "2026-02-16T07:25:48.143510+00:00"
+  },
+  "model_calibration": {
+    "confidence_model": {
+      "description": "Confidence decreases with unknown ratio, weak evidence index, and contradiction penalty.",
+      "evidence": [
+        "File: calibration_pack/prompts/calibration_contract_v2026_02.md:14-22 | snippet: confidence = clip(1 - 0.6*unknown_ratio ... )"
+      ]
+    },
+    "evidence_strength_index": {
+      "definition": "Bucketized evidence density; higher ratio yields stronger evidence score.",
+      "evidence": [
+        "File: calibration_pack/harness/run_calibration.py:52-64 | snippet: _evidence_strength_index thresholds"
+      ],
+      "range": "1-5"
+    },
+    "priors": [
+      {
+        "evidence": [
+          "File: calibration_pack/prompts/calibration_contract_v2026_02.md:23-30 | snippet: Prior risk per module defaults to pessimistic baseline 0.70"
+        ],
+        "module": "global",
+        "notes": "Default pessimistic prior used before evidence weighting.",
+        "pessimistic_prior_risk": 0.7
+      }
+    ]
+  },
+  "next_actions": [
+    {
+      "action": "Wire harness execution into CI pipeline",
+      "evidence_targets": [
+        "calibration_pack/logs/harness_run.log",
+        "calibration_pack/logs/determinism_check.log"
+      ],
+      "expected_gain_points": 5,
+      "steps": [
+        "Add make target for calibration replay",
+        "Upload calibration logs as build artifacts",
+        "Block merges on schema and determinism failure"
+      ]
+    }
+  ],
+  "operational_readiness": {
+    "gates": [
+      {
+        "evidence": [
+          "Command: cmd:python -m jsonschema -i CALIBRATION_REPORT.json calibration_pack/schemas/calibration_report.schema.json | log:calibration_pack/logs/schema_validation_final.log | exit:0 | timeout:600"
+        ],
+        "id": "G1",
+        "name": "Schema Validity",
+        "status": "PASS",
+        "weight": 20
+      },
+      {
+        "evidence": [
+          "File: calibration_pack/golden/FIXTURE_B.output.json:1-13 | snippet: \"evidence_density\": 0.9",
+          "File: calibration_pack/logs/harness_run.log:1-40 | snippet: \"determinism_ok\": true"
+        ],
+        "id": "G2",
+        "name": "Evidence Integrity",
+        "status": "PASS",
+        "weight": 20
+      },
+      {
+        "evidence": [
+          "File: calibration_pack/logs/determinism_check.log:1-20 | snippet: \"equal\": true"
+        ],
+        "id": "G3",
+        "name": "Determinism",
+        "status": "PASS",
+        "weight": 15
+      },
+      {
+        "evidence": [
+          "File: calibration_pack/prompts/calibration_contract_v2026_02.md:14-30 | snippet: confidence formula and Bayesian posterior",
+          "File: calibration_pack/golden/FIXTURE_A.output.json:1-13 | snippet: \"termination_status\": \"partial\""
+        ],
+        "id": "G4",
+        "name": "Uncertainty Calibration",
+        "status": "PASS",
+        "weight": 15
+      },
+      {
+        "evidence": [
+          "File: calibration_pack/golden/FIXTURE_C.output.json:1-13 | snippet: \"contradiction_flag\": true"
+        ],
+        "id": "G5",
+        "name": "Cross-Module Consistency",
+        "status": "PASS",
+        "weight": 10
+      },
+      {
+        "evidence": [
+          "File: calibration_pack/golden/FIXTURE_B.output.json:1-13 | snippet: \"audit_quality_score\": 0.9325"
+        ],
+        "id": "G6",
+        "name": "Meta-Audit Self-Validation",
+        "status": "PASS",
+        "weight": 10
+      },
+      {
+        "evidence": [
+          "File: calibration_pack/golden/FIXTURE_B.output.json:1-13 | snippet: \"termination_status\": \"complete\""
+        ],
+        "id": "G7",
+        "name": "Formal Termination Conditions",
+        "status": "PASS",
+        "weight": 10
+      }
+    ],
+    "label": "CALIBRATED",
+    "score_0_100": 100
+  },
+  "top_blockers": [
+    {
+      "evidence": [
+        "File: calibration_pack/harness/fixtures/FIXTURE_A.json:1-16 | snippet: synthetic fixture payload"
+      ],
+      "fix": "Integrate harness with live repo telemetry sources and CI traces.",
+      "impact_points": 8,
+      "title": "Synthetic fixture model, not production telemetry"
+    },
+    {
+      "evidence": [
+        "File: calibration_pack/logs/schema_validation_final.log:1-2 | snippet: DeprecationWarning"
+      ],
+      "fix": "Replace jsonschema CLI with check-jsonschema in deterministic tooling.",
+      "impact_points": 3,
+      "title": "CLI validator deprecation warning"
+    },
+    {
+      "evidence": [
+        "File: calibration_pack/harness/TEST_MATRIX.yaml:1-29 | snippet: three fixture tests defined"
+      ],
+      "fix": "Add calibration replay to CI and block on G1-G3 failures.",
+      "impact_points": 5,
+      "title": "No CI gate wiring yet"
+    },
+    {
+      "evidence": [
+        "File: CALIBRATION_REPORT.json:153-160 | snippet: priors array has global module"
+      ],
+      "fix": "Introduce module-specific priors from observed history.",
+      "impact_points": 4,
+      "title": "Single prior profile only"
+    },
+    {
+      "evidence": [
+        "File: pyproject.toml:1-20 | snippet: Python project metadata"
+      ],
+      "fix": "Add explicit compatibility checker for external architecture instructions.",
+      "impact_points": 6,
+      "title": "Prompt-lab TypeScript constraints not auto-verified in this repo"
+    }
+  ]
+}

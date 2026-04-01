@@ -1,0 +1,18 @@
+{
+  "cycle": "C1",
+  "batch": "process_entropy",
+  "changes": [
+    "Added canonical entropy ledger and machine-readable metrics.",
+    "Added guard script and regression test for artifact + threshold enforcement."
+  ],
+  "metric_delta": {
+    "m4_entropy_guard_tests": {
+      "before": 0,
+      "after": 1
+    },
+    "m5_entropy_evidence_bundle_completeness": {
+      "before": 0,
+      "after": 1
+    }
+  }
+}

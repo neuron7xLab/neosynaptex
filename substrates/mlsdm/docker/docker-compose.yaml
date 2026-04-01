@@ -1,0 +1,120 @@
+# Docker Compose for MLSDM Governed Cognitive Memory
+# ====================================================
+# Local development and demo stack
+#
+# Usage:
+#   Development: docker compose up
+#   Background:  docker compose up -d
+#   Stop:        docker compose down
+#
+# Prerequisites:
+#   1. Copy env.dev.example to .env and customize
+#   2. Run: docker compose up
+
+services:
+  neuro-engine:
+    build:
+      context: ..
+      dockerfile: Dockerfile.neuro-engine-service
+    image: ghcr.io/neuron7xLab/mlsdm-neuro-engine:latest
+    container_name: mlsdm-neuro-engine
+
+    # Port mapping
+    ports:
+      - "8000:8000"
+
+    # Environment configuration
+    environment:
+      # Server Configuration
+      - HOST=0.0.0.0
+      - PORT=8000
+
+      # LLM Backend (local_stub for demo, openai for production)
+      - LLM_BACKEND=${LLM_BACKEND:-local_stub}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-3.5-turbo}
+
+      # Security (disable for local development)
+      - DISABLE_RATE_LIMIT=${DISABLE_RATE_LIMIT:-1}
+      - MLSDM_SECURE_MODE=${MLSDM_SECURE_MODE:-0}
+
+      # Engine Configuration
+      - EMBEDDING_DIM=${EMBEDDING_DIM:-384}
+      - ENABLE_FSLGS=${ENABLE_FSLGS:-true}
+      - ENABLE_METRICS=${ENABLE_METRICS:-true}
+
+      # Observability
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - JSON_LOGGING=${JSON_LOGGING:-false}
+      - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
+      - OTEL_EXPORTER_TYPE=${OTEL_EXPORTER_TYPE:-none}
+
+      # Config path
+      - CONFIG_PATH=${CONFIG_PATH:-config/default_config.yaml}
+
+    # Health check using proper endpoints
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Security
+    security_opt:
+      - no-new-privileges:true
+
+    # Networks
+    networks:
+      - mlsdm-network
+
+networks:
+  mlsdm-network:
+    driver: bridge
+
+# ====================================================
+# Usage Examples
+# ====================================================
+#
+# Start the stack:
+#   docker compose -f docker/docker-compose.yaml up
+#
+# Test health endpoint:
+#   curl http://localhost:8000/health
+#
+# Test generate endpoint:
+#   curl -X POST http://localhost:8000/generate \
+#     -H "Content-Type: application/json" \
+#     -d '{"prompt": "Hello, world!"}'
+#
+# View logs:
+#   docker compose -f docker/docker-compose.yaml logs -f
+#
+# Stop the stack:
+#   docker compose -f docker/docker-compose.yaml down
+#
+# ====================================================
+# For production deployment, see:
+# - deploy/k8s/ for Kubernetes manifests
+# - DEPLOYMENT_GUIDE.md for detailed instructions
+# ====================================================

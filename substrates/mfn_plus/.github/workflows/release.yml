@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Release Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v4
+      - run: uv sync --group dev --group security --frozen
+
+      - name: Full test suite
+        run: uv run pytest tests/ -q --tb=short --timeout=300
+
+      - name: Coverage gate
+        run: uv run pytest tests/ --cov=mycelium_fractal_net --cov-branch --cov-fail-under=78 -q --tb=no
+
+      - name: Import contracts
+        run: uv run lint-imports
+
+      - name: Causal validation
+        run: uv run pytest tests/test_causal_invariants.py tests/test_causal_config_sync.py -v
+
+      - name: OpenAPI contract
+        run: |
+          uv run python scripts/export_openapi.py
+          uv run python scripts/check_openapi_contract.py
+
+      - name: Verification matrix
+        run: uv run python scripts/verify_matrix.py
+
+      - name: Scientific validation
+        run: uv run python validation/run_validation_experiments.py
+
+      - name: Neurochem controls
+        run: uv run python validation/neurochem_controls.py
+
+      - name: Docs drift
+        run: uv run python scripts/docs_drift_check.py
+
+  build:
+    name: Build & Sign
+    needs: [validate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v4
+      - run: uv sync --group dev --frozen
+
+      - name: Build package
+        run: uv run python -m build
+
+      - name: Generate SBOM
+        run: uv run python scripts/generate_sbom.py
+
+      - name: Showcase generation
+        run: uv run python scripts/showcase_run.py
+
+      - name: Baseline parity
+        run: uv run python scripts/baseline_parity.py
+
+      - name: Attest artifacts
+        run: uv run python scripts/attest_artifacts.py
+
+      - name: Generate checksums
+        run: |
+          cd dist && sha256sum * > SHA256SUMS && cd ..
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            dist/
+            artifacts/release/
+            artifacts/evidence/
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*
+            dist/SHA256SUMS
+          generate_release_notes: true

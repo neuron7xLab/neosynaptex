@@ -1,0 +1,27 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^http://localhost"
+    },
+    {
+      "pattern": "^https://img\\.shields\\.io/"
+    }
+  ],
+  "httpHeaders": [
+    {
+      "urls": ["https://doi.org", "https://www.python.org", "https://keepachangelog.com", "https://semver.org", "https://opensource.org", "https://www.conventionalcommits.org", "https://git-scm.com", "https://www.contributor-covenant.org"],
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (compatible; markdown-link-check/3.0)"
+      }
+    }
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "https://github.com/neuron7xLab/Hippocampal-CA1-LAM/blob/main/"
+    }
+  ],
+  "aliveStatusCodes": [200, 206, 301, 302, 403, 429],
+  "timeout": "15s",
+  "retryCount": 3
+}

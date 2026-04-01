@@ -1,0 +1,45 @@
+scpe_release: v1.0
+schema_version: OH-2026.1
+output_order:
+  - header
+  - inputs
+  - scope
+  - gate_decisions
+  - pr
+  - ci
+  - actions
+  - evidence
+  - rollback
+  - next_steps
+header:
+  required_fields: ["name","version","mode","work_id","utc","repo","base_branch","git_sha_before","git_sha_after"]
+inputs:
+  required_fields: ["missing_required","assumptions","constraints"]
+scope:
+  required_fields: ["allowlist","denied_paths","budgets"]
+gate_decisions:
+  required_fields: ["owned_gates"]
+  owned_gates_item_schema:
+    fields: ["gate_id","status","reason","missing_evidence","evidence_artifacts"]
+pr:
+  required_fields: ["pr_url","pr_number","head_branch","head_sha","base_branch","state","is_draft"]
+ci:
+  required_fields: ["run_urls","required_checks","checks_summary"]
+actions:
+  required_fields: ["act_performed","diff_summary","commit_list","pr_plan"]
+evidence:
+  required_fields: ["evidence_root","manifest_path","artifacts_sha256_count","reports_index"]
+rollback:
+  required_fields: ["revert_strategy","revert_command_or_steps"]
+next_steps:
+  required_fields: ["blocking_items","instrumentation_plan","handoff"]
+constraints:
+  max_lines: 240
+  max_chars_per_line: 120
+forbidden_patterns:
+  - "\\bI think\\b"
+  - "\\bmaybe\\b"
+  - "\\bprobably\\b"
+  - "\\bshould\\b"
+  - "\\blikely\\b"
+  - "\\bseems\\b"

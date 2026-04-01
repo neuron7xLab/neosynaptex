@@ -1,0 +1,194 @@
+[
+  {
+    "script": "_audit_metrics_pr40.py",
+    "status": "STILL_FAILING",
+    "exit_code": 1,
+    "log_path": "proof_bundle/logs/revalidate__audit_metrics_pr40_py.log"
+  },
+  {
+    "script": "audit_spec_implementation.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_audit_spec_implementation_py.log"
+  },
+  {
+    "script": "benchmark_physics.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_benchmark_physics_py.log"
+  },
+  {
+    "script": "benchmark_production.py",
+    "status": "STILL_FAILING",
+    "exit_code": 1,
+    "log_path": "proof_bundle/logs/revalidate_benchmark_production_py.log"
+  },
+  {
+    "script": "benchmark_sleep_stack_scale.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_benchmark_sleep_stack_scale_py.log"
+  },
+  {
+    "script": "check_benchmark_regressions.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_check_benchmark_regressions_py.log"
+  },
+  {
+    "script": "compare_benchmarks.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_compare_benchmarks_py.log"
+  },
+  {
+    "script": "generate_benchmark_baseline.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_generate_benchmark_baseline_py.log"
+  },
+  {
+    "script": "generate_evidence_coverage.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_generate_evidence_coverage_py.log"
+  },
+  {
+    "script": "lint_ci_truthfulness.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_lint_ci_truthfulness_py.log"
+  },
+  {
+    "script": "mutation_survivors_summary.py",
+    "status": "STILL_FAILING",
+    "exit_code": 1,
+    "log_path": "proof_bundle/logs/revalidate_mutation_survivors_summary_py.log"
+  },
+  {
+    "script": "orchestrate_throughput_scaling.py",
+    "status": "STILL_FAILING",
+    "exit_code": 1,
+    "log_path": "proof_bundle/logs/revalidate_orchestrate_throughput_scaling_py.log"
+  },
+  {
+    "script": "profile_kernels.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_profile_kernels_py.log"
+  },
+  {
+    "script": "rebuild_sources_lock.py",
+    "status": "STILL_FAILING",
+    "exit_code": 1,
+    "log_path": "proof_bundle/logs/revalidate_rebuild_sources_lock_py.log"
+  },
+  {
+    "script": "run_benchmarks.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_run_benchmarks_py.log"
+  },
+  {
+    "script": "run_scaled_sleep_stack.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_run_scaled_sleep_stack_py.log"
+  },
+  {
+    "script": "scan_governed_docs.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_scan_governed_docs_py.log"
+  },
+  {
+    "script": "scan_normative_tags.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_scan_normative_tags_py.log"
+  },
+  {
+    "script": "scan_tierS_misuse.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_scan_tierS_misuse_py.log"
+  },
+  {
+    "script": "ssot_rules.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_ssot_rules_py.log"
+  },
+  {
+    "script": "sync_required_status_contexts.py",
+    "status": "STILL_FAILING",
+    "exit_code": 1,
+    "log_path": "proof_bundle/logs/revalidate_sync_required_status_contexts_py.log"
+  },
+  {
+    "script": "validate_bibliography.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_validate_bibliography_py.log"
+  },
+  {
+    "script": "validate_branch_protection_governance.py",
+    "status": "STILL_FAILING",
+    "exit_code": 3,
+    "log_path": "proof_bundle/logs/revalidate_validate_branch_protection_governance_py.log"
+  },
+  {
+    "script": "validate_claims.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_validate_claims_py.log"
+  },
+  {
+    "script": "validate_claims_coverage.py",
+    "status": "DONE",
+    "exit_code": 0,
+    "log_path": "proof_bundle/logs/revalidate_validate_claims_coverage_py.log"
+  },
+  {
+    "script": "validate_long_running_triggers.py",
+    "status": "STILL_FAILING",
+    "exit_code": 3,
+    "log_path": "proof_bundle/logs/revalidate_validate_long_running_triggers_py.log"
+  },
+  {
+    "script": "validate_pr_gates.py",
+    "status": "STILL_FAILING",
+    "exit_code": 3,
+    "log_path": "proof_bundle/logs/revalidate_validate_pr_gates_py.log"
+  },
+  {
+    "script": "validate_required_checks.py",
+    "status": "STILL_FAILING",
+    "exit_code": 3,
+    "log_path": "proof_bundle/logs/revalidate_validate_required_checks_py.log"
+  },
+  {
+    "script": "validate_required_status_contexts.py",
+    "status": "STILL_FAILING",
+    "exit_code": 3,
+    "log_path": "proof_bundle/logs/revalidate_validate_required_status_contexts_py.log"
+  },
+  {
+    "script": "validate_workflow_contracts.py",
+    "status": "STILL_FAILING",
+    "exit_code": 3,
+    "log_path": "proof_bundle/logs/revalidate_validate_workflow_contracts_py.log"
+  },
+  {
+    "script": "verify_equivalence.py",
+    "status": "STILL_FAILING",
+    "exit_code": 1,
+    "log_path": "proof_bundle/logs/revalidate_verify_equivalence_py.log"
+  },
+  {
+    "script": "visualize_experiment.py",
+    "status": "STILL_FAILING",
+    "exit_code": 1,
+    "log_path": "proof_bundle/logs/revalidate_visualize_experiment_py.log"
+  }
+]

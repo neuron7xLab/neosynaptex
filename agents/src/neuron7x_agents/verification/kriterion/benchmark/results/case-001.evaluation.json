@@ -1,0 +1,399 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "GPT5.4-AUDIT-HARDENING-PROTOCOL-2026",
+    "protocol_version": "2026.2",
+    "target_protocol_id": "SE-OPS-PROTOCOL-2026.1",
+    "execution_mode": "MODE_STRICT_AUDIT",
+    "evaluation_timestamp": "1970-01-01T00:00:00Z",
+    "model_identifier": "reference-runner-1.0",
+    "artifact_count": 2,
+    "evaluation_hash": "966e7a9b25d35827b911badcb5b65735472e17b02dc9cff8d8cc5f56f09c6a75"
+  },
+  "artifact_validation_results": [
+    {
+      "artifact_id": "ART.A1",
+      "schema_status": "VALID",
+      "integrity_status": "VALID",
+      "admissible": true,
+      "reason_codes": []
+    },
+    {
+      "artifact_id": "ART.A2",
+      "schema_status": "VALID",
+      "integrity_status": "VALID",
+      "admissible": true,
+      "reason_codes": []
+    }
+  ],
+  "task_scores": [
+    {
+      "protocol_id": "SE-OPS-PROTOCOL-2026.1",
+      "domain_id": "SE.OPS.READINESS",
+      "task_id": "T1",
+      "task_weight": 50,
+      "evidence_artifact_ids": [
+        "ART.A1"
+      ],
+      "raw_score": 4.0,
+      "evidence_cap": 5.0,
+      "penalties_applied": [],
+      "final_score": 4.0,
+      "reason_codes": []
+    },
+    {
+      "protocol_id": "SE-OPS-PROTOCOL-2026.1",
+      "domain_id": "SE.OPS.MONITORING",
+      "task_id": "T2",
+      "task_weight": 50,
+      "evidence_artifact_ids": [
+        "ART.A2"
+      ],
+      "raw_score": 4.0,
+      "evidence_cap": 4.0,
+      "penalties_applied": [],
+      "final_score": 4.0,
+      "reason_codes": []
+    }
+  ],
+  "domain_scores": [
+    {
+      "domain_id": "SE.OPS.READINESS",
+      "domain_name": "Operational Readiness",
+      "must_have": true,
+      "weighted_score": 2.0,
+      "evidence_class_distribution": {
+        "LOW": 0,
+        "MED": 0,
+        "HIGH": 1
+      },
+      "domain_cap": 5.0,
+      "final_domain_score": 2.0
+    },
+    {
+      "domain_id": "SE.OPS.MONITORING",
+      "domain_name": "Monitoring",
+      "must_have": true,
+      "weighted_score": 2.0,
+      "evidence_class_distribution": {
+        "LOW": 0,
+        "MED": 1,
+        "HIGH": 0
+      },
+      "domain_cap": 4.0,
+      "final_domain_score": 2.0
+    }
+  ],
+  "gate_results": [
+    {
+      "gate_id": "G0_INTEGRITY",
+      "status": "PASS",
+      "blocking": false,
+      "reason_codes": [],
+      "affected_artifact_ids": []
+    },
+    {
+      "gate_id": "G1_MINIMUM_READINESS",
+      "status": "FAIL",
+      "blocking": true,
+      "reason_codes": [
+        "MUST_HAVE_DOMAIN_BELOW_THRESHOLD"
+      ],
+      "affected_artifact_ids": []
+    },
+    {
+      "gate_id": "G2_EVIDENCE_SUFFICIENCY",
+      "status": "PASS",
+      "blocking": false,
+      "reason_codes": [],
+      "affected_artifact_ids": []
+    }
+  ],
+  "final_classification": {
+    "status": "FAIL",
+    "classification_label": "NOT_READY",
+    "composite_score": 2.0,
+    "integrity_hash": "966e7a9b25d35827b911badcb5b65735472e17b02dc9cff8d8cc5f56f09c6a75"
+  },
+  "execution_chain_format_version": "execution_chain.v1",
+  "execution_state_chain": [
+    {
+      "phase_index": 0,
+      "phase_id": "artifact_validation",
+      "previous_step_hash": "b9092cf533b350abc532e399a7f8ba9e8066c2030e41898e05bf2833dae441b2",
+      "step_hash": "d588f2511b4167ba4f306dbf2da8b7ae60f1243dc553183247a38d7d733dab8a",
+      "contract_version": "2026.2",
+      "phase_input_digest": "12781d095d8a356475ff6941b2c64c08a3e4f36c8f1bfe1f01acf45662c8fffa",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.A1",
+          "ART.A2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "5b72aa8b3b5a8224bf1db47f166fab2347144a3bb0ccc37a64cc4f7274159fc0",
+          "c953a28b88fe8fc54150e990193c0e0fc4b38f49aa03dfaf7a9dc19ce95e773a"
+        ],
+        "gate_state": {
+          "G0_INTEGRITY": "PASS"
+        },
+        "phase_material": {
+          "artifact_validation_results": [
+            {
+              "artifact_id": "ART.A1",
+              "schema_status": "VALID",
+              "integrity_status": "VALID",
+              "admissible": true,
+              "reason_codes": []
+            },
+            {
+              "artifact_id": "ART.A2",
+              "schema_status": "VALID",
+              "integrity_status": "VALID",
+              "admissible": true,
+              "reason_codes": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 1,
+      "phase_id": "admissibility_derivation",
+      "previous_step_hash": "d588f2511b4167ba4f306dbf2da8b7ae60f1243dc553183247a38d7d733dab8a",
+      "step_hash": "2eb70e7de468f03537c46ffdb0f7fde8118b1899c0dd8e0c5bd880a8c9ce9f31",
+      "contract_version": "2026.2",
+      "phase_input_digest": "d896e48da0bd44ea3a171fd98b4a697c36a48f1e8424efbf849731e7a41a0ec8",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.A1",
+          "ART.A2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "5b72aa8b3b5a8224bf1db47f166fab2347144a3bb0ccc37a64cc4f7274159fc0",
+          "c953a28b88fe8fc54150e990193c0e0fc4b38f49aa03dfaf7a9dc19ce95e773a"
+        ],
+        "gate_state": {},
+        "phase_material": {
+          "admitted_artifact_ids": [
+            "ART.A1",
+            "ART.A2"
+          ],
+          "admitted_artifact_fingerprints": [
+            "5b72aa8b3b5a8224bf1db47f166fab2347144a3bb0ccc37a64cc4f7274159fc0",
+            "c953a28b88fe8fc54150e990193c0e0fc4b38f49aa03dfaf7a9dc19ce95e773a"
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 2,
+      "phase_id": "task_scoring",
+      "previous_step_hash": "2eb70e7de468f03537c46ffdb0f7fde8118b1899c0dd8e0c5bd880a8c9ce9f31",
+      "step_hash": "3aa69bba6bd68e1bfddc62c14ae24f7a1c69eadda77f4a47fedc23f5a334bba9",
+      "contract_version": "2026.2",
+      "phase_input_digest": "7c66789b4bc9005ffeec4aaffd80ff03f54515a41c8188f40355ae80832079e3",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.A1",
+          "ART.A2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "5b72aa8b3b5a8224bf1db47f166fab2347144a3bb0ccc37a64cc4f7274159fc0",
+          "c953a28b88fe8fc54150e990193c0e0fc4b38f49aa03dfaf7a9dc19ce95e773a"
+        ],
+        "gate_state": {},
+        "phase_material": {
+          "task_scores": [
+            {
+              "domain_id": "SE.OPS.MONITORING",
+              "task_id": "T2",
+              "final_score": 4.0,
+              "evidence_artifact_ids": [
+                "ART.A2"
+              ],
+              "reason_codes": []
+            },
+            {
+              "domain_id": "SE.OPS.READINESS",
+              "task_id": "T1",
+              "final_score": 4.0,
+              "evidence_artifact_ids": [
+                "ART.A1"
+              ],
+              "reason_codes": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 3,
+      "phase_id": "domain_scoring",
+      "previous_step_hash": "3aa69bba6bd68e1bfddc62c14ae24f7a1c69eadda77f4a47fedc23f5a334bba9",
+      "step_hash": "33280867077fbdd1cc991ad190870589d0e488640e2195a9c08972bed393987b",
+      "contract_version": "2026.2",
+      "phase_input_digest": "82b01fe61de0b875859a2e46948c127f9790f79af4800f5180b12ef147fdd50b",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.A1",
+          "ART.A2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "5b72aa8b3b5a8224bf1db47f166fab2347144a3bb0ccc37a64cc4f7274159fc0",
+          "c953a28b88fe8fc54150e990193c0e0fc4b38f49aa03dfaf7a9dc19ce95e773a"
+        ],
+        "gate_state": {},
+        "phase_material": {
+          "domain_scores": [
+            {
+              "domain_id": "SE.OPS.MONITORING",
+              "final_domain_score": 2.0,
+              "domain_cap": 4.0,
+              "evidence_class_distribution": {
+                "LOW": 0,
+                "MED": 1,
+                "HIGH": 0
+              }
+            },
+            {
+              "domain_id": "SE.OPS.READINESS",
+              "final_domain_score": 2.0,
+              "domain_cap": 5.0,
+              "evidence_class_distribution": {
+                "LOW": 0,
+                "MED": 0,
+                "HIGH": 1
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 4,
+      "phase_id": "gate_evaluation",
+      "previous_step_hash": "33280867077fbdd1cc991ad190870589d0e488640e2195a9c08972bed393987b",
+      "step_hash": "b73639d0aa86a9db17836521785706ccdb6da202f7bdbe0ffaf090be0bc86b58",
+      "contract_version": "2026.2",
+      "phase_input_digest": "3002b23b80b34470666ae78ff7207d7dae5bbf150f48f9a163fbe3e30d0ea247",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.A1",
+          "ART.A2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "5b72aa8b3b5a8224bf1db47f166fab2347144a3bb0ccc37a64cc4f7274159fc0",
+          "c953a28b88fe8fc54150e990193c0e0fc4b38f49aa03dfaf7a9dc19ce95e773a"
+        ],
+        "gate_state": {
+          "G0_INTEGRITY": "PASS",
+          "G1_MINIMUM_READINESS": "FAIL",
+          "G2_EVIDENCE_SUFFICIENCY": "PASS"
+        },
+        "phase_material": {
+          "gate_results": [
+            {
+              "gate_id": "G0_INTEGRITY",
+              "status": "PASS",
+              "blocking": false
+            },
+            {
+              "gate_id": "G1_MINIMUM_READINESS",
+              "status": "FAIL",
+              "blocking": true
+            },
+            {
+              "gate_id": "G2_EVIDENCE_SUFFICIENCY",
+              "status": "PASS",
+              "blocking": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 5,
+      "phase_id": "classification",
+      "previous_step_hash": "b73639d0aa86a9db17836521785706ccdb6da202f7bdbe0ffaf090be0bc86b58",
+      "step_hash": "da10703261fab7255573e71e14982188f3a8279e233222be99ed575bff8b9d32",
+      "contract_version": "2026.2",
+      "phase_input_digest": "e1823c9a75cc0f036405ee7dccf29c2baf8da9a6bda22d17e9df32db623ac9cf",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.A1",
+          "ART.A2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "5b72aa8b3b5a8224bf1db47f166fab2347144a3bb0ccc37a64cc4f7274159fc0",
+          "c953a28b88fe8fc54150e990193c0e0fc4b38f49aa03dfaf7a9dc19ce95e773a"
+        ],
+        "gate_state": {
+          "G0_INTEGRITY": "PASS",
+          "G1_MINIMUM_READINESS": "FAIL",
+          "G2_EVIDENCE_SUFFICIENCY": "PASS"
+        },
+        "phase_material": {
+          "classification": {
+            "status": "FAIL",
+            "classification_label": "NOT_READY",
+            "composite_score": 2.0
+          }
+        }
+      }
+    },
+    {
+      "phase_index": 6,
+      "phase_id": "finalization",
+      "previous_step_hash": "da10703261fab7255573e71e14982188f3a8279e233222be99ed575bff8b9d32",
+      "step_hash": "966e7a9b25d35827b911badcb5b65735472e17b02dc9cff8d8cc5f56f09c6a75",
+      "contract_version": "2026.2",
+      "phase_input_digest": "38acab04b62a9ad41bca4f90bea1301cb691ee2837433d86b528e40ed5924a28",
+      "replay_capsule": {
+        "admitted_artifact_ids": [
+          "ART.A1",
+          "ART.A2"
+        ],
+        "admitted_artifact_fingerprints": [
+          "5b72aa8b3b5a8224bf1db47f166fab2347144a3bb0ccc37a64cc4f7274159fc0",
+          "c953a28b88fe8fc54150e990193c0e0fc4b38f49aa03dfaf7a9dc19ce95e773a"
+        ],
+        "gate_state": {
+          "G0_INTEGRITY": "PASS",
+          "G1_MINIMUM_READINESS": "FAIL",
+          "G2_EVIDENCE_SUFFICIENCY": "PASS"
+        },
+        "phase_material": {
+          "finalization": {
+            "target_protocol_id": "SE-OPS-PROTOCOL-2026.1",
+            "execution_mode": "MODE_STRICT_AUDIT",
+            "evaluation_timestamp": "1970-01-01T00:00:00Z",
+            "artifact_count": 2,
+            "evidence_trace_digest": "32c9072cfd5a46e3839da2c95b1a777b08a3c104719f64caeedc09ff9b9bd125"
+          }
+        }
+      }
+    }
+  ],
+  "execution_chain_terminal_hash": "966e7a9b25d35827b911badcb5b65735472e17b02dc9cff8d8cc5f56f09c6a75",
+  "evidence_trace_table": [
+    {
+      "artifact_id": "ART.A1",
+      "artifact_type": "RUNBOOK",
+      "domain_id": "SE.OPS.READINESS",
+      "task_id": "T1",
+      "task_score_contribution": 4.0,
+      "domain_score_contribution": 2.0,
+      "evidence_class": "HIGH",
+      "trace_status": "USED"
+    },
+    {
+      "artifact_id": "ART.A2",
+      "artifact_type": "METRICS_SNAPSHOT",
+      "domain_id": "SE.OPS.MONITORING",
+      "task_id": "T2",
+      "task_score_contribution": 4.0,
+      "domain_score_contribution": 2.0,
+      "evidence_class": "MED",
+      "trace_status": "USED"
+    }
+  ]
+}

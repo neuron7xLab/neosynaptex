@@ -1,0 +1,47 @@
+{
+  "generated_at": "2026-02-18T14:08:15Z",
+  "repo": "bnsyn-phase-controlled-emergent-dynamics",
+  "detected_stack": "Python",
+  "top_level_dirs": [
+    "PROOF_BUNDLE",
+    "artifacts",
+    "assessment_logs",
+    "benchmarks",
+    "bibliography",
+    "calibration_pack",
+    "claims",
+    "docs",
+    "entropy",
+    "evidence",
+    "examples",
+    "experiments",
+    "figures",
+    "manifest",
+    "proof_bundle",
+    "quality",
+    "reports",
+    "results",
+    "schemas",
+    "scripts",
+    "specs",
+    "src",
+    "tests",
+    "tools"
+  ],
+  "truth_sources_checked": [
+    "docs/",
+    "README.md",
+    "src/",
+    "tests/",
+    "pyproject.toml"
+  ],
+  "protocol_target_artifacts": [
+    "inventory.json",
+    "assumptions.json",
+    "PRD.md",
+    "PRODUCT_READINESS_DOSSIER.md",
+    "scorecard.json",
+    "hashes.json",
+    "manifests/ric_failures.json"
+  ]
+}

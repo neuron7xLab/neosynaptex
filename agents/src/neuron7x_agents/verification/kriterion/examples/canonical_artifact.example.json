@@ -1,0 +1,41 @@
+{
+  "artifact_id": "ART.RUNBOOK.IDENTITY.001",
+  "artifact_type": "RUNBOOK",
+  "title": "Identity Gateway Emergency Revocation Runbook",
+  "provenance": {
+    "origin_actor": "security-platform-team",
+    "origin_system": "git-repository",
+    "acquisition_method": "REPOSITORY_CHECKOUT",
+    "source_class": "PRIMARY"
+  },
+  "reviewer": {
+    "reviewer_id": "independent-reviewer-01",
+    "reviewer_independence": true,
+    "review_status": "INDEPENDENTLY_REVIEWED"
+  },
+  "timestamps": {
+    "creation_time": "2026-02-10T10:15:00Z",
+    "evaluation_capture_time": "2026-03-06T12:00:00Z"
+  },
+  "references": [
+    "repo://runbooks/identity/emergency-revocation.md"
+  ],
+  "fingerprint": {
+    "algorithm": "SHA-256",
+    "sha256": "37df18ff21017540ccd5f5154e58a2dcd46c309e1ac78a8baf7eb629788cb945"
+  },
+  "evidence_class": "HIGH",
+  "domain_mapping": [
+    "SE.OPS.READINESS",
+    "SE.OPS.RECOVERY"
+  ],
+  "payload": {
+    "service": "identity-gateway",
+    "control": "emergency-session-revocation",
+    "metrics": {
+      "mttr_minutes": 18,
+      "success_rate": 0.995
+    },
+    "evidence_note": "Runbook and metrics snapshot support operational control readiness."
+  }
+}

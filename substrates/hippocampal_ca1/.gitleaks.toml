@@ -1,0 +1,41 @@
+# Gitleaks Configuration
+# https://github.com/gitleaks/gitleaks
+
+title = "Gitleaks configuration for Hippocampal-CA1-LAM"
+
+# Use the default rules from gitleaks
+# This provides detection for:
+# - AWS keys
+# - GitHub tokens
+# - Private keys
+# - Database connection strings
+# - API keys
+# - etc.
+
+[extend]
+# Use built-in rules
+useDefault = true
+
+# Paths to ignore (only essential exclusions)
+[allowlist]
+description = "Global allowlist"
+paths = [
+    # Test fixtures with fake credentials
+    '''testdata/''',
+    # Lock files
+    '''package-lock\.json''',
+    '''poetry\.lock''',
+    '''Pipfile\.lock''',
+    # Binary files
+    '''\.png$''',
+    '''\.jpg$''',
+    '''\.jpeg$''',
+    '''\.gif$''',
+    '''\.ico$''',
+    '''\.woff2?$''',
+    '''\.ttf$''',
+    '''\.eot$''',
+    '''\.pdf$''',
+    '''\.zip$''',
+    '''\.tar\.gz$''',
+]

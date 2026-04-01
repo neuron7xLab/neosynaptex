@@ -1,0 +1,58 @@
+{
+  "wild_type": {
+    "phenotype": "wild_type",
+    "n_points": 28540,
+    "h1_median": 0.46413254282005634,
+    "h1_mean": 0.6164389240884139,
+    "n_h1_features": 11996,
+    "is_organized": true,
+    "label_real": true,
+    "notes": [
+      "# Series: 23 frames, 11996 H1 lifetimes"
+    ]
+  },
+  "random_control": {
+    "phenotype": "random_control",
+    "n_points": 28540,
+    "h1_median": 0.5617355167714024,
+    "h1_mean": 0.9148886792681011,
+    "n_h1_features": 6774,
+    "is_organized": true,
+    "label_real": true,
+    "notes": [
+      "# Series: 23 frames, 6774 H1 lifetimes"
+    ]
+  },
+  "mutant": {
+    "phenotype": "mutant",
+    "n_points": 12037,
+    "h1_median": 0.3389937265287737,
+    "h1_mean": 0.4171782743092206,
+    "n_h1_features": 3484,
+    "is_organized": true,
+    "label_real": true,
+    "notes": [
+      "# Series: 38 frames, 3484 H1 lifetimes"
+    ]
+  },
+  "separation_ratio": 1.2102911667393825,
+  "verdict": "INCONCLUSIVE",
+  "g6_closed": false,
+  "g6_note": "WT organized (H1=0.464<0.75) but sep=1.21x<1.5x. Primary evidence gamma_WT=+1.043 remains valid.",
+  "primary_evidence": "gamma_WT=+1.043 (TDA-calibrated, real McGuirl density)",
+  "pre_validated": {
+    "stripe_h1_mhl_mean": 0.541,
+    "stripe_h1_mhl_std": 0.128,
+    "noise_h1_mhl_mean": 1.082,
+    "noise_h1_mhl_std": 0.151,
+    "ratio": 2.0,
+    "cohen_d": 2.73,
+    "zero_overlap": true,
+    "eps": 15.0,
+    "normalized_scale": 100.0,
+    "n_replicates": 20,
+    "N_points": 300
+  },
+  "label_real": true,
+  "timestamp": "2026-03-29T01:01:41.971015+00:00"
+}

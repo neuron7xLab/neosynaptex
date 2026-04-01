@@ -1,0 +1,15 @@
+{
+  "alternatives": [],
+  "contradictions": [],
+  "instrumentation_required": [],
+  "items": [],
+  "modalities_present": [
+    "M.CODE",
+    "M.TEST",
+    "M.SEC",
+    "M.DOC",
+    "M.PERF",
+    "M.CI"
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,64 @@
+acceptance_criteria:
+  AC1:
+    description: Every PH entry is CLOSED and includes evidence_ref.
+    verification:
+      - pytest -q tests/test_scan_placeholders.py::test_registry_closed_entries_include_evidence_ref
+  AC2:
+    description: Every PH has pre-fix failure evidence and post-fix pass evidence.
+    verification:
+      - evidence/placeholder_closure/per_batch/PH_BATCH_01.json
+      - evidence/placeholder_closure/per_batch/PH_BATCH_02.json
+  AC3:
+    description: Meta-scan enforces no OPEN placeholders.
+    verification:
+      - python -m scripts.scan_placeholders --format text
+      - pytest -q tests/test_scan_placeholders.py::test_scan_placeholders_cli_json_output
+  AC4:
+    description: Registry validation enforces schema, unique ids, and status rules.
+    verification:
+      - pytest -q tests/test_scan_placeholders.py::test_registry_covers_all_scan_findings
+      - pytest -q tests/test_scan_placeholders.py::test_registry_closed_entries_include_evidence_ref
+  AC5:
+    description: CI required workflows are green for current head SHA (dependency-review may be path-filtered).
+    verification:
+      - artifacts/audit/runs_for_head.json
+  AC6:
+    description: Scope is minimal.
+    verification:
+      - git diff --name-only
+
+ph_to_tests:
+  PH-0001:
+    tests:
+      - tests/test_crystallizer_edge_cases.py::test_crystallizer_pca_failure_retains_previous
+    evidence:
+      - evidence/placeholder_closure/per_batch/PH_BATCH_01.json
+  PH-0002:
+    tests:
+      - tests/test_coverage_gate.py::test_read_coverage_percent_missing_file_fails
+    evidence:
+      - evidence/placeholder_closure/per_batch/PH_BATCH_02.json
+  PH-0003:
+    tests:
+      - tests/validation/test_chaos_integration.py::test_adex_bounds_enforcement
+    evidence:
+      - evidence/placeholder_closure/per_batch/PH_BATCH_02.json
+
+no_escape_acceptance:
+  merge_safety_budget_minutes: 12
+  determinism_runs: 3
+  decision_mode: fail_closed
+  required_checks:
+    - ci-pr-atomic
+    - workflow-integrity
+    - determinism
+    - contracts
+  forbidden:
+    - unpinned_actions
+    - flaky_tests
+    - unknown_evidence
+  artifacts:
+    tests_inventory.json:
+      generator_command: python -m scripts.generate_tests_inventory
+    INVENTORY.json:
+      generator_command: python tools/generate_inventory.py

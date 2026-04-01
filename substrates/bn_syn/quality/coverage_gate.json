@@ -1,0 +1,7 @@
+{
+  "baseline_percent": 95.98,
+  "minimum_percent": 95.0,
+  "metric": "coverage.xml line-rate",
+  "generated_from": "7af68e36a3c349f70e1216acdfbcb5d1b21daef4",
+  "generated_at_utc": "2026-03-30T18:00:00+00:00"
+}

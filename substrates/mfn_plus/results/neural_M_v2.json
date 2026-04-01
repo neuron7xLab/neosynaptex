@@ -1,0 +1,93 @@
+{
+  "task1_mann_kendall": {
+    "Gray-Scott": {
+      "tau": -1.0,
+      "p": 0.0,
+      "trend": "decreasing",
+      "significant": true
+    },
+    "FitzHugh-Nagumo": {
+      "tau": -1.0,
+      "p": 0.0,
+      "trend": "decreasing",
+      "significant": true
+    },
+    "Cahn-Hilliard": {
+      "tau": -0.1333,
+      "p": 0.132464,
+      "trend": "no trend",
+      "significant": false
+    },
+    "Neural IF+STD": {
+      "tau": 0.0764,
+      "p": 0.476682,
+      "trend": "no trend",
+      "significant": false,
+      "sigma": 1.0,
+      "n_spikes": 6111
+    }
+  },
+  "task2_sigma_sweep": {
+    "3000": {
+      "sigma": 1.0,
+      "tau_mk": -0.1052,
+      "p": 0.38989,
+      "descent": 0.0259,
+      "n_spikes": 4074,
+      "trend": "no trend"
+    },
+    "1500": {
+      "sigma": 1.0,
+      "tau_mk": -0.1016,
+      "p": 0.406443,
+      "descent": 0.0667,
+      "n_spikes": 4062,
+      "trend": "no trend"
+    },
+    "800": {
+      "sigma": 1.0,
+      "tau_mk": -0.1123,
+      "p": 0.358035,
+      "descent": 0.0813,
+      "n_spikes": 4061,
+      "trend": "no trend"
+    },
+    "400": {
+      "sigma": 1.0,
+      "tau_mk": 0.0089,
+      "p": 0.952715,
+      "descent": 0.1042,
+      "n_spikes": 4066,
+      "trend": "no trend"
+    },
+    "150": {
+      "sigma": 1.0,
+      "tau_mk": -0.0018,
+      "p": 1.0,
+      "descent": 0.0339,
+      "n_spikes": 4067,
+      "trend": "no trend"
+    }
+  },
+  "task3_network_size": {
+    "200": {
+      "sigma": 1.0,
+      "tau_mk": -0.1266,
+      "p": 0.299405,
+      "M_std": 0.0405,
+      "n_spikes": 4061,
+      "sim_seconds": 0.6,
+      "trend": "no trend"
+    },
+    "500": {
+      "sigma": 1.0,
+      "tau_mk": 0.0267,
+      "p": 0.835586,
+      "M_std": 0.0239,
+      "n_spikes": 10168,
+      "sim_seconds": 0.7,
+      "trend": "no trend"
+    }
+  },
+  "compute_seconds": 19.2
+}

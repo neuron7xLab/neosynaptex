@@ -1,0 +1,304 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "GPT5.4-AUDIT-HARDENING-PROTOCOL-2026",
+    "protocol_version": "2026.2",
+    "target_protocol_id": "PSE-SECURITY-PLATFORM-PROTOCOL-2026.2",
+    "execution_mode": "MODE_STRICT_AUDIT",
+    "evaluation_timestamp": "1970-01-01T00:00:00Z",
+    "model_identifier": "reference-runner-1.0",
+    "artifact_count": 2,
+    "evaluation_hash": "0e154762008ccb82f45b23c4cd63aa9f71e2bbff4b8b6ef2cee21d9318b50ec6"
+  },
+  "artifact_validation_results": [
+    {
+      "artifact_id": "ART.J1",
+      "schema_status": "VALID",
+      "integrity_status": "DUPLICATE_EVIDENCE",
+      "admissible": false,
+      "reason_codes": [
+        "DUPLICATE_EVIDENCE"
+      ]
+    },
+    {
+      "artifact_id": "ART.J2",
+      "schema_status": "VALID",
+      "integrity_status": "DUPLICATE_EVIDENCE",
+      "admissible": false,
+      "reason_codes": [
+        "DUPLICATE_EVIDENCE"
+      ]
+    }
+  ],
+  "task_scores": [
+    {
+      "protocol_id": "PSE-SECURITY-PLATFORM-PROTOCOL-2026.2",
+      "domain_id": "PSE.PLATFORM",
+      "task_id": "T1",
+      "task_weight": 100,
+      "evidence_artifact_ids": [],
+      "raw_score": 5.0,
+      "evidence_cap": 5.0,
+      "penalties_applied": [
+        "MISSING_REQUIRED_EVIDENCE",
+        "NO_ADMISSIBLE_EVIDENCE"
+      ],
+      "final_score": 0.0,
+      "reason_codes": [
+        "MISSING_REQUIRED_EVIDENCE",
+        "NO_ADMISSIBLE_EVIDENCE"
+      ]
+    }
+  ],
+  "domain_scores": [
+    {
+      "domain_id": "PSE.PLATFORM",
+      "domain_name": "Security Platform",
+      "must_have": true,
+      "weighted_score": 0.0,
+      "evidence_class_distribution": {
+        "LOW": 0,
+        "MED": 0,
+        "HIGH": 0
+      },
+      "domain_cap": 0.0,
+      "final_domain_score": 0.0
+    }
+  ],
+  "gate_results": [
+    {
+      "gate_id": "G0_INTEGRITY",
+      "status": "FAIL",
+      "blocking": true,
+      "reason_codes": [
+        "ARTIFACT_INTEGRITY_FAILURE"
+      ],
+      "affected_artifact_ids": [
+        "ART.J1",
+        "ART.J2"
+      ]
+    },
+    {
+      "gate_id": "G1_MINIMUM_READINESS",
+      "status": "FAIL",
+      "blocking": true,
+      "reason_codes": [
+        "MUST_HAVE_DOMAIN_BELOW_THRESHOLD"
+      ],
+      "affected_artifact_ids": []
+    },
+    {
+      "gate_id": "G2_EVIDENCE_SUFFICIENCY",
+      "status": "FAIL",
+      "blocking": true,
+      "reason_codes": [
+        "INSUFFICIENT_TASK_EVIDENCE"
+      ],
+      "affected_artifact_ids": []
+    }
+  ],
+  "final_classification": {
+    "status": "FAIL",
+    "classification_label": "NOT_READY",
+    "composite_score": 0.0,
+    "integrity_hash": "0e154762008ccb82f45b23c4cd63aa9f71e2bbff4b8b6ef2cee21d9318b50ec6"
+  },
+  "execution_chain_format_version": "execution_chain.v1",
+  "execution_state_chain": [
+    {
+      "phase_index": 0,
+      "phase_id": "artifact_validation",
+      "previous_step_hash": "bb65adc6a048cc8a8eec653e210c9bcb4144a23e4a1eace82788dfd376fe311c",
+      "step_hash": "275a0b010cb28c66f6f96154959f2541bf4ff43dfb7b2172da1c64e22c7f89ee",
+      "contract_version": "2026.2",
+      "phase_input_digest": "dfc2ce1279cdb639fe1dfe87fb2cccbcdadf2a7d0692554b276bef00975b6e99",
+      "replay_capsule": {
+        "admitted_artifact_ids": [],
+        "admitted_artifact_fingerprints": [],
+        "gate_state": {
+          "G0_INTEGRITY": "FAIL"
+        },
+        "phase_material": {
+          "artifact_validation_results": [
+            {
+              "artifact_id": "ART.J1",
+              "schema_status": "VALID",
+              "integrity_status": "DUPLICATE_EVIDENCE",
+              "admissible": false,
+              "reason_codes": [
+                "DUPLICATE_EVIDENCE"
+              ]
+            },
+            {
+              "artifact_id": "ART.J2",
+              "schema_status": "VALID",
+              "integrity_status": "DUPLICATE_EVIDENCE",
+              "admissible": false,
+              "reason_codes": [
+                "DUPLICATE_EVIDENCE"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 1,
+      "phase_id": "admissibility_derivation",
+      "previous_step_hash": "275a0b010cb28c66f6f96154959f2541bf4ff43dfb7b2172da1c64e22c7f89ee",
+      "step_hash": "588f590a36e1591564938529370e10fd49f98baf0983c696782eeaa29dabb489",
+      "contract_version": "2026.2",
+      "phase_input_digest": "17004ec6ecf34da606f3cf3b94832ec49dc5ed498a3705103834d15ff5d84dc9",
+      "replay_capsule": {
+        "admitted_artifact_ids": [],
+        "admitted_artifact_fingerprints": [],
+        "gate_state": {},
+        "phase_material": {
+          "admitted_artifact_ids": [],
+          "admitted_artifact_fingerprints": []
+        }
+      }
+    },
+    {
+      "phase_index": 2,
+      "phase_id": "task_scoring",
+      "previous_step_hash": "588f590a36e1591564938529370e10fd49f98baf0983c696782eeaa29dabb489",
+      "step_hash": "fbb41815f57a2337c278436ff56575f07ad9be199828f617978880ec60adc742",
+      "contract_version": "2026.2",
+      "phase_input_digest": "a56110c9c93e732e5df04d107cd60e265ea9db4ac445660f28b75726629e970b",
+      "replay_capsule": {
+        "admitted_artifact_ids": [],
+        "admitted_artifact_fingerprints": [],
+        "gate_state": {},
+        "phase_material": {
+          "task_scores": [
+            {
+              "domain_id": "PSE.PLATFORM",
+              "task_id": "T1",
+              "final_score": 0.0,
+              "evidence_artifact_ids": [],
+              "reason_codes": [
+                "MISSING_REQUIRED_EVIDENCE",
+                "NO_ADMISSIBLE_EVIDENCE"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 3,
+      "phase_id": "domain_scoring",
+      "previous_step_hash": "fbb41815f57a2337c278436ff56575f07ad9be199828f617978880ec60adc742",
+      "step_hash": "45a55c8ba691ca92cbcd3b116217c536e477062e97105c1aa663f3a31b6fac2b",
+      "contract_version": "2026.2",
+      "phase_input_digest": "9f52329c3fe7dfd08e3bdb52600425b94ded1f29b1ab946d946b37a785cdcd43",
+      "replay_capsule": {
+        "admitted_artifact_ids": [],
+        "admitted_artifact_fingerprints": [],
+        "gate_state": {},
+        "phase_material": {
+          "domain_scores": [
+            {
+              "domain_id": "PSE.PLATFORM",
+              "final_domain_score": 0.0,
+              "domain_cap": 0.0,
+              "evidence_class_distribution": {
+                "LOW": 0,
+                "MED": 0,
+                "HIGH": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 4,
+      "phase_id": "gate_evaluation",
+      "previous_step_hash": "45a55c8ba691ca92cbcd3b116217c536e477062e97105c1aa663f3a31b6fac2b",
+      "step_hash": "e270e1088aab03d654a89ac3318baa466317b637fea5b056d41ca1c28fa029ad",
+      "contract_version": "2026.2",
+      "phase_input_digest": "5afc5fb8f3cf1ba103beaf2cc50856a53def9109e9ba473e2a8d6256b62988b5",
+      "replay_capsule": {
+        "admitted_artifact_ids": [],
+        "admitted_artifact_fingerprints": [],
+        "gate_state": {
+          "G0_INTEGRITY": "FAIL",
+          "G1_MINIMUM_READINESS": "FAIL",
+          "G2_EVIDENCE_SUFFICIENCY": "FAIL"
+        },
+        "phase_material": {
+          "gate_results": [
+            {
+              "gate_id": "G0_INTEGRITY",
+              "status": "FAIL",
+              "blocking": true
+            },
+            {
+              "gate_id": "G1_MINIMUM_READINESS",
+              "status": "FAIL",
+              "blocking": true
+            },
+            {
+              "gate_id": "G2_EVIDENCE_SUFFICIENCY",
+              "status": "FAIL",
+              "blocking": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase_index": 5,
+      "phase_id": "classification",
+      "previous_step_hash": "e270e1088aab03d654a89ac3318baa466317b637fea5b056d41ca1c28fa029ad",
+      "step_hash": "10c16d8e4dc4c1310e6364442441f69bf9f7a9e0b5da7d838095567712a8b92c",
+      "contract_version": "2026.2",
+      "phase_input_digest": "45afa3bd8b7b3157cb3d4a77218bc87c919b5261da9924e486f2509bb054b6dc",
+      "replay_capsule": {
+        "admitted_artifact_ids": [],
+        "admitted_artifact_fingerprints": [],
+        "gate_state": {
+          "G0_INTEGRITY": "FAIL",
+          "G1_MINIMUM_READINESS": "FAIL",
+          "G2_EVIDENCE_SUFFICIENCY": "FAIL"
+        },
+        "phase_material": {
+          "classification": {
+            "status": "FAIL",
+            "classification_label": "NOT_READY",
+            "composite_score": 0.0
+          }
+        }
+      }
+    },
+    {
+      "phase_index": 6,
+      "phase_id": "finalization",
+      "previous_step_hash": "10c16d8e4dc4c1310e6364442441f69bf9f7a9e0b5da7d838095567712a8b92c",
+      "step_hash": "0e154762008ccb82f45b23c4cd63aa9f71e2bbff4b8b6ef2cee21d9318b50ec6",
+      "contract_version": "2026.2",
+      "phase_input_digest": "191b4c27405eec70809187ffe30a56ce220de7606047294ae93097b24789853e",
+      "replay_capsule": {
+        "admitted_artifact_ids": [],
+        "admitted_artifact_fingerprints": [],
+        "gate_state": {
+          "G0_INTEGRITY": "FAIL",
+          "G1_MINIMUM_READINESS": "FAIL",
+          "G2_EVIDENCE_SUFFICIENCY": "FAIL"
+        },
+        "phase_material": {
+          "finalization": {
+            "target_protocol_id": "PSE-SECURITY-PLATFORM-PROTOCOL-2026.2",
+            "execution_mode": "MODE_STRICT_AUDIT",
+            "evaluation_timestamp": "1970-01-01T00:00:00Z",
+            "artifact_count": 2,
+            "evidence_trace_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      }
+    }
+  ],
+  "execution_chain_terminal_hash": "0e154762008ccb82f45b23c4cd63aa9f71e2bbff4b8b6ef2cee21d9318b50ec6",
+  "evidence_trace_table": []
+}

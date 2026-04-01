@@ -1,0 +1,265 @@
+# ====================================================
+# Canary Deployment for MLSDM Neuro-Cognitive Engine
+# ====================================================
+# This manifest provides canary deployment capability for gradual rollouts.
+#
+# Canary deployments allow testing new versions with a small percentage
+# of traffic before full rollout.
+#
+# Usage:
+#   # Deploy canary (10% traffic)
+#   kubectl apply -f canary-deployment.yaml
+#
+#   # Promote canary to stable (100% traffic)
+#   kubectl patch virtualservice mlsdm-vs --type merge -p '{"spec":{"http":[{"route":[{"destination":{"host":"mlsdm-api","subset":"canary"},"weight":100}]}]}}'
+#
+#   # Rollback canary
+#   kubectl delete -f canary-deployment.yaml
+# ====================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mlsdm-canary
+  labels:
+    app: mlsdm
+    environment: canary
+
+---
+# Canary ConfigMap (may have different config from stable)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlsdm-canary-config
+  namespace: mlsdm-canary
+data:
+  config.yaml: |
+    dimension: 384
+    capacity: 20000
+    cognitive_rhythm:
+      wake_duration: 8
+      sleep_duration: 3
+    moral_filter:
+      initial_threshold: 0.50
+    security:
+      rate_limiting:
+        enabled: true
+        requests_per_second: 5.0
+    observability:
+      logging:
+        level: "INFO"
+      metrics:
+        enabled: true
+    # Canary-specific settings
+    canary:
+      enabled: true
+      version_label: "canary"
+
+---
+# Canary Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlsdm-api-canary
+  namespace: mlsdm-canary
+  labels:
+    app: mlsdm-api
+    version: canary
+    track: canary
+spec:
+  replicas: 1  # Start with 1 replica for canary
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  selector:
+    matchLabels:
+      app: mlsdm-api
+      track: canary
+
+  template:
+    metadata:
+      labels:
+        app: mlsdm-api
+        version: canary
+        track: canary
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/health/metrics"
+        # Add canary label for metrics
+        mlsdm.io/deployment-track: "canary"
+
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+      - name: mlsdm-api
+        # Image tag should be updated to the new version being tested
+        image: ghcr.io/neuron7xLab/mlsdm-neuro-engine:canary
+        imagePullPolicy: Always
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+
+        env:
+        - name: CONFIG_PATH
+          value: "/etc/mlsdm/config.yaml"
+        - name: MLSDM_ENV
+          value: "canary"
+        - name: MLSDM_CANARY
+          value: "true"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        volumeMounts:
+        - name: config
+          mountPath: /etc/mlsdm
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+
+      volumes:
+      - name: config
+        configMap:
+          name: mlsdm-canary-config
+      - name: tmp
+        emptyDir: {}
+
+      terminationGracePeriodSeconds: 30
+
+---
+# Canary Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlsdm-api-canary
+  namespace: mlsdm-canary
+  labels:
+    app: mlsdm-api
+    track: canary
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  selector:
+    app: mlsdm-api
+    track: canary
+
+---
+# DestinationRule for traffic splitting (Istio)
+# Uncomment if using Istio service mesh
+# apiVersion: networking.istio.io/v1beta1
+# kind: DestinationRule
+# metadata:
+#   name: mlsdm-api-destination
+#   namespace: mlsdm-canary
+# spec:
+#   host: mlsdm-api
+#   trafficPolicy:
+#     connectionPool:
+#       tcp:
+#         maxConnections: 100
+#       http:
+#         h2UpgradePolicy: UPGRADE
+#   subsets:
+#   - name: stable
+#     labels:
+#       track: stable
+#   - name: canary
+#     labels:
+#       track: canary
+
+---
+# VirtualService for traffic splitting (Istio)
+# Uncomment if using Istio service mesh
+# apiVersion: networking.istio.io/v1beta1
+# kind: VirtualService
+# metadata:
+#   name: mlsdm-vs
+#   namespace: mlsdm-canary
+# spec:
+#   hosts:
+#   - mlsdm-api
+#   http:
+#   - match:
+#     - headers:
+#         x-canary:
+#           exact: "true"
+#     route:
+#     - destination:
+#         host: mlsdm-api
+#         subset: canary
+#   - route:
+#     - destination:
+#         host: mlsdm-api
+#         subset: stable
+#       weight: 90
+#     - destination:
+#         host: mlsdm-api
+#         subset: canary
+#       weight: 10
+
+---
+# TrafficSplit for traffic splitting (SMI/Linkerd)
+# Uncomment if using Linkerd or SMI-compatible service mesh
+# apiVersion: split.smi-spec.io/v1alpha4
+# kind: TrafficSplit
+# metadata:
+#   name: mlsdm-api-split
+#   namespace: mlsdm-canary
+# spec:
+#   service: mlsdm-api
+#   backends:
+#   - service: mlsdm-api-stable
+#     weight: 90
+#   - service: mlsdm-api-canary
+#     weight: 10

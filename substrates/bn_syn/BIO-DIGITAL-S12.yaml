@@ -1,0 +1,10 @@
+protocol: BIO-DIGITAL-S12
+version: 2026.02
+scope: bnsyn-runtime-and-governance
+controls:
+  - deterministic_cli_behaviour
+  - reproducibility_manifest
+  - fail_closed_readiness_reporting
+evidence:
+  - artifacts/product/evidence/logs/reliability_checks.log
+  - artifacts/product/expert_assessment_ua.md

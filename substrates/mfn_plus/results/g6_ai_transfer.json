@@ -1,0 +1,22 @@
+{
+  "gate": "G6_ai_transfer",
+  "pass": true,
+  "training_early_coherence": 0.855914,
+  "training_late_coherence": 0.671359,
+  "training_improved": true,
+  "ood_coherence": 0.83162,
+  "ood_robust": true,
+  "ablation_without_omega": 1.0,
+  "ablation_with_omega": 0.981478,
+  "stagnation_detected": true,
+  "a4_phase_induction": true,
+  "axioms": {
+    "A1_admissibility": true,
+    "A2_ccp_closure": true,
+    "A3_non_derivability": true,
+    "A4_phase_induction": true,
+    "A5_stabilization": true,
+    "all_satisfied": true
+  },
+  "elapsed_s": 0.01
+}

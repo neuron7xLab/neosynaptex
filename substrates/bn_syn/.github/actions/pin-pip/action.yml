@@ -1,0 +1,17 @@
+name: Pin pip
+description: Pin pip to a deterministic version and log it
+inputs:
+  pip_version:
+    description: pip version to install
+    default: "26.0"
+runs:
+  using: composite
+  steps:
+    - name: Upgrade pip
+      shell: bash
+      env:
+        PIP_VERSION: ${{ inputs.pip_version }}
+      run: python -m pip install --upgrade "pip==${PIP_VERSION}"
+    - name: Log pip version
+      shell: bash
+      run: python -m pip --version

@@ -1,0 +1,32 @@
+{
+  "Healthy epithelium": {
+    "gamma": 2.144,
+    "R2": 0.361,
+    "n": 5,
+    "diagnosis": "ACCELERATING"
+  },
+  "Early dysplasia": {
+    "gamma": 2.614,
+    "R2": 0.955,
+    "n": 5,
+    "diagnosis": "ACCELERATING"
+  },
+  "Carcinoma in situ": {
+    "gamma": 0.618,
+    "R2": 0.6,
+    "n": 5,
+    "diagnosis": "DEGRADING"
+  },
+  "Invasive carcinoma": {
+    "gamma": 0.899,
+    "R2": 0.994,
+    "n": 5,
+    "diagnosis": "STABLE (healthy)"
+  },
+  "Necrotic tumor": {
+    "gamma": 0.921,
+    "R2": 0.998,
+    "n": 5,
+    "diagnosis": "STABLE (healthy)"
+  }
+}

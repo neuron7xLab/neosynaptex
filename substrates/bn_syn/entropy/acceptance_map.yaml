@@ -1,0 +1,37 @@
+{
+  "acceptance_id": "ENTROPY-CYCLE-1",
+  "criteria": [
+    {
+      "id": "AC1",
+      "metric": "m1_dependency_pin_ratio",
+      "direction": "gte",
+      "threshold": 0.94,
+      "guard": "pyproject_pinned_dependencies",
+      "evidence": "entropy/metrics.json"
+    },
+    {
+      "id": "AC2",
+      "metric": "m2_determinism_controls",
+      "direction": "gte",
+      "threshold": 2,
+      "guard": "ci_determinism_workflow",
+      "evidence": ".github/workflows/ci-pr-atomic.yml"
+    },
+    {
+      "id": "AC3",
+      "metric": "m4_entropy_guard_tests",
+      "direction": "gte",
+      "threshold": 1,
+      "guard": "tests/test_entropy_artifacts_guard.py",
+      "evidence": "entropy/metrics.json"
+    },
+    {
+      "id": "AC4",
+      "metric": "m5_entropy_evidence_bundle_completeness",
+      "direction": "gte",
+      "threshold": 1,
+      "guard": "entropy/guards/check_entropy_artifacts.py",
+      "evidence": "docs/ENTROPY_LEDGER.md"
+    }
+  ]
+}

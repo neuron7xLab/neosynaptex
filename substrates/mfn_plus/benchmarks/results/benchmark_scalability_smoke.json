@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-03-16T18:38:50.558859",
+  "benchmarks": [
+    {
+      "name": "large_grid_128x128",
+      "metric_value": 1.0020391440000367,
+      "metric_unit": "s",
+      "target_value": 15.0,
+      "passed": true,
+      "memory_mb": 1.6206245422363281,
+      "timestamp": "2026-03-16T18:38:50.558677"
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0
+  }
+}

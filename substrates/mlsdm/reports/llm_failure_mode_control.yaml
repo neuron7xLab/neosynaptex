@@ -1,0 +1,68 @@
+version: 1
+failure_modes:
+  - risk_id: LLM-FM-001
+    mode: hallucination
+    mechanism: confidence_decay_gate
+    engineering_implementation: ResponseQualityGate._hallucination_signal
+    measurable_signal: response_confidence
+    threshold_budget: "confidence < 0.4"
+    control_action: "suppress_memory"
+    tests:
+      - tests/core/test_response_quality_gate.py::test_quality_gate_detects_hallucination_confidence
+    ci_artifact: "reports/junit.xml"
+    status: implemented
+  - risk_id: LLM-FM-002
+    mode: drift
+    mechanism: prompt_overlap_gate
+    engineering_implementation: ResponseQualityGate._drift_signal
+    measurable_signal: prompt_overlap_ratio
+    threshold_budget: "overlap_ratio < 0.05 (min 20 response tokens)"
+    control_action: "suppress_memory"
+    tests:
+      - tests/core/test_response_quality_gate.py::test_quality_gate_detects_drift
+    ci_artifact: "reports/junit.xml"
+    status: implemented
+  - risk_id: LLM-FM-003
+    mode: incoherence
+    mechanism: alpha_ratio_gate
+    engineering_implementation: ResponseQualityGate._incoherence_signal
+    measurable_signal: alpha_token_ratio
+    threshold_budget: "alpha_ratio < 0.6 (min 12 tokens)"
+    control_action: "reject_response"
+    tests:
+      - tests/core/test_response_quality_gate.py::test_quality_gate_detects_incoherence
+    ci_artifact: "reports/junit.xml"
+    status: implemented
+  - risk_id: LLM-FM-004
+    mode: telegraphing
+    mechanism: function_word_gate
+    engineering_implementation: ResponseQualityGate._telegraphing_signal
+    measurable_signal: sentence_length_and_function_ratio
+    threshold_budget: "avg_sentence_len < 6 and function_ratio < 0.2 (min 12 tokens)"
+    control_action: "suppress_memory"
+    tests:
+      - tests/core/test_response_quality_gate.py::test_quality_gate_detects_telegraphing
+    ci_artifact: "reports/junit.xml"
+    status: implemented
+  - risk_id: LLM-FM-005
+    mode: looping
+    mechanism: repetition_gate
+    engineering_implementation: ResponseQualityGate._looping_signal
+    measurable_signal: repetition_ratio
+    threshold_budget: "repeat_ratio >= 0.45 or run >= 4 (min 18 tokens)"
+    control_action: "reject_response"
+    tests:
+      - tests/core/test_response_quality_gate.py::test_quality_gate_detects_looping
+    ci_artifact: "reports/junit.xml"
+    status: implemented
+  - risk_id: LLM-FM-006
+    mode: collapse
+    mechanism: empty_response_gate
+    engineering_implementation: ResponseQualityGate._collapse_signal
+    measurable_signal: response_token_count
+    threshold_budget: "token_count == 0"
+    control_action: "reject_response"
+    tests:
+      - tests/core/test_response_quality_gate.py::test_quality_gate_detects_collapse
+    ci_artifact: "reports/junit.xml"
+    status: implemented

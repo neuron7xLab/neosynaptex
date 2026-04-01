@@ -1,0 +1,505 @@
+{
+  "dependencies": [
+    {
+      "name": "pandas",
+      "version": "2.3.3",
+      "vulns": []
+    },
+    {
+      "name": "numpy",
+      "version": "2.4.0",
+      "vulns": []
+    },
+    {
+      "name": "sympy",
+      "version": "1.14.0",
+      "vulns": []
+    },
+    {
+      "name": "mpmath",
+      "version": "1.3.0",
+      "vulns": []
+    },
+    {
+      "name": "torch",
+      "version": "2.9.1",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cublas-cu12",
+      "version": "12.8.4.1",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cuda-cupti-cu12",
+      "version": "12.8.90",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cuda-nvrtc-cu12",
+      "version": "12.8.93",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cuda-runtime-cu12",
+      "version": "12.8.90",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cudnn-cu12",
+      "version": "9.10.2.21",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cufft-cu12",
+      "version": "11.3.3.83",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cufile-cu12",
+      "version": "1.13.1.3",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-curand-cu12",
+      "version": "10.3.9.90",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cusolver-cu12",
+      "version": "11.7.3.90",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cusparse-cu12",
+      "version": "12.5.8.93",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-cusparselt-cu12",
+      "version": "0.7.1",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-nccl-cu12",
+      "version": "2.27.5",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-nvjitlink-cu12",
+      "version": "12.8.93",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-nvshmem-cu12",
+      "version": "3.3.20",
+      "vulns": []
+    },
+    {
+      "name": "nvidia-nvtx-cu12",
+      "version": "12.8.90",
+      "vulns": []
+    },
+    {
+      "name": "triton",
+      "version": "3.5.1",
+      "vulns": []
+    },
+    {
+      "name": "pyarrow",
+      "version": "22.0.0",
+      "vulns": []
+    },
+    {
+      "name": "cryptography",
+      "version": "46.0.3",
+      "vulns": []
+    },
+    {
+      "name": "fastapi",
+      "version": "0.128.0",
+      "vulns": []
+    },
+    {
+      "name": "starlette",
+      "version": "0.50.0",
+      "vulns": []
+    },
+    {
+      "name": "anyio",
+      "version": "4.12.0",
+      "vulns": []
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.40.0",
+      "vulns": []
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1",
+      "vulns": []
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9",
+      "vulns": []
+    },
+    {
+      "name": "pydantic",
+      "version": "2.12.5",
+      "vulns": []
+    },
+    {
+      "name": "pydantic-core",
+      "version": "2.41.5",
+      "vulns": []
+    },
+    {
+      "name": "websockets",
+      "version": "15.0.1",
+      "vulns": []
+    },
+    {
+      "name": "prometheus-client",
+      "version": "0.23.1",
+      "vulns": []
+    },
+    {
+      "name": "pytest",
+      "version": "9.0.2",
+      "vulns": []
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "vulns": []
+    },
+    {
+      "name": "pytest-cov",
+      "version": "7.0.0",
+      "vulns": []
+    },
+    {
+      "name": "ruff",
+      "version": "0.14.10",
+      "vulns": []
+    },
+    {
+      "name": "mypy",
+      "version": "1.19.1",
+      "vulns": []
+    },
+    {
+      "name": "black",
+      "version": "25.12.0",
+      "vulns": []
+    },
+    {
+      "name": "isort",
+      "version": "7.0.0",
+      "vulns": []
+    },
+    {
+      "name": "locust",
+      "version": "2.42.6",
+      "vulns": []
+    },
+    {
+      "name": "gevent",
+      "version": "25.9.1",
+      "vulns": []
+    },
+    {
+      "name": "requests",
+      "version": "2.32.4",
+      "vulns": []
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.4",
+      "vulns": []
+    },
+    {
+      "name": "idna",
+      "version": "3.11",
+      "vulns": []
+    },
+    {
+      "name": "urllib3",
+      "version": "2.6.2",
+      "vulns": []
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.4",
+      "vulns": []
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.7.0",
+      "vulns": []
+    },
+    {
+      "name": "certifi",
+      "version": "2025.11.12",
+      "vulns": []
+    },
+    {
+      "name": "cffi",
+      "version": "2.0.0",
+      "vulns": []
+    },
+    {
+      "name": "click",
+      "version": "8.3.1",
+      "vulns": []
+    },
+    {
+      "name": "configargparse",
+      "version": "1.7.1",
+      "vulns": []
+    },
+    {
+      "name": "coverage",
+      "version": "7.13.1",
+      "vulns": []
+    },
+    {
+      "name": "flask",
+      "version": "3.1.2",
+      "vulns": []
+    },
+    {
+      "name": "blinker",
+      "version": "1.9.0",
+      "vulns": []
+    },
+    {
+      "name": "flask-cors",
+      "version": "6.0.2",
+      "vulns": []
+    },
+    {
+      "name": "flask-login",
+      "version": "0.6.3",
+      "vulns": []
+    },
+    {
+      "name": "fsspec",
+      "version": "2025.12.0",
+      "vulns": []
+    },
+    {
+      "name": "geventhttpclient",
+      "version": "2.3.7",
+      "vulns": []
+    },
+    {
+      "name": "greenlet",
+      "version": "3.3.0",
+      "vulns": []
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0",
+      "vulns": []
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0",
+      "vulns": []
+    },
+    {
+      "name": "itsdangerous",
+      "version": "2.2.0",
+      "vulns": []
+    },
+    {
+      "name": "jinja2",
+      "version": "3.1.6",
+      "vulns": []
+    },
+    {
+      "name": "librt",
+      "version": "0.7.5",
+      "vulns": []
+    },
+    {
+      "name": "locust-cloud",
+      "version": "1.30.0",
+      "vulns": []
+    },
+    {
+      "name": "platformdirs",
+      "version": "0.7.0",
+      "vulns": []
+    },
+    {
+      "name": "python-socketio",
+      "version": "5.16.0",
+      "vulns": []
+    },
+    {
+      "name": "bidict",
+      "version": "0.23.1",
+      "vulns": []
+    },
+    {
+      "name": "markupsafe",
+      "version": "3.0.3",
+      "vulns": []
+    },
+    {
+      "name": "msgpack",
+      "version": "1.1.2",
+      "vulns": []
+    },
+    {
+      "name": "mypy-extensions",
+      "version": "1.1.0",
+      "vulns": []
+    },
+    {
+      "name": "networkx",
+      "version": "3.6.1",
+      "vulns": []
+    },
+    {
+      "name": "packaging",
+      "version": "25.0",
+      "vulns": []
+    },
+    {
+      "name": "pathspec",
+      "version": "0.12.1",
+      "vulns": []
+    },
+    {
+      "name": "psutil",
+      "version": "7.2.0",
+      "vulns": []
+    },
+    {
+      "name": "pygments",
+      "version": "2.19.2",
+      "vulns": []
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "vulns": []
+    },
+    {
+      "name": "python-engineio",
+      "version": "4.13.0",
+      "vulns": []
+    },
+    {
+      "name": "pytokens",
+      "version": "0.3.0",
+      "vulns": []
+    },
+    {
+      "name": "pytz",
+      "version": "2025.2",
+      "vulns": []
+    },
+    {
+      "name": "pyzmq",
+      "version": "27.1.0",
+      "vulns": []
+    },
+    {
+      "name": "simple-websocket",
+      "version": "1.1.0",
+      "vulns": []
+    },
+    {
+      "name": "six",
+      "version": "1.17.0",
+      "vulns": []
+    },
+    {
+      "name": "typing-extensions",
+      "version": "4.15.0",
+      "vulns": []
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.2",
+      "vulns": []
+    },
+    {
+      "name": "tzdata",
+      "version": "2025.3",
+      "vulns": []
+    },
+    {
+      "name": "httptools",
+      "version": "0.7.1",
+      "vulns": []
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.1",
+      "vulns": []
+    },
+    {
+      "name": "pyyaml",
+      "version": "6.0.3",
+      "vulns": []
+    },
+    {
+      "name": "uvloop",
+      "version": "0.22.1",
+      "vulns": []
+    },
+    {
+      "name": "watchfiles",
+      "version": "1.1.1",
+      "vulns": []
+    },
+    {
+      "name": "websocket-client",
+      "version": "1.9.0",
+      "vulns": []
+    },
+    {
+      "name": "werkzeug",
+      "version": "3.1.4",
+      "vulns": []
+    },
+    {
+      "name": "brotli",
+      "version": "1.2.0",
+      "vulns": []
+    },
+    {
+      "name": "filelock",
+      "version": "3.20.1",
+      "vulns": []
+    },
+    {
+      "name": "pycparser",
+      "version": "2.23",
+      "vulns": []
+    },
+    {
+      "name": "wsproto",
+      "version": "1.3.2",
+      "vulns": []
+    },
+    {
+      "name": "zope-event",
+      "version": "6.1",
+      "vulns": []
+    },
+    {
+      "name": "zope-interface",
+      "version": "8.1.1",
+      "vulns": []
+    }
+  ],
+  "fixes": []
+}

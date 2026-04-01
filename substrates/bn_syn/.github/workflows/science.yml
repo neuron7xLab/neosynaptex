@@ -1,0 +1,20 @@
+# NON-PR-GATE: long-running workflow; must not run on pull_request/push.
+name: science
+# Guard: non-PR-gate workflow; must remain off PRs.
+
+on:
+  schedule:
+    # Run weekly on Sundays at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  flagship-experiment:
+    uses: ./.github/workflows/_reusable_formal_science.yml
+    with:
+      proof-suite: science
+      model-set: temp_ablation_v2
+      time-budget: 30

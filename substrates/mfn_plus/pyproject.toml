@@ -1,0 +1,372 @@
+[project]
+name = "mycelium-fractal-net"
+version = "0.1.0"
+description = "Reaction-diffusion analytics engine with causal validation and adaptive bio physics"
+authors = [{ name = "Yaroslav Vasylenko", email = "neuron7xlab@gmail.com" }]
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = { text = "AGPL-3.0-or-later" }
+keywords = [
+  "reaction-diffusion",
+  "causal-inference",
+  "scientific-computing",
+  "neuroscience",
+  "mycelium",
+  "turing-patterns",
+  "morphogenesis",
+  "physarum",
+  "hyperdimensional-computing",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+  "numpy>=1.24",
+  "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+bio = ["scipy>=1.10.0", "cmaes>=0.10.0", "scikit-learn>=1.3.0"]
+science = ["scipy>=1.10.0", "gudhi>=3.9.0", "POT>=0.9.0", "pymannkendall>=1.4.0"]
+api = ["fastapi>=0.100.0", "httpx>=0.24.0", "uvicorn>=0.20.0"]
+ml = ["torch>=2.0.0,<3.0.0"]
+accel = ["numba>=0.60.0"]
+gpu = ["cupy-cuda12x>=13.0.0", "torch>=2.0.0,<3.0.0"]
+frontier = ["multipers>=2.3.0", "dagma>=1.0.0", "dowhy>=0.10"]
+data = ["pandas>=1.5.3,<3.0.0", "pyarrow>=10.0.0"]
+metrics = ["prometheus_client>=0.17.0"]
+ws = ["websockets>=12.0"]
+http = ["aiohttp>=3.9.4"]
+kafka = ["kafka-python>=2.0.0"]
+crypto = ["cryptography>=44.0.0", "sympy>=1.12"]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=4.0",
+  "pytest-asyncio>=0.21.0",
+  "pytest-timeout>=2.0.0",
+  "pytest-html>=4.1.1",
+  "ruff>=0.5.0",
+  "mypy>=1.8.0",
+  "black>=24.0.0",
+  "isort>=5.12.0",
+  "types-setuptools",
+  "httpx>=0.24.0",
+  "hypothesis>=6.0.0",
+  "uvicorn>=0.20.0",
+  "locust>=2.20.0",
+  "packaging>=21.0",
+  "import-linter>=2.0",
+  "pre-commit>=3.5.0",
+]
+security = [
+  "pip-audit>=2.7.0",
+  "bandit[toml]>=1.7.9",
+  "checkov>=3.2.0",
+]
+reporting = [
+  "pytest-html>=4.1.1",
+]
+full = [
+  "mycelium-fractal-net[bio,science,api,ml,accel,frontier,data]",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=4.0",
+  "pytest-asyncio>=0.21.0",
+  "pytest-timeout>=2.0.0",
+  "ruff>=0.5.0",
+  "mypy>=1.8.0",
+  "black>=24.0.0",
+  "isort>=5.12.0",
+  "types-setuptools",
+  "httpx>=0.24.0",
+  "hypothesis>=6.0.0",
+  "uvicorn>=0.20.0",
+  "locust>=2.20.0",
+  "tomli>=2.0.0; python_version < '3.11'",
+  "packaging>=21.0",
+  "import-linter>=2.0",
+  "pre-commit>=3.5.0",
+]
+security = [
+  "pip-audit>=2.7.0",
+  "bandit[toml]>=1.7.9",
+  "checkov>=3.2.0",
+]
+
+[project.scripts]
+mfn = "mycelium_fractal_net.cli:main"
+mfn-api = "mycelium_fractal_net.cli:api_entrypoint"
+mfn-validate = "mycelium_fractal_net.cli:validate_entrypoint"
+
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+package-dir = {"" = "src"}
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["mycelium_fractal_net*"]
+exclude = ["tests*", "docs*", "examples*"]
+
+[tool.uv]
+default-groups = ["dev"]
+managed = true
+
+# ═══════════════════════════════════════════════════════════════
+#  pytest
+# ═══════════════════════════════════════════════════════════════
+[tool.pytest.ini_options]
+addopts = "-q --timeout=300 --strict-markers --strict-config"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = [
+    "error::UserWarning",
+    "error::FutureWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::pytest.PytestDeprecationWarning",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
+    "ignore::scipy.sparse.SparseEfficiencyWarning",
+    "ignore::RuntimeWarning",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests requiring external services",
+    "benchmark: marks performance benchmark tests",
+]
+
+# ═══════════════════════════════════════════════════════════════
+#  ruff — comprehensive Python linting
+# ═══════════════════════════════════════════════════════════════
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+# Frozen surfaces excluded from lint — scheduled for removal in v5.0
+extend-exclude = [
+  "src/mycelium_fractal_net/crypto/",
+  "src/mycelium_fractal_net/signal/",
+  "src/mycelium_fractal_net/core/federated.py",
+  "src/mycelium_fractal_net/core/stdp.py",
+  "src/mycelium_fractal_net/core/turing.py",
+  "src/mycelium_fractal_net/core/reaction_diffusion_compat.py",
+  "src/mycelium_fractal_net/analytics/legacy_features.py",
+  "research/",
+]
+
+[tool.ruff.lint]
+select = [
+  "E",     # pycodestyle errors
+  "W",     # pycodestyle warnings
+  "F",     # pyflakes
+  "I",     # isort
+  "B",     # flake8-bugbear — opinionated bug detection
+  "C4",    # flake8-comprehensions — unnecessary list/dict comprehension
+  "UP",    # pyupgrade — modernize syntax for target Python
+  "SIM",   # flake8-simplify — simplifiable constructs
+  "PT",    # flake8-pytest-style — pytest best practices
+  "RUF",   # ruff-specific rules
+  "S",     # flake8-bandit — security checks
+  "A",     # flake8-builtins — shadowing built-ins
+  "C90",   # mccabe complexity
+  "DTZ",   # flake8-datetimez — naive datetime usage
+  "T20",   # flake8-print — print() in production code
+  "PIE",   # flake8-pie — misc lints
+  "PLC",   # pylint convention
+  "PLE",   # pylint error
+  "PLW",   # pylint warning
+  "TID",   # flake8-tidy-imports — banned imports
+  "TCH",   # flake8-type-checking — move imports to TYPE_CHECKING
+  "PERF",  # perflint — performance anti-patterns
+  "FLY",   # flynt — f-string conversion
+  "FURB",  # refurb — modern Python idioms
+]
+ignore = [
+  "E402",    # module-level import not at top (needed for conditional imports)
+  "S101",    # assert usage (allowed in tests, banned in src via per-file)
+  "S311",    # pseudo-random generators (acceptable for simulation seeds)
+  "B008",    # function call in default argument (FastAPI Depends pattern)
+  "UP007",   # X | Y union syntax (keep Optional for readability in complex signatures)
+  "SIM108",  # ternary operator (readability over brevity for scientific code)
+  "C901",    # too complex (handled by C90 mccabe with explicit threshold)
+  "PLW2901", # loop variable overwritten (common in numeric code)
+  "S603",    # subprocess call (needed in scripts)
+  "S607",    # partial executable path (needed in scripts)
+  "PLC0415", # import-outside-top-level (lazy imports by design for optional deps)
+  "RUF002",  # ambiguous-unicode-character-docstring (μM, α, β are scientific notation)
+  "RUF001",  # ambiguous-unicode-character-string (same)
+  "RUF003",  # ambiguous-unicode-character-comment (same)
+  "PLW0603", # global-statement (registry pattern for causal rules, detection config)
+  "RUF043",  # pytest-raises-ambiguous-pattern (acceptable in test assertions)
+  "PERF203", # try-except-in-loop (necessary for resilient iteration over scenarios)
+  "PERF401", # manual-list-comprehension (readability over micro-optimization in scientific code)
+  "PLW1510", # subprocess-run-without-check (scripts handle errors explicitly)
+  "RUF012",  # mutable-class-default (dataclass fields with default_factory pattern)
+  "SIM105",  # suppressible-exception (explicit try/except clearer than contextlib.suppress)
+  "PT011",   # pytest-raises-too-broad (acceptable for integration tests)
+  "PT012",   # pytest-raises-with-multiple-statements (test readability)
+  "PT017",   # pytest-assert-in-except (intentional test pattern)
+  "E741",    # ambiguous-variable-name (I, F, H, N are standard in scientific code)
+  "S110",    # try-except-pass (intentional for optional features with fail-closed pattern)
+  "T201",    # print (used in CLI, scripts, and cognitive functions)
+  "E501",    # line-too-long (handled by formatter, allow in complex expressions)
+  "A002",    # builtin-argument-shadowing (id= in rule_registry is domain convention)
+  "B039",    # mutable-contextvar-default (logging config pattern)
+  "S104",    # hardcoded-bind-all-interfaces (API server binds 0.0.0.0 by design)
+  "S105",    # hardcoded-password-string (false positive on enum/config field names)
+  "S112",    # try-except-continue (rate limiter resilience pattern)
+  "SIM102",  # collapsible-if (readability over compactness in gate logic)
+  "DTZ003",  # call-datetime-utcnow (UTC usage intentional in timestamps)
+  "DTZ005",  # call-datetime-now-without-tzinfo (same)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/**/__init__.py" = [
+  "F401",    # unused-import: __init__.py re-exports are intentional public API
+]
+"tests/**/*.py" = [
+  "S101",    # assert is fine in tests
+  "S105",    # hardcoded passwords in test fixtures
+  "S106",    # hardcoded passwords in test arguments
+  "T20",     # print in tests is acceptable
+  "PLR2004", # magic values in tests are fine
+]
+"scripts/**/*.py" = [
+  "T20",     # print is expected in CLI scripts
+  "S603",    # subprocess calls in scripts
+  "S607",    # partial path in scripts
+]
+"src/mycelium_fractal_net/cli.py" = [
+  "T20",     # print is the correct output mechanism for CLI
+]
+"src/mycelium_fractal_net/__main__.py" = [
+  "T20",     # print is the correct output for CLI entrypoint
+]
+"src/mycelium_fractal_net/integration/crypto_adapters.py" = [
+  "B904",    # frozen adapter — exception chaining deferred to v5.0
+]
+"src/mycelium_fractal_net/experiments/**/*.py" = [
+  "T20",     # print for experiment output
+]
+"src/mycelium_fractal_net/pipelines/reporting.py" = [
+  "E501",    # HTML templates contain long lines by nature
+]
+"src/mycelium_fractal_net/pipelines/scenarios/**/*.py" = [
+  "T20",     # print in __main__ blocks
+]
+"benchmarks/**/*.py" = [
+  "T20",     # print for benchmark output
+  "S101",    # assert in benchmarks
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.isort]
+known-first-party = ["mycelium_fractal_net"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path"]
+
+[tool.ruff.lint.flake8-bandit]
+check-typed-exception = true
+
+# ═══════════════════════════════════════════════════════════════
+#  mypy — gradual strict typing
+# ═══════════════════════════════════════════════════════════════
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
+namespace_packages = true
+pretty = true
+warn_return_any = true
+warn_unused_configs = true
+show_error_codes = true
+no_implicit_optional = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = true
+
+# Core, analytics, neurochem: strict typing enforced — CI gate blocks merge
+[[tool.mypy.overrides]]
+module = [
+    "mycelium_fractal_net.types.*",
+    "mycelium_fractal_net.security.*",
+    "mycelium_fractal_net.core.*",
+    "mycelium_fractal_net.analytics.*",
+    "mycelium_fractal_net.neurochem.*",
+    "mycelium_fractal_net.interpretability.*",
+    "mycelium_fractal_net.self_reading.*",
+]
+disallow_untyped_defs = true
+warn_return_any = true
+no_implicit_optional = true
+strict_equality = true
+
+# Frozen / transport / ML modules: errors reported but not blocking
+# Goal: remove this override entirely by v5.0
+[[tool.mypy.overrides]]
+module = [
+    "mycelium_fractal_net.model",
+    "mycelium_fractal_net.signal.*",
+    "mycelium_fractal_net.numerics.*",
+    "mycelium_fractal_net.api",
+    "mycelium_fractal_net.metrics",
+    "mycelium_fractal_net.intelligence",
+    "mycelium_fractal_net.pipelines.*",
+    "mycelium_fractal_net.integration.*",
+]
+disallow_untyped_defs = false
+# NOTE: ignore_errors removed — type errors are now visible and trackable
+
+# ═══════════════════════════════════════════════════════════════
+#  coverage — enforced minimum
+# ═══════════════════════════════════════════════════════════════
+[tool.coverage.run]
+source = ["mycelium_fractal_net"]
+branch = true
+parallel = true
+omit = [
+  "*/tests/*",
+  "*/experiments/*",
+  "*/load_tests/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+precision = 2
+fail_under = 80
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.",
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+  "@overload",
+  "\\.\\.\\.",
+]
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+# ═══════════════════════════════════════════════════════════════
+#  bandit — security static analysis
+# ═══════════════════════════════════════════════════════════════
+[tool.bandit]
+exclude_dirs = ["tests", "benchmarks", "scripts", "examples"]
+skips = ["B101", "B311"]

@@ -1,0 +1,58 @@
+{
+  "baseline_simulation": {
+    "field_shape": [
+      16,
+      16
+    ],
+    "field_min": -0.06957914596186032,
+    "field_max": -0.006926265981361696,
+    "field_mean": -0.046912131666188545,
+    "field_std": 0.018817938873353986,
+    "field_checksum": -12.009505706544267,
+    "num_steps": 16
+  },
+  "nernst_k_potential": {
+    "e_volts": -0.08901066911987907,
+    "expected_range_mv": [
+      -92.0,
+      -85.0
+    ]
+  },
+  "feature_extraction": {
+    "version": "mfn-morphology-v2",
+    "stability_keys": [
+      "collapse_risk_score",
+      "instability_index",
+      "near_transition_score"
+    ],
+    "complexity_keys": [
+      "multiscale_entropy_short",
+      "temporal_hfd",
+      "temporal_lzc"
+    ],
+    "connectivity_keys": [
+      "active_ratio",
+      "connectivity_divergence",
+      "gbc_like_summary",
+      "global_coherence_shift",
+      "hierarchy_flattening",
+      "modularity_proxy"
+    ],
+    "embedding_length": 57,
+    "instability_index": 0.40113160934265746
+  },
+  "anomaly_detection": {
+    "label": "nominal",
+    "score": 0.20039357276514003,
+    "regime_label": "stable",
+    "regime_score": 0.36153429833702516
+  },
+  "forecast": {
+    "horizon": 4,
+    "method": "adaptive_descriptor_extrapolation"
+  },
+  "self_comparison": {
+    "distance": 0.0,
+    "topology_label": "nominal"
+  }
+}

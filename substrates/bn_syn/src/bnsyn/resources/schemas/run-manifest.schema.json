@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BN-Syn Canonical Run Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "cmd",
+    "bundle_contract",
+    "export_proof",
+    "seed",
+    "steps",
+    "N",
+    "dt_ms",
+    "duration_ms",
+    "completed_stages",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.1.0"},
+    "cmd": {
+      "type": "string",
+      "enum": [
+        "bnsyn run --profile canonical --plot",
+        "bnsyn run --profile canonical --plot --export-proof"
+      ]
+    },
+    "bundle_contract": {
+      "type": "string",
+      "enum": ["canonical-base", "canonical-export-proof"]
+    },
+    "export_proof": {"type": "boolean"},
+    "seed": {"type": "integer", "minimum": 0},
+    "steps": {"type": "integer", "minimum": 1},
+    "N": {"type": "integer", "minimum": 1},
+    "dt_ms": {"type": "number", "exclusiveMinimum": 0},
+    "duration_ms": {"type": "number", "exclusiveMinimum": 0},
+    "failed_stage": {
+      "type": ["string", "null"],
+      "enum": [null, "live_run", "summary_reports", "avalanche_and_fit", "robustness_envelope", "manifest", "proof_report", "product_surface"]
+    },
+    "failure_reason": {"type": ["string", "null"]},
+    "completed_stages": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "live_run",
+          "summary_reports",
+          "avalanche_and_fit",
+          "robustness_envelope",
+          "manifest",
+          "proof_report",
+          "product_surface"
+        ]
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"export_proof": {"const": true}}},
+      "then": {
+        "properties": {
+          "cmd": {"const": "bnsyn run --profile canonical --plot --export-proof"},
+          "bundle_contract": {"const": "canonical-export-proof"},
+          "artifacts": {"required": ["proof_report.json"]}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"export_proof": {"const": false}}},
+      "then": {
+        "properties": {
+          "cmd": {"const": "bnsyn run --profile canonical --plot"},
+          "bundle_contract": {"const": "canonical-base"},
+          "artifacts": {"not": {"required": ["proof_report.json"]}}
+        }
+      }
+    }
+  ]
+}

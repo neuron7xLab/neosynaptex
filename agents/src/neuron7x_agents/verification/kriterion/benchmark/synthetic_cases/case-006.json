@@ -1,0 +1,72 @@
+{
+  "bundle_id": "case-006",
+  "target_protocol_id": "SE-OPS-PROTOCOL-2026.1",
+  "execution_mode": "MODE_STRICT_AUDIT",
+  "model_identifier": "reference-runner-1.0",
+  "artifacts": [
+    {
+      "artifact_id": "ART.F1",
+      "artifact_type": "RUNBOOK",
+      "title": "Stale runbook",
+      "provenance": {
+        "origin_actor": "demo-author",
+        "origin_system": "demo-repository",
+        "acquisition_method": "DIRECT_EXPORT",
+        "source_class": "PRIMARY"
+      },
+      "reviewer": {
+        "reviewer_id": "reviewer-001",
+        "reviewer_independence": true,
+        "review_status": "INDEPENDENTLY_REVIEWED"
+      },
+      "timestamps": {
+        "creation_time": "2026-03-06T10:00:00Z",
+        "evaluation_capture_time": "2026-03-06T12:00:00Z"
+      },
+      "references": [
+        "https://example.org/f1"
+      ],
+      "fingerprint": {
+        "algorithm": "SHA-256",
+        "sha256": "0bc10f39b23cb4b3f7be7807d6932771c8ddafb6c383d1a06ad14505ec960a66"
+      },
+      "evidence_class": "MED",
+      "domain_mapping": [
+        "SE.OPS.READINESS"
+      ],
+      "payload": {
+        "name": "stale-runbook",
+        "last_review": "2025-01-01"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "domain_id": "SE.OPS.READINESS",
+      "domain_name": "Operational Readiness",
+      "must_have": true,
+      "task_id": "T1",
+      "task_weight": 100,
+      "required_artifact_ids": [
+        "ART.F1"
+      ],
+      "evidence_artifact_ids": [
+        "ART.F1"
+      ],
+      "raw_score": 2,
+      "evidence_cap": 4
+    }
+  ],
+  "expected": {
+    "human_overall_score": 2,
+    "human_final_classification": "NOT_READY",
+    "human_gates": {
+      "G0_INTEGRITY": "PASS",
+      "G1_MINIMUM_READINESS": "FAIL",
+      "G2_EVIDENCE_SUFFICIENCY": "PASS"
+    },
+    "runtime_seconds": 0.9,
+    "cost_usd": 0.0019,
+    "adversarial": false
+  }
+}
