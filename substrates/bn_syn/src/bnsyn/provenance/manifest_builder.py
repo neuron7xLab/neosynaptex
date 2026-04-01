@@ -15,7 +15,11 @@ import shutil
 # subprocess used for fixed git metadata capture (no shell).
 import subprocess  # nosec B404
 import sys
-import tomllib
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 import warnings
 from importlib import metadata
 from pathlib import Path
