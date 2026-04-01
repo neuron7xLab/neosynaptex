@@ -1,360 +1,261 @@
 #!/usr/bin/env bash
-# ╔═══════════════════════════════════════════════════════════════════╗
-# ║  NEOSYNAPTEX COSMO-NEURAL HUD                                    ║
-# ║  AI Engineering Cockpit — Shell Layer                             ║
-# ║  Source this file to activate.                                    ║
-# ╚═══════════════════════════════════════════════════════════════════╝
+# shellcheck shell=bash
+# NEOSYNAPTEX COSMO-NEURAL HUD
 
-# Guard: don't double-source
-[[ -n "$_NEO_HUD_ACTIVE" ]] && return 0
+[[ -n "${_NEO_HUD_ACTIVE:-}" ]] && return 0
 export _NEO_HUD_ACTIVE=1
 
-# ── Resolve HUD root ────────────────────────────────────────────────
 _NEO_HUD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-_NEO_REPO_ROOT="$(cd "$_NEO_HUD_DIR/../.." && pwd)"
+_NEO_REPO_ROOT="$(cd "${_NEO_HUD_DIR}/../.." && pwd)"
+# shellcheck disable=SC1091
+source "${_NEO_HUD_DIR}/hud.conf"
+mkdir -p "$(dirname "${NEO_HUD_TRACK_FILE}")"
 
-# ── Palette (true color) ────────────────────────────────────────────
-_C_CYAN=$'\033[38;2;0;240;255m'
-_C_MAG=$'\033[38;2;255;0;110m'
-_C_GRN=$'\033[38;2;0;255;156m'
-_C_RED=$'\033[38;2;255;59;59m'
-_C_AMB=$'\033[38;2;255;176;0m'
-_C_DIM=$'\033[38;2;80;85;110m'
-_C_FG=$'\033[38;2;200;200;210m'
+_neo_hex_to_rgb() {
+  local hex="${1#\#}"
+  printf '%d;%d;%d' "0x${hex:0:2}" "0x${hex:2:2}" "0x${hex:4:2}"
+}
+
+_neo_c() { printf '\033[38;2;%sm' "$( _neo_hex_to_rgb "$1" )"; }
+_neo_cp() { printf '\[\033[38;2;%sm\]' "$( _neo_hex_to_rgb "$1" )"; }
+
+_C_SIGNAL="$(_neo_c "$NEO_HUD_COLOR_SIGNAL")"
+_C_ANOM="$(_neo_c "$NEO_HUD_COLOR_ANOMALY")"
+_C_STABLE="$(_neo_c "$NEO_HUD_COLOR_STABLE")"
+_C_WARN="$(_neo_c "$NEO_HUD_COLOR_WARNING")"
+_C_DANGER="$(_neo_c "$NEO_HUD_COLOR_DANGER")"
+_C_DIM="$(_neo_c "$NEO_HUD_COLOR_DIM")"
+_C_FG="$(_neo_c "$NEO_HUD_COLOR_FOREGROUND")"
 _C_B=$'\033[1m'
 _C_R=$'\033[0m'
 
-# PS1 palette (with \[ \] escapes for readline)
-_P_CYAN='\[\033[38;2;0;240;255m\]'
-_P_MAG='\[\033[38;2;255;0;110m\]'
-_P_GRN='\[\033[38;2;0;255;156m\]'
-_P_RED='\[\033[38;2;255;59;59m\]'
-_P_AMB='\[\033[38;2;255;176;0m\]'
-_P_DIM='\[\033[38;2;80;85;110m\]'
-_P_FG='\[\033[38;2;200;200;210m\]'
+_P_SIGNAL="$(_neo_cp "$NEO_HUD_COLOR_SIGNAL")"
+_P_ANOM="$(_neo_cp "$NEO_HUD_COLOR_ANOMALY")"
+_P_STABLE="$(_neo_cp "$NEO_HUD_COLOR_STABLE")"
+_P_WARN="$(_neo_cp "$NEO_HUD_COLOR_WARNING")"
+_P_DANGER="$(_neo_cp "$NEO_HUD_COLOR_DANGER")"
+_P_DIM="$(_neo_cp "$NEO_HUD_COLOR_DIM")"
+_P_FG="$(_neo_cp "$NEO_HUD_COLOR_FOREGROUND")"
 _P_B='\[\033[1m\]'
 _P_R='\[\033[0m\]'
 
-# ── Layer detection ──────────────────────────────────────────────────
 _neo_layer() {
-    local cwd="$PWD" rel
-    # Fast: are we inside the neosynaptex repo at all?
-    case "$cwd" in
-        "$_NEO_REPO_ROOT"*) ;;
-        *) echo "ext"; return ;;
-    esac
-    rel="${cwd#"$_NEO_REPO_ROOT"}"
-    rel="${rel#/}"
-    [[ -z "$rel" ]] && { echo "root"; return; }
+  local rel
+  case "$PWD" in
+    "${_NEO_REPO_ROOT}"/*|"${_NEO_REPO_ROOT}") ;;
+    *) echo external; return ;;
+  esac
 
-    # Match known subsystem paths
-    case "$rel" in
-        *bn_syn*|*bnsyn*)          echo "bn_syn" ;;
-        *hippocampal*|*hca1*)      echo "hca1" ;;
-        *mlsdm*)                   echo "mlsdm" ;;
-        *mfn_plus*|*mfn+*)        echo "mfn+" ;;
-        *kuramoto*)                echo "kuramoto" ;;
-        *agent*)                   echo "agents" ;;
-        *doc*|*manuscript*)        echo "docs" ;;
-        *test*)                    echo "tests" ;;
-        *bench*)                   echo "bench" ;;
-        *tools*|*script*)          echo "tools" ;;
-        *neosynaptex*)             echo "core" ;;
-        *)
-            # First directory component
-            local first="${rel%%/*}"
-            echo "${first:0:12}"
-            ;;
-    esac
+  rel="${PWD#"${_NEO_REPO_ROOT}"}"; rel="${rel#/}"
+  [[ -z "$rel" ]] && { echo root_integration; return; }
+
+  case "$rel" in
+    agents|agents/*|*/agents/*) echo agents ;;
+    bn_syn|bn_syn/*|substrates/bn_syn|substrates/bn_syn/*|*/bn_syn/*) echo bn_syn ;;
+    substrates/hippocampal_ca1|substrates/hippocampal_ca1/*|hippocampal_ca1|hippocampal_ca1/*) echo hippocampal_ca1 ;;
+    substrates/mlsdm|substrates/mlsdm/*|mlsdm|mlsdm/*) echo mlsdm ;;
+    substrates/mfn_plus|substrates/mfn_plus/*|mfn_plus|mfn_plus/*) echo mfn_plus ;;
+    substrates/kuramoto|substrates/kuramoto/*|kuramoto|kuramoto/*) echo kuramoto ;;
+    docs|docs/*) echo docs ;;
+    manuscript|manuscript/*) echo manuscript ;;
+    tools|tools/*|scripts|scripts/*|*/scripts/*) echo tools_scripts ;;
+    *) echo root_integration ;;
+  esac
 }
 
-# Layer → color
 _neo_layer_color() {
-    case "$1" in
-        core)    echo "$_P_CYAN" ;;
-        bn_syn)  echo "$_P_MAG" ;;
-        hca1)    echo '\[\033[38;2;180;120;255m\]' ;;
-        mlsdm)   echo '\[\033[38;2;0;200;180m\]' ;;
-        mfn+)    echo '\[\033[38;2;255;150;50m\]' ;;
-        kuramoto) echo '\[\033[38;2;120;200;255m\]' ;;
-        agents)  echo '\[\033[38;2;255;200;0m\]' ;;
-        docs)    echo "$_P_DIM" ;;
-        tests)   echo "$_P_GRN" ;;
-        tools)   echo "$_P_DIM" ;;
-        root)    echo "$_P_CYAN" ;;
-        *)       echo "$_P_FG" ;;
-    esac
+  case "$1" in
+    root_integration) echo "$_P_SIGNAL" ;;
+    agents) echo "$_P_WARN" ;;
+    bn_syn) echo "$_P_ANOM" ;;
+    hippocampal_ca1) echo '\[\033[38;2;168;140;255m\]' ;;
+    mlsdm) echo '\[\033[38;2;0;210;190m\]' ;;
+    mfn_plus) echo '\[\033[38;2;255;132;56m\]' ;;
+    kuramoto) echo '\[\033[38;2;120;190;255m\]' ;;
+    docs|manuscript|tools_scripts) echo "$_P_DIM" ;;
+    *) echo "$_P_FG" ;;
+  esac
 }
 
-# ── Git state (fast) ────────────────────────────────────────────────
-_neo_git() {
-    # Output: branch dirty detached conflict
-    local branch
-    branch=$(git symbolic-ref --short HEAD 2>/dev/null)
-    if [[ -z "$branch" ]]; then
-        branch=$(git rev-parse --short HEAD 2>/dev/null || echo "∅")
-        local detached=1
+_neo_git_snapshot() {
+  local branch dirty detached conflict
+  branch="$(git symbolic-ref --short HEAD 2>/dev/null || true)"
+  if [[ -z "$branch" ]]; then
+    detached=1
+    branch="$(git rev-parse --short HEAD 2>/dev/null || echo '∅')"
+  else
+    detached=0
+  fi
+
+  dirty=0
+  git diff --quiet --ignore-submodules HEAD -- 2>/dev/null || dirty=1
+  git diff --cached --quiet --ignore-submodules HEAD -- 2>/dev/null || dirty=1
+  [[ -n "$(git ls-files --others --exclude-standard 2>/dev/null | head -n 1)" ]] && dirty=1
+
+  conflict=0
+  local gd
+  gd="$(git rev-parse --git-dir 2>/dev/null || true)"
+  if [[ -n "$gd" ]] && { [[ -f "$gd/MERGE_HEAD" ]] || [[ -d "$gd/rebase-merge" ]] || [[ -d "$gd/rebase-apply" ]]; }; then
+    conflict=1
+  fi
+  printf '%s\t%s\t%s\t%s\n' "$branch" "$dirty" "$detached" "$conflict"
+}
+
+_neo_last_verify_status() {
+  [[ -f "$NEO_HUD_STATE_FILE" ]] || { echo none; return; }
+  awk -F '\t' '$1=="verify"{print $2"\t"$3; exit}' "$NEO_HUD_STATE_FILE" 2>/dev/null || echo none
+}
+
+_neo_risk_state() {
+  local dirty="$1" detached="$2" conflict="$3" last_rc="$4"
+  if [[ "$conflict" -eq 1 ]]; then echo CONFLICT; return; fi
+  if [[ "$detached" -eq 1 ]]; then echo DETACHED; return; fi
+  if [[ "$last_rc" -ne 0 ]]; then echo BLOCKED; return; fi
+
+  local verify ts now
+  verify="$(_neo_last_verify_status)"
+  if [[ "$dirty" -eq 1 ]]; then
+    if [[ "$verify" == none ]]; then echo DRIFT; return; fi
+    ts="${verify%%$'\t'*}"
+    now="$(date +%s)"
+    if (( now - ts > NEO_HUD_VERIFY_STALE_SECONDS )); then
+      echo UNVERIFIED
     else
-        local detached=0
+      echo DIRTY
     fi
+    return
+  fi
 
-    local dirty=0
-    if ! git diff --quiet HEAD -- 2>/dev/null || ! git diff --cached --quiet HEAD -- 2>/dev/null; then
-        dirty=1
-    fi
-    # Untracked files count as dirty too
-    if [[ $dirty -eq 0 ]] && [[ -n "$(git ls-files --others --exclude-standard 2>/dev/null | head -1)" ]]; then
-        dirty=1
-    fi
-
-    local conflict=0
-    [[ -f "$(git rev-parse --git-dir 2>/dev/null)/MERGE_HEAD" ]] && conflict=1
-
-    echo "$branch $dirty $detached $conflict"
+  if [[ "$verify" != none ]] && [[ "${verify#*$'\t'}" != "0" ]]; then
+    echo BLOCKED
+  else
+    echo STABLE
+  fi
 }
 
-# ── Cognitive state ──────────────────────────────────────────────────
-_neo_state() {
-    local branch="$1" dirty="$2" detached="$3" conflict="$4" last_rc="$5"
-
-    [[ $conflict -eq 1 ]] && { echo "BLOCKED"; return; }
-    [[ $detached -eq 1 ]] && { echo "DETACHED"; return; }
-    [[ $last_rc -ne 0 ]]  && { echo "ERROR"; return; }
-
-    if [[ $dirty -eq 1 ]]; then
-        # Check recency of last verify
-        if [[ -f /tmp/.neo_last_verify_ts ]]; then
-            local now vts age
-            now=$(date +%s)
-            vts=$(cat /tmp/.neo_last_verify_ts 2>/dev/null || echo 0)
-            age=$(( now - vts ))
-            if [[ $age -gt 300 ]]; then
-                echo "UNVERIFIED"; return
-            fi
-            echo "DIRTY"; return
-        fi
-        echo "DRIFT"; return
-    fi
-
-    echo "STABLE"
-}
-
-# State → prompt color
-_neo_state_pcolor() {
-    case "$1" in
-        STABLE)     echo "$_P_GRN" ;;
-        DIRTY)      echo "$_P_AMB" ;;
-        DRIFT)      echo "$_P_MAG" ;;
-        UNVERIFIED) echo "$_P_AMB" ;;
-        ERROR)      echo "$_P_RED" ;;
-        BLOCKED)    echo "$_P_RED" ;;
-        DETACHED)   echo "$_P_RED" ;;
-        *)          echo "$_P_DIM" ;;
-    esac
-}
-
-# State → raw color (for echo)
 _neo_state_color() {
-    case "$1" in
-        STABLE)     echo "$_C_GRN" ;;
-        DIRTY)      echo "$_C_AMB" ;;
-        DRIFT)      echo "$_C_MAG" ;;
-        UNVERIFIED) echo "$_C_AMB" ;;
-        ERROR)      echo "$_C_RED" ;;
-        BLOCKED)    echo "$_C_RED" ;;
-        DETACHED)   echo "$_C_RED" ;;
-        *)          echo "$_C_DIM" ;;
-    esac
+  case "$1" in
+    STABLE) echo "$_P_STABLE" ;;
+    DIRTY|UNVERIFIED) echo "$_P_WARN" ;;
+    DRIFT) echo "$_P_ANOM" ;;
+    CONFLICT|DETACHED|BLOCKED) echo "$_P_DANGER" ;;
+    *) echo "$_P_DIM" ;;
+  esac
 }
 
-# ── Last action tracking ────────────────────────────────────────────
-_NEO_ACTION_FILE="/tmp/.neo_last_action"
-
-_neo_track() {
-    local cmd
-    cmd=$(HISTTIMEFORMAT='' history 1 | sed 's/^[ ]*[0-9]*[ ]*//')
-    [[ -z "$cmd" ]] && return
-
-    case "$cmd" in
-        pytest*|python*test*|*-m\ pytest*|make*test*)
-            echo "test" > "$_NEO_ACTION_FILE"
-            [[ $_NEO_LAST_RC -eq 0 ]] && date +%s > /tmp/.neo_last_verify_ts
-            ;;
-        git\ commit*|git\ ci*)   echo "commit" > "$_NEO_ACTION_FILE" ;;
-        git\ push*)              echo "push" > "$_NEO_ACTION_FILE" ;;
-        git\ pull*|git\ fetch*)  echo "sync" > "$_NEO_ACTION_FILE" ;;
-        pip\ install*|pip3\ install*) echo "install" > "$_NEO_ACTION_FILE" ;;
-        ruff*|mypy*|flake8*)     echo "lint" > "$_NEO_ACTION_FILE" ;;
-        git\ merge*)             echo "merge" > "$_NEO_ACTION_FILE" ;;
-        git\ rebase*)            echo "rebase" > "$_NEO_ACTION_FILE" ;;
-        make*|cargo*|npm\ run*)  echo "build" > "$_NEO_ACTION_FILE" ;;
-    esac
+_neo_trace_action() {
+  local raw="$1" rc="$2" kind="cmd"
+  [[ -z "$raw" ]] && return
+  case "$raw" in
+    *pytest*|*" -m pytest"*|make\ test*|make\ verify*|tox*) kind=verify ;;
+    *benchmark*|*hyperfine*|*asv\ run*) kind=bench ;;
+    git\ commit*|git\ ci*) kind=commit ;;
+    git\ push*) kind=push ;;
+    git\ pull*|git\ fetch*|git\ submodule\ update*) kind=sync ;;
+    pip\ install*|uv\ sync*|poetry\ install*) kind=install ;;
+  esac
+  printf '%s\t%s\t%s\t%s\n' "$(date +%s)" "$kind" "$rc" "$raw" >"$NEO_HUD_TRACK_FILE"
+  if [[ "$kind" == verify ]]; then
+    printf 'verify\t%s\t%s\n' "$(date +%s)" "$rc" >"$NEO_HUD_STATE_FILE"
+  fi
 }
 
 _neo_last_action() {
-    [[ -f "$_NEO_ACTION_FILE" ]] && cat "$_NEO_ACTION_FILE" || echo ""
+  [[ -f "$NEO_HUD_TRACK_FILE" ]] || { echo none; return; }
+  awk -F '\t' '{print $2"("$3")"}' "$NEO_HUD_TRACK_FILE" 2>/dev/null
 }
 
-# ── PROMPT_COMMAND ───────────────────────────────────────────────────
 _neo_prompt() {
-    _NEO_LAST_RC=$?
+  local last_rc=$?
+  history -a
+  local cmd
+  cmd=$(HISTTIMEFORMAT='' history 1 | sed 's/^[ ]*[0-9]\+[ ]*//')
+  _neo_trace_action "$cmd" "$last_rc"
 
-    # Preserve history flush
-    history -a
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    PS1="${_P_DIM}[${_P_SIGNAL}NEO${_P_DIM}] ${_P_FG}\\W${_P_R}\n${_P_SIGNAL}❯${_P_R} "
+    return
+  fi
 
-    _neo_track
+  local branch dirty detached conflict
+  IFS=$'\t' read -r branch dirty detached conflict < <(_neo_git_snapshot)
+  local layer state lcol scol action
+  layer="$(_neo_layer)"
+  state="$(_neo_risk_state "$dirty" "$detached" "$conflict" "$last_rc")"
+  lcol="$(_neo_layer_color "$layer")"
+  scol="$(_neo_state_color "$state")"
+  action="$(_neo_last_action)"
 
-    # Check if inside a git repo
-    if ! git rev-parse --is-inside-work-tree &>/dev/null; then
-        PS1="${_P_DIM}[${_P_CYAN}${_P_B}NEO${_P_DIM}] ${_P_FG}\W${_P_R}\n${_P_CYAN}❯${_P_R} "
-        return
-    fi
-
-    local git_info branch dirty detached conflict
-    git_info=$(_neo_git)
-    read -r branch dirty detached conflict <<< "$git_info"
-
-    local state
-    state=$(_neo_state "$branch" "$dirty" "$detached" "$conflict" "$_NEO_LAST_RC")
-
-    local layer
-    layer=$(_neo_layer)
-    local lcolor
-    lcolor=$(_neo_layer_color "$layer")
-
-    local scolor
-    scolor=$(_neo_state_pcolor "$state")
-
-    local action
-    action=$(_neo_last_action)
-
-    # Build prompt
-    # ┌ [NEO] layer :: branch ∴ STATE ⟡ action
-    # └ ❯
-    local p=""
-    p+="${_P_DIM}┌ [${_P_CYAN}${_P_B}NEO${_P_R}${_P_DIM}] "
-    p+="${lcolor}${_P_B}${layer}${_P_R}${_P_DIM} :: "
-    p+="${_P_MAG}${branch}${_P_R}${_P_DIM} ∴ "
-    p+="${scolor}${_P_B}${state}${_P_R}"
-
-    if [[ -n "$action" ]]; then
-        p+="${_P_DIM} ⟡ ${_P_FG}${action}${_P_R}"
-    fi
-
-    p+="\n${_P_DIM}└ ${scolor}❯${_P_R} "
-
-    PS1="$p"
+  PS1="${_P_DIM}┌[${_P_SIGNAL}${_P_B}NEO${_P_R}${_P_DIM}] ${lcol}${layer}${_P_DIM} • ${_P_ANOM}${branch}${_P_DIM} • ${scol}${_P_B}${state}${_P_R}${_P_DIM} • ${_P_FG}${action}${_P_DIM} • ${_P_FG}\\A${_P_R}"
+  PS1+="\n${_P_DIM}└${scol}❯${_P_R} "
 }
 
 PROMPT_COMMAND="_neo_prompt"
 
-# ── Fast commands ────────────────────────────────────────────────────
+neo-refresh() { _neo_prompt; printf '%b\n' "${_C_SIGNAL}HUD refreshed${_C_R}"; }
+neo-enable() { source "${_NEO_HUD_DIR}/hud.sh"; }
+neo-disable() { unset PROMPT_COMMAND; export PS1='\u@\h:\w\\$ '; }
+neo-map() { find "$_NEO_REPO_ROOT" -maxdepth 2 -type d | sed "s#^${_NEO_REPO_ROOT}#.#" | sort; }
+neo-evidence() { git -C "$_NEO_REPO_ROOT" log --oneline --decorate -n 12; [[ -f "$NEO_HUD_TRACK_FILE" ]] && tail -n 5 "$NEO_HUD_TRACK_FILE"; }
+neo-layer() { _neo_layer; }
 
-# neo — full status dashboard
-neo() {
-    echo -e "${_C_CYAN}${_C_B}  NEOSYNAPTEX COSMO-NEURAL HUD${_C_R}"
-    echo -e "${_C_DIM}  ═══════════════════════════════${_C_R}"
-
-    local git_info branch dirty detached conflict
-    if git rev-parse --is-inside-work-tree &>/dev/null; then
-        git_info=$(_neo_git)
-        read -r branch dirty detached conflict <<< "$git_info"
-        local state=$(_neo_state "$branch" "$dirty" "$detached" "$conflict" 0)
-        local layer=$(_neo_layer)
-        local sc=$(_neo_state_color "$state")
-
-        echo -e "  ${_C_DIM}LAYER   ${_C_CYAN}${layer}${_C_R}"
-        echo -e "  ${_C_DIM}BRANCH  ${_C_MAG}${branch}${_C_R}"
-        echo -e "  ${_C_DIM}STATE   ${sc}${state}${_C_R}"
-        echo -e "  ${_C_DIM}DIRTY   ${_C_FG}$([ $dirty -eq 1 ] && echo 'yes' || echo 'no')${_C_R}"
-        local action=$(_neo_last_action)
-        [[ -n "$action" ]] && echo -e "  ${_C_DIM}ACTION  ${_C_FG}${action}${_C_R}"
-        echo -e "  ${_C_DIM}REPO    ${_C_FG}${_NEO_REPO_ROOT}${_C_R}"
-    else
-        echo -e "  ${_C_DIM}Not inside a git repository${_C_R}"
-    fi
-    echo
-}
-
-# nv — verify (run tests)
 nv() {
-    echo -e "${_C_CYAN}∴ verify${_C_R}"
-    local root
-    root=$(git rev-parse --show-toplevel 2>/dev/null)
-    if [[ -n "$root" ]]; then
-        if [[ -f "$root/test_neosynaptex.py" ]]; then
-            (cd "$root" && python3 -m pytest test_neosynaptex.py -q "$@")
-        elif [[ -f "$root/neosynaptex/test_neosynaptex.py" ]]; then
-            (cd "$root/neosynaptex" && python3 -m pytest test_neosynaptex.py -q "$@")
-        elif [[ -f "$root/pyproject.toml" ]] || [[ -f "$root/pytest.ini" ]]; then
-            (cd "$root" && python3 -m pytest -q "$@")
-        else
-            echo -e "${_C_DIM}No test target found${_C_R}"
-            return 1
-        fi
-    fi
+  local layer
+  layer="$(_neo_layer)"
+  case "$layer" in
+    bn_syn)
+      (cd "$_NEO_REPO_ROOT/substrates/bn_syn" && python -m pytest -m "not (validation or property)" -q "$@") ;;
+    agents)
+      (cd "$_NEO_REPO_ROOT/agents" && python -m pytest -q "$@") ;;
+    *)
+      (cd "$_NEO_REPO_ROOT" && python -m pytest -q "$@") ;;
+  esac
 }
 
-# nt — targeted tests (pass path or pattern)
 nt() { nv "$@"; }
-
-# nl — recent evidence (git log)
-nl() {
-    echo -e "${_C_CYAN}∴ recent evidence${_C_R}"
-    git log --oneline --graph --decorate -15 2>/dev/null || echo "Not in a git repo"
-}
-
-# nm — repo map
-nm() {
-    echo -e "${_C_CYAN}∴ repo map${_C_R}"
-    local root
-    root=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
-    find "$root" -maxdepth 3 -type f \( -name '*.py' -o -name '*.toml' -o -name '*.md' \) \
-        -not -path '*__pycache__*' -not -path '*.git*' -not -path '*node_modules*' \
-        | sort | sed "s|$root/||" | head -50
-}
-
-# ncd — jump to repo root or named subsystem
 ncd() {
-    local root
-    root=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
-    if [[ -z "$1" ]]; then
-        cd "$root"
-    elif [[ -d "$root/$1" ]]; then
-        cd "$root/$1"
-    elif [[ -d "$root/neosynaptex/$1" ]]; then
-        cd "$root/neosynaptex/$1"
-    else
-        # Fuzzy find
-        local match
-        match=$(find "$root" -maxdepth 3 -type d -name "*$1*" 2>/dev/null | head -1)
-        if [[ -n "$match" ]]; then
-            cd "$match"
-        else
-            echo -e "${_C_DIM}No match for: $1${_C_R}"
-        fi
-    fi
+  local target="$1"
+  case "$target" in
+    ''|root) cd "$_NEO_REPO_ROOT" ;;
+    agents) cd "$_NEO_REPO_ROOT/agents" ;;
+    bn|bn_syn) cd "$_NEO_REPO_ROOT/substrates/bn_syn" ;;
+    hca1) cd "$_NEO_REPO_ROOT/substrates/hippocampal_ca1" ;;
+    mlsdm) cd "$_NEO_REPO_ROOT/substrates/mlsdm" ;;
+    mfn|mfn_plus) cd "$_NEO_REPO_ROOT/substrates/mfn_plus" ;;
+    kura|kuramoto) cd "$_NEO_REPO_ROOT/substrates/kuramoto" ;;
+    docs) cd "$_NEO_REPO_ROOT/docs" ;;
+    manuscript) cd "$_NEO_REPO_ROOT/manuscript" ;;
+    tools|scripts) cd "$_NEO_REPO_ROOT/tools" ;;
+    *) printf '%b\n' "${_C_WARN}Unknown layer: ${target}${_C_R}"; return 1 ;;
+  esac
 }
 
-# nd — show dirty files
-nd() {
-    echo -e "${_C_CYAN}∴ dirty files${_C_R}"
-    git status --short 2>/dev/null || echo "Not in a git repo"
+neo() {
+  local branch dirty detached conflict
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    printf '%b\n' "${_C_WARN}Outside git repo${_C_R}"; return 1
+  fi
+  IFS=$'\t' read -r branch dirty detached conflict < <(_neo_git_snapshot)
+  local layer state verify action
+  layer="$(_neo_layer)"
+  state="$(_neo_risk_state "$dirty" "$detached" "$conflict" 0)"
+  verify="$(_neo_last_verify_status)"
+  action="$(_neo_last_action)"
+  printf '%b\n' "${_C_SIGNAL}${_C_B}NEOSYNAPTEX COSMO-NEURAL HUD${_C_R}"
+  printf ' layer      %s\n branch     %s\n dirty      %s\n risk       %s\n last       %s\n verify     %s\n time       %s\n' \
+    "$layer" "$branch" "$dirty" "$state" "$action" "$verify" "$(date '+%Y-%m-%d %H:%M:%S')"
 }
 
-# ── Help ─────────────────────────────────────────────────────────────
 neo-help() {
-    echo -e "${_C_CYAN}${_C_B}  NEOSYNAPTEX HUD — Commands${_C_R}"
-    echo -e "${_C_DIM}  ═══════════════════════════════${_C_R}"
-    echo -e "  ${_C_CYAN}neo${_C_R}       Full status dashboard"
-    echo -e "  ${_C_CYAN}nv${_C_R}        Verify (run tests)"
-    echo -e "  ${_C_CYAN}nt${_C_R}        Targeted tests (pass args)"
-    echo -e "  ${_C_CYAN}nl${_C_R}        Recent evidence (git log)"
-    echo -e "  ${_C_CYAN}nm${_C_R}        Repo map (files)"
-    echo -e "  ${_C_CYAN}ncd${_C_R}       Jump to repo root or subsystem"
-    echo -e "  ${_C_CYAN}nd${_C_R}        Show dirty files"
-    echo -e "  ${_C_CYAN}neo-help${_C_R}  This help"
-    echo
-    echo -e "  ${_C_DIM}States: ${_C_GRN}STABLE${_C_R} ${_C_AMB}DIRTY${_C_R} ${_C_MAG}DRIFT${_C_R} ${_C_AMB}UNVERIFIED${_C_R} ${_C_RED}ERROR${_C_R} ${_C_RED}BLOCKED${_C_R} ${_C_RED}DETACHED${_C_R}"
-    echo
+  cat <<'TXT'
+NEOSYNAPTEX HUD commands
+  neo            dashboard snapshot
+  nv / nt        verify current layer / targeted tests
+  ncd <layer>    jump layer (root|agents|bn_syn|hca1|mlsdm|mfn_plus|kuramoto|docs|manuscript|tools)
+  neo-map        subsystem map
+  neo-evidence   recent git+action evidence
+  neo-refresh    recompute prompt state
+  neo-enable     source HUD in current shell
+  neo-disable    disable prompt HUD for current shell
+TXT
 }
