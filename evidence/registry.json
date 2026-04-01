@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "last_updated": "2026-04-01",
+  "policy": {
+    "fail_closed": true,
+    "rule": "Claims without registry entries are non-canonical"
+  },
+  "entries": [
+    {
+      "id": "root-manuscript-xform-draft",
+      "path": "manuscript/XFORM_MANUSCRIPT_DRAFT.md",
+      "subsystem": "neosynaptex_core",
+      "type": "manuscript",
+      "status": "active"
+    },
+    {
+      "id": "agents-bibliography",
+      "path": "agents/docs/BIBLIOGRAPHY.md",
+      "subsystem": "agents",
+      "type": "bibliography",
+      "status": "active"
+    },
+    {
+      "id": "bnsyn-claims-gate",
+      "path": "substrates/bn_syn/README_CLAIMS_GATE.md",
+      "subsystem": "bn_syn",
+      "type": "claims_gate",
+      "status": "active"
+    },
+    {
+      "id": "mlsdm-claim-evidence-ledger",
+      "path": "substrates/mlsdm/docs/CLAIM_EVIDENCE_LEDGER.md",
+      "subsystem": "mlsdm",
+      "type": "evidence_ledger",
+      "status": "active"
+    },
+    {
+      "id": "kuramoto-traceability-matrix",
+      "path": "substrates/kuramoto/docs/requirements/traceability_matrix.md",
+      "subsystem": "kuramoto",
+      "type": "traceability",
+      "status": "active"
+    }
+  ]
+}
