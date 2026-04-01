@@ -25,9 +25,13 @@ import argparse
 from enum import IntEnum
 import importlib.metadata
 import json
-import tomllib
-import warnings
 import sys
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+import warnings
 from pathlib import Path
 from typing import Any
 
