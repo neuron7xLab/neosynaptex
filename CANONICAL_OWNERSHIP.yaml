@@ -50,7 +50,7 @@ subsystems:
     scope: "TradePulse/Kuramoto + curvature + OFI microstructure"
     authoritative_paths:
       - substrates/kuramoto/
-    license: TBD
+    license: AGPL-3.0-or-later
     status: canonical
 
   mlsdm:

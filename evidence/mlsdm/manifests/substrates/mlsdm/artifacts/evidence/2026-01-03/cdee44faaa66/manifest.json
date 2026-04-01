@@ -1,0 +1,59 @@
+{
+  "schema_version": "evidence-v1",
+  "git_sha": "cdee44faaa66cc6587ceb6ae657d776a5664f09a",
+  "short_sha": "cdee44faaa66",
+  "created_utc": "2026-01-03T19:10:29Z",
+  "source_ref": "refs/heads/copilot/optimize-process-iterations",
+  "commands": [],
+  "outputs": {
+    "coverage_xml": "coverage/coverage.xml",
+    "junit_xml": "pytest/junit.xml",
+    "python_version": "env/python_version.txt",
+    "uv_lock_sha256": "env/uv_lock_sha256.txt",
+    "uname": "env/uname.txt",
+    "iteration_metrics": "iteration/iteration-metrics.jsonl"
+  },
+  "status": {
+    "ok": true,
+    "partial": false,
+    "failures": []
+  },
+  "file_index": [
+    {
+      "path": "coverage/coverage.xml",
+      "sha256": "0e8f835f3166d9860baa38bdacdf000873afe2b61f1b29aa7e4ac4d06510509f",
+      "bytes": 37,
+      "mime_guess": "application/xml"
+    },
+    {
+      "path": "env/python_version.txt",
+      "sha256": "fa682ae9d943f5c8076e68335c9ba3ab4d063ad035c07ac6928653dd4ac50af7",
+      "bytes": 7,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "env/uname.txt",
+      "sha256": "d19080b3c7220b58540f5c103abd7583084257c7c766f73accb8ca5a39652d65",
+      "bytes": 121,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "env/uv_lock_sha256.txt",
+      "sha256": "03c0d13e39654b468c6b6d25fd613b6b61e61bdd3b732592c776f74e7882af94",
+      "bytes": 65,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "iteration/iteration-metrics.jsonl",
+      "sha256": "baaf10e5cc866111c1fae3e5fee0bef3eee563d7437582ef0d0cde02252c88b2",
+      "bytes": 16271,
+      "mime_guess": "application/octet-stream"
+    },
+    {
+      "path": "pytest/junit.xml",
+      "sha256": "55d8c0c371f949a0c9fa9fece7108777a6b3629adbeb9d9a72a89747ca2527c4",
+      "bytes": 99,
+      "mime_guess": "application/xml"
+    }
+  ]
+}

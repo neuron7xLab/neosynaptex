@@ -20,7 +20,16 @@
 - `governance/MIGRATION_LEDGER.md` and `governance/ARCHIVE_POLICY.md` — archival gates.
 - `data/golden/` and `formal/` — benchmark anchors and formal artifacts.
 
-## Known Current Conflicts
-1. `bn_syn/` (root adapter) vs `substrates/bn_syn/` (full authority).
-2. `substrates/mfn_plus/` vs `substrates/mycelium/` split package identity.
-3. Mixed license zones unresolved for `substrates/kuramoto/`.
+## Consolidated Documentation
+- `docs/science/` — manuscripts (root + agents).
+- `docs/bibliography/` — unified bibliography index.
+- `docs/evidence_ledgers/` — BN-Syn claims gate + MLSDM evidence ledger.
+- `docs/traceability/` — Kuramoto requirement traceability matrix.
+- `docs/adr/` — architecture decision records (MLSDM + Kuramoto).
+- `formal/coq/` + `formal/tla/` — BN-Syn formal specifications.
+
+## Resolved Conflicts (2026-04-01)
+1. ~~`bn_syn/` vs `substrates/bn_syn/`~~ — root `bn_syn/` is now a deprecated re-export shim.
+2. ~~`mfn_plus/` vs `mycelium/`~~ — `mycelium/` confirmed as surviving authority; `mfn_plus/` deprecated.
+3. ~~Kuramoto license~~ — set to AGPL-3.0-or-later.
+4. Root README already frames meta-contract correctly (Conflict C: no action needed).

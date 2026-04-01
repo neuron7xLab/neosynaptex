@@ -1,0 +1,59 @@
+{
+  "schema_version": "evidence-v1",
+  "git_sha": "53e12f950a3e6b3d73153fe450ab59117f686ffe",
+  "short_sha": "53e12f950a3e",
+  "created_utc": "2026-03-28T20:12:36Z",
+  "source_ref": "main",
+  "commands": [],
+  "outputs": {
+    "coverage_xml": "coverage/coverage.xml",
+    "junit_xml": "pytest/junit.xml",
+    "python_version": "env/python_version.txt",
+    "uv_lock_sha256": "env/uv_lock_sha256.txt",
+    "uname": "env/uname.txt",
+    "iteration_metrics": "iteration/iteration-metrics.jsonl"
+  },
+  "status": {
+    "ok": true,
+    "partial": false,
+    "failures": []
+  },
+  "file_index": [
+    {
+      "path": "coverage/coverage.xml",
+      "sha256": "0e8f835f3166d9860baa38bdacdf000873afe2b61f1b29aa7e4ac4d06510509f",
+      "bytes": 37,
+      "mime_guess": "application/xml"
+    },
+    {
+      "path": "env/python_version.txt",
+      "sha256": "40411dc2c2726b4c7024d38318dd8df45c528b49491efb45939dd4a829847d94",
+      "bytes": 8,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "env/uname.txt",
+      "sha256": "1318b3d37bb23af1bb156da287c7f2c437fd52555f3266bd4e880efc5bfb3a9b",
+      "bytes": 166,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "env/uv_lock_sha256.txt",
+      "sha256": "104a195033c0e2bb5783fa951b51126c63cba062d692055b2e92c1f3914b2b64",
+      "bytes": 65,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "iteration/iteration-metrics.jsonl",
+      "sha256": "baaf10e5cc866111c1fae3e5fee0bef3eee563d7437582ef0d0cde02252c88b2",
+      "bytes": 16271,
+      "mime_guess": "application/octet-stream"
+    },
+    {
+      "path": "pytest/junit.xml",
+      "sha256": "55d8c0c371f949a0c9fa9fece7108777a6b3629adbeb9d9a72a89747ca2527c4",
+      "bytes": 99,
+      "mime_guess": "application/xml"
+    }
+  ]
+}

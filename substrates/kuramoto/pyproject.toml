@@ -7,13 +7,13 @@ name = "tradepulse"
 dynamic = ["version", "readme"]
 description = "Advanced algorithmic trading framework with geometric market indicators"
 authors = [{ name = "TradePulse Contributors" }]
-license = { file = "LICENSE" }
+license = { text = "AGPL-3.0-or-later" }
 requires-python = ">=3.11,<3.13"
 keywords = ["trading", "quant", "algorithmic", "markets", "analytics"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Financial and Insurance Industry",
-    "License :: Other/Proprietary License",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",

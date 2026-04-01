@@ -1,0 +1,71 @@
+{
+  "results": [
+    {
+      "T": 1.5,
+      "gamma": 1.6814,
+      "r2": 0.7661,
+      "ci_low": 1.5365,
+      "ci_high": 1.765,
+      "n_pairs": 243,
+      "gamma_ctrl": -0.1511,
+      "mag": 0.9805
+    },
+    {
+      "T": 2.0,
+      "gamma": 1.439,
+      "r2": 0.5781,
+      "ci_low": 1.3091,
+      "ci_high": 1.6119,
+      "n_pairs": 240,
+      "gamma_ctrl": -0.054,
+      "mag": 0.9512
+    },
+    {
+      "T": 2.269185314213022,
+      "gamma": 1.3286,
+      "r2": 0.5196,
+      "ci_low": 1.1323,
+      "ci_high": 1.474,
+      "n_pairs": 249,
+      "gamma_ctrl": -0.071,
+      "mag": 0.7383
+    },
+    {
+      "T": 2.5,
+      "gamma": 1.1212,
+      "r2": 0.2698,
+      "ci_low": 0.9352,
+      "ci_high": 1.3359,
+      "n_pairs": 249,
+      "gamma_ctrl": 0.025,
+      "mag": 0.4414
+    },
+    {
+      "T": 3.0,
+      "gamma": 0.9923,
+      "r2": 0.2512,
+      "ci_low": 0.7637,
+      "ci_high": 1.2171,
+      "n_pairs": 249,
+      "gamma_ctrl": 0.0352,
+      "mag": 0.1016
+    },
+    {
+      "T": 4.0,
+      "gamma": 0.9628,
+      "r2": 0.3457,
+      "ci_low": 0.8444,
+      "ci_high": 1.1356,
+      "n_pairs": 249,
+      "gamma_ctrl": -0.1753,
+      "mag": 0.0312
+    }
+  ],
+  "gates": {
+    "T2-G1: Ising T_c gamma in [0.8,1.2]": false,
+    "T2-G2: Ising T=1.5 gamma != 1.0": true,
+    "T2-G3: Ising T=4.0 gamma != 1.0": false,
+    "T2-G4: control gamma ~ 0": true
+  },
+  "T_c": 2.269185314213022
+}

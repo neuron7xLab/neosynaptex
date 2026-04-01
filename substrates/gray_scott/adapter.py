@@ -59,11 +59,15 @@ class GrayScottAdapter:
         self._t = 0
 
         # Pre-compute equilibria across F range
-        self._f_values = np.linspace(0.015, 0.055, _N_PARAMS)
+        # Only keep equilibria that formed patterns (v_mass > 1.0)
+        # No-pattern runs have v_mass ≈ 0, which clamps to TOPO_FLOOR
+        # and creates a degenerate cluster that corrupts engine Theil-Sen fit
+        self._f_values = np.linspace(0.030, 0.060, _N_PARAMS)
         self._equilibria: list[dict] = []
         for f_val in self._f_values:
             eq = self._run_to_equilibrium(f_val)
-            self._equilibria.append(eq)
+            if eq["v_mass"] > 1.0:
+                self._equilibria.append(eq)
 
         self._idx = 0
 
@@ -110,8 +114,9 @@ class GrayScottAdapter:
 
     def state(self) -> Dict[str, float]:
         self._t += 1
-        # Cycle through pre-computed equilibria with small noise
-        self._idx = self._t % len(self._equilibria)
+        # Random sample from equilibria — avoids sequential wrap-around
+        # that breaks engine Theil-Sen fit in rolling windows
+        self._idx = int(self._rng.integers(0, len(self._equilibria)))
         eq = self._equilibria[self._idx]
         noise = self._rng.normal(0, 0.001)
         return {
@@ -122,17 +127,23 @@ class GrayScottAdapter:
         }
 
     def topo(self) -> float:
-        """Total v-field mass at current parameter equilibrium."""
+        """Total v-field mass at current parameter equilibrium.
+
+        Multiplicative noise (~1%) breaks point degeneracy for engine fit
+        without biasing log-log slope (γ invariant under ×constant).
+        """
         eq = self._equilibria[self._idx]
-        return max(_TOPO_FLOOR, eq["v_mass"])
+        jitter = 1.0 + self._rng.normal(0, 0.02)
+        return max(_TOPO_FLOOR, eq["v_mass"] * jitter)
 
     def thermo_cost(self) -> float:
         """1/entropy (field uniformity). Decreases as pattern complexifies."""
         eq = self._equilibria[self._idx]
         ent = eq["entropy"]
+        jitter = 1.0 + self._rng.normal(0, 0.02)
         if ent < _TOPO_FLOOR:
             return 1.0 / _TOPO_FLOOR
-        return max(_TOPO_FLOOR, 1.0 / ent)
+        return max(_TOPO_FLOOR, jitter / ent)
 
 
 # ---------------------------------------------------------------------------

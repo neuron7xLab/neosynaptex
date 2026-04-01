@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "last_updated": "2026-04-01",
   "policy": {
     "fail_closed": true,
@@ -8,38 +8,91 @@
   "entries": [
     {
       "id": "root-manuscript-xform-draft",
-      "path": "manuscript/XFORM_MANUSCRIPT_DRAFT.md",
+      "path": "docs/science/root_manuscript/XFORM_MANUSCRIPT_DRAFT.md",
+      "source": "manuscript/XFORM_MANUSCRIPT_DRAFT.md",
       "subsystem": "neosynaptex_core",
       "type": "manuscript",
-      "status": "active"
+      "status": "migrated"
     },
     {
       "id": "agents-bibliography",
-      "path": "agents/docs/BIBLIOGRAPHY.md",
+      "path": "docs/bibliography/AGENTS_BIBLIOGRAPHY.md",
+      "source": "agents/docs/BIBLIOGRAPHY.md",
       "subsystem": "agents",
       "type": "bibliography",
-      "status": "active"
+      "status": "migrated"
     },
     {
       "id": "bnsyn-claims-gate",
-      "path": "substrates/bn_syn/README_CLAIMS_GATE.md",
+      "path": "docs/evidence_ledgers/bnsyn_claims_gate.md",
+      "source": "substrates/bn_syn/README_CLAIMS_GATE.md",
       "subsystem": "bn_syn",
       "type": "claims_gate",
-      "status": "active"
+      "status": "migrated"
     },
     {
       "id": "mlsdm-claim-evidence-ledger",
-      "path": "substrates/mlsdm/docs/CLAIM_EVIDENCE_LEDGER.md",
+      "path": "docs/evidence_ledgers/mlsdm_claim_evidence_ledger.md",
+      "source": "substrates/mlsdm/docs/CLAIM_EVIDENCE_LEDGER.md",
       "subsystem": "mlsdm",
       "type": "evidence_ledger",
-      "status": "active"
+      "status": "migrated"
     },
     {
       "id": "kuramoto-traceability-matrix",
-      "path": "substrates/kuramoto/docs/requirements/traceability_matrix.md",
+      "path": "docs/traceability/kuramoto_traceability_matrix.md",
+      "source": "substrates/kuramoto/docs/requirements/traceability_matrix.md",
       "subsystem": "kuramoto",
       "type": "traceability",
-      "status": "active"
+      "status": "migrated"
+    },
+    {
+      "id": "kuramoto-golden-data",
+      "path": "data/golden/kuramoto/",
+      "source": "substrates/kuramoto/data/golden/",
+      "subsystem": "kuramoto",
+      "type": "reproducibility_anchor",
+      "status": "migrated"
+    },
+    {
+      "id": "agents-manuscript",
+      "path": "docs/science/agents/",
+      "source": "agents/manuscript/",
+      "subsystem": "agents",
+      "type": "manuscript",
+      "status": "migrated"
+    },
+    {
+      "id": "mlsdm-adr",
+      "path": "docs/adr/mlsdm/",
+      "source": "substrates/mlsdm/docs/adr/",
+      "subsystem": "mlsdm",
+      "type": "architecture_decision_records",
+      "status": "migrated"
+    },
+    {
+      "id": "kuramoto-adr",
+      "path": "docs/adr/kuramoto/",
+      "source": "substrates/kuramoto/docs/adr/",
+      "subsystem": "kuramoto",
+      "type": "architecture_decision_records",
+      "status": "migrated"
+    },
+    {
+      "id": "bnsyn-coq-specs",
+      "path": "formal/coq/bnsyn/",
+      "source": "substrates/bn_syn/specs/coq/",
+      "subsystem": "bn_syn",
+      "type": "formal_methods",
+      "status": "migrated"
+    },
+    {
+      "id": "bnsyn-tla-specs",
+      "path": "formal/tla/bnsyn/",
+      "source": "substrates/bn_syn/specs/tla/",
+      "subsystem": "bn_syn",
+      "type": "formal_methods",
+      "status": "migrated"
     }
   ]
 }

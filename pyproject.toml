@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=68.0"]
-build-backend = "setuptools.backends._legacy:_Backend"
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "neosynaptex"
@@ -8,7 +8,7 @@ version = "2.1.0"
 description = "NFI — Neuromodulatory Field Intelligence. Intelligence as regime property."
 readme = "README.md"
 authors = [{ name = "Yaroslav Vasylenko", email = "neuron7x@proton.me" }]
-license = { text = "AGPL-3.0-or-later" }
+license = "AGPL-3.0-or-later"
 requires-python = ">=3.10"
 keywords = [
     "neuroscience",
@@ -24,7 +24,6 @@ keywords = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -55,6 +54,10 @@ security = [
 [project.urls]
 Repository = "https://github.com/neuron7xLab/neosynaptex"
 Issues = "https://github.com/neuron7xLab/neosynaptex/issues"
+
+[tool.setuptools.packages.find]
+include = ["core*", "contracts*", "substrates*", "agents*", "bn_syn*", "tradepulse*"]
+exclude = ["tests*", "data*", "docs*", "evidence*", "governance*", "manuscript*", "analysis*", "formal*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

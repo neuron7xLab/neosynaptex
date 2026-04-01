@@ -1,0 +1,75 @@
+{
+  "results": {
+    "HH_threshold_6.5": {
+      "gamma": 6.4886,
+      "r2": 0.1976,
+      "ci_low": -2.1404,
+      "ci_high": 2.0302,
+      "n_pairs": 444,
+      "gamma_ctrl": -0.1195
+    },
+    "HH_subthreshold_3.0": {
+      "gamma": 6.0918,
+      "r2": 0.1966,
+      "ci_low": -2.0354,
+      "ci_high": 2.0196,
+      "n_pairs": 436,
+      "gamma_ctrl": -0.1011
+    },
+    "HH_suprathreshold_15": {
+      "gamma": 5.7229,
+      "r2": 0.1956,
+      "ci_low": -1.6078,
+      "ci_high": 1.5563,
+      "n_pairs": 416,
+      "gamma_ctrl": -0.161
+    },
+    "VdP_weak_0.1": {
+      "gamma": 8.5183,
+      "r2": 0.022,
+      "ci_low": -3.5079,
+      "ci_high": 6.6786,
+      "n_pairs": 937,
+      "gamma_ctrl": -0.8217
+    },
+    "VdP_strong_5.0": {
+      "gamma": 6.184,
+      "r2": 0.0201,
+      "ci_low": -5.4313,
+      "ci_high": 5.4014,
+      "n_pairs": 311,
+      "gamma_ctrl": 2.4021
+    },
+    "Lorenz_critical_24.74": {
+      "gamma": 2.6667,
+      "r2": 0.4496,
+      "ci_low": -0.5153,
+      "ci_high": 0.5313,
+      "n_pairs": 949,
+      "gamma_ctrl": -0.1293
+    },
+    "Lorenz_chaotic_28": {
+      "gamma": 2.951,
+      "r2": 0.4368,
+      "ci_low": -0.4901,
+      "ci_high": 0.5634,
+      "n_pairs": 949,
+      "gamma_ctrl": 0.0447
+    },
+    "Lorenz_stable_10": {
+      "gamma": 2.9548,
+      "r2": 0.5094,
+      "ci_low": -0.57,
+      "ci_high": 0.5969,
+      "n_pairs": 949,
+      "gamma_ctrl": 0.1
+    }
+  },
+  "gates": {
+    "T5-G1: HH threshold gamma in [0.7,1.3]": false,
+    "T5-G2: VdP weak gamma in [0.7,1.3]": false,
+    "T5-G3: Lorenz critical gamma in [0.7,1.3]": false,
+    "T5-G4a: HH supra gamma NOT in [0.7,1.3]": true,
+    "T5-G4b: Lorenz stable gamma NOT in [0.7,1.3]": true
+  }
+}

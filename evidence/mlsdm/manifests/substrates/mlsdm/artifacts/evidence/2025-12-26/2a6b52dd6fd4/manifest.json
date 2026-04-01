@@ -1,0 +1,79 @@
+{
+  "schema_version": "evidence-v1",
+  "git_sha": "2a6b52dd6fd466e471c81a2670e2698c74a67044",
+  "short_sha": "2a6b52dd6fd4",
+  "created_utc": "2025-12-26T17:33:37.319140Z",
+  "source_ref": "unknown",
+  "commands": [
+    "bash ./coverage_gate.sh",
+    "pytest tests/unit tests/state -q --junitxml=... --maxfail=1",
+    "benchmarks/test_neuro_engine_performance.py (imported functions)",
+    "benchmarks/measure_memory_footprint.py --json-out ... --seed 42"
+  ],
+  "outputs": {
+    "coverage_xml": "coverage/coverage.xml",
+    "junit_xml": "pytest/junit.xml",
+    "coverage_log": "coverage/coverage.log"
+  },
+  "status": {
+    "ok": true,
+    "partial": false,
+    "failures": []
+  },
+  "file_index": [
+    {
+      "path": "benchmarks/benchmark-metrics.json",
+      "sha256": "e51e1ac48c5f11a2323ac80b0d17156134a4aacda1a96bf710ab6a5daa681916",
+      "bytes": 1736,
+      "mime_guess": "application/json"
+    },
+    {
+      "path": "benchmarks/raw_neuro_engine_latency.json",
+      "sha256": "61435360fdb4a7915e19427a164eed53b6bb4f4eda144fc7652a27c2cc29e7ca",
+      "bytes": 1486,
+      "mime_guess": "application/json"
+    },
+    {
+      "path": "coverage/coverage.log",
+      "sha256": "273dd0c658bcc989fec7a83079a6edb493ce7f1f21a1bb0d8389c0b92afef2af",
+      "bytes": 18456,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "coverage/coverage.xml",
+      "sha256": "6bc25072af7a746888432ed866999f2ab0ba8b15ddf3e5112b4ea0512eb74fb4",
+      "bytes": 473144,
+      "mime_guess": "text/xml"
+    },
+    {
+      "path": "env/python_version.txt",
+      "sha256": "fa682ae9d943f5c8076e68335c9ba3ab4d063ad035c07ac6928653dd4ac50af7",
+      "bytes": 7,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "env/uname.txt",
+      "sha256": "e0d3bedc993308b99f516957c283566b380d1202af125c7be0d0868e52fd9882",
+      "bytes": 46,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "env/uv_lock_sha256.txt",
+      "sha256": "03c0d13e39654b468c6b6d25fd613b6b61e61bdd3b732592c776f74e7882af94",
+      "bytes": 65,
+      "mime_guess": "text/plain"
+    },
+    {
+      "path": "memory/memory_footprint.json",
+      "sha256": "d17cb8630558ca8cf99a0c72ba3e1cf9fff0bb2848fc5ad049d5a337a5344cca",
+      "bytes": 292,
+      "mime_guess": "application/json"
+    },
+    {
+      "path": "pytest/junit.xml",
+      "sha256": "45bcb2a41d424e46dbe26e3a73317a06aaeaa03af4a9be5b7528976666e9fe2c",
+      "bytes": 145712,
+      "mime_guess": "text/xml"
+    }
+  ]
+}

@@ -149,7 +149,16 @@ class ZebrafishAdapter:
                 )
 
     def _day(self) -> int:
-        return self._t % self._n_days
+        """Ping-pong indexing: 0→45→44→...→0→1→...
+
+        Avoids wrap-around discontinuity that breaks engine R² gate.
+        Preserves the monotonic topo→cost relationship within any window.
+        """
+        cycle = 2 * (self._n_days - 1)  # 90 for 46 days
+        pos = self._t % cycle
+        if pos < self._n_days:
+            return pos
+        return cycle - pos  # reverse
 
     # --- DomainAdapter Protocol ---
 

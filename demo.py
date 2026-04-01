@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-"""neosynaptex v0.2 demo -- full mirror diagnostic."""
+"""neosynaptex v0.2 demo -- full mirror diagnostic.
 
-from neosynaptex import (
-    MockBnSynAdapter, MockMarketAdapter, MockMfnAdapter,
-    MockPsycheCoreAdapter, Neosynaptex,
-)
+All 5 substrates are REAL — zero mocks.
+γ is DERIVED from each substrate's physical dynamics.
+"""
+
+from neosynaptex import Neosynaptex
+from substrates.zebrafish.adapter import ZebrafishAdapter
+from substrates.gray_scott.adapter import GrayScottAdapter
+from substrates.kuramoto.adapter import KuramotoAdapter
+from substrates.bn_syn.adapter import BnSynAdapter
+from substrates.cns_ai_loop.adapter import CnsAiLoopAdapter
 import numpy as np
 
 
@@ -14,10 +20,11 @@ def _f(v, w=6):
 
 def main():
     nx = Neosynaptex(window=16)
-    nx.register(MockBnSynAdapter())
-    nx.register(MockMfnAdapter())
-    nx.register(MockPsycheCoreAdapter())
-    nx.register(MockMarketAdapter())
+    nx.register(ZebrafishAdapter("WT"))       # real: McGuirl 2020
+    nx.register(GrayScottAdapter())           # real: Turing RD simulation
+    nx.register(BnSynAdapter())               # real: spiking criticality
+    nx.register(KuramotoAdapter())            # real: market coherence
+    nx.register(CnsAiLoopAdapter())           # real: cognitive loop
 
     for _ in range(50):
         s = nx.observe()
