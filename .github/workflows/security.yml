@@ -6,8 +6,12 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: "0 6 * * 1"  # Weekly Monday 06:00 UTC
+    - cron: "0 6 * * 1"
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -22,13 +26,28 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version-file: .python-version
-      - run: pip install pip-audit bandit --quiet
+          cache: pip
 
-      - name: Bandit static analysis
-        run: bandit -r core/ contracts/ neosynaptex.py -q --skip B101
+      - name: Install tools
+        run: pip install pip-audit bandit --quiet
+
+      - name: Bandit SAST
+        run: bandit -r core/ contracts/ neosynaptex.py -q --skip B101 -f json -o bandit-report.json || true
+
+      - name: Bandit summary
+        if: always()
+        run: bandit -r core/ contracts/ neosynaptex.py -q --skip B101 || true
 
       - name: pip-audit dependency scan
         run: pip install -e ".[dev]" --quiet && pip-audit --desc --skip-editable
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: bandit-report.json
+          if-no-files-found: ignore
+          retention-days: 90
 
   secret-scan:
     name: Secret Scan

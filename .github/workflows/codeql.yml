@@ -1,9 +1,17 @@
 name: CodeQL
 
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   schedule:
-    - cron: '27 3 * * 1'
+    - cron: "27 3 * * 1"
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -11,11 +19,13 @@ permissions:
 
 jobs:
   analyze:
+    name: CodeQL Analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: github/codeql-action/init@fca7ace96b7d713c71338f0bc9d5b3c87f5cbcfd
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
         with:
           languages: python
           build-mode: none
-      - uses: github/codeql-action/analyze@45775bd8e8d28e77c3b7ebf5b73c9ab3b6a4dce1
+      - uses: github/codeql-action/analyze@v3

@@ -8,7 +8,7 @@ version = "2.1.0"
 description = "NFI — Neuromodulatory Field Intelligence. Intelligence as regime property."
 readme = "README.md"
 authors = [{ name = "Yaroslav Vasylenko", email = "neuron7x@proton.me" }]
-license = "AGPL-3.0-or-later"
+license = { text = "AGPL-3.0-or-later" }
 requires-python = ">=3.10"
 keywords = [
     "neuroscience",
@@ -55,9 +55,11 @@ security = [
 Repository = "https://github.com/neuron7xLab/neosynaptex"
 Issues = "https://github.com/neuron7xLab/neosynaptex/issues"
 
+[tool.setuptools]
+py-modules = ["neosynaptex"]
+
 [tool.setuptools.packages.find]
 include = ["core*", "contracts*", "substrates*", "agents*", "bn_syn*", "tradepulse*"]
-exclude = ["tests*", "data*", "docs*", "evidence*", "governance*", "manuscript*", "analysis*", "formal*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
