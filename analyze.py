@@ -31,6 +31,7 @@ def compute_psd_slope(series, fs=1.0):
         return {"status": "INSUFFICIENT_DATA", "n": len(series)}
     from scipy import signal
     from scipy.stats import theilslopes
+    series = np.asarray(series, dtype=np.float64)
     nperseg = min(len(series), max(16, len(series) // 4))
     freqs, psd = signal.welch(series, fs=fs, nperseg=nperseg, detrend='linear')
     mask = freqs > 0
