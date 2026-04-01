@@ -49,7 +49,7 @@ def classify_regime(gamma: float) -> str:
 SUBSTRATE_GAMMA = {
     "zebrafish":        (1.055,  "McGuirl 2020, derived density→NN_CV, R²=0.76, CI=[0.89,1.21]"),
     "gray_scott":       (0.979,  "PDE simulation, F-sweep 20 equilibria, R²=0.995, CI=[0.88,1.01]"),
-    "kuramoto_market":  (1.081,  "mvstack 46/46 tests"),
+    "kuramoto_market":  (0.963,  "128-oscillator Kc simulation, vol→1/|ret|, R²=0.90, CI=[0.93,1.00]"),
     "bn_syn":           (0.959,  "CI 16/16 green"),
     "nfi_unified":      (0.8993, "first live cycle"),
     "cns_ai_loop":      (1.059,  "p_perm=0.005, CI=[0.985,1.131]"),
