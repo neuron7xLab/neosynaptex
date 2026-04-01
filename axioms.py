@@ -50,14 +50,27 @@ CONSEQUENCES = {
     "SEPARATION_INVARIANT": "d(internal)/d(external) > 0 always",
 }
 
-SUBSTRATE_GAMMA = {
-    "zebrafish":       (0.967, "McGuirl 2020, Cohen's d=26.7"),
-    "gray_scott":      (1.000, "analytical RD field"),
-    "kuramoto_market": (1.081, "mvstack 46/46 tests"),
-    "bn_syn":          (0.959, "CI 16/16 green"),
-    "nfi_unified":     (0.8993, "first live cycle"),
-    "cns_ai_loop":     (1.059, "CI=[0.985,1.131], p_perm=0.005"),
-}
+# INV-1: gamma DERIVED ONLY. All values from canonical gamma_ledger.json.
+from core.gamma_registry import GammaRegistry as _GR
+
+def _load_substrate_gamma():
+    _map = {
+        "zebrafish": "zebrafish_wt",
+        "gray_scott": "gray_scott",
+        "kuramoto_market": "kuramoto",
+        "bn_syn": "bnsyn",
+        "nfi_unified": "nfi_unified",
+        "cns_ai_loop": "cns_ai_loop",
+    }
+    result = {}
+    for name, eid in _map.items():
+        entry = _GR.get_entry(eid)
+        gamma = entry.get("gamma")
+        method = entry.get("derivation_method", "")
+        result[name] = (gamma, method)
+    return result
+
+SUBSTRATE_GAMMA = _load_substrate_gamma()
 
 
 def verify_axiom_consistency(system_state: dict) -> bool:

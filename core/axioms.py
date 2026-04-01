@@ -53,18 +53,29 @@ def classify_regime(gamma: float) -> str:
         return "COLLAPSE"
 
 
-# ─── VALIDATED SUBSTRATES ────────────────────────────────────────────────
-SUBSTRATE_GAMMA = {
-    "zebrafish": (1.055, "McGuirl 2020, derived density→NN_CV, R²=0.76, CI=[0.89,1.21]"),
-    "gray_scott": (0.979, "PDE simulation, F-sweep 20 equilibria, R²=0.995, CI=[0.88,1.01]"),
-    "kuramoto_market": (
-        0.963,
-        "128-oscillator Kc simulation, vol→1/|ret|, R²=0.90, CI=[0.93,1.00]",
-    ),
-    "bn_syn": (0.946, "1/f spiking network, rate→CV, R²=0.28, CI=[0.81,1.08]"),
-    "nfi_unified": (0.8993, "first live cycle"),
-    "cns_ai_loop": (1.059, "p_perm=0.005, CI=[0.985,1.131]"),
-}
+# ─── VALIDATED SUBSTRATES (derived from gamma_ledger.json) ──────────────
+# INV-1: gamma DERIVED ONLY. All values come from GammaRegistry.
+from core.gamma_registry import GammaRegistry as _GR
+
+def _load_substrate_gamma():
+    """Load SUBSTRATE_GAMMA from the canonical ledger, not hardcoded."""
+    _map = {
+        "zebrafish": "zebrafish_wt",
+        "gray_scott": "gray_scott",
+        "kuramoto_market": "kuramoto",
+        "bn_syn": "bnsyn",
+        "nfi_unified": "nfi_unified",
+        "cns_ai_loop": "cns_ai_loop",
+    }
+    result = {}
+    for name, eid in _map.items():
+        entry = _GR.get_entry(eid)
+        gamma = entry.get("gamma")
+        method = entry.get("derivation_method", "")
+        result[name] = (gamma, method)
+    return result
+
+SUBSTRATE_GAMMA = _load_substrate_gamma()
 
 # ─── INVARIANTS ──────────────────────────────────────────────────────────
 INVARIANTS = {

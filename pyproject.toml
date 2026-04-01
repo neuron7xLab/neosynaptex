@@ -59,7 +59,7 @@ Issues = "https://github.com/neuron7xLab/neosynaptex/issues"
 py-modules = ["neosynaptex"]
 
 [tool.setuptools.packages.find]
-include = ["core*", "contracts*", "substrates*", "agents*", "bn_syn*", "tradepulse*"]
+include = ["core*", "contracts*", "substrates*", "agents*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

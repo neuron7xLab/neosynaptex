@@ -1,1 +1,0 @@
-Legacy and auxiliary documents moved out of docs/ during final consolidation.\nCanonical docs remain under docs/: ARCHITECTURE.md, DATA_MODEL.md, API.md, BENCHMARKS.md, LOCAL_RUNBOOK.md.\n

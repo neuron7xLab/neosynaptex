@@ -1,0 +1,186 @@
+{
+  "version": "1.0.0",
+  "invariant": "gamma derived only, never assigned",
+  "entries": {
+    "zebrafish_wt": {
+      "substrate": "zebrafish",
+      "description": "Wild-type zebrafish calcium imaging \u2014 topological complexity vs thermodynamic cost",
+      "gamma": 1.055,
+      "ci_low": 0.89,
+      "ci_high": 1.21,
+      "r2": 0.76,
+      "n_pairs": null,
+      "p_permutation": null,
+      "status": "VALIDATED",
+      "locked": true,
+      "data_source": {
+        "file": "data/zebrafish/Out_WT_default_1.mat",
+        "sha256": null
+      },
+      "adapter_code_hash": null,
+      "derivation_method": "McGuirl 2020, derived density->NN_CV"
+    },
+    "gray_scott": {
+      "substrate": "gray_scott",
+      "description": "Gray-Scott reaction-diffusion \u2014 morphogenetic field network",
+      "gamma": 0.979,
+      "ci_low": 0.88,
+      "ci_high": 1.01,
+      "r2": 0.995,
+      "n_pairs": 20,
+      "p_permutation": null,
+      "status": "VALIDATED",
+      "locked": true,
+      "data_source": {
+        "file": "data/gray_scott/params.json",
+        "sha256": null
+      },
+      "adapter_code_hash": null,
+      "derivation_method": "PDE simulation, F-sweep 20 equilibria"
+    },
+    "kuramoto": {
+      "substrate": "kuramoto_market",
+      "description": "Kuramoto oscillator coherence \u2014 phase synchronization scaling",
+      "gamma": 0.963,
+      "ci_low": 0.93,
+      "ci_high": 1.0,
+      "r2": 0.9,
+      "n_pairs": null,
+      "p_permutation": null,
+      "status": "VALIDATED",
+      "locked": true,
+      "data_source": {
+        "file": "data/kuramoto/config.json",
+        "sha256": null
+      },
+      "adapter_code_hash": null,
+      "derivation_method": "128-oscillator Kc simulation, vol->1/|ret|"
+    },
+    "bnsyn": {
+      "substrate": "bn_syn",
+      "description": "BN-Syn spiking network \u2014 criticality scaling exponent",
+      "gamma": 0.946,
+      "ci_low": 0.81,
+      "ci_high": 1.08,
+      "r2": 0.28,
+      "n_pairs": null,
+      "p_permutation": null,
+      "status": "VALIDATED",
+      "locked": true,
+      "data_source": {
+        "file": null,
+        "sha256": null
+      },
+      "adapter_code_hash": null,
+      "derivation_method": "1/f spiking network, rate->CV"
+    },
+    "mock_spike": {
+      "substrate": "mock_bnsyn",
+      "description": "Mock BN-Syn adapter \u2014 constructed gamma=0.95",
+      "gamma": 0.949447,
+      "ci_low": 0.94228,
+      "ci_high": 0.957233,
+      "r2": 0.998737,
+      "n_pairs": 100,
+      "p_permutation": null,
+      "status": "DERIVED",
+      "locked": true,
+      "data_source": {
+        "file": "neosynaptex.py",
+        "sha256": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf"
+      },
+      "adapter_code_hash": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf",
+      "derivation_method": "constructed: cost = 8.0 * topo^(-0.95) + noise"
+    },
+    "mock_morpho": {
+      "substrate": "mock_mfn",
+      "description": "Mock MFN+ adapter \u2014 constructed gamma=1.0",
+      "gamma": 0.999184,
+      "ci_low": 0.982291,
+      "ci_high": 1.013206,
+      "r2": 0.993887,
+      "n_pairs": 100,
+      "p_permutation": null,
+      "status": "DERIVED",
+      "locked": true,
+      "data_source": {
+        "file": "neosynaptex.py",
+        "sha256": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf"
+      },
+      "adapter_code_hash": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf",
+      "derivation_method": "constructed: cost = 10.0 * topo^(-1.0) + noise"
+    },
+    "mock_psyche": {
+      "substrate": "mock_psychecore",
+      "description": "Mock PsycheCore adapter \u2014 constructed gamma=1.05",
+      "gamma": 1.050248,
+      "ci_low": 1.035957,
+      "ci_high": 1.064071,
+      "r2": 0.992793,
+      "n_pairs": 100,
+      "p_permutation": null,
+      "status": "DERIVED",
+      "locked": true,
+      "data_source": {
+        "file": "neosynaptex.py",
+        "sha256": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf"
+      },
+      "adapter_code_hash": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf",
+      "derivation_method": "constructed: cost = 20.0 * topo^(-1.05) + noise"
+    },
+    "mock_market": {
+      "substrate": "mock_market",
+      "description": "Mock Market/GeoSync adapter \u2014 constructed gamma=1.08",
+      "gamma": 1.090222,
+      "ci_low": 1.077895,
+      "ci_high": 1.101829,
+      "r2": 0.996672,
+      "n_pairs": 100,
+      "p_permutation": null,
+      "status": "DERIVED",
+      "locked": true,
+      "data_source": {
+        "file": "neosynaptex.py",
+        "sha256": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf"
+      },
+      "adapter_code_hash": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf",
+      "derivation_method": "constructed: cost = 5.0 * topo^(-1.08) + noise"
+    },
+    "nfi_unified": {
+      "substrate": "nfi_unified",
+      "description": "NFI unified system \u2014 first live cycle",
+      "gamma": 0.8993,
+      "ci_low": null,
+      "ci_high": null,
+      "r2": null,
+      "n_pairs": null,
+      "p_permutation": null,
+      "status": "VALIDATED",
+      "locked": true,
+      "data_source": {
+        "file": null,
+        "sha256": null
+      },
+      "adapter_code_hash": null,
+      "derivation_method": "first live cycle measurement"
+    },
+    "cns_ai_loop": {
+      "substrate": "cns_ai_loop",
+      "description": "CNS-AI feedback loop \u2014 cognitive scaling",
+      "gamma": 1.059,
+      "ci_low": 0.985,
+      "ci_high": 1.131,
+      "r2": null,
+      "n_pairs": null,
+      "p_permutation": 0.005,
+      "status": "VALIDATED",
+      "locked": true,
+      "data_source": {
+        "file": null,
+        "sha256": null
+      },
+      "adapter_code_hash": null,
+      "derivation_method": "p_perm=0.005, CI=[0.985,1.131]"
+    }
+  }
+}

@@ -187,11 +187,17 @@ INVARIANTS = {
     },
 }
 
+# INV-1: gamma DERIVED ONLY. Values from canonical ledger.
+from core.gamma_registry import GammaRegistry as _GR
+
 SUBSTRATE_GAMMA = {
-    "zebrafish": 0.967,
-    "gray_scott": 1.000,
-    "kuramoto_market": 1.081,
-    "bn_syn": 0.959,
-    "nfi_unified": 0.8993,
-    "cns_ai_loop": 1.059,
+    name: _GR.get(eid, "gamma")
+    for name, eid in [
+        ("zebrafish", "zebrafish_wt"),
+        ("gray_scott", "gray_scott"),
+        ("kuramoto_market", "kuramoto"),
+        ("bn_syn", "bnsyn"),
+        ("nfi_unified", "nfi_unified"),
+        ("cns_ai_loop", "cns_ai_loop"),
+    ]
 }

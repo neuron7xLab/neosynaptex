@@ -68,13 +68,13 @@ jobs:
           cache: pip
       - name: Install
         run: pip install -e ".[dev]" --quiet
-      - name: Verify γ_PSD = 2H+1 formula
+      - name: Verify gamma_PSD = 2H+1 formula
         run: |
           python3 -c "
           for H, exp in [(0.5,2.0),(0.0,1.0),(1.0,3.0)]:
               g = 2*H+1
               assert abs(g-exp)<1e-9, f'FORMULA ERROR H={H}'
-          print('γ_PSD = 2H+1: VERIFIED')
+          print('gamma_PSD = 2H+1: VERIFIED')
           "
       - name: Run core tests
         run: pytest tests/ -v --tb=short --timeout=300 -x
@@ -137,6 +137,10 @@ jobs:
           "
       - name: INV-3 — contracts self-test
         run: python3 -c "from contracts.invariants import verify_all; verify_all()" 2>/dev/null || echo "Contracts verify skipped (no verify_all)"
+      - name: Canonical Gate (6 gates)
+        run: python scripts/ci_canonical_gate.py
+      - name: Manuscript claims verification
+        run: python scripts/verify_manuscript_claims.py
 
   # ── Coverage ──────────────────────────────────────────────────────────
   coverage:
