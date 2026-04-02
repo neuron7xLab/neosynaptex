@@ -6,7 +6,9 @@ Pre-verified numerics:
   - 432 multiverse grid confirmed
 """
 
-from typing import NamedTuple
+from __future__ import annotations
+
+from typing import Any, NamedTuple
 
 import numpy as np
 from scipy.stats import theilslopes
@@ -75,7 +77,7 @@ def circular_block_bootstrap(n: int, block_len: int, rng: np.random.Generator) -
 
 
 # Substrate-specific parameters (conservative, physics-motivated)
-SUBSTRATE_BLOCK_PARAMS: dict[str, dict] = {
+SUBSTRATE_BLOCK_PARAMS: dict[str, dict[str, Any]] = {
     "zebrafish": {"m": 2, "b_min": 8, "note": "hierarchical: embryo then blocks"},
     "gray_scott": {"m": 4, "b_min": 16, "note": "slow coarsening dynamics"},
     "kuramoto": {"m": 2, "b_min": 12, "note": "blocks span collective periods"},

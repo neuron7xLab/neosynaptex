@@ -14,7 +14,7 @@ def _bic(rss: float, n: int, k: int) -> float:
     """Bayesian Information Criterion: BIC = n*ln(RSS/n) + k*ln(n)."""
     if rss <= 0 or n <= k:
         return float("inf")
-    return n * np.log(rss / n) + k * np.log(n)
+    return float(n * np.log(rss / n) + k * np.log(n))
 
 
 def granger_multilag(
@@ -23,7 +23,7 @@ def granger_multilag(
     max_lag: int = 10,
     n_surrogate: int = 200,
     seed: int = 42,
-) -> dict:
+) -> dict[str, object]:
     """Multivariate Granger causality with BIC lag selection.
 
     Tests: does x Granger-cause y?
@@ -89,7 +89,7 @@ def granger_multilag(
             if b_val < best_bic:
                 best_bic = b_val
                 best_lag = lag
-        except Exception:
+        except Exception:  # nosec B112 — singular matrix in lag estimation
             continue
 
     if not bic_per_lag:
@@ -159,7 +159,7 @@ def granger_multilag(
                 f_perm = float(((rss_r - rss_p) / df1) / (rss_p / df2))
                 if f_perm >= f_stat:
                     count_ge += 1
-        except Exception:
+        except Exception:  # nosec B112 — singular matrix in lag estimation
             continue
 
     p_value = float((count_ge + 1) / (n_surrogate + 1))

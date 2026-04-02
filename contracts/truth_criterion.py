@@ -210,7 +210,7 @@ def iaaft_surrogate(series: np.ndarray, rng: np.random.Generator) -> np.ndarray:
         ranks = np.argsort(np.argsort(surrogate))
         surrogate = sorted_vals[ranks]
 
-    return surrogate
+    return np.asarray(surrogate)  # ensure ndarray return type
 
 
 def surrogate_test(
@@ -226,16 +226,16 @@ def surrogate_test(
     Null hypothesis: coherence is explained by shared spectral structure alone.
     """
     rng = np.random.default_rng(seed)
-    surr_coh = []
+    surr_coh_list: list[float] = []
     t_center = len(series_1) // 2
 
     for _ in range(n_surrogates):
         s1_surr = iaaft_surrogate(series_1, rng)
         s2_surr = iaaft_surrogate(series_2, rng)
         coh = wavelet_coherence_window(s1_surr, s2_surr, t_center)
-        surr_coh.append(coh)
+        surr_coh_list.append(coh)
 
-    surr_coh = np.array(surr_coh)
+    surr_coh = np.array(surr_coh_list)
     p_value = float((surr_coh >= observed_coherence).sum() + 1) / (n_surrogates + 1)
     return p_value, p_value < 0.05
 

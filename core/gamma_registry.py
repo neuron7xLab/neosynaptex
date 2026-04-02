@@ -75,7 +75,7 @@ class GammaRegistry:
         actual = ds.get("sha256")
         if actual is None:
             return False
-        return actual == expected_hash
+        return bool(actual == expected_hash)
 
     @classmethod
     def locked_entries(cls) -> dict[str, dict[str, Any]]:

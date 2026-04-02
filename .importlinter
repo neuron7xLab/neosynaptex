@@ -3,7 +3,7 @@ root_packages =
     core
     contracts
     evl
-include_external_packages = False
+include_external_packages = True
 
 # === Layer 1: Core must not depend on substrates, agents, or evl ===
 [importlinter:contract:core_isolation]
@@ -12,6 +12,10 @@ type = forbidden
 source_modules =
     core.axioms
     core.contracts
+    core.block_bootstrap
+    core.iaaft
+    core.multiverse
+    core.failure_regimes
 forbidden_modules =
     substrates
     agents

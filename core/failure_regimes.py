@@ -3,6 +3,8 @@
 Identifies exact noise x window boundaries where estimation breaks.
 """
 
+from __future__ import annotations
+
 import numpy as np
 from scipy.stats import theilslopes
 
@@ -13,7 +15,7 @@ def scan_failure_regimes(
     n_trials: int = 50,
     gamma_true: float = 1.0,
     seed: int = 42,
-) -> dict:
+) -> dict[str, dict[str, float | bool]]:
     """Map gamma estimation accuracy across noise x window grid.
 
     Returns dict keyed by "noise={n}_window={w}" with:

@@ -3,6 +3,8 @@
 Execution order: per-substrate parallel where possible.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 import numpy as np
@@ -27,7 +29,7 @@ class MultiverseCell:
     quality_flag: str  # "ok" | "low_range" | "few_pairs" | "low_r2"
 
 
-MULTIVERSE_GRID: dict[str, list] = {
+MULTIVERSE_GRID: dict[str, list[float | int | str]] = {
     "window_ratio": [0.5, 1.0, 2.0, 4.0],
     "overlap": [0.0, 0.5, 0.75],
     "topo_summary": ["h0_entropy", "h01_entropy", "betti_area"],
@@ -38,7 +40,7 @@ MULTIVERSE_GRID: dict[str, list] = {
 # 4 x 3 x 3 x 2 x 2 x 3 = 432 confirmed
 
 
-def multiverse_summary(cells: list[MultiverseCell]) -> dict:
+def multiverse_summary(cells: list[MultiverseCell]) -> dict[str, object]:
     """R_plus = P(gamma > 0), R_unity = P(1 in CI_95), R_strong = combined."""
     gammas = np.array([c.gamma for c in cells if c.quality_flag == "ok"])
     if len(gammas) == 0:

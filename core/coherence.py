@@ -67,7 +67,7 @@ def _iaaft_surrogate(x: np.ndarray, rng: np.random.Generator, n_iter: int = 10) 
         rank = np.argsort(np.argsort(surrogate))
         surrogate = sorted_x[rank]
 
-    return surrogate
+    return np.asarray(surrogate)  # ensure ndarray return type
 
 
 def transfer_entropy_gamma(
@@ -77,7 +77,7 @@ def transfer_entropy_gamma(
     n_surrogate: int = 200,
     seed: int = 42,
     bins: int = 16,
-) -> dict:
+) -> dict[str, object]:
     """Transfer entropy from source gamma trace to target gamma trace.
 
     TE(X->Y) = H(Y_future|Y_past) - H(Y_future|Y_past, X_past)
