@@ -104,10 +104,10 @@ def tokenize(text: str) -> list[str]:
 class CognitiveScore:
     """Integrated cognitive complexity score."""
 
-    ld: float       # Lexical Diversity (MTLD)
-    tc: float       # Task Complexity (0-10 scale)
-    dt: float       # Divergent Thinking (hypotheses count)
-    s: float        # Weighted integral
+    ld: float  # Lexical Diversity (MTLD)
+    tc: float  # Task Complexity (0-10 scale)
+    dt: float  # Divergent Thinking (hypotheses count)
+    s: float  # Weighted integral
     weights: tuple[float, float, float] = _DEFAULT_WEIGHTS
 
     @property
@@ -143,10 +143,10 @@ def cognitive_score(
 class CRRResult:
     """Cognitive Recovery Ratio measurement."""
 
-    crr: float                # S(T3) / S(T0)
+    crr: float  # S(T3) / S(T0)
     s_t0: CognitiveScore
     s_t3: CognitiveScore
-    state: str                # gain / neutral / compression / degradation
+    state: str  # gain / neutral / compression / degradation
     cpr_t0: float = 0.0
     cpr_t2: float = 0.0
     cpr_t3: float = 0.0
@@ -243,8 +243,13 @@ def gamma_crr(
 
     n = len(crr_series)
     if n < 10:
-        return {"gamma": float("nan"), "ci": [float("nan")] * 2,
-                "p_perm": float("nan"), "method": method, "n": n}
+        return {
+            "gamma": float("nan"),
+            "ci": [float("nan")] * 2,
+            "p_perm": float("nan"),
+            "method": method,
+            "n": n,
+        }
 
     rng = np.random.default_rng(seed)
 
@@ -280,12 +285,17 @@ def gamma_crr(
             psd_b = np.abs(np.fft.rfft(boot - boot.mean())) ** 2 / n
             b_slope, _, _, _ = theilslopes(np.log(psd_b[mask] + 1e-20), log_f)
             boot_gammas[i] = -b_slope
-        ci = [float(np.percentile(boot_gammas, 2.5)),
-              float(np.percentile(boot_gammas, 97.5))]
+        ci = [float(np.percentile(boot_gammas, 2.5)), float(np.percentile(boot_gammas, 97.5))]
 
-        return {"gamma": round(float(gamma), 4), "ci": [round(c, 4) for c in ci],
-                "p_perm": round(p_perm, 4), "method": "psd", "n": n,
-                "H": round(float(H), 4), "beta": round(float(beta), 4)}
+        return {
+            "gamma": round(float(gamma), 4),
+            "ci": [round(c, 4) for c in ci],
+            "p_perm": round(p_perm, 4),
+            "method": "psd",
+            "n": n,
+            "H": round(float(H), 4),
+            "beta": round(float(beta), 4),
+        }
 
     elif method == "theilsen":
         # Ordered index as topo proxy
@@ -293,8 +303,13 @@ def gamma_crr(
         y = crr_series.copy()
         mask = y > 0
         if mask.sum() < 5:
-            return {"gamma": float("nan"), "ci": [float("nan")] * 2,
-                    "p_perm": float("nan"), "method": "theilsen", "n": n}
+            return {
+                "gamma": float("nan"),
+                "ci": [float("nan")] * 2,
+                "p_perm": float("nan"),
+                "method": "theilsen",
+                "n": n,
+            }
         log_x = np.log(x[mask])
         log_y = np.log(y[mask])
         slope, intc, lo, hi = theilslopes(log_y, log_x)
@@ -309,8 +324,12 @@ def gamma_crr(
             null_slopes[i] = -s
         p_perm = float(np.mean(np.abs(null_slopes) >= abs(gamma)))
 
-        return {"gamma": round(float(gamma), 4),
-                "ci": [round(float(-hi), 4), round(float(-lo), 4)],
-                "p_perm": round(p_perm, 4), "method": "theilsen", "n": n}
+        return {
+            "gamma": round(float(gamma), 4),
+            "ci": [round(float(-hi), 4), round(float(-lo), 4)],
+            "p_perm": round(p_perm, 4),
+            "method": "theilsen",
+            "n": n,
+        }
 
     raise ValueError(f"Unknown method: {method}")

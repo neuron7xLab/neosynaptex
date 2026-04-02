@@ -4,131 +4,143 @@ CFP/ДІЙ — Cognitive Field Protocol Substrate Adapter
 Sixth substrate in NFI architecture.
 Implements DomainAdapter Protocol.
 
-Models human+AI co-adaptation dynamics where:
-  - Cognitive complexity S = w₁·LD + w₂·TC + w₃·DT fluctuates through T0→T3
-  - CRR = S(T3)/S(T0) measures recovery after AI withdrawal
-  - γ-CRR derived from cross-subject CRR scaling
+SIMULATION: Agent-Based Model of human+AI co-adaptation.
+γ is EMERGENT from dynamics — never injected.
 
-Mapping (DomainAdapter Protocol):
-  topo = cognitive complexity S (integrated LD + TC + DT)
-  cost = dependency cost = 1/(1 - DI) where DI = dependency index
-         High dependency → high cost; low dependency → low cost
-         cost ~ topo^(-γ) when γ ≈ 1.0 (metastable co-adaptation)
+Model:
+  N cognitive agents, each with:
+    - ability a_i ∈ (0,1) — innate cognitive capacity
+    - delegation d_i ∈ [0,1] — fraction of work offloaded to AI
+    - skill s_i — accumulated competence, evolves via practice
 
-The adapter generates synthetic co-adaptation trajectories for N subjects
-following the T0→T1→T2→T3 protocol. Real data replaces synthetic via
-CFPExperiment once Рівень 1 (self-experiment) completes.
+  Dynamics per tick:
+    1. Agent chooses task of complexity c ~ Beta(2,5) * (1 + depth_bonus)
+    2. If AI available: agent delegates d_i fraction
+       - Delegated work builds NO skill: ds/dt += 0
+       - Own work builds skill: ds/dt += α * (c - s_i) * (1 - d_i)
+    3. Error rate: e_i = max(0, c - s_i * (1-d_i) - ai_quality * d_i) + noise
+    4. Cognitive output = completed complexity / error = throughput / cost
 
-γ is DERIVED from data — never assigned.
+  Parameter sweep (like Gray-Scott F-sweep):
+    Sweep AI_quality ∈ [0, 1] across 20 regimes.
+    For each regime, run N agents for T ticks to equilibrium.
+    Measure:
+      topo = mean cognitive throughput (tasks * complexity completed)
+      cost = mean error rate (mistakes per unit output)
+
+  γ emerges from how error cost scales with throughput across AI quality regimes.
+  NOT injected. NOT assumed. Derived from the simulation dynamics.
 
 Author: Yaroslav Vasylenko (neuron7xLab)
 """
 
 from __future__ import annotations
 
-from typing import Dict, List
-
 import numpy as np
 
 _TOPO_FLOOR = 1e-6
-_N_SUBJECTS = 30
-_PHASES_PER_SUBJECT = 4  # T0, T1, T2, T3
+_N_AGENTS = 50
+_T_EQUIL = 200
+_N_REGIMES = 20
+_SKILL_RATE = 0.05  # learning rate
+_DELEGATION_ADAPT_RATE = 0.02  # how fast agents adjust delegation
 
 
-def _generate_coadaptation_trajectory(
-    seed: int,
-    n_subjects: int = _N_SUBJECTS,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Generate synthetic co-adaptation trajectories for N subjects.
+def _run_regime(
+    ai_quality: float,
+    n_agents: int = _N_AGENTS,
+    t_steps: int = _T_EQUIL,
+    seed: int = 42,
+) -> dict:
+    """Run one ABM regime to equilibrium.
 
-    Physical model: at metastable co-adaptation, cognitive effort (cost)
-    required to maintain performance scales with cognitive complexity (topo)
-    as a power law: cost ~ A * topo^(-γ) with γ ≈ 1.0.
+    ai_quality ∈ [0, 1]: quality of AI assistance.
+      0 = no AI (solo cognition)
+      1 = perfect AI (oracle)
 
-    This mirrors the universal scaling seen in other substrates:
-    - Zebrafish: pattern disorder ~ density^(-γ)
-    - Gray-Scott: 1/entropy ~ v_mass^(-γ)
-    - Kuramoto: 1/|return| ~ volume^(-γ)
-
-    For CFP: cognitive_effort ~ cognitive_complexity^(-γ)
-    Higher complexity → lower per-unit effort (efficiency gain from structure).
-    At γ ≈ 1.0: perfect balance between complexity growth and effort reduction.
-
-    Returns (topos, costs) arrays suitable for γ derivation.
+    Returns equilibrium measurements: throughput, error_rate, etc.
     """
     rng = np.random.default_rng(seed)
 
-    n_points = n_subjects * _PHASES_PER_SUBJECT
+    # Agent initial state
+    ability = 0.2 + 0.6 * rng.beta(2, 3, n_agents)  # innate capacity
+    skill = ability.copy()  # starts at innate level
+    delegation = np.clip(ai_quality * 0.5 + rng.normal(0, 0.1, n_agents), 0, 0.95)
 
-    # Cognitive complexity S varies across subjects and phases
-    # Wide range ensures sufficient log-span for γ derivation
-    # Modulated by 1/f temporal correlations (cognitive signature)
-    freqs = np.fft.rfftfreq(n_points, d=1.0)
-    freqs[0] = 1.0
-    amplitudes = 1.0 / (freqs ** 0.5)
-    phases = rng.uniform(0, 2 * np.pi, len(freqs))
-    spectrum = amplitudes * np.exp(1j * phases)
-    modulation = np.fft.irfft(spectrum, n=n_points)
-    modulation = (modulation - modulation.min()) / (modulation.max() - modulation.min() + 1e-10)
+    throughput_history = []
+    error_history = []
 
-    # topo = cognitive complexity S ∈ [0.15, 0.95]
-    topos = 0.15 + 0.80 * modulation
+    for t in range(t_steps):
+        # Task complexity drawn from environment (not controlled by agent)
+        task_complexity = rng.beta(2, 5, n_agents) * 2.0 + 0.1  # ∈ [0.1, 2.1]
 
-    # cost = cognitive effort per unit complexity
-    # Follows power law: cost = A * topo^(-γ) + noise
-    # γ emerges from the co-adaptation dynamics, not assigned
-    # At metastable equilibrium: more complex cognition → proportionally less effort
-    A = 0.5
-    gamma_true = 1.0  # Will be DERIVED by Theil-Sen, not used as parameter
-    noise_scale = 0.08
-    costs = A * topos ** (-gamma_true) + noise_scale * rng.standard_normal(n_points)
-    costs = np.clip(costs, 0.05, 20.0)
+        # Effective work split
+        own_effort = (1 - delegation) * skill
+        ai_effort = delegation * ai_quality
+        total_effort = own_effort + ai_effort
 
-    # Track CRR per subject (every 4th point is T3, every 4th-3 is T0)
-    # Stored for diagnostics, not used in γ derivation
-    return topos, costs
+        # Error: gap between task demands and combined effort
+        raw_error = task_complexity - total_effort
+        noise = rng.normal(0, 0.05, n_agents)
+        error = np.clip(raw_error + noise, 0.01, 5.0)
+
+        # Throughput: what the agent+AI actually produces
+        # Higher skill + better AI → more completed complexity
+        throughput = np.clip(total_effort + rng.normal(0, 0.02, n_agents), 0.01, 5.0)
+
+        # Skill evolution: ONLY from own practice
+        # Key mechanism: delegation reduces skill growth
+        skill_gap = task_complexity - skill
+        skill += _SKILL_RATE * skill_gap * (1 - delegation)
+        skill = np.clip(skill, 0.05, 3.0)
+
+        # Delegation adaptation: agents adjust based on error feedback
+        # High error → increase delegation; low error → decrease
+        delegation += _DELEGATION_ADAPT_RATE * (error - 0.5) * 0.1
+        delegation = np.clip(delegation, 0, 0.95)
+
+        # Record last half (equilibrium region)
+        if t >= t_steps // 2:
+            throughput_history.append(float(np.mean(throughput)))
+            error_history.append(float(np.mean(error)))
+
+    # Equilibrium statistics
+    eq_throughput = float(np.mean(throughput_history))
+    eq_error = float(np.mean(error_history))
+    eq_skill = float(np.mean(skill))
+    eq_delegation = float(np.mean(delegation))
+
+    return {
+        "ai_quality": ai_quality,
+        "throughput": eq_throughput,
+        "error_rate": eq_error,
+        "mean_skill": eq_skill,
+        "mean_delegation": eq_delegation,
+    }
 
 
 class CfpDiyAdapter:
-    """Cognitive Field Protocol substrate adapter.
+    """Cognitive Field Protocol substrate adapter — ABM simulation.
 
-    Generates synthetic human+AI co-adaptation dynamics
-    following T0→T1→T2→T3 protocol for N subjects.
-
-    Each step advances one subject-phase observation.
+    Pre-computes equilibria across AI quality sweep (0→1).
+    γ emerges from cross-regime scaling of throughput vs error.
+    Analogous to Gray-Scott F-sweep producing different pattern regimes.
     """
 
-    def __init__(self, seed: int = 42, n_subjects: int = _N_SUBJECTS) -> None:
-        self._seed = seed
-        self._n_subjects = n_subjects
+    def __init__(self, seed: int = 42, n_regimes: int = _N_REGIMES) -> None:
         self._rng = np.random.default_rng(seed)
         self._t = 0
 
-        self._topos, self._costs = _generate_coadaptation_trajectory(
-            seed, n_subjects
-        )
-        self._n_total = len(self._topos)
+        # Sweep AI quality parameter
+        ai_qualities = np.linspace(0.0, 1.0, n_regimes)
+        self._equilibria: list[dict] = []
+        for i, aq in enumerate(ai_qualities):
+            eq = _run_regime(aq, seed=seed + i * 7)
+            # Only keep regimes with meaningful throughput
+            if eq["throughput"] > 0.05 and eq["error_rate"] > 0.01:
+                self._equilibria.append(eq)
 
-        # Per-step state cache
-        self._crr_cache: list[float] = []
-        self._phase_labels = ["T0", "T1", "T2", "T3"] * n_subjects
-
-        # Pre-compute CRR for all subjects
-        for s in range(n_subjects):
-            base = s * 4
-            if base + 3 < self._n_total:
-                t0_s = self._topos[base]
-                t3_s = self._topos[base + 3]
-                if t0_s > 1e-10:
-                    self._crr_cache.append(float(t3_s / t0_s))
-
-    def _idx(self) -> int:
-        """Ping-pong index to avoid boundary discontinuity."""
-        cycle = 2 * (self._n_total - 1)
-        pos = self._t % cycle
-        if pos < self._n_total:
-            return pos
-        return cycle - pos
+        self._idx = 0
 
     # --- DomainAdapter Protocol ---
 
@@ -137,58 +149,63 @@ class CfpDiyAdapter:
         return "cfp_diy"
 
     @property
-    def state_keys(self) -> List[str]:
-        return ["cognitive_s", "dependency_cost", "crr_est", "phase"]
+    def state_keys(self) -> list[str]:
+        return ["throughput", "error_rate", "skill", "delegation"]
 
-    def state(self) -> Dict[str, float]:
-        """Advance one step. Return cognitive field state."""
+    def state(self) -> dict[str, float]:
+        """Advance one step. Random sample from equilibria."""
         self._t += 1
-        idx = self._idx()
-
-        s = float(self._topos[idx])
-        cost = float(self._costs[idx])
-        phase_idx = idx % 4
-
+        self._idx = int(self._rng.integers(0, len(self._equilibria)))
+        eq = self._equilibria[self._idx]
+        noise = self._rng.normal(0, 0.001)
         return {
-            "cognitive_s": s,
-            "dependency_cost": cost,
-            "crr_est": self._crr_cache[-1] if self._crr_cache else 1.0,
-            "phase": float(phase_idx),
+            "throughput": eq["throughput"] + noise,
+            "error_rate": eq["error_rate"] + noise,
+            "skill": eq["mean_skill"],
+            "delegation": eq["mean_delegation"],
         }
 
     def topo(self) -> float:
-        """Cognitive complexity S — integrated LD + TC + DT.
+        """Cognitive throughput — total productive output per unit time.
 
-        Higher S = more complex cognitive operation.
-        Increases when subject operates at higher cognitive level.
+        Higher throughput = more cognitive work accomplished.
+        Multiplicative noise for engine fit (γ-invariant under ×const).
         """
-        idx = self._idx()
-        return max(_TOPO_FLOOR, float(self._topos[idx]))
+        eq = self._equilibria[self._idx]
+        jitter = 1.0 + self._rng.normal(0, 0.02)
+        return max(_TOPO_FLOOR, eq["throughput"] * jitter)
 
     def thermo_cost(self) -> float:
-        """Dependency cost = 1/(1-DI).
+        """Cognitive error rate — mistakes per unit output.
 
-        Measures thermodynamic cost of cognitive operation in co-adaptive regime.
-        High dependency → high cost. At T0/T3 (solo) → cost ≈ 1.0.
-        cost ~ topo^(-γ) with γ ≈ 1.0 at metastable co-adaptation.
+        This is the thermodynamic cost of operating at given throughput.
+        At optimal co-adaptation: cost scales as topo^(-γ).
+        γ value is whatever the dynamics produce — NOT predetermined.
         """
-        idx = self._idx()
-        return max(_TOPO_FLOOR, float(self._costs[idx]))
+        eq = self._equilibria[self._idx]
+        jitter = 1.0 + self._rng.normal(0, 0.02)
+        return max(_TOPO_FLOOR, eq["error_rate"] * jitter)
 
 
 # ---------------------------------------------------------------------------
-# Standalone validation — derives γ from synthetic data
+# Standalone validation — derives γ from ABM simulation
 # ---------------------------------------------------------------------------
 def validate_standalone() -> dict:
-    """Compute γ for CFP/ДІЙ synthetic substrate using Theil-Sen."""
+    """Compute γ for CFP/ДІЙ ABM substrate using Theil-Sen.
+
+    γ is whatever comes out. It may or may not be near 1.0.
+    That's the whole point — no circular guarantee.
+    """
     from scipy.stats import theilslopes
 
-    print("=== CFP/ДІЙ — Cognitive Field Protocol Substrate Validation ===\n")
+    print("=== CFP/ДІЙ — Cognitive Field Protocol ABM Validation ===\n")
+    print(f"Running ABM: {_N_REGIMES} AI-quality regimes × {_N_AGENTS} agents × {_T_EQUIL} ticks\n")
 
-    adapter = CfpDiyAdapter(seed=42, n_subjects=50)
+    adapter = CfpDiyAdapter(seed=42, n_regimes=25)
+
+    # Collect equilibria
     topos, costs = [], []
-
-    for _ in range(200):
+    for _ in range(len(adapter._equilibria) * 5):
         adapter.state()
         t = adapter.topo()
         c = adapter.thermo_cost()
@@ -197,7 +214,14 @@ def validate_standalone() -> dict:
             costs.append(c)
 
     t_v, c_v = np.array(topos), np.array(costs)
-    log_t, log_c = np.log(t_v), np.log(c_v)
+
+    # Deduplicate equilibria (same regime cycled with noise)
+    pairs = np.unique(np.round(np.column_stack([np.log(t_v), np.log(c_v)]), 4), axis=0)
+    log_t, log_c = pairs[:, 0], pairs[:, 1]
+
+    if len(log_t) < 5:
+        print("  INSUFFICIENT DATA for γ derivation")
+        return {"gamma": float("nan"), "r2": 0, "n": len(log_t), "regime": "INSUFFICIENT"}
 
     slope, intc, lo, hi = theilslopes(log_c, log_t)
     gamma = -slope
@@ -208,9 +232,13 @@ def validate_standalone() -> dict:
 
     dist = abs(gamma - 1.0)
     regime = (
-        "METASTABLE" if dist < 0.15 else
-        "WARNING" if dist < 0.30 else
-        "CRITICAL" if dist < 0.50 else "COLLAPSE"
+        "METASTABLE"
+        if dist < 0.15
+        else "WARNING"
+        if dist < 0.30
+        else "CRITICAL"
+        if dist < 0.50
+        else "COLLAPSE"
     )
 
     # Permutation test
@@ -226,34 +254,31 @@ def validate_standalone() -> dict:
     # Bootstrap CI
     n_boot = 2000
     boot_gammas = np.empty(n_boot)
-    n = len(t_v)
+    n = len(log_t)
     for i in range(n_boot):
         idx = rng.choice(n, n, replace=True)
         s, _, _, _ = theilslopes(log_c[idx], log_t[idx])
         boot_gammas[i] = -s
-    ci = [float(np.percentile(boot_gammas, 2.5)),
-          float(np.percentile(boot_gammas, 97.5))]
+    ci = [float(np.percentile(boot_gammas, 2.5)), float(np.percentile(boot_gammas, 97.5))]
 
     print(f"  γ = {gamma:.4f}  R² = {r2:.4f}  CI = [{ci[0]:.3f}, {ci[1]:.3f}]")
-    print(f"  n = {len(t_v)}  p_perm = {p_perm:.4f}  regime = {regime}")
+    print(f"  n = {n} unique equilibria  p_perm = {p_perm:.4f}  regime = {regime}")
 
-    # CRR distribution
-    crrs = adapter._crr_cache
-    if crrs:
-        crr_arr = np.array(crrs)
-        print(f"\n  CRR distribution (n={len(crrs)}):")
-        print(f"    mean = {np.mean(crr_arr):.4f}  std = {np.std(crr_arr):.4f}")
-        print(f"    gain (>1.05): {np.sum(crr_arr > 1.05)}")
-        print(f"    neutral [0.95,1.05]: {np.sum((crr_arr >= 0.95) & (crr_arr <= 1.05))}")
-        print(f"    compression [0.85,0.95): {np.sum((crr_arr >= 0.85) & (crr_arr < 0.95))}")
-        print(f"    degradation (<0.85): {np.sum(crr_arr < 0.85)}")
+    # Show equilibria
+    print(f"\n  Equilibria ({len(adapter._equilibria)} regimes):")
+    for eq in adapter._equilibria:
+        print(
+            f"    AI={eq['ai_quality']:.2f}  throughput={eq['throughput']:.3f}  "
+            f"error={eq['error_rate']:.3f}  skill={eq['mean_skill']:.3f}  "
+            f"deleg={eq['mean_delegation']:.3f}"
+        )
 
     return {
         "gamma": round(float(gamma), 4),
         "r2": round(float(r2), 4),
         "ci": [round(c, 4) for c in ci],
         "p_perm": round(p_perm, 4),
-        "n": len(t_v),
+        "n": n,
         "regime": regime,
     }
 

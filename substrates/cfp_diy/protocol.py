@@ -46,11 +46,11 @@ class TaskResult:
 
     task_id: str
     phase: str
-    text_response: str          # Subject's written response
-    complexity_rating: float    # TC: 0-10 rated by evaluator
-    hypotheses_count: int       # DT: independent hypotheses generated
-    time_seconds: float         # TTR
-    ai_assisted: bool           # Whether AI was used
+    text_response: str  # Subject's written response
+    complexity_rating: float  # TC: 0-10 rated by evaluator
+    hypotheses_count: int  # DT: independent hypotheses generated
+    time_seconds: float  # TTR
+    ai_assisted: bool  # Whether AI was used
     timestamp: float = 0.0
 
     def __post_init__(self) -> None:
@@ -63,13 +63,13 @@ class PhaseSnapshot:
     """Aggregated metrics for one phase of one subject."""
 
     phase: str
-    ld: float           # MTLD across all texts in phase
-    tc_mean: float      # Mean task complexity
-    dt_mean: float      # Mean divergent thinking
-    cpr_value: float    # CPR across all texts
-    di: float           # Dependency index (0 for T0/T3)
+    ld: float  # MTLD across all texts in phase
+    tc_mean: float  # Mean task complexity
+    dt_mean: float  # Mean divergent thinking
+    cpr_value: float  # CPR across all texts
+    di: float  # Dependency index (0 for T0/T3)
     n_tasks: int
-    ttr_mean: float     # Mean time to resolution
+    ttr_mean: float  # Mean time to resolution
     score: CognitiveScore = field(default=None)  # type: ignore[assignment]
 
     def __post_init__(self) -> None:
@@ -82,7 +82,7 @@ class Subject:
     """A participant in the CFP experiment."""
 
     subject_id: str
-    domain: str = "science"     # science / engineering / business / creative
+    domain: str = "science"  # science / engineering / business / creative
     tasks: list[TaskResult] = field(default_factory=list)
     phase_snapshots: dict[str, PhaseSnapshot] = field(default_factory=dict)
     crr_result: Optional[CRRResult] = None
@@ -96,8 +96,14 @@ class Subject:
         phase_tasks = [t for t in self.tasks if t.phase == phase.value]
         if not phase_tasks:
             return PhaseSnapshot(
-                phase=phase.value, ld=0, tc_mean=0, dt_mean=0,
-                cpr_value=0, di=0, n_tasks=0, ttr_mean=0,
+                phase=phase.value,
+                ld=0,
+                tc_mean=0,
+                dt_mean=0,
+                cpr_value=0,
+                di=0,
+                n_tasks=0,
+                ttr_mean=0,
             )
 
         # Concatenate all text responses for LD and CPR
@@ -226,9 +232,7 @@ class CFPExperiment:
             "crr_std": round(float(np.std(values)), 4),
             "crr_median": round(float(np.median(values)), 4),
             "state_distribution": state_counts,
-            "masked_degradation_count": sum(
-                1 for r in crrs.values() if r.is_masked_degradation()
-            ),
+            "masked_degradation_count": sum(1 for r in crrs.values() if r.is_masked_degradation()),
         }
 
     def export_json(self, path: Path) -> None:
@@ -246,8 +250,12 @@ class CFPExperiment:
                 "n_tasks": len(subj.tasks),
                 "phases": {
                     k: {
-                        "ld": v.ld, "tc": v.tc_mean, "dt": v.dt_mean,
-                        "cpr": v.cpr_value, "di": v.di, "s": v.score.s,
+                        "ld": v.ld,
+                        "tc": v.tc_mean,
+                        "dt": v.dt_mean,
+                        "cpr": v.cpr_value,
+                        "di": v.di,
+                        "s": v.score.s,
                     }
                     for k, v in subj.phase_snapshots.items()
                 },

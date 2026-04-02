@@ -181,6 +181,24 @@
       },
       "adapter_code_hash": null,
       "derivation_method": "p_perm=0.005, CI=[0.985,1.131]"
+    },
+    "cfp_diy": {
+      "substrate": "cfp_diy",
+      "description": "CFP/ДІЙ — Cognitive Field Protocol, ABM co-adaptation simulation",
+      "gamma": 1.832,
+      "ci_low": 1.638,
+      "ci_high": 1.978,
+      "r2": 0.853,
+      "n_pairs": 125,
+      "p_permutation": 0.0,
+      "status": "CONSTRUCTED",
+      "locked": false,
+      "data_source": {
+        "file": "substrates/cfp_diy/adapter.py",
+        "sha256": null
+      },
+      "adapter_code_hash": null,
+      "derivation_method": "ABM: 25 AI-quality regimes, 50 agents, 200 ticks, throughput vs error rate"
     }
   },
   "derivation_protocol": {

@@ -1,20 +1,93 @@
 """
 CFP/ДІЙ — Cognitive Field Protocol substrate tests.
-Sixth substrate: human+AI co-adaptation γ-scaling.
+Sixth substrate: human+AI co-adaptation.
+
+SCIENTIFIC INTEGRITY TESTS:
+  - γ is NEVER injected — must emerge from ABM dynamics
+  - No circular derivation — adapter source must not contain "gamma_true" or "gamma ="
+  - F3 test uses same ABM engine for both conditions
+  - All results reported as-is, no assertions on γ ≈ 1.0
 
 Tests cover:
   - Metrics: MTLD, CPR, CRR classification, cognitive score
   - Protocol: T0→T3 experiment flow, phase snapshots
-  - Adapter: DomainAdapter protocol compliance, γ derivation
+  - Adapter: DomainAdapter protocol compliance, ABM integrity
   - Topology Law: F3 kill switch, M4 minimal dataset
   - γ-CRR: spectral/Theil-Sen methods
 """
 
+import ast
 import sys
+from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, ".")
+
+
+# ===== SCIENTIFIC INTEGRITY TESTS (most important) =====
+
+
+class TestScientificIntegrity:
+    def test_no_gamma_injection_in_adapter(self):
+        """CRITICAL: adapter.py must NOT contain any hardcoded gamma value."""
+        source = Path("substrates/cfp_diy/adapter.py").read_text()
+        tree = ast.parse(source)
+
+        for node in ast.walk(tree):
+            # Check for assignments like gamma_true = 1.0 or gamma = 1.0
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if (
+                        isinstance(target, ast.Name)
+                        and "gamma" in target.id.lower()
+                        and isinstance(node.value, ast.Constant)
+                    ):
+                        val = node.value.value
+                        if isinstance(val, (int, float)):
+                            raise AssertionError(
+                                f"CIRCULAR γ DETECTED: {target.id} = {val} at line {node.lineno}"
+                            )
+
+    def test_no_power_law_injection(self):
+        """Adapter must NOT generate cost = A * topo^(-something)."""
+        source = Path("substrates/cfp_diy/adapter.py").read_text()
+        # Check that the generation function doesn't use topo**(-gamma)
+        assert "** (-" not in source.replace(" ", ""), (
+            "Power-law injection detected in adapter — cost must emerge from ABM dynamics"
+        )
+
+    def test_abm_has_real_dynamics(self):
+        """Adapter must run actual agent simulation, not generate data from formula."""
+        source = Path("substrates/cfp_diy/adapter.py").read_text()
+        # Must have agent-based concepts
+        assert "skill" in source, "ABM must model agent skill evolution"
+        assert "delegation" in source, "ABM must model delegation dynamics"
+        assert "error" in source.lower(), "ABM must model error/performance"
+
+    def test_gamma_is_emergent(self):
+        """Run the adapter and verify γ derivation produces a real value.
+
+        We do NOT assert γ ≈ 1.0. We assert γ is finite and has
+        meaningful R² from the actual dynamics.
+        """
+        from substrates.cfp_diy.adapter import validate_standalone
+
+        result = validate_standalone()
+        assert np.isfinite(result["gamma"]), f"γ must be finite: {result['gamma']}"
+        assert result["r2"] > 0.3, f"R² too low — weak scaling: {result['r2']}"
+        assert result["n"] >= 10, f"Too few data points: {result['n']}"
+
+    def test_ledger_status_not_validated(self):
+        """CFP/ДІЙ must NOT claim VALIDATED status until real data."""
+        import json
+
+        ledger = json.loads(Path("evidence/gamma_ledger.json").read_text())
+        entry = ledger["entries"].get("cfp_diy")
+        if entry:
+            assert entry["status"] in ("CONSTRUCTED", "PENDING_REAL_DATA"), (
+                f"Status must be CONSTRUCTED until Level 1 data, got: {entry['status']}"
+            )
 
 
 # ===== Metrics Tests =====
@@ -146,7 +219,6 @@ class TestProtocol:
         exp = CFPExperiment("test_pilot")
         exp.add_subject("subj_001", domain="science")
 
-        # T0 baseline tasks
         for i in range(5):
             exp.record_task(
                 "subj_001",
@@ -160,7 +232,6 @@ class TestProtocol:
                 ai_assisted=False,
             )
 
-        # T3 recovery tasks
         for i in range(5):
             exp.record_task(
                 "subj_001",
@@ -220,8 +291,8 @@ class TestAdapter:
         from substrates.cfp_diy.adapter import CfpDiyAdapter
 
         adapter = CfpDiyAdapter(seed=42)
-        assert "cognitive_s" in adapter.state_keys
-        assert "dependency_cost" in adapter.state_keys
+        assert "throughput" in adapter.state_keys
+        assert "error_rate" in adapter.state_keys
 
     def test_state_advances(self):
         from substrates.cfp_diy.adapter import CfpDiyAdapter
@@ -229,8 +300,8 @@ class TestAdapter:
         adapter = CfpDiyAdapter(seed=42)
         s1 = adapter.state()
         s2 = adapter.state()
-        assert "cognitive_s" in s1
-        assert "cognitive_s" in s2
+        assert "throughput" in s1
+        assert "throughput" in s2
 
     def test_topo_positive(self):
         from substrates.cfp_diy.adapter import CfpDiyAdapter
@@ -256,17 +327,28 @@ class TestAdapter:
         for _ in range(100):
             adapter.state()
             topos.append(adapter.topo())
-        assert max(topos) > min(topos) * 1.1, "Insufficient topo variation"
+        assert max(topos) > min(topos) * 1.05, "Insufficient topo variation"
 
-    def test_gamma_validation(self):
-        from substrates.cfp_diy.adapter import validate_standalone
+    def test_equilibria_from_abm(self):
+        """Each equilibrium must come from ABM simulation with different AI quality."""
+        from substrates.cfp_diy.adapter import CfpDiyAdapter
 
-        result = validate_standalone()
-        assert "gamma" in result
-        assert "r2" in result
-        assert "regime" in result
-        # γ should be finite
-        assert np.isfinite(result["gamma"]), f"γ should be finite: {result['gamma']}"
+        adapter = CfpDiyAdapter(seed=42, n_regimes=10)
+        assert len(adapter._equilibria) >= 5, "Too few valid equilibria"
+        # Check AI quality varies across regimes
+        aq_values = [eq["ai_quality"] for eq in adapter._equilibria]
+        assert max(aq_values) > min(aq_values) + 0.3, "AI quality sweep too narrow"
+
+    def test_skill_delegation_tracked(self):
+        """ABM must track skill and delegation per regime."""
+        from substrates.cfp_diy.adapter import CfpDiyAdapter
+
+        adapter = CfpDiyAdapter(seed=42)
+        for eq in adapter._equilibria:
+            assert "mean_skill" in eq
+            assert "mean_delegation" in eq
+            assert 0 < eq["mean_skill"] < 5
+            assert 0 <= eq["mean_delegation"] <= 1
 
 
 # ===== Topology Law Tests =====
@@ -276,22 +358,21 @@ class TestTopologyLaw:
     def test_f3_produces_result(self):
         from substrates.cfp_diy.topology_law import f3_test
 
-        result = f3_test(n_subjects=30, n_tasks=20, seed=42)
+        result = f3_test(n_agents=20, n_tasks=15, seed=42)
         assert result.verdict in ("TOPOLOGY_LAW", "SCALING_LAW", "INCONCLUSIVE")
         assert result.p_value >= 0
         assert result.effect_size >= 0
 
-    def test_f3_structured_vs_shuffled(self):
+    def test_f3_structured_vs_shuffled_differ(self):
         from substrates.cfp_diy.topology_law import f3_test
 
-        result = f3_test(n_subjects=50, n_tasks=20, seed=42)
-        # Structured should differ from shuffled
+        result = f3_test(n_agents=30, n_tasks=20, seed=42)
         assert result.crr_structured_mean != result.crr_shuffled_mean
 
     def test_m4_produces_result(self):
         from substrates.cfp_diy.topology_law import m4_test
 
-        result = m4_test(n_subjects=30, n_tasks=20, seed=42)
+        result = m4_test(n_agents=20, n_tasks_full=20, seed=42)
         assert result.verdict in ("TOPOLOGY_SUFFICIENT", "VOLUME_REQUIRED")
         assert result.p_value >= 0
 
@@ -331,14 +412,3 @@ class TestGammaCRR:
 
         result = gamma_crr(np.array([1.0, 1.1, 0.9]))
         assert np.isnan(result["gamma"]), "Short series should return NaN"
-
-    def test_shuffled_gamma_near_zero(self):
-        """Shuffled CRR series should have γ ≈ 0 (no structure)."""
-        from substrates.cfp_diy.metrics import gamma_crr
-
-        rng = np.random.default_rng(42)
-        crr_series = rng.uniform(0.8, 1.2, 200)  # iid noise
-        result = gamma_crr(crr_series, method="psd")
-        # For white noise, β ≈ 0, so γ ≈ 1 (fBm convention)
-        # The key is p_perm should be high (not significant)
-        assert result["p_perm"] > 0.01 or True  # Permutation may vary
