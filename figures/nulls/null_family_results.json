@@ -1,0 +1,102 @@
+{
+  "zebrafish_wt": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0576
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0576
+    }
+  },
+  "gray_scott": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9813
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9813
+    }
+  },
+  "kuramoto": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9652
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9652
+    }
+  },
+  "bnsyn": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9481
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9481
+    }
+  },
+  "mock_spike": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9516
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9516
+    }
+  },
+  "mock_morpho": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0015
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0015
+    }
+  },
+  "mock_psyche": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0528
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0528
+    }
+  },
+  "mock_market": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0931
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0931
+    }
+  },
+  "nfi_unified": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9011
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 0.9011
+    }
+  },
+  "cns_ai_loop": {
+    "shuffle": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0616
+    },
+    "iaaft": {
+      "p_value": 0.005,
+      "gamma_obs": 1.0616
+    }
+  }
+}

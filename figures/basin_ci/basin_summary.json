@@ -1,0 +1,16 @@
+{
+  "grid": "21x11x11",
+  "seeds": 2,
+  "prop_a": {
+    "pass": 784,
+    "total": 784,
+    "rate": 1.0
+  },
+  "prop_b": {
+    "pass": 0,
+    "total": 2058,
+    "rate": 0.0
+  },
+  "elapsed_s": 22.6,
+  "n_regimes": 5082
+}

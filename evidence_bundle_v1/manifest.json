@@ -1,0 +1,104 @@
+{
+  "files": {
+    "evidence/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/failure_regimes.json": "d48157029f3085af8ce4fb189b74d34932bdba65673ed59546230ddecdcf863f",
+    "evidence/gamma_ledger.json": "e9968852cdd2f3bbcd9e6a089a90398381506966fff5a9eb703f87737ff4f48f",
+    "evidence/manifest_sha256.txt": "fcc4962ce7b8afee7444763ce43245219b5bcd95f9f6c1bcfe085f5c5e318044",
+    "evidence/manifests/manifest_20260331_172218.json": "eb323cae9a16290e795a8100d53c078c7e93f6224ea7b2623faebd60072ab356",
+    "evidence/manifests/manifest_20260331_172457.json": "d6e3c2a5e4e7e7b3b7676af4534ffc0d0c146653fa7b8dd673ca82cb4768b1c5",
+    "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2025-12-26/2a6b52dd6fd4/manifest.json": "1ee7d7b828fe2a866ff2f46b0bf349b7897ac2b42015edb6e040d3b2d1569793",
+    "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-03/cdee44faaa66/manifest.json": "4f72a06c51e18c2679ca3da3f7f92a475b8472dc46b79b0d5bf8310b825a7d10",
+    "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-03/d4e93193c484/manifest.json": "61429610d1f6eb0d1d0031b972c95b51f6290d633b48aeec8ba647986daadd61",
+    "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-04/7b8d8dd100ca/manifest.json": "85f6e4e3c061359fcdb18c9cd6cfb37008571aa9bef01fc894768162348c9fea",
+    "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-06/4c70717c2473/manifest.json": "cb13ce8ca46ac5702646b3d6e79f0a94aed4e6165e4740b64b697a260bfcc4f9",
+    "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-07/c30c21445ac8/manifest.json": "321530958214e1e80d5651d66b1b77daeb1074cac9dd4f4e284fd844a146c422",
+    "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-03-28/53e12f950a3e/manifest.json": "521ff2d3c376f582e76cf1ee4dd9560d9a76f163af9f7700f96e0d5f9b62922a",
+    "evidence/registry.json": "9c770c484582daa329d83395321874876e2607c7445324ae3795af05690478ce",
+    "evidence/sessions/session_20260331_172218/events.jsonl": "ac0898d7fc25f05963def8f80bea4fde776555cc2bc54de8ab10b5130f54bd59",
+    "evidence/sessions/session_20260331_172457/events.jsonl": "7bbd044bfd7c3a10bd0a5fb854cacb8af30c24fc6537f1ce498ddc313902b943"
+  },
+  "chain": [
+    {
+      "file": "evidence/.gitkeep",
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "chain": "5382e6cdec5cbc9e51ad120c7767cfab808e864fe615ccd5f60bfa59521680bb"
+    },
+    {
+      "file": "evidence/failure_regimes.json",
+      "hash": "d48157029f3085af8ce4fb189b74d34932bdba65673ed59546230ddecdcf863f",
+      "chain": "9244182a528314f243cf348df9cb7cffe4432f8d0911eae3a529a35a23616e99"
+    },
+    {
+      "file": "evidence/gamma_ledger.json",
+      "hash": "e9968852cdd2f3bbcd9e6a089a90398381506966fff5a9eb703f87737ff4f48f",
+      "chain": "8c6a08d843228ba30e45cca6e5aba14e836278609af6d5d1b84858daede48d34"
+    },
+    {
+      "file": "evidence/manifest_sha256.txt",
+      "hash": "fcc4962ce7b8afee7444763ce43245219b5bcd95f9f6c1bcfe085f5c5e318044",
+      "chain": "c73dd3bd2cd04dce2b6ab0bae742772a23443e4073951bb823fc97e967ea92e9"
+    },
+    {
+      "file": "evidence/manifests/manifest_20260331_172218.json",
+      "hash": "eb323cae9a16290e795a8100d53c078c7e93f6224ea7b2623faebd60072ab356",
+      "chain": "786d48f954f10eba05e012e17441cf05e0c33d14238369e1bd96ca7d9a096342"
+    },
+    {
+      "file": "evidence/manifests/manifest_20260331_172457.json",
+      "hash": "d6e3c2a5e4e7e7b3b7676af4534ffc0d0c146653fa7b8dd673ca82cb4768b1c5",
+      "chain": "8242cbd8aa60a7a914e9d218613e830fbee3495da4621e3270837c72045aa674"
+    },
+    {
+      "file": "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2025-12-26/2a6b52dd6fd4/manifest.json",
+      "hash": "1ee7d7b828fe2a866ff2f46b0bf349b7897ac2b42015edb6e040d3b2d1569793",
+      "chain": "0cdb10f13ce2edcf40f0847b888617d07740c28b22ea6fd69b4ba0e2d588454c"
+    },
+    {
+      "file": "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-03/cdee44faaa66/manifest.json",
+      "hash": "4f72a06c51e18c2679ca3da3f7f92a475b8472dc46b79b0d5bf8310b825a7d10",
+      "chain": "58bcf4976952db41a5841e83600564950d67e42c09253f500f84747e36e2ab17"
+    },
+    {
+      "file": "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-03/d4e93193c484/manifest.json",
+      "hash": "61429610d1f6eb0d1d0031b972c95b51f6290d633b48aeec8ba647986daadd61",
+      "chain": "f039dc573e6a9cea5cb0e4a4fc5d7b0a28bd2d17d24d2405b612e55c4424c196"
+    },
+    {
+      "file": "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-04/7b8d8dd100ca/manifest.json",
+      "hash": "85f6e4e3c061359fcdb18c9cd6cfb37008571aa9bef01fc894768162348c9fea",
+      "chain": "9968b701a0cfdc790e2814476fa03f1699e1ef5cc89cf9e0e253cd8718983e72"
+    },
+    {
+      "file": "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-06/4c70717c2473/manifest.json",
+      "hash": "cb13ce8ca46ac5702646b3d6e79f0a94aed4e6165e4740b64b697a260bfcc4f9",
+      "chain": "5595821ecc0979b000cbb68c4e538f75d0d52ff1ffa93561d7b043c97d145844"
+    },
+    {
+      "file": "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-01-07/c30c21445ac8/manifest.json",
+      "hash": "321530958214e1e80d5651d66b1b77daeb1074cac9dd4f4e284fd844a146c422",
+      "chain": "ff7574a7c18dc4a0fb5623248b708418dca5c3226c49b9ed79392e0619c20c76"
+    },
+    {
+      "file": "evidence/mlsdm/manifests/substrates/mlsdm/artifacts/evidence/2026-03-28/53e12f950a3e/manifest.json",
+      "hash": "521ff2d3c376f582e76cf1ee4dd9560d9a76f163af9f7700f96e0d5f9b62922a",
+      "chain": "fbb2c833f86689c081733d68c8f7f1dc69ea744f983f46e6fe4971360b5642a5"
+    },
+    {
+      "file": "evidence/registry.json",
+      "hash": "9c770c484582daa329d83395321874876e2607c7445324ae3795af05690478ce",
+      "chain": "699160d9b88470dc14fd788dcc9936d78fe9a1c54b9b24e42aa0406509f169bf"
+    },
+    {
+      "file": "evidence/sessions/session_20260331_172218/events.jsonl",
+      "hash": "ac0898d7fc25f05963def8f80bea4fde776555cc2bc54de8ab10b5130f54bd59",
+      "chain": "993ea6a7fc276de43564262ce1911e4ddcc88b6bd65858d4b2e9c2533164b695"
+    },
+    {
+      "file": "evidence/sessions/session_20260331_172457/events.jsonl",
+      "hash": "7bbd044bfd7c3a10bd0a5fb854cacb8af30c24fc6537f1ce498ddc313902b943",
+      "chain": "be7348f27cee70e1aaf84271ac971616767f8b33bdd9c161d0a4b8a4fd55b2c5"
+    }
+  ],
+  "chain_root": "be7348f27cee70e1aaf84271ac971616767f8b33bdd9c161d0a4b8a4fd55b2c5",
+  "n_files": 16
+}

@@ -11,7 +11,7 @@
       "r2": 0.76,
       "n_pairs": null,
       "p_permutation": null,
-      "status": "VALIDATED",
+      "status": "PENDING_DATA",
       "locked": true,
       "data_source": {
         "file": "data/zebrafish/Out_WT_default_1.mat",
@@ -29,7 +29,7 @@
       "r2": 0.995,
       "n_pairs": 20,
       "p_permutation": null,
-      "status": "VALIDATED",
+      "status": "PENDING_DATA",
       "locked": true,
       "data_source": {
         "file": "data/gray_scott/params.json",
@@ -47,7 +47,7 @@
       "r2": 0.9,
       "n_pairs": null,
       "p_permutation": null,
-      "status": "VALIDATED",
+      "status": "PENDING_DATA",
       "locked": true,
       "data_source": {
         "file": "data/kuramoto/config.json",
@@ -65,7 +65,7 @@
       "r2": 0.28,
       "n_pairs": null,
       "p_permutation": null,
-      "status": "VALIDATED",
+      "status": "PENDING_DATA",
       "locked": true,
       "data_source": {
         "file": null,

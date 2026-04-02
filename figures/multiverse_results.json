@@ -1,0 +1,14 @@
+{
+  "summary": {
+    "n_cells_total": 2160.0,
+    "n_cells_valid": 2160.0,
+    "median_gamma": 0.9651895022905486,
+    "p05_gamma": 0.948092209917329,
+    "p95_gamma": 1.0575696226768376,
+    "R_plus": 1.0,
+    "R_unity": 0.0,
+    "R_strong": 0.0
+  },
+  "n_substrates": 5,
+  "n_cells": 2160
+}
