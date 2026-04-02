@@ -32,11 +32,11 @@ jobs:
         run: pip install pip-audit bandit --quiet
 
       - name: Bandit SAST
-        run: bandit -r core/ contracts/ neosynaptex.py -q --skip B101 -f json -o bandit-report.json || true
+        run: bandit -r core/ contracts/ neosynaptex.py -q --skip B101 -f json -o bandit-report.json
 
       - name: Bandit summary
         if: always()
-        run: bandit -r core/ contracts/ neosynaptex.py -q --skip B101 || true
+        run: bandit -r core/ contracts/ neosynaptex.py -q --skip B101
 
       - name: pip-audit dependency scan
         run: pip install -e ".[dev]" --quiet && pip-audit --desc --skip-editable

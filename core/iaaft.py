@@ -84,7 +84,7 @@ def kuramoto_iaaft(phases: np.ndarray, n_iter: int = 500, seed: int = 42) -> np.
     n_osc, n_t = phases.shape
     x_embed = np.vstack([np.cos(phases), np.sin(phases)])
     x_surr = iaaft_multivariate(x_embed, n_iter=n_iter, seed=seed)
-    return np.arctan2(x_surr[n_osc:], x_surr[:n_osc])
+    return np.asarray(np.arctan2(x_surr[n_osc:], x_surr[:n_osc]))
 
 
 def surrogate_p_value(gamma_obs: float, gamma_null: np.ndarray) -> float:

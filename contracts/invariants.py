@@ -57,7 +57,7 @@ def ssi_enforce_domain(domain: SSIDomain) -> None:
         )
 
 
-def ssi_apply(signal: Any, domain: SSIDomain, transform: Callable | None = None) -> Any:
+def ssi_apply(signal: Any, domain: SSIDomain, transform: Callable[..., Any] | None = None) -> Any:
     """Apply SSI transformation to signal with domain enforcement.
 
     Args:
@@ -201,3 +201,37 @@ SUBSTRATE_GAMMA = {
         ("cns_ai_loop", "cns_ai_loop"),
     ]
 }
+
+
+def verify_all() -> None:
+    """Self-test all contracts. Called by CI INV-3 gate."""
+    # INV-IV: SSI domain enforcement
+    try:
+        ssi_enforce_domain(SSIDomain.INTERNAL)
+        raise AssertionError("INV-IV: should have raised")
+    except InvariantViolation:
+        pass
+    ssi_apply(signal="test", domain=SSIDomain.EXTERNAL)
+
+    # INV-I: gamma derived enforcement
+    enforce_gamma_derived("computed")
+    try:
+        enforce_gamma_derived("assigned")
+        raise AssertionError("INV-I: should have raised")
+    except InvariantViolation:
+        pass
+
+    # INV-II: state != proof
+    enforce_state_not_proof("nfi", "bn_syn")
+    try:
+        enforce_state_not_proof("nfi", "nfi")
+        raise AssertionError("INV-II: should have raised")
+    except InvariantViolation:
+        pass
+
+    # INV-III: bounded modulation
+    assert enforce_bounded_modulation(0.1) == 0.05
+    assert enforce_bounded_modulation(-0.1) == -0.05
+
+    # Gamma registry loaded
+    assert len(SUBSTRATE_GAMMA) >= 6

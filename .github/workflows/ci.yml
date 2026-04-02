@@ -36,7 +36,7 @@ jobs:
       - name: Ruff format
         run: ruff format --check neosynaptex.py core/ contracts/ evl/ tests/
       - name: Import boundaries
-        run: lint-imports || true
+        run: lint-imports
 
   # ── Type Check ────────────────────────────────────────────────────────
   typecheck:
@@ -50,7 +50,7 @@ jobs:
           python-version-file: .python-version
       - run: pip install mypy numpy scipy --quiet
       - name: mypy core + contracts
-        run: mypy core/ contracts/ --ignore-missing-imports --no-error-summary || true
+        run: mypy core/ contracts/ --ignore-missing-imports
 
   # ── Verify (matrix) ──────────────────────────────────────────────────
   verify:
@@ -136,7 +136,7 @@ jobs:
           print('INV-2 OK: core does not import substrate/agent layers')
           "
       - name: INV-3 — contracts self-test
-        run: python3 -c "from contracts.invariants import verify_all; verify_all()" 2>/dev/null || echo "Contracts verify skipped (no verify_all)"
+        run: python3 -c "from contracts.invariants import verify_all; verify_all(); print('INV-3 OK: all contracts self-tested')"
       - name: Canonical Gate (6 gates)
         run: python scripts/ci_canonical_gate.py
       - name: Manuscript claims verification

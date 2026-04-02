@@ -4,6 +4,10 @@ Single source of truth for the entire monorepo.
 All substrates import from here. Nothing is duplicated.
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 # ─── AXIOM_0 ─────────────────────────────────────────────────────────────
 AXIOM_0 = (
     "Інтелект є властивістю режиму в якому система "
@@ -58,7 +62,7 @@ def classify_regime(gamma: float) -> str:
 from core.gamma_registry import GammaRegistry as _GR
 
 
-def _load_substrate_gamma():
+def _load_substrate_gamma() -> dict[str, tuple[float | None, str]]:
     """Load SUBSTRATE_GAMMA from the canonical ledger, not hardcoded."""
     _map = {
         "zebrafish": "zebrafish_wt",
@@ -89,7 +93,7 @@ INVARIANTS = {
 
 
 # ─── AXIOM CONSISTENCY CHECK ─────────────────────────────────────────────
-def verify_axiom_consistency(state: dict) -> bool:
+def verify_axiom_consistency(state: dict[str, Any]) -> bool:
     """
     Three conditions from AXIOM_0:
     1. Independent witnesses exist (cross-substrate)
@@ -117,7 +121,7 @@ if __name__ == "__main__":
         print(f"γ_PSD(H={H}) = {g:.1f} OK")
 
     # Substrates
-    gammas = [v[0] for v in SUBSTRATE_GAMMA.values()]
+    gammas: list[float] = [v[0] for v in SUBSTRATE_GAMMA.values() if v[0] is not None]
     mean_g = sum(gammas) / len(gammas)
     print(f"\nSubstrates: {len(gammas)}")
     print(f"Mean γ: {mean_g:.4f}")

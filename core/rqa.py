@@ -73,7 +73,7 @@ def _recurrence_matrix(embedded: np.ndarray, threshold: float) -> np.ndarray:
     return (dists < threshold).astype(int)
 
 
-def _diagonal_lines(R: np.ndarray, min_len: int = 2) -> list:
+def _diagonal_lines(R: np.ndarray, min_len: int = 2) -> list[int]:
     """Extract lengths of diagonal lines from recurrence matrix."""
     n = R.shape[0]
     lengths = []
@@ -92,7 +92,7 @@ def _diagonal_lines(R: np.ndarray, min_len: int = 2) -> list:
     return lengths
 
 
-def _vertical_lines(R: np.ndarray, min_len: int = 2) -> list:
+def _vertical_lines(R: np.ndarray, min_len: int = 2) -> list[int]:
     """Extract lengths of vertical lines from recurrence matrix."""
     n = R.shape[0]
     lengths = []
@@ -117,7 +117,7 @@ def recurrence_quantification(
     threshold: float = 0.1,
     n_surrogate: int = 200,
     seed: int = 42,
-) -> dict:
+) -> dict[str, object]:
     """Recurrence Quantification Analysis.
 
     Returns:
