@@ -27,20 +27,20 @@ from scipy.stats import theilslopes
 from core.value_function import ValueEstimate, estimate_value
 
 __all__ = [
+    "COLLAPSING",
+    "CONVERGING",
+    "DEGENERATE",
+    "DIVERGING",
+    "DRIFTING",
     "DomainAdapter",
-    "NeosynaptexState",
-    "Neosynaptex",
-    "MockBnSynAdapter",
-    "MockMfnAdapter",
-    "MockPsycheCoreAdapter",
-    "MockMarketAdapter",
     "INITIALIZING",
     "METASTABLE",
-    "COLLAPSING",
-    "DIVERGING",
-    "DEGENERATE",
-    "CONVERGING",
-    "DRIFTING",
+    "MockBnSynAdapter",
+    "MockMarketAdapter",
+    "MockMfnAdapter",
+    "MockPsycheCoreAdapter",
+    "Neosynaptex",
+    "NeosynaptexState",
 ]
 
 __version__ = "0.2.0"

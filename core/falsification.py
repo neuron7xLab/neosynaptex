@@ -125,11 +125,21 @@ def estimate_gamma_multi(
     results: list[EstimatorResult] = []
     n = len(log_topo)
 
-    for name, estimator_fn in [
-        ("theilslopes", lambda x, y: (-theilslopes(y, x)[0], theilslopes(y, x)[1])),
-        ("ols", lambda x, y: (-_ols_slope(x, y)[0], _ols_slope(x, y)[1])),
-        ("huber", lambda x, y: (-_huber_slope(x, y)[0], _huber_slope(x, y)[1])),
-    ]:
+    def _est_ts(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
+        s = theilslopes(y, x)
+        return (-s[0], s[1])
+
+    def _est_ols(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
+        s, i, _ = _ols_slope(x, y)
+        return (-s, i)
+
+    def _est_huber(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
+        s, i, _ = _huber_slope(x, y)
+        return (-s, i)
+
+    estimators = [("theilslopes", _est_ts), ("ols", _est_ols), ("huber", _est_huber)]
+
+    for name, estimator_fn in estimators:
         gamma_point, _ = estimator_fn(log_topo, log_cost)
 
         # Bootstrap CI

@@ -87,9 +87,9 @@
       "locked": true,
       "data_source": {
         "file": "neosynaptex.py",
-        "sha256": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf"
+        "sha256": "37160aab1e70de47155a9070504014da2e261bfbdb5ee02d6357c8b7c2c52edc"
       },
-      "adapter_code_hash": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf",
+      "adapter_code_hash": "37160aab1e70de47155a9070504014da2e261bfbdb5ee02d6357c8b7c2c52edc",
       "derivation_method": "constructed: cost = 8.0 * topo^(-0.95) + noise"
     },
     "mock_morpho": {
@@ -105,9 +105,9 @@
       "locked": true,
       "data_source": {
         "file": "neosynaptex.py",
-        "sha256": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf"
+        "sha256": "37160aab1e70de47155a9070504014da2e261bfbdb5ee02d6357c8b7c2c52edc"
       },
-      "adapter_code_hash": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf",
+      "adapter_code_hash": "37160aab1e70de47155a9070504014da2e261bfbdb5ee02d6357c8b7c2c52edc",
       "derivation_method": "constructed: cost = 10.0 * topo^(-1.0) + noise"
     },
     "mock_psyche": {
@@ -123,9 +123,9 @@
       "locked": true,
       "data_source": {
         "file": "neosynaptex.py",
-        "sha256": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf"
+        "sha256": "37160aab1e70de47155a9070504014da2e261bfbdb5ee02d6357c8b7c2c52edc"
       },
-      "adapter_code_hash": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf",
+      "adapter_code_hash": "37160aab1e70de47155a9070504014da2e261bfbdb5ee02d6357c8b7c2c52edc",
       "derivation_method": "constructed: cost = 20.0 * topo^(-1.05) + noise"
     },
     "mock_market": {
@@ -141,9 +141,9 @@
       "locked": true,
       "data_source": {
         "file": "neosynaptex.py",
-        "sha256": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf"
+        "sha256": "37160aab1e70de47155a9070504014da2e261bfbdb5ee02d6357c8b7c2c52edc"
       },
-      "adapter_code_hash": "f9d1ec74ed292698b91def42e57c3aeaba2258223294251beaf672d23fb12caf",
+      "adapter_code_hash": "37160aab1e70de47155a9070504014da2e261bfbdb5ee02d6357c8b7c2c52edc",
       "derivation_method": "constructed: cost = 5.0 * topo^(-1.08) + noise"
     },
     "nfi_unified": {
@@ -155,8 +155,8 @@
       "r2": null,
       "n_pairs": null,
       "p_permutation": null,
-      "status": "VALIDATED",
-      "locked": true,
+      "status": "PENDING_REAL_DATA",
+      "locked": false,
       "data_source": {
         "file": null,
         "sha256": null

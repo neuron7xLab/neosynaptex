@@ -13,11 +13,11 @@ Fail-closed record of technical memory that may still live outside this monorepo
 
 | External Source (expected) | Domain | Current Status | Required Assets | Blocker Reason |
 |---|---|---|---|---|
-| neuron7xLab/neuron7x-agents | agents | PARTIAL | benchmark raw runs, release notes, py.typed/package artifacts | provenance continuity incomplete |
-| neuron7x/bnsyn-phase-controlled-emergent-dynamics | BN-Syn | PARTIAL | canonical bundle history + manifests + release hashes | claim replay risk |
-| neuron7x/TradePulse | kuramoto/tradepulse | PARTIAL | golden data lineage + deployment manifests + incident records | operational reproducibility risk |
-| neuron7xLab/mlsdm | mlsdm | PARTIAL | CI evidence snapshots + API baselines + governance history | governance drift risk |
-| private experiment repos | cross-substrate | UNKNOWN | notebooks, datasets, prompts, pipeline scripts | unknown intellectual capital gap |
+| neuron7xLab/neuron7x-agents | agents | IMPORTED | agents/ fully integrated, DNCA bridge operational (core/dnca_bridge.py) | — |
+| neuron7x/bnsyn-phase-controlled-emergent-dynamics | BN-Syn | IMPORTED | substrates/bn_syn/ is surviving authority, adapter.py wired | — |
+| neuron7x/TradePulse | kuramoto/tradepulse | IMPORTED | substrates/kuramoto/ integrated, golden data pending | operational reproducibility risk |
+| neuron7xLab/mlsdm | mlsdm | IMPORTED | substrates/mlsdm/ fully ingested with tests | — |
+| private experiment repos | cross-substrate | PENDING_INVENTORY | notebooks, datasets, prompts, pipeline scripts | requires manual audit of local dirs |
 
 ## Archival Gate
 Legacy repo archival is forbidden while any row is `UNKNOWN` or `BLOCKER`.
