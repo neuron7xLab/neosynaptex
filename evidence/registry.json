@@ -1,98 +1,146 @@
 {
-  "version": 2,
-  "last_updated": "2026-04-01",
-  "policy": {
-    "fail_closed": true,
-    "rule": "Claims without registry entries are non-canonical"
-  },
-  "entries": [
-    {
-      "id": "root-manuscript-xform-draft",
-      "path": "docs/science/root_manuscript/XFORM_MANUSCRIPT_DRAFT.md",
-      "source": "manuscript/XFORM_MANUSCRIPT_DRAFT.md",
-      "subsystem": "neosynaptex_core",
-      "type": "manuscript",
-      "status": "migrated"
+  "version": "1.0.0",
+  "generated_at": "2026-04-02T11:44:54.523065+00:00",
+  "n_artifacts": 16,
+  "registry_hash": "e7e6171ba1162d512244d87c18e6f456c0c2e5c88f1da438cea8197ebd46aff2",
+  "artifacts": {
+    "gamma:zebrafish_wt": {
+      "id": "gamma:zebrafish_wt",
+      "type": "gamma_value",
+      "substrate": "zebrafish_wt",
+      "gamma": 1.055,
+      "status": "VALIDATED",
+      "locked": true,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "agents-bibliography",
-      "path": "docs/bibliography/AGENTS_BIBLIOGRAPHY.md",
-      "source": "agents/docs/BIBLIOGRAPHY.md",
-      "subsystem": "agents",
-      "type": "bibliography",
-      "status": "migrated"
+    "gamma:gray_scott": {
+      "id": "gamma:gray_scott",
+      "type": "gamma_value",
+      "substrate": "gray_scott",
+      "gamma": 0.979,
+      "status": "VALIDATED",
+      "locked": true,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "bnsyn-claims-gate",
-      "path": "docs/evidence_ledgers/bnsyn_claims_gate.md",
-      "source": "substrates/bn_syn/README_CLAIMS_GATE.md",
-      "subsystem": "bn_syn",
-      "type": "claims_gate",
-      "status": "migrated"
+    "gamma:kuramoto": {
+      "id": "gamma:kuramoto",
+      "type": "gamma_value",
+      "substrate": "kuramoto",
+      "gamma": 0.963,
+      "status": "VALIDATED",
+      "locked": true,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "mlsdm-claim-evidence-ledger",
-      "path": "docs/evidence_ledgers/mlsdm_claim_evidence_ledger.md",
-      "source": "substrates/mlsdm/docs/CLAIM_EVIDENCE_LEDGER.md",
-      "subsystem": "mlsdm",
-      "type": "evidence_ledger",
-      "status": "migrated"
+    "gamma:bnsyn": {
+      "id": "gamma:bnsyn",
+      "type": "gamma_value",
+      "substrate": "bnsyn",
+      "gamma": 0.946,
+      "status": "VALIDATED",
+      "locked": true,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "kuramoto-traceability-matrix",
-      "path": "docs/traceability/kuramoto_traceability_matrix.md",
-      "source": "substrates/kuramoto/docs/requirements/traceability_matrix.md",
-      "subsystem": "kuramoto",
-      "type": "traceability",
-      "status": "migrated"
+    "gamma:mock_spike": {
+      "id": "gamma:mock_spike",
+      "type": "gamma_value",
+      "substrate": "mock_spike",
+      "gamma": 0.949447,
+      "status": "DERIVED",
+      "locked": true,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "kuramoto-golden-data",
-      "path": "data/golden/kuramoto/",
-      "source": "substrates/kuramoto/data/golden/",
-      "subsystem": "kuramoto",
-      "type": "reproducibility_anchor",
-      "status": "migrated"
+    "gamma:mock_morpho": {
+      "id": "gamma:mock_morpho",
+      "type": "gamma_value",
+      "substrate": "mock_morpho",
+      "gamma": 0.999184,
+      "status": "DERIVED",
+      "locked": true,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "agents-manuscript",
-      "path": "docs/science/agents/",
-      "source": "agents/manuscript/",
-      "subsystem": "agents",
-      "type": "manuscript",
-      "status": "migrated"
+    "gamma:mock_psyche": {
+      "id": "gamma:mock_psyche",
+      "type": "gamma_value",
+      "substrate": "mock_psyche",
+      "gamma": 1.050248,
+      "status": "DERIVED",
+      "locked": true,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "mlsdm-adr",
-      "path": "docs/adr/mlsdm/",
-      "source": "substrates/mlsdm/docs/adr/",
-      "subsystem": "mlsdm",
-      "type": "architecture_decision_records",
-      "status": "migrated"
+    "gamma:mock_market": {
+      "id": "gamma:mock_market",
+      "type": "gamma_value",
+      "substrate": "mock_market",
+      "gamma": 1.090222,
+      "status": "DERIVED",
+      "locked": true,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "kuramoto-adr",
-      "path": "docs/adr/kuramoto/",
-      "source": "substrates/kuramoto/docs/adr/",
-      "subsystem": "kuramoto",
-      "type": "architecture_decision_records",
-      "status": "migrated"
+    "gamma:nfi_unified": {
+      "id": "gamma:nfi_unified",
+      "type": "gamma_value",
+      "substrate": "nfi_unified",
+      "gamma": 0.8993,
+      "status": "VALIDATED",
+      "locked": true,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "bnsyn-coq-specs",
-      "path": "formal/coq/bnsyn/",
-      "source": "substrates/bn_syn/specs/coq/",
-      "subsystem": "bn_syn",
-      "type": "formal_methods",
-      "status": "migrated"
+    "gamma:cns_ai_loop": {
+      "id": "gamma:cns_ai_loop",
+      "type": "gamma_value",
+      "substrate": "cns_ai_loop",
+      "gamma": 1.059,
+      "status": "PENDING_REAL_DATA",
+      "locked": false,
+      "source_file": "evidence/gamma_ledger.json",
+      "sha256": "71d34ff2c26482991d4137fcd75021c292df692739d667ac29c0584f8d907e86"
     },
-    {
-      "id": "bnsyn-tla-specs",
-      "path": "formal/tla/bnsyn/",
-      "source": "substrates/bn_syn/specs/tla/",
-      "subsystem": "bn_syn",
-      "type": "formal_methods",
-      "status": "migrated"
+    "manifest:evidence_bundle_v1": {
+      "id": "manifest:evidence_bundle_v1",
+      "type": "genesis_manifest",
+      "chain_root": "be7348f27cee70e1aaf84271ac971616767f8b33bdd9c161d0a4b8a4fd55b2c5",
+      "n_files": 16,
+      "source_file": "evidence_bundle_v1/manifest.json",
+      "sha256": "bacdaf103eb325bc7109cd262bda7fd83a48a36436cc8aac1d861b7c7d91bdcf"
+    },
+    "figure:basin_full": {
+      "id": "figure:basin_full",
+      "type": "analysis_artifact",
+      "source_file": "figures/basin_ci/basin_full.json",
+      "sha256": "a9ce0d05ecf48dbc1f77ccc6955e9440d64b5dba1dda9a6c3064d02b72f1ca00"
+    },
+    "figure:basin_summary": {
+      "id": "figure:basin_summary",
+      "type": "analysis_artifact",
+      "source_file": "figures/basin_ci/basin_summary.json",
+      "sha256": "9ddeb54b19db511295fee7515e7d09baf5e237c1223136924de558fbb4cec8fe"
+    },
+    "figure:block_bootstrap_results": {
+      "id": "figure:block_bootstrap_results",
+      "type": "analysis_artifact",
+      "source_file": "figures/block_bootstrap_results.json",
+      "sha256": "79e2c705e20f6b337b4ae16f5695df7da985cd20acc37139b51832b2d300b6b9"
+    },
+    "figure:multiverse_results": {
+      "id": "figure:multiverse_results",
+      "type": "analysis_artifact",
+      "source_file": "figures/multiverse_results.json",
+      "sha256": "2e5f39e3b88b0909a57b463717831b43cf858927b7749492bec7d903256a045f"
+    },
+    "figure:null_family_results": {
+      "id": "figure:null_family_results",
+      "type": "analysis_artifact",
+      "source_file": "figures/nulls/null_family_results.json",
+      "sha256": "eceabbbb45bedfe06572021f3abedf387b4e32a3a6567c52f66204f3cc6dcd80"
     }
-  ]
+  }
 }

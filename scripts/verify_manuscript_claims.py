@@ -4,10 +4,11 @@
 Scans for {evidence:ENTRY_ID:FIELD} tags and checks each exists and is non-null
 in the ledger.
 """
+
 from __future__ import annotations
 
-import re
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -27,7 +28,7 @@ def main() -> int:
     ledger = json.loads(LEDGER_PATH.read_text())
     manuscript = MANUSCRIPT_PATH.read_text()
 
-    pattern = r'\{evidence:(\w+):(\w+)\}'
+    pattern = r"\{evidence:(\w+):(\w+)\}"
     claims = re.findall(pattern, manuscript)
 
     if not claims:

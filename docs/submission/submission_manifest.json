@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "built_at": "2026-04-02T11:44:55.771505+00:00",
+  "proof_chain_genesis": "be7348f27cee70e1aaf84271ac971616767f8b33bdd9c161d0a4b8a4fd55b2c5",
+  "n_files": 7,
+  "files": {
+    "figures/fig1_gamma_overview.pdf": "6f6394cb382ed103c773581da94b44544f18f0602047799471bf8b7f09e18bca",
+    "figures/fig1_gamma_overview.png": "5b71ba419b720f034ed2891bef1723ebe3ae01bdfa5cbbfbf717dbb4aae93113",
+    "figures/fig2_multiverse.pdf": "13f633bc504e38f09cfdddbb3db0a98f0564f636136196e36fbc438bc7187549",
+    "figures/fig2_multiverse.png": "761128d3c14678e0c651be72a4463cf04fb76eef4b34dfd10d812a6cf12dab1e",
+    "figures/fig3_basin.pdf": "4d4622ea1465f8d3ca77b9765b7bc81a9208e720cf2c673abdcb8e62db34e2f0",
+    "figures/fig3_basin.png": "ea8f6078e2f0fe5c042c495815f7fc5826234c06fcb5c14621482ba2f17c27a5",
+    "supplementary.json": "1ce4dadfc155bb8e1eb75e8d1bd624a9422f69636efe0c00da2a98cf062a317d"
+  }
+}

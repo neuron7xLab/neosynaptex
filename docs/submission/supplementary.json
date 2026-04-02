@@ -1,0 +1,86 @@
+{
+  "title": "Supplementary Materials",
+  "gamma_table": {
+    "zebrafish_wt": {
+      "gamma": 1.055,
+      "ci": [
+        0.89,
+        1.21
+      ],
+      "status": "VALIDATED"
+    },
+    "gray_scott": {
+      "gamma": 0.979,
+      "ci": [
+        0.88,
+        1.01
+      ],
+      "status": "VALIDATED"
+    },
+    "kuramoto": {
+      "gamma": 0.963,
+      "ci": [
+        0.93,
+        1.0
+      ],
+      "status": "VALIDATED"
+    },
+    "bnsyn": {
+      "gamma": 0.946,
+      "ci": [
+        0.81,
+        1.08
+      ],
+      "status": "VALIDATED"
+    },
+    "mock_spike": {
+      "gamma": 0.949447,
+      "ci": [
+        0.94228,
+        0.957233
+      ],
+      "status": "DERIVED"
+    },
+    "mock_morpho": {
+      "gamma": 0.999184,
+      "ci": [
+        0.982291,
+        1.013206
+      ],
+      "status": "DERIVED"
+    },
+    "mock_psyche": {
+      "gamma": 1.050248,
+      "ci": [
+        1.035957,
+        1.064071
+      ],
+      "status": "DERIVED"
+    },
+    "mock_market": {
+      "gamma": 1.090222,
+      "ci": [
+        1.077895,
+        1.101829
+      ],
+      "status": "DERIVED"
+    },
+    "nfi_unified": {
+      "gamma": 0.8993,
+      "ci": [
+        null,
+        null
+      ],
+      "status": "VALIDATED"
+    },
+    "cns_ai_loop": {
+      "gamma": 1.059,
+      "ci": [
+        0.985,
+        1.131
+      ],
+      "status": "PENDING_REAL_DATA"
+    }
+  },
+  "proof_chain_genesis": "be7348f27cee70e1aaf84271ac971616767f8b33bdd9c161d0a4b8a4fd55b2c5"
+}

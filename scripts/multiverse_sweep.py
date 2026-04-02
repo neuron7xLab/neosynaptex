@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """X4: Multiverse 432-cell sweep across all analytic degrees of freedom."""
+
 from __future__ import annotations
 
 import argparse
@@ -14,8 +15,7 @@ from scipy.stats import theilslopes
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from core.block_bootstrap import compute_block_bootstrap, integrated_autocorr_time
-from core.iaaft import iaaft_surrogate, surrogate_p_value
+from core.iaaft import surrogate_p_value
 from core.multiverse import MULTIVERSE_GRID, MultiverseCell, multiverse_summary
 
 
@@ -70,7 +70,8 @@ def main() -> int:
                             for bm in grid["block_m"]:
                                 # Estimate gamma with perturbation based on analytic choices
                                 noise_scale = 0.01 * (1.0 + float(wr)) * (1.0 + float(bm))
-                                rng = np.random.default_rng(hash((sid, wr, ov, ts, met, est, bm)) % 2**31)
+                                seed_val = hash((sid, wr, ov, ts, met, est, bm)) % 2**31
+                                rng = np.random.default_rng(seed_val)
                                 perturb = rng.normal(0, noise_scale)
 
                                 slope, _, _, _ = theilslopes(lc + perturb, lt)
@@ -91,9 +92,8 @@ def main() -> int:
                                 p_val = surrogate_p_value(gamma_est, null_gammas)
 
                                 # Quality flag
-                                r2 = 1.0 - np.var(lc - (slope * lt + np.mean(lc) - slope * np.mean(lt))) / max(
-                                    np.var(lc), 1e-10
-                                )
+                                resid = lc - (slope * lt + np.mean(lc) - slope * np.mean(lt))
+                                r2 = 1.0 - np.var(resid) / max(np.var(lc), 1e-10)
                                 if r2 < 0.5:
                                     qf = "low_r2"
                                 elif n_pts < 10:
@@ -138,7 +138,10 @@ def main() -> int:
     with open(out_path, "w") as f:
         json.dump(
             {
-                "summary": {k: float(v) if isinstance(v, (int, float, np.floating)) else v for k, v in summary.items()},
+                "summary": {
+                    k: float(v) if isinstance(v, (int, float, np.floating)) else v
+                    for k, v in summary.items()
+                },
                 "n_substrates": len(substrates),
                 "n_cells": len(cells),
             },

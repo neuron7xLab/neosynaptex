@@ -11,6 +11,7 @@ Gates:
 
 Exit 0 if all gates pass. Exit 1 with violation count otherwise.
 """
+
 from __future__ import annotations
 
 import json
@@ -53,8 +54,8 @@ def gate_gamma_provenance() -> int:
             if assign_pattern.search(line):
                 # Check if the dict contains hardcoded numeric gamma values
                 # (not GammaRegistry calls)
-                block = "\n".join(lines[i - 1:min(i + 15, len(lines))])
-                if re.search(r':\s*[\d.]+\s*[,}]', block) and "_GR" not in block:
+                block = "\n".join(lines[i - 1 : min(i + 15, len(lines))])
+                if re.search(r":\s*[\d.]+\s*[,}]", block) and "_GR" not in block:
                     _v("GAMMA_PROVENANCE", f"{rel_label}:{i} -- hardcoded SUBSTRATE_GAMMA dict")
                     count += 1
 
@@ -140,7 +141,10 @@ def gate_split_brain() -> int:
                 mfn_substrate_dirs.add(str(rel.parent))
 
     if len(mfn_substrate_dirs) > 1:
-        _v("SPLIT_BRAIN", f"mycelium_fractal_net in {len(mfn_substrate_dirs)} substrate dirs: {mfn_substrate_dirs}")
+        _v(
+            "SPLIT_BRAIN",
+            f"mycelium_fractal_net in {len(mfn_substrate_dirs)} dirs: {mfn_substrate_dirs}",
+        )
         count += 1
 
     # Check for duplicate root-level packages that also exist in substrates/
@@ -191,7 +195,10 @@ def gate_invariant_gamma() -> int:
     for pat in bad_patterns:
         for i, line in enumerate(text.splitlines(), 1):
             if pat.search(line) and "gamma_history" not in line and "gamma_trace" not in line:
-                _v("INVARIANT_GAMMA", f"neosynaptex.py:{i} -- potential gamma storage: {line.strip()}")
+                _v(
+                    "INVARIANT_GAMMA",
+                    f"neosynaptex.py:{i} -- gamma storage: {line.strip()[:60]}",
+                )
                 count += 1
     return count
 
@@ -208,13 +215,13 @@ def gate_testpath_hermetic() -> int:
 
     text = pyproject.read_text()
     # Find testpaths line
-    match = re.search(r'testpaths\s*=\s*\[([^\]]*)\]', text)
+    match = re.search(r"testpaths\s*=\s*\[([^\]]*)\]", text)
     if match:
         paths_str = match.group(1)
         # Check if "." is in the list
         paths = re.findall(r'"([^"]*)"', paths_str)
         if "." in paths:
-            _v("TESTPATH_HERMETIC", f'testpaths includes "." -- root collection not hermetic')
+            _v("TESTPATH_HERMETIC", 'testpaths includes "." -- root collection not hermetic')
             count += 1
     return count
 

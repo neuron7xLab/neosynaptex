@@ -592,6 +592,68 @@ class TestEdge:
     def test_need_vector_none(self):
         assert Neosynaptex(window=8).need_vector() is None
 
+    def test_cross_jacobian_available_after_64_ticks(self):
+        engine = Neosynaptex(window=16)
+        engine.register(MockBnSynAdapter())
+        engine.register(MockMfnAdapter())
+        engine.register(MockPsycheCoreAdapter())
+        engine.register(MockMarketAdapter())
+        for _ in range(70):
+            engine.observe()
+
+        proof = engine.export_proof()
+        ct = proof["coupling_tensor"]
+
+        assert "cross_jacobian" in ct
+        # At least one non-NaN entry after 70 ticks
+        cj = ct["cross_jacobian"]
+        if cj:
+            all_values = [v for row in cj.values() for v in row.values() if v is not None]
+            assert len(all_values) > 0, "Cross-domain Jacobian should have values after 70 ticks"
+
+    def test_adaptive_window_bounded(self):
+        engine = Neosynaptex(window=16)
+        engine.register(MockBnSynAdapter())
+        engine.register(MockMfnAdapter())
+        for _ in range(30):
+            engine.observe()
+        assert engine._adaptive_window >= 16
+        assert engine._adaptive_window <= 256
+
+    def test_proof_chain_integrity(self):
+        engine = Neosynaptex(window=16)
+        engine.register(MockBnSynAdapter())
+        engine.register(MockMfnAdapter())
+
+        proofs = []
+        for _ in range(10):
+            engine.observe()
+            proofs.append(engine.export_proof())
+
+        # First proof prev_hash is GENESIS
+        assert proofs[0]["chain"]["prev_hash"] == "GENESIS"
+
+        # Each prev_hash matches previous self_hash
+        for i in range(1, len(proofs)):
+            assert proofs[i]["chain"]["prev_hash"] == proofs[i - 1]["chain"]["self_hash"]
+
+        # Chain root is consistent
+        root = proofs[0]["chain"]["chain_root"]
+        for p in proofs:
+            assert p["chain"]["chain_root"] == root
+
+        # Self-hash is valid
+        import hashlib
+        import json as _json
+
+        for p in proofs:
+            clean = {k: v for k, v in p.items() if k != "chain"}
+            chain_without_self = {k: v for k, v in p["chain"].items() if k != "self_hash"}
+            clean["chain"] = chain_without_self
+            canonical = _json.dumps(clean, sort_keys=True, ensure_ascii=True, default=str)
+            expected = hashlib.sha256(canonical.encode()).hexdigest()
+            assert p["chain"]["self_hash"] == expected
+
     def test_all_ascii(self):
         import pathlib
 

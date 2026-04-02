@@ -16,6 +16,7 @@ import json
 import logging
 import math
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Protocol
 
 import numpy as np
@@ -148,6 +149,12 @@ class NeosynaptexState:
 
     # --- Full diagnostic ---
     diagnostic: dict
+
+    # --- Cross-domain Jacobian (T3) ---
+    cross_jacobian: dict[str, dict[str, float]] | None = None
+    cross_jacobian_cond: float = float("nan")
+    adaptive_window: int = 16
+    ci_width_mean: float = float("nan")
 
     # --- Internal value function (X8 v2) ---
     value_estimate: ValueEstimate | None = None
@@ -585,6 +592,109 @@ class Neosynaptex:
         # Free-energy proxy history for valence (X8 v2)
         self._f_history: list[float] = []
 
+        # Cross-domain Jacobian traces (T3)
+        self._gamma_per_domain_trace: list[dict[str, float]] = []
+        self._state_mean_trace: list[dict[str, float]] = []
+        self._adaptive_window: int = window
+
+        # Proof chain (T4)
+        self._chain_root: str = self._load_chain_root()
+        self._last_proof_hash: str | None = None
+        self._proof_count: int = 0
+
+    @staticmethod
+    def _load_chain_root() -> str:
+        """Load genesis hash from X1 manifest."""
+        manifest = Path(__file__).parent / "evidence_bundle_v1" / "manifest.json"
+        if manifest.exists():
+            data = json.loads(manifest.read_text())
+            return str(data.get("chain_root", "GENESIS"))
+        return "GENESIS"
+
+    def _compute_cross_jacobian(
+        self,
+        domains: list[str],
+    ) -> tuple[dict[str, dict[str, float]], float]:
+        """Cross-domain Jacobian: J[i][j] = d(gamma_i)/d(state_mean_j).
+
+        Requires >= 64 ticks. Uses scipy_lstsq. Condition gate < 1e6.
+        """
+        nan_result: dict[str, dict[str, float]] = {
+            d: {d2: float("nan") for d2 in domains} for d in domains
+        }
+        n_dom = len(domains)
+        n_ticks = len(self._gamma_per_domain_trace)
+
+        if n_ticks < 64 or n_dom < 2:
+            return nan_result, float("nan")
+
+        x_rows = []
+        y_rows = []
+        for t in range(n_ticks - 1):
+            sm = self._state_mean_trace[t]
+            gt = self._gamma_per_domain_trace[t + 1]
+            x_row = [sm.get(d, np.nan) for d in domains]
+            y_row = [gt.get(d, np.nan) for d in domains]
+            if all(np.isfinite(v) for v in x_row) and all(np.isfinite(v) for v in y_row):
+                x_rows.append(x_row)
+                y_rows.append(y_row)
+
+        if len(x_rows) < n_dom + 1:
+            return nan_result, float("nan")
+
+        x_arr = np.array(x_rows)
+        y_arr = np.array(y_rows)
+
+        cond = float(np.linalg.cond(x_arr))
+        if cond > _COND_GATE:
+            return nan_result, cond
+
+        try:
+            j_t, _, _, _ = scipy_lstsq(x_arr, y_arr)
+            j_cross = j_t.T  # (N, N): J[i][j] = d(gamma_i)/d(state_j)
+            result = {
+                domains[i]: {domains[j]: round(float(j_cross[i, j]), 6) for j in range(n_dom)}
+                for i in range(n_dom)
+            }
+            return result, cond
+        except Exception:
+            return nan_result, cond
+
+    def _update_adaptive_window(
+        self,
+        gamma_ci_per_domain: dict[str, tuple[float, float]],
+    ) -> int:
+        """Adjust observation window based on mean CI width."""
+        widths = []
+        for lo, hi in gamma_ci_per_domain.values():
+            if np.isfinite(lo) and np.isfinite(hi):
+                widths.append(hi - lo)
+
+        if not widths:
+            return self._adaptive_window
+
+        mean_width = float(np.mean(widths))
+
+        if mean_width > 0.15:
+            new_w = min(int(self._adaptive_window * 1.5), 256)
+        elif mean_width < 0.05:
+            new_w = max(int(self._adaptive_window / 1.2), 16)
+        else:
+            new_w = self._adaptive_window
+
+        return new_w
+
+    def _compute_proof_hash(self, proof_dict: dict) -> str:
+        """SHA-256 of canonical JSON excluding chain.self_hash."""
+        import hashlib
+
+        clean = {k: v for k, v in proof_dict.items() if k != "chain"}
+        if "chain" in proof_dict:
+            chain_without_self = {k: v for k, v in proof_dict["chain"].items() if k != "self_hash"}
+            clean["chain"] = chain_without_self
+        canonical = json.dumps(clean, sort_keys=True, ensure_ascii=True, default=str)
+        return hashlib.sha256(canonical.encode()).hexdigest()
+
     def register(self, adapter: DomainAdapter) -> None:
         """Register a domain adapter. Max 4 state variables per adapter."""
         keys = adapter.state_keys
@@ -796,6 +906,25 @@ class Neosynaptex:
         else:
             value_estimate = None
 
+        # === Cross-domain Jacobian + Adaptive Window (T3) ===
+        state_means = {
+            name: float(np.nanmean(phi_per_domain[name]))
+            for name in domain_order
+            if name in phi_per_domain
+        }
+        self._gamma_per_domain_trace.append(dict(gamma_per_domain))
+        self._state_mean_trace.append(state_means)
+
+        cross_jacobian, cross_jacobian_cond = self._compute_cross_jacobian(domain_order)
+        self._adaptive_window = self._update_adaptive_window(gamma_ci_per_domain)
+
+        ci_widths = [
+            hi - lo
+            for lo, hi in gamma_ci_per_domain.values()
+            if np.isfinite(lo) and np.isfinite(hi)
+        ]
+        ci_width_mean = float(np.mean(ci_widths)) if ci_widths else float("nan")
+
         # === Build diagnostic ===
         diagnostic = {
             "tick": self._tick,
@@ -833,6 +962,12 @@ class Neosynaptex:
             resilience_score=resilience_score,
             modulation=dict(modulation),
             diagnostic=dict(diagnostic),
+            cross_jacobian=cross_jacobian
+            if any(np.isfinite(v) for row in cross_jacobian.values() for v in row.values())
+            else None,
+            cross_jacobian_cond=cross_jacobian_cond,
+            adaptive_window=self._adaptive_window,
+            ci_width_mean=ci_width_mean,
             value_estimate=value_estimate,
         )
 
@@ -917,6 +1052,11 @@ class Neosynaptex:
         self._returns = 0
         self._was_metastable = False
         self._f_history.clear()
+        self._gamma_per_domain_trace.clear()
+        self._state_mean_trace.clear()
+        self._adaptive_window = self._window
+        self._last_proof_hash = None
+        self._proof_count = 0
 
     def export_proof(self, path: str | None = None) -> dict:
         """Export proof bundle as JSON-serializable dict.
@@ -983,7 +1123,33 @@ class Neosynaptex:
             else "INCOHERENT"
             if s.phase in (DEGENERATE, DIVERGING)
             else "PARTIAL",
+            "coupling_tensor": {
+                "cross_jacobian": {
+                    src: {tgt: v if np.isfinite(v) else None for tgt, v in targets.items()}
+                    for src, targets in (s.cross_jacobian or {}).items()
+                },
+                "condition_number": round(s.cross_jacobian_cond, 2)
+                if np.isfinite(s.cross_jacobian_cond)
+                else None,
+                "n_ticks_used": len(self._gamma_per_domain_trace),
+                "window_adaptive": s.adaptive_window,
+                "ci_width_mean": round(s.ci_width_mean, 4)
+                if np.isfinite(s.ci_width_mean)
+                else None,
+            },
         }
+
+        # Proof chain (T4)
+        self._proof_count += 1
+        proof["chain"] = {
+            "t": self._proof_count,
+            "prev_hash": self._last_proof_hash or "GENESIS",
+            "chain_root": self._chain_root,
+            "self_hash": "PENDING",
+        }
+        self_hash = self._compute_proof_hash(proof)
+        proof["chain"]["self_hash"] = self_hash
+        self._last_proof_hash = self_hash
 
         if path:
             with open(path, "w", encoding="utf-8") as f:

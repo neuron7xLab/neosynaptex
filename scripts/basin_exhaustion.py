@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """X6: Basin exhaustion — verify Propositions A+B via grid scan."""
+
 from __future__ import annotations
 
 import argparse
@@ -95,12 +96,12 @@ def main() -> int:
     print(f"\nGrid: {args.grid} ({n_gamma}x{n_noise}x{n_window})")
     print(f"Seeds: {args.seeds}, Steps/gamma: {args.steps // len(gamma_range)}")
     print(f"Time: {elapsed:.1f}s")
-    print(f"\nProposition A (convergence in safe zone):")
+    print("\nProposition A (convergence in safe zone):")
     print(f"  {prop_a_pass}/{prop_a_total} = {prop_a_rate:.4f}")
-    print(f"  PASS" if prop_a_rate >= 0.95 else f"  FAIL")
-    print(f"\nProposition B (failure outside safe zone):")
+    print("  PASS" if prop_a_rate >= 0.95 else "  FAIL")
+    print("\nProposition B (failure outside safe zone):")
     print(f"  {prop_b_pass}/{prop_b_total} = {prop_b_rate:.4f}")
-    print(f"  PASS" if prop_b_rate >= 0.50 else f"  FAIL")
+    print("  PASS" if prop_b_rate >= 0.50 else "  FAIL")
 
     summary = {
         "grid": args.grid,

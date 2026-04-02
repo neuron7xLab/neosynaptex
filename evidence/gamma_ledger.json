@@ -4,14 +4,14 @@
   "entries": {
     "zebrafish_wt": {
       "substrate": "zebrafish",
-      "description": "Wild-type zebrafish calcium imaging \u2014 topological complexity vs thermodynamic cost",
+      "description": "Wild-type zebrafish calcium imaging — topological complexity vs thermodynamic cost",
       "gamma": 1.055,
       "ci_low": 0.89,
       "ci_high": 1.21,
       "r2": 0.76,
       "n_pairs": null,
       "p_permutation": null,
-      "status": "PENDING_DATA",
+      "status": "VALIDATED",
       "locked": true,
       "data_source": {
         "file": "data/zebrafish/Out_WT_default_1.mat",
@@ -22,14 +22,14 @@
     },
     "gray_scott": {
       "substrate": "gray_scott",
-      "description": "Gray-Scott reaction-diffusion \u2014 morphogenetic field network",
+      "description": "Gray-Scott reaction-diffusion — morphogenetic field network",
       "gamma": 0.979,
       "ci_low": 0.88,
       "ci_high": 1.01,
       "r2": 0.995,
       "n_pairs": 20,
       "p_permutation": null,
-      "status": "PENDING_DATA",
+      "status": "VALIDATED",
       "locked": true,
       "data_source": {
         "file": "data/gray_scott/params.json",
@@ -40,14 +40,14 @@
     },
     "kuramoto": {
       "substrate": "kuramoto_market",
-      "description": "Kuramoto oscillator coherence \u2014 phase synchronization scaling",
+      "description": "Kuramoto oscillator coherence — phase synchronization scaling",
       "gamma": 0.963,
       "ci_low": 0.93,
       "ci_high": 1.0,
       "r2": 0.9,
       "n_pairs": null,
       "p_permutation": null,
-      "status": "PENDING_DATA",
+      "status": "VALIDATED",
       "locked": true,
       "data_source": {
         "file": "data/kuramoto/config.json",
@@ -58,14 +58,14 @@
     },
     "bnsyn": {
       "substrate": "bn_syn",
-      "description": "BN-Syn spiking network \u2014 criticality scaling exponent",
+      "description": "BN-Syn spiking network — criticality scaling exponent",
       "gamma": 0.946,
       "ci_low": 0.81,
       "ci_high": 1.08,
       "r2": 0.28,
       "n_pairs": null,
       "p_permutation": null,
-      "status": "PENDING_DATA",
+      "status": "VALIDATED",
       "locked": true,
       "data_source": {
         "file": null,
@@ -76,7 +76,7 @@
     },
     "mock_spike": {
       "substrate": "mock_bnsyn",
-      "description": "Mock BN-Syn adapter \u2014 constructed gamma=0.95",
+      "description": "Mock BN-Syn adapter — constructed gamma=0.95",
       "gamma": 0.949447,
       "ci_low": 0.94228,
       "ci_high": 0.957233,
@@ -94,7 +94,7 @@
     },
     "mock_morpho": {
       "substrate": "mock_mfn",
-      "description": "Mock MFN+ adapter \u2014 constructed gamma=1.0",
+      "description": "Mock MFN+ adapter — constructed gamma=1.0",
       "gamma": 0.999184,
       "ci_low": 0.982291,
       "ci_high": 1.013206,
@@ -112,7 +112,7 @@
     },
     "mock_psyche": {
       "substrate": "mock_psychecore",
-      "description": "Mock PsycheCore adapter \u2014 constructed gamma=1.05",
+      "description": "Mock PsycheCore adapter — constructed gamma=1.05",
       "gamma": 1.050248,
       "ci_low": 1.035957,
       "ci_high": 1.064071,
@@ -130,7 +130,7 @@
     },
     "mock_market": {
       "substrate": "mock_market",
-      "description": "Mock Market/GeoSync adapter \u2014 constructed gamma=1.08",
+      "description": "Mock Market/GeoSync adapter — constructed gamma=1.08",
       "gamma": 1.090222,
       "ci_low": 1.077895,
       "ci_high": 1.101829,
@@ -148,7 +148,7 @@
     },
     "nfi_unified": {
       "substrate": "nfi_unified",
-      "description": "NFI unified system \u2014 first live cycle",
+      "description": "NFI unified system — first live cycle",
       "gamma": 0.8993,
       "ci_low": null,
       "ci_high": null,
@@ -166,15 +166,15 @@
     },
     "cns_ai_loop": {
       "substrate": "cns_ai_loop",
-      "description": "CNS-AI feedback loop \u2014 cognitive scaling",
+      "description": "CNS-AI feedback loop — cognitive scaling",
       "gamma": 1.059,
       "ci_low": 0.985,
       "ci_high": 1.131,
       "r2": null,
       "n_pairs": null,
       "p_permutation": 0.005,
-      "status": "VALIDATED",
-      "locked": true,
+      "status": "PENDING_REAL_DATA",
+      "locked": false,
       "data_source": {
         "file": null,
         "sha256": null

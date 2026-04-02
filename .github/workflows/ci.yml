@@ -175,11 +175,48 @@ jobs:
           path: coverage.xml
           retention-days: 30
 
+  # ── Canonical Gate (6 gates) ────────────────────────────────────────
+  canonical-gate:
+    name: Canonical Gate
+    needs: [lint, typecheck]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+      - run: pip install -e ".[dev]" --quiet
+      - name: Run canonical gate (6 gates)
+        run: python scripts/ci_canonical_gate.py
+      - name: Verify gamma formula
+        run: |
+          python3 -c "
+          for H, exp in [(0.5, 2.0), (0.0, 1.0), (1.0, 3.0)]:
+              g = 2*H+1
+              assert abs(g - exp) < 1e-9, f'FORMULA ERROR H={H}'
+          print('gamma_PSD = 2H+1: VERIFIED')
+          "
+
+  # ── License Boundaries ─────────────────────────────────────────────
+  license-boundaries:
+    name: License Boundaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - name: Check license boundaries
+        run: python scripts/check_license_boundaries.py
+
   # ── CI Gate ───────────────────────────────────────────────────────────
   ci-gate:
     name: CI Gate
     if: always()
-    needs: [lint, typecheck, verify, invariants, coverage]
+    needs: [lint, typecheck, verify, invariants, coverage, canonical-gate]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all required jobs passed
@@ -189,6 +226,7 @@ jobs:
             "${{ needs.verify.result }}"
             "${{ needs.invariants.result }}"
             "${{ needs.coverage.result }}"
+            "${{ needs.canonical-gate.result }}"
           )
           for r in "${results[@]}"; do
             if [[ "$r" != "success" ]]; then

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """X1: Evidence freeze — generate SHA-256 manifest of all evidence artifacts."""
+
 from __future__ import annotations
 
 import argparse
@@ -63,7 +64,7 @@ def main() -> int:
 
     print(f"Manifest: {file_count} files")
     print(f"Chain root: {chain_hash[:16]}...")
-    print(f"SHA-256 chain: INTACT")
+    print("SHA-256 chain: INTACT")
     print(f"Output: {manifest_path}")
     return 0
 

@@ -8,6 +8,7 @@ bootstrap CI — the same _per_domain_gamma function used at runtime.
 For real substrates (zebrafish, gray_scott, kuramoto, bnsyn) that have
 no raw data in this repository, entries are marked PENDING_DATA.
 """
+
 from __future__ import annotations
 
 import json
@@ -20,9 +21,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from neosynaptex import (
     MockBnSynAdapter,
+    MockMarketAdapter,
     MockMfnAdapter,
     MockPsycheCoreAdapter,
-    MockMarketAdapter,
     _per_domain_gamma,
 )
 
