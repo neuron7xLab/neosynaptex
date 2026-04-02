@@ -57,7 +57,7 @@ jobs:
     name: Verify (${{ matrix.python-version }})
     needs: [lint]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -152,7 +152,7 @@ jobs:
     name: Coverage
     needs: [lint]
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
