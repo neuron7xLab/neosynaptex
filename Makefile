@@ -1,4 +1,4 @@
-.PHONY: verify test lint format demo report clean install typecheck
+.PHONY: verify test lint format demo report clean install typecheck reproduce
 
 install:
 	pip install -e ".[dev]" --quiet
@@ -41,6 +41,9 @@ print(f'NFI STATE: {\"VALID\" if result else \"INVALID\"}'); \
 print(f'γ = {state[\"gamma\"]:.4f}'); \
 print(f'Substrates: {len(state[\"substrates\"])} independent witnesses'); \
 print(f'Motion: slope={state[\"convergence_slope\"]}')"
+
+reproduce: install
+	python3 scripts/reproduce.py
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true

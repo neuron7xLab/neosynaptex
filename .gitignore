@@ -34,3 +34,4 @@ migration_manifest.json
 *.pth
 *.weights
 .coverage
+evidence/reproduction_bundle.json
