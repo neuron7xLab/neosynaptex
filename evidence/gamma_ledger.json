@@ -182,5 +182,13 @@
       "adapter_code_hash": null,
       "derivation_method": "p_perm=0.005, CI=[0.985,1.131]"
     }
+  },
+  "derivation_protocol": {
+    "bootstrap_n": 2000,
+    "seed": 42,
+    "block_bootstrap": "circular_mbb",
+    "surrogate": "iaaft_multivariate",
+    "alpha": 0.05,
+    "frozen_at": "2026-04-02"
   }
 }
