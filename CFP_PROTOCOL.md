@@ -231,7 +231,7 @@ NFI Substrate Map:
 +-- Oscillatory:   mvstack (Kuramoto)            gamma = +0.963
 +-- Neural:        BN-Syn / DNCA                 gamma = +0.946
 +-- Cognitive:     CNS-AI Loop                   gamma = +1.059
-+-- Co-adaptive:   CFP/DIY (human+AI)            gamma = pending  <-- THIS
++-- Co-adaptive:   CFP/DIY (human+AI)            gamma = +1.832 (CONSTRUCTED, ABM)
 ```
 
 ### Contracts
@@ -283,12 +283,34 @@ Code: `substrates/cfp_diy/`
 
 | File | Purpose |
 |------|---------|
-| `adapter.py` | DomainAdapter Protocol (topo, cost, state) |
-| `metrics.py` | CRR, CPR, MTLD, S-score, gamma-CRR |
-| `protocol.py` | T0->T3 experiment engine |
-| `topology_law.py` | F3 kill switch + M4 minimal dataset test |
+| `adapter.py` | ABM simulation: 50 agents, 25 AI-quality regimes, emergent gamma |
+| `metrics.py` | CRR, CPR, MTLD, S-score, gamma-CRR (PSD + Theil-Sen) |
+| `protocol.py` | T0->T3 experiment engine (ready for Level 1 real data) |
+| `topology_law.py` | F3 kill switch + M4 test (both ABM-based) |
 
-Tests: `tests/test_cfp_diy.py` -- 32 tests
+Tests: `tests/test_cfp_diy.py` -- 37 tests (incl. 5 scientific integrity guards)
+
+### Current ABM Results (CONSTRUCTED -- not real data)
+
+```
+gamma  = 1.832  (COLLAPSE zone, NOT metastable)
+R2     = 0.853
+CI95   = [1.638, 1.978]
+p_perm = 0.000
+```
+
+Interpretation: In this ABM, error rate drops faster than throughput grows
+as AI quality increases. The system is NOT in metastable equilibrium.
+This is a legitimate scientific finding from the simulation --
+real human data may produce different gamma.
+
+### Scientific Integrity Guards
+
+1. AST scan: no `gamma = <float>` assignments in adapter source
+2. No `topo**(-x)` power-law injection
+3. ABM tracks skill/delegation/error dynamics
+4. Ledger status = CONSTRUCTED (not VALIDATED)
+5. gamma is whatever the simulation produces
 
 ---
 
