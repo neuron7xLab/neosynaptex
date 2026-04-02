@@ -16,12 +16,14 @@ import json
 import logging
 import math
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Optional, Protocol
 
 import numpy as np
 from scipy.linalg import lstsq as scipy_lstsq
 from scipy.spatial import ConvexHull
 from scipy.stats import theilslopes
+
+from core.value_function import ValueEstimate, estimate_value
 
 __all__ = [
     "DomainAdapter",
@@ -146,6 +148,9 @@ class NeosynaptexState:
 
     # --- Full diagnostic ---
     diagnostic: dict
+
+    # --- Internal value function (X8 v2) ---
+    value_estimate: Optional[ValueEstimate] = None
 
     class _Cfg:
         arbitrary_types_allowed = True
@@ -577,6 +582,9 @@ class Neosynaptex:
         # Bootstrap cache for permutation test
         self._gamma_bootstraps: dict[str, np.ndarray] = {}
 
+        # Free-energy proxy history for valence (X8 v2)
+        self._f_history: list[float] = []
+
     def register(self, adapter: DomainAdapter) -> None:
         """Register a domain adapter. Max 4 state variables per adapter."""
         keys = adapter.state_keys
@@ -768,6 +776,26 @@ class Neosynaptex:
             else:
                 modulation[name] = 0.0
 
+        # === Value function (X8 v2: 4-signal neuromodulatory) ===
+        f_proxy = 1.0 - cross_coherence if np.isfinite(cross_coherence) else 0.5
+        self._f_history.append(f_proxy)
+        if len(self._f_history) > 10:
+            self._f_history = self._f_history[-10:]
+
+        gamma_valid_count = len(gamma_valid)
+        n_total_domains = len(domain_order)
+        if phase != INITIALIZING and gamma_valid_count > 0 and np.isfinite(gamma_mean):
+            value_estimate = estimate_value(
+                gamma_mean=gamma_mean,
+                spectral_radius=spectral_radius if np.isfinite(spectral_radius) else 1.0,
+                cross_coherence=cross_coherence if np.isfinite(cross_coherence) else 0.0,
+                n_valid_domains=gamma_valid_count,
+                n_total_domains=max(n_total_domains, 1),
+                f_history=self._f_history,
+            )
+        else:
+            value_estimate = None
+
         # === Build diagnostic ===
         diagnostic = {
             "tick": self._tick,
@@ -805,6 +833,7 @@ class Neosynaptex:
             resilience_score=resilience_score,
             modulation=dict(modulation),
             diagnostic=dict(diagnostic),
+            value_estimate=value_estimate,
         )
 
         self._history.append(state)
@@ -887,6 +916,7 @@ class Neosynaptex:
         self._departures = 0
         self._returns = 0
         self._was_metastable = False
+        self._f_history.clear()
 
     def export_proof(self, path: str | None = None) -> dict:
         """Export proof bundle as JSON-serializable dict.
