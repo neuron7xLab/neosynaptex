@@ -6,7 +6,7 @@ JSON-RPC style, no HTTP dependencies. SSI external enforced.
 from __future__ import annotations
 
 import json
-import subprocess
+import subprocess  # nosec B404 — used only for hardcoded git command
 import time
 from collections.abc import Generator
 from dataclasses import dataclass
@@ -179,7 +179,7 @@ class CoherenceBridge:
     @staticmethod
     def _get_git_sha() -> str:
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 B607 — hardcoded git command, no user input
                 ["git", "rev-parse", "--short", "HEAD"],
                 capture_output=True,
                 text=True,

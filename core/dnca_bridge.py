@@ -139,7 +139,7 @@ class DncaBridge:
                 return float(self._dnca.get_gamma())
             if hasattr(self._dnca, "gamma"):
                 return float(self._dnca.gamma)
-        except Exception:
+        except Exception:  # nosec B110 — graceful degradation: DNCA subsystem optional
             pass
         return float("nan")
 
@@ -150,7 +150,7 @@ class DncaBridge:
             history = self._engine.history()
             if history:
                 return float(history[-1].gamma_mean)
-        except Exception:
+        except Exception:  # nosec B110 — graceful degradation: engine history may be empty
             pass
         return float("nan")
 
@@ -164,7 +164,7 @@ class DncaBridge:
             if hasattr(self._dnca, "regime"):
                 result = str(self._dnca.regime)
                 return result
-        except Exception:
+        except Exception:  # nosec B110 — graceful degradation: DNCA regime query optional
             pass
         return "unknown"
 
@@ -175,7 +175,7 @@ class DncaBridge:
             history = self._engine.history()
             if history:
                 return str(history[-1].phase)
-        except Exception:
+        except Exception:  # nosec B110 — graceful degradation: engine phase query optional
             pass
         return "INITIALIZING"
 
@@ -187,6 +187,6 @@ class DncaBridge:
                 return dict(self._dnca.get_neuromodulation())
             if hasattr(self._dnca, "neuromod_levels"):
                 return dict(self._dnca.neuromod_levels)
-        except Exception:
+        except Exception:  # nosec B110 — graceful degradation: DNCA neuromod optional
             pass
         return {}

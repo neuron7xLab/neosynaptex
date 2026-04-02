@@ -24,6 +24,10 @@ class HrvAdapter:
         self._rng = np.random.default_rng(seed)
         self._t = 0
         self._rr: np.ndarray = self._generate_rr()
+        self._cached_tick = -1
+        self._cached_dfa = float("nan")
+        self._cached_se = float("nan")
+        self._cached_rmssd = float("nan")
 
     @property
     def domain(self) -> str:
@@ -33,35 +37,41 @@ class HrvAdapter:
     def state_keys(self) -> list[str]:
         return ["dfa_alpha", "sample_entropy", "rmssd"]
 
+    def _compute_metrics(self) -> None:
+        """Cache metrics for current tick to avoid redundant O(n^2) SampEn."""
+        if self._cached_tick == self._t:
+            return
+        self._cached_dfa = self._dfa_alpha(self._rr)
+        self._cached_se = self._sample_entropy(self._rr, m=2, r=0.2)
+        self._cached_rmssd = self._rmssd(self._rr)
+        self._cached_tick = self._t
+
     def state(self) -> dict[str, float]:
         self._t += 1
         self._rr = self._generate_rr()
-
-        dfa = self._dfa_alpha(self._rr)
-        se = self._sample_entropy(self._rr, m=2, r=0.2)
-        rmssd = self._rmssd(self._rr)
+        self._compute_metrics()
 
         return {
-            "dfa_alpha": dfa,
-            "sample_entropy": se,
-            "rmssd": rmssd,
+            "dfa_alpha": self._cached_dfa,
+            "sample_entropy": self._cached_se,
+            "rmssd": self._cached_rmssd,
         }
 
     def topo(self) -> float:
-        """Topological complexity = DFA scaling × log(n_beats).
+        """Topological complexity = DFA scaling x log(n_beats).
 
-        Higher DFA α × more beats = more complex organization.
+        Higher DFA alpha x more beats = more complex organization.
         """
-        dfa = self._dfa_alpha(self._rr)
-        return max(0.01, dfa * math.log(self._n))
+        self._compute_metrics()
+        return max(0.01, self._cached_dfa * math.log(self._n))
 
     def thermo_cost(self) -> float:
         """Thermodynamic cost = 1 / sample_entropy.
 
         Low entropy (high regularity) = high cost to maintain order.
         """
-        se = self._sample_entropy(self._rr, m=2, r=0.2)
-        return max(0.01, 1.0 / max(se, 0.01))
+        self._compute_metrics()
+        return max(0.01, 1.0 / max(self._cached_se, 0.01))
 
     def _generate_rr(self) -> np.ndarray:
         """Generate RR intervals with 1/f^alpha spectrum."""
@@ -113,19 +123,20 @@ class HrvAdapter:
 
     @staticmethod
     def _sample_entropy(rr: np.ndarray, m: int = 2, r: float = 0.2) -> float:
-        """Sample entropy (Richman & Moorman 2000)."""
+        """Sample entropy (Richman & Moorman 2000) — vectorized."""
         n = len(rr)
         tolerance = r * np.std(rr)
         if tolerance < 1e-10 or n < m + 2:
             return float("nan")
 
         def _count_matches(template_len: int) -> int:
+            templates = np.lib.stride_tricks.sliding_window_view(rr, template_len)
+            n_t = len(templates)
             count = 0
-            for i in range(n - template_len):
-                for j in range(i + 1, n - template_len):
-                    diff = np.abs(rr[i : i + template_len] - rr[j : j + template_len])
-                    if np.max(diff) < tolerance:
-                        count += 1
+            for i in range(n_t):
+                diffs = np.abs(templates[i + 1 :] - templates[i])
+                matches = np.all(diffs < tolerance, axis=1)
+                count += int(np.sum(matches))
             return count
 
         a = _count_matches(m + 1)
