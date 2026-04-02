@@ -371,6 +371,23 @@ class TestCoherence:
         # (permutation test with only 2 groups has limited power, so just check it runs)
         assert isinstance(s.universal_scaling_p, float)
 
+    def test_constructor_control_params_validation(self):
+        with pytest.raises(ValueError):
+            Neosynaptex(window=16, eta=0.0)
+        with pytest.raises(ValueError):
+            Neosynaptex(window=16, epsilon=0.0)
+        with pytest.raises(ValueError):
+            Neosynaptex(window=16, chi_min=1.5)
+
+    def test_modulation_zero_when_coherence_gate_closed(self):
+        nx = Neosynaptex(window=16, chi_min=0.95)
+        nx.register(_KnownGammaAdapter(gamma=0.5, seed=10, name="a"))
+        nx.register(_KnownGammaAdapter(gamma=2.6, seed=11, name="b"))
+        nx.register(_KnownGammaAdapter(gamma=3.1, seed=12, name="c"))
+        s = _warmup(nx, 35)
+        assert (not np.isfinite(s.cross_coherence)) or s.cross_coherence < 0.95
+        assert all(mod == 0.0 for mod in s.modulation.values())
+
 
 # ===================================================================
 # Jacobian + Condition number

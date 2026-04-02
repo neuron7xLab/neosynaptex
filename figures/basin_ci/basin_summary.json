@@ -1,0 +1,10 @@
+{
+  "grid": "21x11x11",
+  "steps": 500,
+  "witness_count": 5,
+  "n_runs": 2,
+  "mean_critical_fraction": 0.18221172766627314,
+  "mean_collapse_fraction": 0.79456906729634,
+  "mean_unresolved_fraction": 0.023219205037386857,
+  "no_third_attractor_flag": true
+}

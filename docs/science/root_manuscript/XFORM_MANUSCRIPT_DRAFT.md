@@ -214,7 +214,7 @@ Code (Python) shows the strongest scaling toward unity. Documentation (Markdown)
 
 ### 5.1 Universality of gamma
 
-Five independent physical substrates -- spanning morphogenesis, chemical dynamics, neural computation, market behavior, and cross-domain coherence -- all yield $\gamma$ values whose confidence intervals contain unity. The probability of this occurring by chance, assuming independent uniform distributions of $\gamma$ on $[-2, 3]$ with CI width $\sim 0.3$, is approximately $(0.3/5)^5 \approx 7.8 \times 10^{-5}$.
+Five-independent physical substrates -- spanning morphogenesis, chemical dynamics, neural computation, market behavior, and cross-domain coherence -- all yield $\gamma$ values whose confidence intervals contain unity. The probability of this occurring by chance, assuming independent uniform distributions of $\gamma$ on $[-2, 3]$ with CI width $\sim 0.3$, is approximately $(0.3/5)^5 \approx 7.8 \times 10^{-5}$.
 
 The mean gamma across physical substrates, $\bar{\gamma} = 0.994 \pm 0.077$, is statistically indistinguishable from unity.
 

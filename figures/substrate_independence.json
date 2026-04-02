@@ -1,0 +1,77 @@
+{
+  "substrates": [
+    "zebrafish_wt",
+    "gray_scott",
+    "kuramoto",
+    "bnsyn",
+    "nfi_unified"
+  ],
+  "gamma_mean": 0.96846,
+  "gamma_std": 0.05082840150939236,
+  "loo_stability": [
+    {
+      "drop": "zebrafish_wt",
+      "mean_gamma": 0.946825
+    },
+    {
+      "drop": "gray_scott",
+      "mean_gamma": 0.9658249999999999
+    },
+    {
+      "drop": "kuramoto",
+      "mean_gamma": 0.9698249999999999
+    },
+    {
+      "drop": "bnsyn",
+      "mean_gamma": 0.974075
+    },
+    {
+      "drop": "nfi_unified",
+      "mean_gamma": 0.9857499999999999
+    }
+  ],
+  "pairwise_gamma_distance": {
+    "zebrafish_wt__gray_scott": 0.07599999999999996,
+    "zebrafish_wt__kuramoto": 0.09199999999999997,
+    "zebrafish_wt__bnsyn": 0.10899999999999999,
+    "zebrafish_wt__nfi_unified": 0.15569999999999995,
+    "gray_scott__kuramoto": 0.016000000000000014,
+    "gray_scott__bnsyn": 0.03300000000000003,
+    "gray_scott__nfi_unified": 0.0797,
+    "kuramoto__bnsyn": 0.017000000000000015,
+    "kuramoto__nfi_unified": 0.06369999999999998,
+    "bnsyn__nfi_unified": 0.046699999999999964
+  },
+  "independence_matrix": [
+    {
+      "substrate": "zebrafish_wt",
+      "code_independence": true,
+      "data_independence": true,
+      "mechanism_class": "biological"
+    },
+    {
+      "substrate": "gray_scott",
+      "code_independence": true,
+      "data_independence": true,
+      "mechanism_class": "reaction-diffusion"
+    },
+    {
+      "substrate": "kuramoto",
+      "code_independence": true,
+      "data_independence": true,
+      "mechanism_class": "oscillator"
+    },
+    {
+      "substrate": "bnsyn",
+      "code_independence": true,
+      "data_independence": true,
+      "mechanism_class": "spiking-network"
+    },
+    {
+      "substrate": "nfi_unified",
+      "code_independence": true,
+      "data_independence": true,
+      "mechanism_class": "integrative-control"
+    }
+  ]
+}

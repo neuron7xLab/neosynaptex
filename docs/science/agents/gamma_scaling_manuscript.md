@@ -8,7 +8,7 @@ neuron7x@gmail.com
 
 ## Abstract
 
-We measure the topological scaling exponent γ — the log-log slope between changes in H0 persistent entropy and H0 Betti number — across five independent substrates: zebrafish pigmentation (biological), Gray-Scott reaction-diffusion (morphogenetic), Kuramoto market synchronization (economic), 2D Ising lattice (physical), and a distributed neuromodulatory cognitive architecture (computational). Three diffusive-oscillatory substrates converge on γ ∈ [0.865, 1.081] with divergence 0.216. The competitive cognitive architecture yields γ ≈ 2.0 at default parameters but converges to the same range (γ = 0.86) when competition is tuned to its metastable operating point. Shuffled controls yield γ ≈ 0 across all substrates (mean 0.041, SD 0.094).
+We measure the topological scaling exponent γ — the log-log slope between changes in H0 persistent entropy and H0 Betti number — across five-independent substrates: zebrafish pigmentation (biological), Gray-Scott reaction-diffusion (morphogenetic), Kuramoto market synchronization (economic), 2D Ising lattice (physical), and a distributed neuromodulatory cognitive architecture (computational). Three diffusive-oscillatory substrates converge on γ ∈ [0.865, 1.081] with divergence 0.216. The competitive cognitive architecture yields γ ≈ 2.0 at default parameters but converges to the same range (γ = 0.86) when competition is tuned to its metastable operating point. Shuffled controls yield γ ≈ 0 across all substrates (mean 0.041, SD 0.094).
 
 Seven falsification tests establish that: (i) γ is not a standard critical exponent, (ii) γ is not an artifact of the measurement pipeline on native multi-dimensional fields, (iii) γ ≈ 1.0 occurs in systems with moderate topological variability regardless of substrate, and (iv) the measurement is restricted to multi-dimensional density fields (not low-dimensional ODE trajectories). The theoretical mechanism underlying the specific value γ ≈ 1.0 remains an open question. We report the empirical pattern without overclaiming its interpretation, following the precedent of Kuramoto (1975), whose synchronization model preceded its theoretical explanation by two decades.
 
@@ -153,7 +153,7 @@ Analysis of persistent homology dynamics reveals: γ approaches 1.0 when pe₀ a
 γ is a topological scaling exponent that quantifies how persistent entropy changes relative to persistent Betti number changes in time-evolving multi-dimensional density fields. It satisfies three conditions for a useful diagnostic:
 
 1. **Discrimination:** γ > 0 for all organized systems; γ ≈ 0 for shuffled controls
-2. **Convergence:** γ ∈ [0.86, 1.33] across five independent substrates operating in moderate-variability regimes
+2. **Convergence:** γ ∈ [0.86, 1.33] across five-independent substrates operating in moderate-variability regimes
 3. **Sensitivity:** γ responds to parameter changes (competition sweep, temperature sweep) in a systematic, reproducible way
 
 ### 5.2 What γ is not
@@ -185,11 +185,11 @@ Kuramoto (1975) introduced his coupled oscillator model to describe the Belousov
 
 ## 6. Conclusion
 
-We report an empirical observation: the topological scaling exponent γ, measured via cubical persistent homology on time-evolving density fields, converges on γ ∈ [0.86, 1.33] across five independent substrates — biological tissue, reaction-diffusion fields, market synchronization, spin lattices, and cognitive competitive dynamics. Shuffled controls yield γ ≈ 0 in every case. The convergence is not a measurement artifact, not a critical exponent, and not universal to all dynamical systems. It is a reproducible, falsifiable, substrate-spanning pattern whose theoretical explanation is an open problem.
+We report an empirical observation: the topological scaling exponent γ, measured via cubical persistent homology on time-evolving density fields, converges on γ ∈ [0.86, 1.33] across five-independent substrates — biological tissue, reaction-diffusion fields, market synchronization, spin lattices, and cognitive competitive dynamics. Shuffled controls yield γ ≈ 0 in every case. The convergence is not a measurement artifact, not a critical exponent, and not universal to all dynamical systems. It is a reproducible, falsifiable, substrate-spanning pattern whose theoretical explanation is an open problem.
 
 The sentence this work supports:
 
-> *Five independent substrates — zebrafish morphogenesis, Gray-Scott reaction-diffusion, Kuramoto market synchronization, 2D Ising lattice, and neuromodulatory cognitive competition — converge on γ ∈ [0.86, 1.33] when operating in moderate-variability regimes. All organized systems show γ > 0; all shuffled controls show γ ≈ 0. The mechanism underlying the convergence on γ ≈ 1.0 is unknown. We report the pattern.*
+> *Five-independent substrates — zebrafish morphogenesis, Gray-Scott reaction-diffusion, Kuramoto market synchronization, 2D Ising lattice, and neuromodulatory cognitive competition — converge on γ ∈ [0.86, 1.33] when operating in moderate-variability regimes. All organized systems show γ > 0; all shuffled controls show γ ≈ 0. The mechanism underlying the convergence on γ ≈ 1.0 is unknown. We report the pattern.*
 
 ---
 

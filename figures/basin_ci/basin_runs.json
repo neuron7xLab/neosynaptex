@@ -1,0 +1,26 @@
+[
+  {
+    "seed": 0,
+    "fault_rate": 0.05,
+    "sigma": 0.02,
+    "rho": 0.005,
+    "epsilon": 0.03,
+    "eta": 0.05,
+    "chi_min": 0.3,
+    "critical_fraction": 0.18103109012199922,
+    "collapse_fraction": 0.7949626131444313,
+    "unresolved_fraction": 0.024006296733569462
+  },
+  {
+    "seed": 1,
+    "fault_rate": 0.05,
+    "sigma": 0.02,
+    "rho": 0.005,
+    "epsilon": 0.03,
+    "eta": 0.05,
+    "chi_min": 0.3,
+    "critical_fraction": 0.18339236521054703,
+    "collapse_fraction": 0.7941755214482488,
+    "unresolved_fraction": 0.02243211334120425
+  }
+]

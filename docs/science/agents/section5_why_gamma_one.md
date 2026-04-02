@@ -118,7 +118,7 @@ Five candidate formulas from critical exponent theory were tested against the 2D
 
 ### 5.8 Synthesis: what γ actually is
 
-The seven experiments converge on a picture that is less dramatic than "universal law" but more honest and still significant:
+The seven experiments converge on a picture that is less dramatic than "universal-law" but more honest and still significant:
 
 **1. γ is a topological scaling exponent of multi-dimensional density fields.**
 It measures the rate at which persistent entropy changes relative to persistent Betti number changes. It requires sufficiently high-dimensional fields (≥6D for activity fields, or native 2D spatial grids).

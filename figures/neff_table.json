@@ -1,0 +1,85 @@
+{
+  "rows": [
+    {
+      "entry_id": "zebrafish_wt",
+      "n_raw": 64,
+      "tau": 22.283276546989775,
+      "n_eff": 2,
+      "gamma": 1.055,
+      "ci_low": 0.89,
+      "ci_high": 1.21
+    },
+    {
+      "entry_id": "gray_scott",
+      "n_raw": 64,
+      "tau": 22.28300430260011,
+      "n_eff": 2,
+      "gamma": 0.979,
+      "ci_low": 0.88,
+      "ci_high": 1.01
+    },
+    {
+      "entry_id": "kuramoto",
+      "n_raw": 64,
+      "tau": 22.28249525947931,
+      "n_eff": 2,
+      "gamma": 0.963,
+      "ci_low": 0.93,
+      "ci_high": 1.0
+    },
+    {
+      "entry_id": "bnsyn",
+      "n_raw": 64,
+      "tau": 22.283245692181257,
+      "n_eff": 2,
+      "gamma": 0.946,
+      "ci_low": 0.81,
+      "ci_high": 1.08
+    },
+    {
+      "entry_id": "mock_spike",
+      "n_raw": 64,
+      "tau": 22.27353368961665,
+      "n_eff": 2,
+      "gamma": 0.949447,
+      "ci_low": 0.94228,
+      "ci_high": 0.957233
+    },
+    {
+      "entry_id": "mock_morpho",
+      "n_raw": 64,
+      "tau": 22.280399118875273,
+      "n_eff": 2,
+      "gamma": 0.999184,
+      "ci_low": 0.982291,
+      "ci_high": 1.013206
+    },
+    {
+      "entry_id": "mock_psyche",
+      "n_raw": 64,
+      "tau": 22.279917060529936,
+      "n_eff": 2,
+      "gamma": 1.050248,
+      "ci_low": 1.035957,
+      "ci_high": 1.064071
+    },
+    {
+      "entry_id": "mock_market",
+      "n_raw": 64,
+      "tau": 22.27889558797405,
+      "n_eff": 2,
+      "gamma": 1.090222,
+      "ci_low": 1.077895,
+      "ci_high": 1.101829
+    },
+    {
+      "entry_id": "cns_ai_loop",
+      "n_raw": 64,
+      "tau": 22.283059501933522,
+      "n_eff": 2,
+      "gamma": 1.059,
+      "ci_low": 0.985,
+      "ci_high": 1.131
+    }
+  ]
+}

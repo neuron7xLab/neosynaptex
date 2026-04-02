@@ -1,69 +1,55 @@
-# NeoSynaptex: Cross-Domain Gamma Scaling as a Universal Signature of Metastability
+# NeoSynaptex Manuscript Skeleton
 
-**Yaroslav Vasylenko** | neuron7xLab
+## 1. Introduction
+This section defines the scientific motivation: metastable computation as an empirically testable regime property across heterogeneous organized systems. It sets falsifiable boundaries and clarifies that claims are regularities, not universal-laws.  
+content: [file reference: docs/science/manuscript/claim.md]
 
----
+## 2. Formal definition of γ and observables
+This section provides the operational definition of \(\gamma\), observables \((T, C)\), regression protocol, confidence interval construction, and quality gates (data sufficiency, dynamic range, fit).  
+content: [file reference: manuscript/XFORM_MANUSCRIPT_DRAFT.md]
+content: [file reference: docs/science/manuscript/theory_notes.md]
 
-## Abstract
+## 3. Closed-loop model
+This section introduces witness-based control architecture: anomaly isolation, robust median aggregation, MAD coherence gate, bounded modulation, and fault tolerance assumptions.  
+content: [file reference: neosynaptex.py]
 
-We present NeoSynaptex, an integrating mirror layer that observes four
-heterogeneous NFI subsystems and computes cross-domain coherence diagnostics.
-The central invariant: the scaling exponent gamma is **derived only, never assigned**.
+## 4. Stability of the closed loop (Propositions A+B)
+This section states assumptions, Lyapunov candidate \(V_\gamma(e)\), and the two formal propositions for unique attracting critical interval and binary asymptotic structure with collapse.  
+content: [file reference: docs/science/manuscript/section_2_3_closed_loop.md]
 
-## Methods
+## 5. Cross-substrate empirical results
+This section consolidates empirical \(\gamma\) estimates and confidence intervals across substrates, preserving evidence tiers and substrate-role separation.  
+Anchor tags for claim verification: zebrafish \(\gamma={evidence:zebrafish_wt:gamma}\), BN-Syn \(\gamma={evidence:bnsyn:gamma}\), NFI unified \(\gamma={evidence:nfi_unified:gamma}\).  
+content: [file reference: evidence/gamma_ledger.json]
+content: [file reference: docs/science/manuscript/substrate_independence.md]
 
-Gamma is estimated via Theil-Sen robust regression on log(cost) vs log(topo),
-with 200-iteration bootstrap confidence intervals and permutation-based
-universal scaling tests.
+## 6. Strong nulls
+This section reports null-family outcomes (shuffle, block-shuffle, IAAFT) with p-values, null medians, and separation against constrained surrogates.  
+content: [file reference: core/surrogates.py]
 
-## Results
+## 7. Multiverse robustness
+This section summarizes 432-pipeline robustness per substrate, including distributional ranges, CI-behavior fractions, and null-robustness aggregates.  
+content: [file reference: scripts/multiverse_sweep.py]
 
-### Mock BN-Syn (Spike Domain)
+## 8. Basin structure / computational evidence
+This section maps critical/collapse/unresolved basins over \((\gamma_0, sr_0, Q_0)\) with parameter sweeps, sensitivity, and unresolved fraction diagnostics.  
+content: [file reference: scripts/basin_exhaustion.py]
 
-- gamma = {evidence:mock_spike:gamma}
-- CI = [{evidence:mock_spike:ci_low}, {evidence:mock_spike:ci_high}]
-- R2 = {evidence:mock_spike:r2}
-- n = {evidence:mock_spike:n_pairs} pairs
-- Derivation: constructed cost = 8.0 * topo^(-0.95) + noise
+## 9. Discussion
+This section interprets empirical regularity, mechanism limits, and evidence hierarchy constraints without overclaiming beyond theorem/computation support.  
+content: [file reference: docs/science/manuscript/claim.md]
+content: [file reference: docs/science/manuscript/mechanistic_bridge.md]
 
-### Mock MFN+ (Morpho Domain)
+## 10. Limitations
+This section lists dependence assumptions, surrogate limitations, unresolved-basin caveats, parameter identifiability, and external-validity constraints.  
+content: [file reference: docs/science/manuscript/figures.md]
 
-- gamma = {evidence:mock_morpho:gamma}
-- CI = [{evidence:mock_morpho:ci_low}, {evidence:mock_morpho:ci_high}]
-- R2 = {evidence:mock_morpho:r2}
-- n = {evidence:mock_morpho:n_pairs} pairs
-- Derivation: constructed cost = 10.0 * topo^(-1.0) + noise
-
-### Mock PsycheCore (Psyche Domain)
-
-- gamma = {evidence:mock_psyche:gamma}
-- CI = [{evidence:mock_psyche:ci_low}, {evidence:mock_psyche:ci_high}]
-- R2 = {evidence:mock_psyche:r2}
-- n = {evidence:mock_psyche:n_pairs} pairs
-- Derivation: constructed cost = 20.0 * topo^(-1.05) + noise
-
-### Mock Market/GeoSync (Market Domain)
-
-- gamma = {evidence:mock_market:gamma}
-- CI = [{evidence:mock_market:ci_low}, {evidence:mock_market:ci_high}]
-- R2 = {evidence:mock_market:r2}
-- n = {evidence:mock_market:n_pairs} pairs
-- Derivation: constructed cost = 5.0 * topo^(-1.08) + noise
-
-## Discussion
-
-All four mock substrates recover gamma within 0.02 of the constructed
-true value, with R2 > 0.99 and tight bootstrap CIs. This validates the
-Theil-Sen + bootstrap pipeline as the canonical derivation method.
-
-## Invariants
-
-1. gamma NEVER hardcoded -- always from GammaRegistry.get()
-2. gamma_ledger.json is the ONLY source of truth for gamma values
-3. Every locked=true entry has SHA-256 chain to raw data
-4. numpy/scipy only -- no torch, sklearn, pandas in core
-
----
-
-*neuron7xLab -- Yaroslav Vasylenko -- 2026*
-*"gamma derived only. Intelligence as regime property."*
+## Supplement plan (S1-S7)
+- S1 block bootstrap + \(N_{\mathrm{eff}}\)  
+- S2 surrogate protocols  
+- S3 multiverse specification  
+- S4 anomaly isolation + control aggregation  
+- S5 basin computation details  
+- S6 reproducibility manifest  
+- S7 external data provenance  
+content: [file reference: scripts/generate_manifest.py]

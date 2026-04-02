@@ -1,0 +1,28 @@
+{
+  "zebrafish_wt": {
+    "window_factor": {
+      "effect_span": 0.00024528395925971225,
+      "levels": 4.0
+    },
+    "overlap": {
+      "effect_span": 0.0006186449244662828,
+      "levels": 3.0
+    },
+    "topo_summary": {
+      "effect_span": 0.0015248885052689953,
+      "levels": 3.0
+    },
+    "filtration": {
+      "effect_span": 0.00023280507180900578,
+      "levels": 2.0
+    },
+    "regression": {
+      "effect_span": 0.00010604750420206699,
+      "levels": 2.0
+    },
+    "bootstrap_multiplier": {
+      "effect_span": 0.0005958819507012603,
+      "levels": 3.0
+    }
+  }
+}

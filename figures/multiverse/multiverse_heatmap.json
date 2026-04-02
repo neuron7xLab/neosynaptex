@@ -1,0 +1,10 @@
+{
+  "zebrafish_wt": {
+    "n_pipelines": 432.0,
+    "median_gamma": 1.0548971978639539,
+    "gamma_q05": 1.0471965137433425,
+    "gamma_q95": 1.0622117107184115,
+    "frac_ci_excludes_zero": 1.0,
+    "frac_ci_contains_unity": 0.004629629629629629
+  }
+}

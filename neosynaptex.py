@@ -61,6 +61,8 @@ _BOOTSTRAP_N = 200
 _PERMUTATION_N = 500
 _COND_GATE = 1e6
 _EMA_ALPHA = 0.3
+_OUTLIER_SCORE_GATE = 0.8
+_COHERENCE_TAU = 1e-6
 
 # Phase labels
 INITIALIZING = "INITIALIZING"
@@ -534,8 +536,14 @@ class Neosynaptex:
     - Anomaly isolation (leave-one-out)
     - Phase portrait topology (area, recurrence, distance-to-ideal)
     - Resilience score (return rate after departures from metastability)
-    - Reflexive modulation signal (bounded |mod| <= 0.05)
+    - Reflexive modulation signal (bounded |mod| <= epsilon <= 0.05)
     - Phase with hysteresis (CONVERGING / METASTABLE / DRIFTING / ...)
+
+    Closed-loop control contract:
+    - anomaly isolation (leave-one-out)
+    - median error aggregation over valid witnesses
+    - MAD-based coherence gate chi in [0, 1]
+    - bounded update enabled only when chi >= chi_min
 
     Usage::
 
@@ -546,10 +554,21 @@ class Neosynaptex:
         print(state.phase, state.gamma_mean, state.modulation)
     """
 
-    def __init__(self, window: int = 16) -> None:
+    def __init__(
+        self, window: int = 16, eta: float = 0.05, epsilon: float = 0.05, chi_min: float = 0.3
+    ) -> None:
         if window < 8:
             raise ValueError(f"window must be >= 8, got {window}")
+        if eta <= 0.0:
+            raise ValueError(f"eta must be > 0, got {eta}")
+        if epsilon <= 0.0:
+            raise ValueError(f"epsilon must be > 0, got {epsilon}")
+        if not (0.0 <= chi_min <= 1.0):
+            raise ValueError(f"chi_min must be in [0, 1], got {chi_min}")
         self._window = window
+        self._eta = float(eta)
+        self._epsilon = float(min(epsilon, 0.05))
+        self._chi_min = float(chi_min)
         self._adapters: dict[str, DomainAdapter] = {}
         self._buffers: dict[str, _DomainBuffer] = {}
         self._tick = 0
@@ -685,16 +704,32 @@ class Neosynaptex:
 
         gamma_ema_per_domain = dict(self._gamma_ema)
 
-        # Cross-domain coherence
-        gamma_valid = [v for v in gamma_per_domain.values() if np.isfinite(v)]
+        # === Anomaly isolation ===
+        anomaly_score = _anomaly_isolation(gamma_per_domain)
+
+        # Cross-domain coherence (median/MAD with anomaly isolation)
+        gamma_valid_map = {
+            name: val for name, val in gamma_per_domain.items() if np.isfinite(val)
+        }
+        gamma_clean = [
+            val
+            for name, val in gamma_valid_map.items()
+            if not np.isfinite(anomaly_score.get(name, float("nan")))
+            or anomaly_score.get(name, 0.0) < _OUTLIER_SCORE_GATE
+        ]
+        if len(gamma_clean) < 2:
+            gamma_clean = list(gamma_valid_map.values())
+
+        gamma_valid = gamma_clean
         if len(gamma_valid) >= 2:
-            gamma_mean = float(np.mean(gamma_valid))
-            gamma_std = float(np.std(gamma_valid))
-            cross_coherence = (
-                1.0 - gamma_std / gamma_mean if abs(gamma_mean) > 1e-10 else float("nan")
-            )
+            gamma_arr = np.asarray(gamma_valid, dtype=np.float64)
+            gamma_mean = float(np.median(gamma_arr))
+            gamma_std = float(np.std(gamma_arr))
+            mad = float(np.median(np.abs(gamma_arr - gamma_mean)))
+            cross_coherence = 1.0 - (mad / (abs(gamma_mean) + _COHERENCE_TAU))
+            cross_coherence = float(np.clip(cross_coherence, 0.0, 1.0))
         elif len(gamma_valid) == 1:
-            gamma_mean = gamma_valid[0]
+            gamma_mean = float(gamma_valid[0])
             gamma_std = float("nan")
             cross_coherence = float("nan")
         else:
@@ -718,9 +753,6 @@ class Neosynaptex:
 
         # === Granger causality ===
         granger_graph = _granger_causality(self._gamma_history)
-
-        # === Anomaly isolation ===
-        anomaly_score = _anomaly_isolation(gamma_per_domain)
 
         # === Phase portrait ===
         portrait = _phase_portrait(self._gamma_trace, self._sr_trace)
@@ -756,15 +788,13 @@ class Neosynaptex:
         # === Reflexive modulation signal ===
         modulation: dict[str, float] = {}
         gamma_target = 1.0
-        alpha_mod = 0.05
+        control_enabled = np.isfinite(cross_coherence) and cross_coherence >= self._chi_min
+        aggregated_error = gamma_mean - gamma_target if np.isfinite(gamma_mean) else float("nan")
         for name in domain_order:
             g = gamma_per_domain[name]
-            dg = dgamma_dt
-            if np.isfinite(g) and np.isfinite(dg):
-                raw_mod = (
-                    -alpha_mod * (g - gamma_target) * (1.0 if dg > 0 else -1.0 if dg < 0 else 0.0)
-                )
-                modulation[name] = round(float(np.clip(raw_mod, -0.05, 0.05)), 6)
+            if control_enabled and np.isfinite(g) and np.isfinite(aggregated_error):
+                raw_mod = -self._eta * aggregated_error
+                modulation[name] = round(float(np.clip(raw_mod, -self._epsilon, self._epsilon)), 6)
             else:
                 modulation[name] = 0.0
 
@@ -781,6 +811,12 @@ class Neosynaptex:
             "universal_scaling_p": universal_scaling_p,
             "degenerate_count": self._degenerate_count,
             "resilience": {"departures": self._departures, "returns": self._returns},
+            "control": {
+                "eta": self._eta,
+                "epsilon": self._epsilon,
+                "chi_min": self._chi_min,
+                "control_enabled": control_enabled,
+            },
         }
 
         state = NeosynaptexState(
