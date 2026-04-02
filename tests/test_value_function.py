@@ -3,21 +3,18 @@
 Covers: four signals, valence, homeostatic, distributional, gate logic,
         NaN safety, immutability, state integration.
 """
-import math
 
-import numpy as np
+import math
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from core.value_function import (
     CRITICAL_THRESHOLD,
-    GAMMA_HEADS,
     N_GAMMA_HEADS,
     VIABILITY_THRESHOLD,
     _distributional_estimate,
     _homeostatic_deviation,
-    _v_cc,
-    _v_gamma,
-    _v_sr,
     _v_valence,
     estimate_value,
     estimate_value_from_state,
@@ -90,7 +87,7 @@ def test_distributional_estimate_structure():
 
 def test_value_estimate_immutable():
     r = estimate_value(1.0, 1.0, 1.0, 4, 4)
-    with pytest.raises(Exception):
+    with pytest.raises(FrozenInstanceError):
         r.value = 0.5
 
 

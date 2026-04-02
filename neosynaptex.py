@@ -16,7 +16,7 @@ import json
 import logging
 import math
 from dataclasses import dataclass
-from typing import Optional, Protocol
+from typing import Protocol
 
 import numpy as np
 from scipy.linalg import lstsq as scipy_lstsq
@@ -150,7 +150,7 @@ class NeosynaptexState:
     diagnostic: dict
 
     # --- Internal value function (X8 v2) ---
-    value_estimate: Optional[ValueEstimate] = None
+    value_estimate: ValueEstimate | None = None
 
     class _Cfg:
         arbitrary_types_allowed = True

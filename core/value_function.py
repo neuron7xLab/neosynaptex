@@ -26,27 +26,27 @@ References:
   Masset et al. (2025) Nature
   Priesemann et al. (2014) PLoS Comput Biol 10:e1003408
 """
+
 from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Optional, Sequence
+from typing import Any
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
 # Thresholds (Sutskever: keep VF simple — complexity hurts generalization)
-VIABILITY_THRESHOLD = 0.6   # V >= 0.6 → proceed
-CRITICAL_THRESHOLD  = 0.3   # V >= 0.3 → caution; V < 0.3 → redirect
+VIABILITY_THRESHOLD = 0.6  # V >= 0.6 → proceed
+CRITICAL_THRESHOLD = 0.3  # V >= 0.3 → caution; V < 0.3 → redirect
 
 # Gamma heads: log-uniform [0.9, 0.999], N=8
 # Mirrors striatal gradient (Mohebi 2024): ventrolateral 0.95 → ventromedial 0.9999
 N_GAMMA_HEADS = 8
-GAMMA_HEADS: np.ndarray = np.exp(
-    np.linspace(np.log(0.9), np.log(0.999), N_GAMMA_HEADS)
-)
+GAMMA_HEADS: np.ndarray = np.exp(np.linspace(np.log(0.9), np.log(0.999), N_GAMMA_HEADS))
 # Temporal horizons tau_i = 1/(1-gamma_i): [10, 11.6, 13.7, 17, 22, 33, 63, 1000]
 
 # Neuromodulatory weights (Doya 2002 mapping)
@@ -63,11 +63,12 @@ class DistributionalEstimate:
     Distributional value estimate across N gamma heads.
     Mirrors Dabney et al. (2020): population encodes reward distribution shape.
     """
+
     gamma_heads: tuple[float, ...]
-    value_heads: tuple[float, ...]    # V_i for each gamma_i
-    quantile_low: float               # pessimistic neurons (alpha_plus < alpha_minus)
-    quantile_mid: float               # median estimate
-    quantile_high: float              # optimistic neurons (alpha_plus > alpha_minus)
+    value_heads: tuple[float, ...]  # V_i for each gamma_i
+    quantile_low: float  # pessimistic neurons (alpha_plus < alpha_minus)
+    quantile_mid: float  # median estimate
+    quantile_high: float  # optimistic neurons (alpha_plus > alpha_minus)
     temporal_horizons: tuple[float, ...]  # tau_i = 1/(1-gamma_i)
 
 
@@ -85,17 +86,19 @@ class ValueEstimate:
       distributional: multi-timescale breakdown (Dabney 2020 inspired)
       homeostatic_deviation: ||H_t - H*|| distance from optimal
     """
-    value:                  float
-    valence:                float
-    confidence:             float
-    gate:                   str
-    reason:                 str
-    homeostatic_deviation:  float
-    distributional:         Optional[DistributionalEstimate]
-    timestamp:              float
+
+    value: float
+    valence: float
+    confidence: float
+    gate: str
+    reason: str
+    homeostatic_deviation: float
+    distributional: DistributionalEstimate | None
+    timestamp: float
 
 
 # ─── Component value functions (Sutskever: keep simple) ─────────────────────
+
 
 def _v_gamma(gamma_mean: float) -> float:
     """
@@ -157,9 +160,13 @@ def _homeostatic_deviation(
     Optimal setpoint H* = (gamma=1.0, sr=1.0, cc=1.0).
     Returns deviation distance (lower = better).
     """
-    H_t = np.array([gamma_mean if np.isfinite(gamma_mean) else 0.0,
-                    sr if np.isfinite(sr) else 0.0,
-                    cc if np.isfinite(cc) else 0.0])
+    H_t = np.array(
+        [
+            gamma_mean if np.isfinite(gamma_mean) else 0.0,
+            sr if np.isfinite(sr) else 0.0,
+            cc if np.isfinite(cc) else 0.0,
+        ]
+    )
     H_star = np.array([1.0, 1.0, 1.0])
     return float(np.linalg.norm(H_t - H_star))
 
@@ -194,14 +201,15 @@ def _distributional_estimate(gamma_mean: float) -> DistributionalEstimate:
 
 # ─── Main value function ────────────────────────────────────────────────────
 
+
 def estimate_value(
-    gamma_mean:      float,
+    gamma_mean: float,
     spectral_radius: float,
     cross_coherence: float,
     n_valid_domains: int,
     n_total_domains: int,
-    f_history:       Sequence[float] = (),
-    weights:         tuple[float, float, float, float] = NEURO_WEIGHTS,
+    f_history: Sequence[float] = (),
+    weights: tuple[float, float, float, float] = NEURO_WEIGHTS,
 ) -> ValueEstimate:
     """
     Composite internal value estimate. Four-signal architecture (Doya 2002).
@@ -225,16 +233,13 @@ def estimate_value(
     """
     w_da, w_5ht, w_ach, w_ne = weights
 
-    v_da  = _v_gamma(gamma_mean)
+    v_da = _v_gamma(gamma_mean)
     v_5ht = _v_sr(spectral_radius)
     v_ach = _v_cc(cross_coherence)
     valence = _v_valence(f_history)
-    v_ne  = max(0.0, valence)  # only reward improving trajectories
+    v_ne = max(0.0, valence)  # only reward improving trajectories
 
-    value = float(np.clip(
-        w_da * v_da + w_5ht * v_5ht + w_ach * v_ach + w_ne * v_ne,
-        0.0, 1.0
-    ))
+    value = float(np.clip(w_da * v_da + w_5ht * v_5ht + w_ach * v_ach + w_ne * v_ne, 0.0, 1.0))
 
     confidence = float(n_valid_domains / max(n_total_domains, 1))
     h_dev = _homeostatic_deviation(gamma_mean, spectral_radius, cross_coherence)
@@ -284,9 +289,9 @@ def estimate_value(
 
 
 def estimate_value_from_state(
-    state,
+    state: Any,
     f_history: Sequence[float] = (),
-) -> Optional[ValueEstimate]:
+) -> ValueEstimate | None:
     """
     Convenience wrapper: extract from NeosynaptexState and call estimate_value.
     Returns None for INITIALIZING phase or insufficient data.
@@ -298,9 +303,9 @@ def estimate_value_from_state(
         return None
 
     gamma_mean = getattr(state, "gamma_mean", float("nan"))
-    sr         = getattr(state, "spectral_radius", float("nan"))
-    cc         = getattr(state, "cross_coherence", float("nan"))
-    domains    = getattr(state, "gamma_per_domain", {})
+    sr = getattr(state, "spectral_radius", float("nan"))
+    cc = getattr(state, "cross_coherence", float("nan"))
+    domains = getattr(state, "gamma_per_domain", {})
 
     n_valid = sum(1 for g in domains.values() if np.isfinite(g))
     n_total = len(domains)
