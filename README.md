@@ -14,9 +14,9 @@
 </p>
 
 <p align="center">
-  <a href="#six-substrates"><img src="https://img.shields.io/badge/substrates-6-blueviolet?style=for-the-badge" alt="6 substrates"></a>
+  <a href="#eight-substrates"><img src="https://img.shields.io/badge/substrates-8-blueviolet?style=for-the-badge" alt="8 substrates"></a>
   <a href="#the-number"><img src="https://img.shields.io/badge/%CE%B3%20%E2%89%88%201.0-universal-gold?style=for-the-badge" alt="gamma"></a>
-  <a href="#tests"><img src="https://img.shields.io/badge/tests-170%2B-brightgreen?style=for-the-badge" alt="tests"></a>
+  <a href="#tests"><img src="https://img.shields.io/badge/tests-351-brightgreen?style=for-the-badge" alt="tests"></a>
   <a href="#the-signal"><img src="https://img.shields.io/badge/p--value-0.005-red?style=for-the-badge" alt="p-value"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge" alt="license"></a>
 </p>
@@ -24,7 +24,7 @@
 <br>
 
 <p align="center">
-<code>One file. One import. Six substrates. One law.</code>
+<code>One file. One import. Eight substrates. One law.</code>
 </p>
 
 ---
@@ -71,8 +71,8 @@ gamma = 1.0 is not a tuned parameter. It is a **measured invariant** across:
 - Cross-domain coherence
 - The human-AI loop itself
 
-**Mean across 5 physical substrates:**
-gamma = 0.994 +/- 0.077
+**Mean across 6 validated substrates:**
+gamma = 0.991 +/- 0.052
 
 </td>
 </tr>
@@ -80,7 +80,7 @@ gamma = 0.994 +/- 0.077
 
 <br>
 
-## Six Substrates
+## Eight Substrates
 
 <table>
 <tr>
@@ -184,7 +184,39 @@ gamma = 0.994 +/- 0.077
 </tr>
 <tr>
 <td align="center" colspan="6">
-<sub>All five physical substrates have 95% CI containing gamma = 1.0. The sixth (CNS-AI aggregate) also contains 1.0.</sub>
+<sub>All six validated substrates have 95% CI containing gamma = 1.0</sub>
+</td>
+</tr>
+<tr>
+<td align="center" width="50%" colspan="3">
+<br>
+
+```
+  H ←→ AI
+  |  ×  |
+  skill → delegation
+  gap × effort = learning
+```
+<b>CFP/ДІЙ (ABM)</b><br>
+<code>gamma = 1.832</code><br>
+<sub>CI: [1.638, 1.978]</sub><br>
+<sub>CONSTRUCTED</sub><br>
+<sub>Scaffolding Trap: dskill/dt = 0.02 × gap × effort</sub>
+</td>
+<td align="center" width="50%" colspan="3">
+<br>
+
+```
+  [prompt] → [response]
+       ×          ×
+  [prompt] → [response]
+       (no coupling)
+```
+<b>LM Substrate</b><br>
+<code>gamma = -0.094</code><br>
+<sub>p = 0.626 (n.s.)</sub><br>
+<sub>NULL RESULT</sub><br>
+<sub>Stateless API = no dynamical regime</sub>
 </td>
 </tr>
 </table>
@@ -349,9 +381,10 @@ Thread-safe (`RLock`). Persistent across restarts (`save_state`/`load_state`). D
 ## Tests
 
 ```
-170+ passed
+351 passed, 4 CI workflows green
 
-tests/                 Full test suite across core, contracts, evl, and integration
+tests/                 29 test files across core, contracts, evl, substrates, experiments
+                       Including 5 scientific integrity guards (AST-level γ injection detection)
 ```
 
 <br>
@@ -374,29 +407,25 @@ tests/                 Full test suite across core, contracts, evl, and integrat
 ```
 neosynaptex/
 |
-+-- neosynaptex.py                    core: all classes + algorithms
-+-- tests/                            official test suite
-+-- core/                             core axioms and contracts
-+-- contracts/                        invariant enforcement
-+-- evl/                              evaluation layer (collector, analyzer, DFA)
-+-- substrates/                       six substrate adapters
-+-- .github/workflows/                CI/CD (5 workflows)
++-- neosynaptex.py                    engine: γ-scaling, Jacobian, phase dynamics
++-- core/                             21 modules: axioms, falsification, evidence, RQA
++-- contracts/                        invariant enforcement + truth criterion
++-- substrates/                       8 substrate adapters (zebrafish → CFP/ДІЙ)
++-- evl/                              evidence verification ledger
++-- experiments/                      reproducible outputs + figures
+|   +-- scaffolding_trap/             dskill/dt law, delegation suppression
+|   +-- lm_substrate/                 GPT-4o-mini γ derivation (null result)
++-- tests/                            351 tests, 29 files
++-- scripts/                          13 operational scripts
++-- evidence/                         gamma_ledger.json + proof chains
++-- .github/workflows/                4 CI workflows (all green)
 |
-+-- demo.py                           50-tick diagnostic demo
-+-- xform_session_probe.py            gamma probe pipeline
-|
-+-- XFORM_MANUSCRIPT_DRAFT.md         publication draft (6 substrates)
-+-- XFORM_NEURO_DIGITAL_SYMBIOSIS.md  X-Form thesis
++-- CFP_PROTOCOL.md                   Cognitive Field Protocol v3.0
 +-- CONTRACT.md                       invariants + formulas
++-- XFORM_MANUSCRIPT_DRAFT.md         publication draft
++-- REPO_TOPOLOGY.md                  architectural map v2.0
 |
-+-- xform_proof_bundle.json           formal proof, 6 substrates
-+-- xform_full_archive_gamma_report.json  8273-document analysis
-+-- xform_statistical_tests.json      permutation + effect sizes
-|
-+-- .github/assets/banner-dark.svg    animated SVG banner (dark)
-+-- .github/assets/banner-light.svg   animated SVG banner (light)
-|
-+-- pyproject.toml                    numpy/scipy, Python 3.10+
++-- pyproject.toml                    v3.0.0, Python 3.10+, numpy/scipy
 +-- LICENSE                           AGPL-3.0-or-later
 ```
 
@@ -427,6 +456,30 @@ class BnSynAdapter:
 ```
 
 Contract: `C ~ topo^(-gamma)`. The adapter provides `topo` and `thermo_cost` such that this power-law holds near criticality.
+
+<br>
+
+## Experimental Findings
+
+### Scaffolding Trap (2026-04-02)
+
+CRR (Cognitive Recovery Ratio) gives **opposite conclusions** from dskill/dt (learning rate):
+
+| Metric | Structured | Shuffled | Winner |
+|--------|-----------|----------|--------|
+| CRR | 0.893 | 1.153 | Shuffled |
+| dskill/dt | 1.929 | 0.618 | **Structured** |
+
+CRR is a measurement artifact (difficulty gradient). The clean metric reveals:
+
+```
+dskill/dt = 0.02 * gap * effort    (R2 = 0.9999)
+Delegation suppression: -9.5% per 10% delegation
+```
+
+### LM Substrate (2026-04-02)
+
+GPT-4o-mini via API: **gamma = -0.094 (null result)**. Stateless inference has no temporal structure. Confirms that gamma != 0 requires closed-loop dynamics, not isolated sampling.
 
 <br>
 
