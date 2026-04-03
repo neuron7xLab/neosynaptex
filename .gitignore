@@ -38,3 +38,4 @@ evidence/reproduction_bundle.json
 
 # Large API response dumps
 experiments/lm_substrate/gpt4o_*_raw.json
+data/eeg_physionet/MNE-eegbci-data/
