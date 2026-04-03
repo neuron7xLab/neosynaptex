@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "title": "NFI Gamma-Scaling Universality \u2014 Final Proof Bundle",
   "author": "Yaroslav Vasylenko / neuron7xLab",
-  "date": "2026-04-03",
+  "date": "2026-04-04",
   "method": "compute_gamma() \u2014 Theil-Sen + bootstrap CI95",
   "tier_policy": "Cross-substrate mean from Tier 1 (evidential) only. Tier 2 (simulation) reported but not counted toward universality claim.",
   "substrates": {

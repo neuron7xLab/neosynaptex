@@ -1,0 +1,128 @@
+{
+  "description": "Alternative model tests (AIC/BIC) for Tier 1 substrates",
+  "substrates": {
+    "zebrafish": {
+      "substrate": "zebrafish",
+      "n_pairs": 45,
+      "log_C_range": [
+        -8.105,
+        -7.051
+      ],
+      "log_C_span": 1.054,
+      "models": {
+        "power_law": {
+          "description": "K = A * C^(-gamma), linear in log-log",
+          "log_likelihood": 14.16,
+          "n_params": 2,
+          "AIC": -24.33,
+          "BIC": -20.71
+        },
+        "lognormal_curvature": {
+          "description": "Quadratic in log-log (lognormal-like)",
+          "log_likelihood": 14.55,
+          "n_params": 3,
+          "AIC": -23.11,
+          "BIC": -17.69
+        },
+        "exponential_decay": {
+          "description": "K = A * exp(-lambda*C)",
+          "log_likelihood": -16.3,
+          "n_params": 2,
+          "AIC": 36.6,
+          "BIC": 40.21
+        }
+      },
+      "delta_AIC_vs_power_law": {
+        "lognormal": 1.22,
+        "exponential": 60.92
+      },
+      "delta_BIC_vs_power_law": {
+        "lognormal": 3.03,
+        "exponential": 60.92
+      },
+      "preferred_model": "power_law"
+    },
+    "hrv_physionet": {
+      "substrate": "hrv_physionet",
+      "n_pairs": 10,
+      "log_C_range": [
+        -5.545,
+        -3.243
+      ],
+      "log_C_span": 2.303,
+      "models": {
+        "power_law": {
+          "description": "K = A * C^(-gamma), linear in log-log",
+          "log_likelihood": 17.3,
+          "n_params": 2,
+          "AIC": -30.6,
+          "BIC": -30.0
+        },
+        "lognormal_curvature": {
+          "description": "Quadratic in log-log (lognormal-like)",
+          "log_likelihood": 17.55,
+          "n_params": 3,
+          "AIC": -29.09,
+          "BIC": -28.19
+        },
+        "exponential_decay": {
+          "description": "K = A * exp(-lambda*C)",
+          "log_likelihood": 2.43,
+          "n_params": 2,
+          "AIC": -0.86,
+          "BIC": -0.26
+        }
+      },
+      "delta_AIC_vs_power_law": {
+        "lognormal": 1.51,
+        "exponential": 29.74
+      },
+      "delta_BIC_vs_power_law": {
+        "lognormal": 1.81,
+        "exponential": 29.74
+      },
+      "preferred_model": "power_law"
+    },
+    "eeg_physionet": {
+      "substrate": "eeg_physionet",
+      "n_pairs": 132,
+      "log_C_range": [
+        0.809,
+        3.554
+      ],
+      "log_C_span": 2.744,
+      "models": {
+        "power_law": {
+          "description": "K = A * C^(-gamma), linear in log-log",
+          "log_likelihood": 31.68,
+          "n_params": 2,
+          "AIC": -59.36,
+          "BIC": -53.6
+        },
+        "lognormal_curvature": {
+          "description": "Quadratic in log-log (lognormal-like)",
+          "log_likelihood": 70.9,
+          "n_params": 3,
+          "AIC": -135.8,
+          "BIC": -127.15
+        },
+        "exponential_decay": {
+          "description": "K = A * exp(-lambda*C)",
+          "log_likelihood": -46.46,
+          "n_params": 2,
+          "AIC": 96.92,
+          "BIC": 102.68
+        }
+      },
+      "delta_AIC_vs_power_law": {
+        "lognormal": -76.43,
+        "exponential": 156.28
+      },
+      "delta_BIC_vs_power_law": {
+        "lognormal": -73.55,
+        "exponential": 156.28
+      },
+      "preferred_model": "lognormal_curvature"
+    }
+  }
+}
