@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# NOTE: This script uses OLS (linregress) for historical comparison with published results.
+# Canonical γ computation: core.gamma.compute_gamma() (Theil-Sen + bootstrap CI).
 """
 γ-SCALING PROTOCOL v1.1 — 3D Spheroids | Vasylenko 2026
 C = ΔH/(β₀+β₁) → log-log fit → γ

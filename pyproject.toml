@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "neosynaptex"
 version = "3.0.0"
-description = "NFI — Neuromodulatory Field Intelligence. γ ≈ 1.0 across six substrates. Intelligence as regime property."
+description = "NFI — Neuromodulatory Field Intelligence. γ ≈ 1.0 across independent substrates. Intelligence as regime property."
 readme = "README.md"
 authors = [{ name = "Yaroslav Vasylenko", email = "neuron7x@proton.me" }]
 license = { text = "AGPL-3.0-or-later" }

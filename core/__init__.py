@@ -11,6 +11,7 @@ from core.axioms import (
     verify_axiom_consistency,
 )
 from core.contracts import InvariantViolation, SSIDomain, ssi_apply
+from core.gamma import GammaResult, compute_gamma
 
 __all__ = [
     "AXIOM_0",
@@ -24,4 +25,6 @@ __all__ = [
     "InvariantViolation",
     "SSIDomain",
     "ssi_apply",
+    "compute_gamma",
+    "GammaResult",
 ]

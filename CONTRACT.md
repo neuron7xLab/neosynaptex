@@ -1,6 +1,6 @@
 # neosynaptex -- Engineering Contract
 
-**Version:** 0.2.0
+**Version:** 3.0.0
 **Author:** Yaroslav Vasylenko (neuron7xLab)
 **Status:** Production-grade reference implementation
 

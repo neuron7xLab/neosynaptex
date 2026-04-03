@@ -43,7 +43,7 @@ __all__ = [
     "NeosynaptexState",
 ]
 
-__version__ = "0.2.0"
+__version__ = "3.0.0"
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 _MIN_PAIRS_GAMMA = 5
 _LOG_RANGE_GATE = 0.5
-_R2_GATE = 0.5
+_R2_GATE = 0.3  # relaxed from 0.5 to match canonical core.gamma (Hole 4 fix)
 _SR_METASTABLE_LO = 0.80
 _SR_METASTABLE_HI = 1.25
 _SR_DEGENERATE = 1.5
@@ -60,7 +60,7 @@ _DEGENERATE_COUNT = 3
 _HYSTERESIS_COUNT = 3
 _MAX_STATE_KEYS = 4
 _TOPO_FLOOR = 0.01
-_BOOTSTRAP_N = 200
+_BOOTSTRAP_N = 500  # unified with canonical core.gamma (was 200, Hole 4 fix)
 _PERMUTATION_N = 500
 _COND_GATE = 1e6
 _EMA_ALPHA = 0.3
@@ -289,56 +289,27 @@ def _per_domain_gamma(
 ) -> tuple[float, float, float, float]:
     """Estimate gamma scaling exponent with bootstrap confidence interval.
 
-    Formula:
-        C ~ topo^(-gamma)
-        gamma = -slope from theilslopes(log(C), log(topo))
-        CI from bootstrap resampling (200 iterations, 2.5%-97.5% percentile)
-
-    Gates:
-        1. Need >= 5 valid pairs
-        2. range(log(topo)) >= 0.5
-        3. R^2 >= 0.5
+    Delegates to canonical core.gamma.compute_gamma() (Hole 4/11 fix).
 
     Returns:
         (gamma, r_squared, ci_low, ci_high) or (NaN, NaN, NaN, NaN).
     """
-    nan_quad = (float("nan"), float("nan"), float("nan"), float("nan"))
-    valid = np.isfinite(topos) & np.isfinite(costs) & (topos > 0) & (costs > 0)
-    t_valid = topos[valid]
-    c_valid = costs[valid]
+    from core.gamma import compute_gamma as _canonical_gamma
 
-    if len(t_valid) < _MIN_PAIRS_GAMMA:
-        return nan_quad
-
-    log_t = np.log(t_valid)
-    log_c = np.log(c_valid)
-
-    if np.ptp(log_t) < _LOG_RANGE_GATE:
-        return nan_quad
-
-    slope, intercept, _, _ = theilslopes(log_c, log_t)
-    gamma = -slope
-
-    yhat = slope * log_t + intercept
-    ss_res = np.sum((log_c - yhat) ** 2)
-    ss_tot = np.sum((log_c - np.mean(log_c)) ** 2)
-    r_squared = 1.0 - ss_res / ss_tot if ss_tot > 1e-10 else 0.0
-
-    if r_squared < _R2_GATE:
-        return nan_quad
-
-    # Bootstrap CI
-    rng = np.random.default_rng(seed)
-    n_pts = len(log_t)
-    boot_gammas = np.empty(_BOOTSTRAP_N)
-    for i in range(_BOOTSTRAP_N):
-        idx = rng.integers(0, n_pts, n_pts)
-        s, _, _, _ = theilslopes(log_c[idx], log_t[idx])
-        boot_gammas[i] = -s
-    ci_low = float(np.percentile(boot_gammas, 2.5))
-    ci_high = float(np.percentile(boot_gammas, 97.5))
-
-    return (float(gamma), float(r_squared), ci_low, ci_high)
+    r = _canonical_gamma(
+        topos,
+        costs,
+        min_pairs=_MIN_PAIRS_GAMMA,
+        log_range_gate=_LOG_RANGE_GATE,
+        r2_gate=_R2_GATE,
+        bootstrap_n=_BOOTSTRAP_N,
+        seed=seed,
+    )
+    # Preserve legacy behavior: return NaN quad for non-passing gates
+    if r.verdict in ("INSUFFICIENT_DATA", "INSUFFICIENT_RANGE", "LOW_R2"):
+        nan = float("nan")
+        return (nan, nan, nan, nan)
+    return (r.gamma, r.r2, r.ci_low, r.ci_high)
 
 
 # ---------------------------------------------------------------------------

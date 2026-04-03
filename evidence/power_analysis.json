@@ -1,0 +1,142 @@
+{
+  "version": "1.0.0",
+  "date": "2026-04-03",
+  "description": "Power analysis for gamma detection at observed sample sizes",
+  "method": "Monte Carlo simulation with OLS gamma estimation and bootstrap CI (n_boot=100)",
+  "note": "OLS used for speed; canonical pipeline uses Theil-Sen. Power estimates are approximate.",
+  "substrates": {
+    "zebrafish": {
+      "n": 47,
+      "r2_target": 0.82,
+      "sensitivity_at_gamma_1": {
+        "n": 47,
+        "true_gamma": 1.0,
+        "r2_target": 0.82,
+        "n_valid": 500,
+        "n_simulations": 500,
+        "mean_gamma": 0.9964,
+        "std_gamma": 0.1149,
+        "mean_ci_width": 0.4135,
+        "p_ci_contains_unity": 0.912,
+        "bias": -0.0036
+      },
+      "false_positive_at_gamma_05": {
+        "n": 47,
+        "true_gamma": 0.5,
+        "r2_target": 0.82,
+        "n_valid": 264,
+        "n_simulations": 500,
+        "mean_gamma": 0.5735,
+        "std_gamma": 0.0741,
+        "mean_ci_width": 0.409,
+        "p_ci_contains_unity": 0.0076,
+        "bias": 0.0735
+      },
+      "minimum_detectable_effect": 0.35
+    },
+    "neosynaptex_cross": {
+      "n": 40,
+      "r2_target": 0.85,
+      "sensitivity_at_gamma_1": {
+        "n": 40,
+        "true_gamma": 1.0,
+        "r2_target": 0.85,
+        "n_valid": 500,
+        "n_simulations": 500,
+        "mean_gamma": 1.0041,
+        "std_gamma": 0.1095,
+        "mean_ci_width": 0.4072,
+        "p_ci_contains_unity": 0.908,
+        "bias": 0.0041
+      },
+      "false_positive_at_gamma_05": {
+        "n": 40,
+        "true_gamma": 0.5,
+        "r2_target": 0.85,
+        "n_valid": 356,
+        "n_simulations": 500,
+        "mean_gamma": 0.5452,
+        "std_gamma": 0.0808,
+        "mean_ci_width": 0.4003,
+        "p_ci_contains_unity": 0.0112,
+        "bias": 0.0452
+      },
+      "minimum_detectable_effect": 0.35
+    },
+    "bnsyn": {
+      "n": 200,
+      "r2_target": 0.71,
+      "sensitivity_at_gamma_1": {
+        "n": 200,
+        "true_gamma": 1.0,
+        "r2_target": 0.71,
+        "n_valid": 500,
+        "n_simulations": 500,
+        "mean_gamma": 0.997,
+        "std_gamma": 0.0758,
+        "mean_ci_width": 0.2836,
+        "p_ci_contains_unity": 0.932,
+        "bias": -0.003
+      },
+      "false_positive_at_gamma_05": {
+        "n": 200,
+        "true_gamma": 0.5,
+        "r2_target": 0.71,
+        "n_valid": 5,
+        "n_simulations": 500,
+        "mean_gamma": 0.6781,
+        "std_gamma": 0.0321,
+        "mean_ci_width": 0.2591,
+        "p_ci_contains_unity": 0.0,
+        "bias": 0.1781
+      },
+      "minimum_detectable_effect": 0.25
+    },
+    "kuramoto": {
+      "n": 120,
+      "r2_target": 0.61,
+      "sensitivity_at_gamma_1": {
+        "n": 120,
+        "true_gamma": 1.0,
+        "r2_target": 0.61,
+        "n_valid": 433,
+        "n_simulations": 500,
+        "mean_gamma": 1.0386,
+        "std_gamma": 0.1027,
+        "mean_ci_width": 0.4555,
+        "p_ci_contains_unity": 0.9469,
+        "bias": 0.0386
+      },
+      "false_positive_at_gamma_05": {
+        "n": 120,
+        "true_gamma": 0.5,
+        "r2_target": 0.61,
+        "n_valid": 0
+      },
+      "minimum_detectable_effect": 0.35
+    },
+    "mfn": {
+      "n": 200,
+      "r2_target": 0.47,
+      "sensitivity_at_gamma_1": {
+        "n": 200,
+        "true_gamma": 1.0,
+        "r2_target": 0.47,
+        "n_valid": 63,
+        "n_simulations": 500,
+        "mean_gamma": 1.187,
+        "std_gamma": 0.0752,
+        "mean_ci_width": 0.4661,
+        "p_ci_contains_unity": 0.746,
+        "bias": 0.187
+      },
+      "false_positive_at_gamma_05": {
+        "n": 200,
+        "true_gamma": 0.5,
+        "r2_target": 0.47,
+        "n_valid": 0
+      },
+      "minimum_detectable_effect": 0.3
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "version": "1.0.0",
+  "date": "2026-04-03",
+  "surrogate_tests": {
+    "method": "IAAFT (Iterative Amplitude Adjusted Fourier Transform)",
+    "reference": "Schreiber & Schmitz (1996) Phys Rev Lett 77:635",
+    "n_surrogates": 199,
+    "p_value_formula": "p = (1 + #{|null| >= |obs|}) / (M + 1), two-tailed",
+    "substrates": {
+      "zebrafish": {
+        "gamma_obs": 1.017,
+        "gamma_null_mean": 0.0159,
+        "gamma_null_std": 0.4663,
+        "p_value": 0.005,
+        "n_surrogates": 199,
+        "significant": true
+      },
+      "mfn_reaction_diffusion": {
+        "gamma_obs": 0.8797,
+        "gamma_null_mean": 0.0341,
+        "gamma_null_std": 0.4247,
+        "p_value": 0.005,
+        "n_surrogates": 199,
+        "significant": true
+      },
+      "bnsyn_criticality": {
+        "gamma_obs": 0.957,
+        "gamma_null_mean": 0.0438,
+        "gamma_null_std": 0.4435,
+        "p_value": 0.005,
+        "n_surrogates": 199,
+        "significant": true
+      },
+      "market_kuramoto": {
+        "gamma_obs": 1.1167,
+        "gamma_null_mean": -0.042,
+        "gamma_null_std": 0.499,
+        "p_value": 0.005,
+        "n_surrogates": 199,
+        "significant": true
+      }
+    }
+  },
+  "negative_controls": {
+    "purpose": "Demonstrate that systems NOT at criticality do NOT show gamma ~ 1.0",
+    "controls": {
+      "white_noise": {
+        "gamma": 0.02,
+        "r2": -0.1052,
+        "verdict": "LOW_R2",
+        "note": "No structure: uniform random topo and cost. No power-law expected."
+      },
+      "random_walk": {
+        "gamma": 0.0777,
+        "r2": -0.0164,
+        "verdict": "LOW_R2",
+        "note": "Cumulative random walk topo, independent random cost. No criticality."
+      },
+      "supercritical": {
+        "gamma": -1.9868,
+        "r2": 0.9967,
+        "verdict": "COLLAPSE",
+        "note": "Explosive exponential growth with cost ~ topo^2. Anti-scaling expected (gamma < 0)."
+      },
+      "subcritical_ordered": {
+        "gamma": 2.9997,
+        "r2": 1.0,
+        "verdict": "COLLAPSE",
+        "note": "Over-determined regime: cost ~ topo^(-3). gamma >> 1 expected."
+      }
+    }
+  }
+}

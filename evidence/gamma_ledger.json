@@ -12,6 +12,7 @@
       "n_pairs": null,
       "p_permutation": null,
       "status": "VALIDATED",
+      "tier": "evidential",
       "locked": true,
       "data_source": {
         "file": "data/zebrafish/Out_WT_default_1.mat",
@@ -30,6 +31,7 @@
       "n_pairs": 20,
       "p_permutation": null,
       "status": "VALIDATED",
+      "tier": "evidential",
       "locked": true,
       "data_source": {
         "file": "data/gray_scott/params.json",
@@ -48,6 +50,7 @@
       "n_pairs": null,
       "p_permutation": null,
       "status": "VALIDATED",
+      "tier": "evidential",
       "locked": true,
       "data_source": {
         "file": "data/kuramoto/config.json",
@@ -66,6 +69,7 @@
       "n_pairs": null,
       "p_permutation": null,
       "status": "VALIDATED",
+      "tier": "evidential",
       "locked": true,
       "data_source": {
         "file": null,
@@ -174,6 +178,8 @@
       "n_pairs": null,
       "p_permutation": 0.005,
       "status": "PENDING_REAL_DATA",
+      "tier": "illustrative",
+      "tier_reason": "Self-report classification: productivity labeling by measured subject, not independent raters. Aggregate R2=0.12 (productive) far below quality gates.",
       "locked": false,
       "data_source": {
         "file": null,

@@ -193,68 +193,40 @@ def gamma_probe(
 ) -> Dict:
     """Run gamma scaling analysis: cost ~ complexity^(-gamma).
 
-    Returns dict with gamma, r2, ci_low, ci_high, n_valid.
+    Delegates to canonical core.gamma.compute_gamma() (Hole 4/11 fix).
+    Adds session-specific verdict logic on top.
+
+    Returns dict with gamma, r2, ci_low, ci_high, n_valid, verdict.
     """
-    result = {
-        "gamma": float("nan"),
-        "r2": float("nan"),
-        "ci_low": float("nan"),
-        "ci_high": float("nan"),
-        "n_valid": 0,
-        "verdict": "INSUFFICIENT_DATA",
+    from core.gamma import compute_gamma as _canonical_gamma
+
+    r = _canonical_gamma(
+        complexities,
+        costs,
+        min_pairs=_MIN_PAIRS,
+        log_range_gate=_LOG_RANGE_GATE,
+        r2_gate=_R2_GATE,
+        bootstrap_n=_BOOTSTRAP_N,
+        seed=seed,
+    )
+
+    result: Dict = {
+        "gamma": round(r.gamma, 4) if np.isfinite(r.gamma) else float("nan"),
+        "r2": round(r.r2, 4) if np.isfinite(r.r2) else float("nan"),
+        "ci_low": round(r.ci_low, 4) if np.isfinite(r.ci_low) else float("nan"),
+        "ci_high": round(r.ci_high, 4) if np.isfinite(r.ci_high) else float("nan"),
+        "n_valid": r.n_valid,
+        "verdict": r.verdict,
     }
 
-    valid = (
-        np.isfinite(complexities) & np.isfinite(costs)
-        & (complexities > 0) & (costs > 0)
-    )
-    c_valid = complexities[valid]
-    k_valid = costs[valid]
-    result["n_valid"] = int(len(c_valid))
-
-    if len(c_valid) < _MIN_PAIRS:
-        return result
-
-    log_c = np.log(c_valid)
-    log_k = np.log(k_valid)
-
-    if np.ptp(log_c) < _LOG_RANGE_GATE:
-        result["verdict"] = "INSUFFICIENT_RANGE"
-        return result
-
-    slope, intercept, _, _ = theilslopes(log_k, log_c)
-    gamma = -slope
-
-    yhat = slope * log_c + intercept
-    ss_res = np.sum((log_k - yhat) ** 2)
-    ss_tot = np.sum((log_k - np.mean(log_k)) ** 2)
-    r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-10 else 0.0
-
-    # Bootstrap CI
-    rng = np.random.default_rng(seed)
-    n_pts = len(log_c)
-    boot_gammas = np.empty(_BOOTSTRAP_N)
-    for i in range(_BOOTSTRAP_N):
-        idx = rng.integers(0, n_pts, n_pts)
-        s, _, _, _ = theilslopes(log_k[idx], log_c[idx])
-        boot_gammas[i] = -s
-    ci_low = float(np.percentile(boot_gammas, 2.5))
-    ci_high = float(np.percentile(boot_gammas, 97.5))
-
-    result["gamma"] = round(float(gamma), 4)
-    result["r2"] = round(float(r2), 4)
-    result["ci_low"] = round(ci_low, 4)
-    result["ci_high"] = round(ci_high, 4)
-
-    if r2 >= _R2_GATE:
-        if ci_low <= 1.0 <= ci_high:
+    # Session-specific verdict refinement for human-AI data
+    if r.verdict not in ("INSUFFICIENT_DATA", "INSUFFICIENT_RANGE", "LOW_R2"):
+        if r.ci_low <= 1.0 <= r.ci_high:
             result["verdict"] = "GAMMA_CONTAINS_UNITY"
-        elif abs(gamma - 1.0) < 0.3:
+        elif abs(r.gamma - 1.0) < 0.3:
             result["verdict"] = "GAMMA_NEAR_UNITY"
         else:
             result["verdict"] = "GAMMA_DIVERGENT"
-    else:
-        result["verdict"] = "LOW_R2"
 
     return result
 

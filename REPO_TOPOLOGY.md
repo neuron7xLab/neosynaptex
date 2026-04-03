@@ -87,3 +87,22 @@ gamma_ledger.json → gamma_registry.py → neosynaptex.py (read-only)
 2. `mfn_plus/` vs `mycelium/` — mycelium is surviving authority
 3. Kuramoto license — AGPL-3.0-or-later
 4. CRR as metric — invalidated for ordered curricula, replaced by dskill/dt
+
+## Verified Canonical Paths (2026-04-03, Hole 13 resolution)
+
+No stale root-level `bn_syn/` or `mfn/` directories exist outside `substrates/`.
+Canonical ownership is enforced by `CANONICAL_OWNERSHIP.yaml`:
+- `substrates/bn_syn/` — sole authority for BN-Syn AdEx SNN
+- `substrates/mfn/` — sole authority for MFN/Mycelium (pending merge from mfn_plus)
+- Mock adapters in `neosynaptex.py` are test stubs only, not canonical implementations
+
+## Canonical Gamma Computation (2026-04-03, Hole 4/11 resolution)
+
+Single source of truth: `core/gamma.py:compute_gamma()`.
+All other gamma implementations (`neosynaptex.py:_per_domain_gamma`, `xform_session_probe.py:gamma_probe`)
+delegate to this canonical function. MFN research scripts retain OLS for historical comparison only.
+
+## Manuscript Location (2026-04-03, Hole 12 resolution)
+
+Canonical manuscript: `manuscript/XFORM_MANUSCRIPT_DRAFT.md`.
+Root `XFORM_MANUSCRIPT_DRAFT.md` is a redirect pointer, not the canonical copy.
