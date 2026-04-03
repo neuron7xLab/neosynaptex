@@ -29,7 +29,7 @@ import numpy as np
 _N_NEURONS = 200
 _K_CONNECTIONS = 10
 _TOPO_FLOOR = 1e-6
-_SIM_STEPS = 20000
+_SIM_STEPS = 10000
 _WINDOW = 50
 
 
@@ -60,41 +60,41 @@ class BnSynAdapter:
         self._window = _WINDOW
 
     def _simulate(self) -> np.ndarray:
-        """Simulate critical branching network, return population rate per timestep."""
+        """Simulate critical branching network, return population rate per timestep.
+
+        Vectorized: uses connectivity matrix for fast propagation.
+        """
         N = self._N
         T = _SIM_STEPS
         pop_rate = np.zeros(T)
 
-        # External drive: each neuron has small spontaneous firing probability
-        # This sustains activity near criticality (prevents absorption)
-        p_spontaneous = 0.002  # ~0.4 neurons/step spontaneously active
+        # Build dense connectivity matrix for vectorized propagation
+        # conn[i, j] = 1 if neuron i → neuron j
+        conn = np.zeros((N, N), dtype=np.float32)
+        for i, tgts in enumerate(self._targets):
+            conn[i, tgts] = 1.0
 
+        p_spontaneous = 0.002
         active = np.zeros(N, dtype=bool)
-        # Seed: small random initial activity
         active[self._rng.choice(N, size=5, replace=False)] = True
 
         for t in range(T):
-            # Record population rate
             pop_rate[t] = float(np.sum(active)) / N
 
-            # Propagation: each active neuron transmits to targets
-            next_active = np.zeros(N, dtype=bool)
+            # Vectorized propagation: active neurons fire through connections
+            # input_strength[j] = number of active presynaptic neurons for j
+            input_strength = conn[active].sum(axis=0) if active.any() else np.zeros(N)
 
-            # Spontaneous activation (external drive)
-            spontaneous = self._rng.random(N) < p_spontaneous
-            next_active |= spontaneous
+            # Each input transmits with probability p_transmit independently
+            # P(at least one transmits) = 1 - (1 - p)^n ≈ n*p for small n*p
+            transmit_prob = 1.0 - (1.0 - self._p_transmit) ** input_strength
+            next_active = self._rng.random(N) < transmit_prob
 
-            # Synaptic transmission from active neurons
-            active_indices = np.where(active)[0]
-            for neuron in active_indices:
-                # Each synapse transmits with probability p
-                transmit = self._rng.random(len(self._targets[neuron])) < self._p_transmit
-                targets_firing = self._targets[neuron][transmit]
-                next_active[targets_firing] = True
+            # Spontaneous firing
+            next_active |= self._rng.random(N) < p_spontaneous
 
-            # Refractory: neurons that fired cannot fire next step
+            # Refractory
             next_active &= ~active
-
             active = next_active
 
         return pop_rate
