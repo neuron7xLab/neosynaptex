@@ -4,7 +4,6 @@ Addresses Hole 6: without showing what gamma != 1.0 looks like, the claim is unf
 """
 
 import numpy as np
-import pytest
 
 from core.gamma import compute_gamma
 
@@ -19,7 +18,8 @@ class TestNegativeControls:
         cost = rng.uniform(0.1, 10.0, 200)
         r = compute_gamma(topo, cost)
         # White noise should either have low R2 or gamma far from 1.0
-        assert r.verdict != "METASTABLE", f"White noise should not be METASTABLE, got gamma={r.gamma}"
+        msg = f"White noise: gamma={r.gamma}"
+        assert r.verdict != "METASTABLE", msg
 
     def test_random_walk_not_metastable(self):
         """Cumulative random walk: no criticality."""
@@ -27,7 +27,8 @@ class TestNegativeControls:
         topo = np.abs(np.cumsum(rng.standard_normal(200))) + 1.0
         cost = np.abs(rng.standard_normal(200)) + 0.1
         r = compute_gamma(topo, cost)
-        assert r.verdict != "METASTABLE", f"Random walk should not be METASTABLE, got gamma={r.gamma}"
+        msg = f"Random walk: gamma={r.gamma}"
+        assert r.verdict != "METASTABLE", msg
 
     def test_supercritical_not_metastable(self):
         """Explosive growth: cost ~ topo^2, anti-scaling."""
@@ -38,7 +39,8 @@ class TestNegativeControls:
         cost = topo**2 * (1 + 0.1 * rng.standard_normal(n))
         cost = np.maximum(cost, 0.01)
         r = compute_gamma(topo, cost)
-        assert r.verdict != "METASTABLE", f"Supercritical should not be METASTABLE, got gamma={r.gamma}"
+        msg = f"Supercritical: gamma={r.gamma}"
+        assert r.verdict != "METASTABLE", msg
 
     def test_subcritical_ordered_not_metastable(self):
         """Over-determined: cost ~ topo^(-3), gamma >> 1."""
@@ -48,7 +50,8 @@ class TestNegativeControls:
         cost = 100.0 * topo ** (-3.0) * (1 + 0.01 * rng.standard_normal(n))
         cost = np.maximum(cost, 0.01)
         r = compute_gamma(topo, cost)
-        assert r.verdict != "METASTABLE", f"Subcritical should not be METASTABLE, got gamma={r.gamma}"
+        msg = f"Subcritical: gamma={r.gamma}"
+        assert r.verdict != "METASTABLE", msg
         assert abs(r.gamma - 1.0) > 0.5, f"Expected gamma far from 1.0, got {r.gamma}"
 
 

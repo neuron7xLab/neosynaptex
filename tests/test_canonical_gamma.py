@@ -5,7 +5,7 @@ import math
 import numpy as np
 import pytest
 
-from core.gamma import GammaResult, compute_gamma
+from core.gamma import compute_gamma
 
 
 def _make_power_law(gamma: float, n: int = 100, noise: float = 0.05, seed: int = 42):
