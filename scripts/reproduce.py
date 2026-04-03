@@ -81,7 +81,7 @@ def _derive_gamma_from_adapter(
     lt = np.log(t_arr)
     lc = np.log(c_arr)
 
-    gamma, r2, ci_lo, ci_hi = _per_domain_gamma(t_arr, c_arr, seed=seed)
+    gamma, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(t_arr, c_arr, seed=seed)
 
     # Null ensemble
     if np.isfinite(gamma) and np.ptp(lt) >= 0.5:

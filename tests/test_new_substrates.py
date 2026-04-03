@@ -45,7 +45,7 @@ def test_hrv_gamma_derivable():
         costs.append(a.thermo_cost())
     t_arr = np.array(topos)
     c_arr = np.array(costs)
-    gamma, r2, ci_lo, ci_hi = _per_domain_gamma(t_arr, c_arr, seed=42)
+    gamma, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(t_arr, c_arr, seed=42)
     # Gamma should be derivable (not NaN) — may or may not be near 1.0
     assert np.isfinite(gamma) or True  # NaN acceptable if data insufficient
 

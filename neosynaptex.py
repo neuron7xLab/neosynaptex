@@ -286,13 +286,16 @@ def _per_domain_jacobian(states: np.ndarray) -> tuple[float, float]:
 # ---------------------------------------------------------------------------
 def _per_domain_gamma(
     topos: np.ndarray, costs: np.ndarray, seed: int = 0
-) -> tuple[float, float, float, float]:
+) -> tuple[float, float, float, float, np.ndarray]:
     """Estimate gamma scaling exponent with bootstrap confidence interval.
 
     Delegates to canonical core.gamma.compute_gamma() (Hole 4/11 fix).
+    Returns bootstrap_gammas for reuse in permutation test (eliminates
+    the redundant second bootstrap that was doubling computation).
 
     Returns:
-        (gamma, r_squared, ci_low, ci_high) or (NaN, NaN, NaN, NaN).
+        (gamma, r2, ci_low, ci_high, bootstrap_gammas).
+        Non-passing gates return (NaN, NaN, NaN, NaN, empty_array).
     """
     from core.gamma import compute_gamma as _canonical_gamma
 
@@ -308,8 +311,8 @@ def _per_domain_gamma(
     # Preserve legacy behavior: return NaN quad for non-passing gates
     if r.verdict in ("INSUFFICIENT_DATA", "INSUFFICIENT_RANGE", "LOW_R2"):
         nan = float("nan")
-        return (nan, nan, nan, nan)
-    return (r.gamma, r.r2, r.ci_low, r.ci_high)
+        return (nan, nan, nan, nan, np.array([]))
+    return (r.gamma, r.r2, r.ci_low, r.ci_high, r.bootstrap_gammas)
 
 
 # ---------------------------------------------------------------------------
@@ -480,16 +483,20 @@ def _phase_portrait(gamma_trace: list[float], sr_trace: list[float]) -> dict[str
     except Exception:
         area = 0.0
 
-    # Recurrence rate (epsilon = 0.05)
+    # Recurrence rate (epsilon = 0.05) — vectorized distance matrix
     eps = 0.05
     n = len(pts)
-    recurrence_count = 0
-    for i in range(1, n):
-        for j in range(i):
-            if np.linalg.norm(pts[i] - pts[j]) < eps:
+    if n > 1:
+        diffs = pts[:, np.newaxis, :] - pts[np.newaxis, :, :]
+        dists = np.sqrt(np.sum(diffs**2, axis=2))
+        # For each point i>0, check if any j<i is within epsilon
+        recurrence_count = 0
+        for i in range(1, n):
+            if np.any(dists[i, :i] < eps):
                 recurrence_count += 1
-                break
-    recurrence = float(recurrence_count / max(n - 1, 1))
+        recurrence = float(recurrence_count / (n - 1))
+    else:
+        recurrence = 0.0
 
     # Distance to ideal (1.0, 1.0)
     ideal = np.array([1.0, 1.0])
@@ -738,7 +745,7 @@ class Neosynaptex:
 
         for i, name in enumerate(domain_order):
             buf = self._buffers[name]
-            g, r2, ci_lo, ci_hi = _per_domain_gamma(
+            g, r2, ci_lo, ci_hi, boot_samples = _per_domain_gamma(
                 buf.topos(), buf.costs(), seed=self._tick * 100 + i
             )
             gamma_per_domain[name] = g
@@ -746,23 +753,9 @@ class Neosynaptex:
             r2_per_domain[name] = r2
             self._gamma_history[name].append(g)
 
-            # Bootstrap cache
-            if np.isfinite(g):
-                rng = np.random.default_rng(self._tick * 100 + i)
-                topos = buf.topos()
-                costs = buf.costs()
-                valid = np.isfinite(topos) & np.isfinite(costs) & (topos > 0) & (costs > 0)
-                lt = np.log(topos[valid])
-                lc = np.log(costs[valid])
-                n_pts = len(lt)
-                boot = np.empty(_BOOTSTRAP_N)
-                for b in range(_BOOTSTRAP_N):
-                    idx = rng.integers(0, n_pts, n_pts)
-                    s, _, _, _ = theilslopes(lc[idx], lt[idx])
-                    boot[b] = -s
-                self._gamma_bootstraps[name] = boot
-            else:
-                self._gamma_bootstraps[name] = np.array([])
+            # Reuse bootstrap samples from canonical computation
+            # (eliminates redundant 2nd bootstrap that was doubling cost)
+            self._gamma_bootstraps[name] = boot_samples
 
             # EMA
             if np.isfinite(g):
@@ -774,14 +767,15 @@ class Neosynaptex:
 
         gamma_ema_per_domain = dict(self._gamma_ema)
 
-        # Cross-domain coherence
+        # Cross-domain coherence (clamped to [0, 1])
         gamma_valid = [v for v in gamma_per_domain.values() if np.isfinite(v)]
         if len(gamma_valid) >= 2:
             gamma_mean = float(np.mean(gamma_valid))
             gamma_std = float(np.std(gamma_valid))
-            cross_coherence = (
-                1.0 - gamma_std / gamma_mean if abs(gamma_mean) > 1e-10 else float("nan")
-            )
+            if abs(gamma_mean) > 1e-10:
+                cross_coherence = float(np.clip(1.0 - gamma_std / gamma_mean, 0.0, 1.0))
+            else:
+                cross_coherence = float("nan")
         elif len(gamma_valid) == 1:
             gamma_mean = gamma_valid[0]
             gamma_std = float("nan")
@@ -838,9 +832,13 @@ class Neosynaptex:
         if not self._was_metastable and is_meta and self._departures > 0:
             self._returns += 1
         self._was_metastable = is_meta
-        resilience_score = (
-            float(self._returns / self._departures) if self._departures > 0 else float("nan")
-        )
+        if self._departures > 0:
+            resilience_score = float(self._returns / self._departures)
+        elif is_meta and self._tick > 1:
+            # Never departed from METASTABLE = perfect resilience
+            resilience_score = 1.0
+        else:
+            resilience_score = float("nan")
 
         # === Reflexive modulation signal ===
         modulation: dict[str, float] = {}
@@ -885,6 +883,11 @@ class Neosynaptex:
         }
         self._gamma_per_domain_trace.append(dict(gamma_per_domain))
         self._state_mean_trace.append(state_means)
+        # Bound traces to prevent memory leak (cross-Jacobian needs 64 ticks)
+        _trace_cap = 256
+        if len(self._gamma_per_domain_trace) > _trace_cap:
+            self._gamma_per_domain_trace = self._gamma_per_domain_trace[-_trace_cap:]
+            self._state_mean_trace = self._state_mean_trace[-_trace_cap:]
 
         cross_jacobian, cross_jacobian_cond = self._compute_cross_jacobian(domain_order)
         self._adaptive_window = self._update_adaptive_window(gamma_ci_per_domain)

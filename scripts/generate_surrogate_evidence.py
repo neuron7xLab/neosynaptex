@@ -22,7 +22,6 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from scipy.stats import theilslopes
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -114,14 +113,15 @@ def generate_negative_controls() -> dict:
     # 3. Supercritical -- explosive growth
     topo_sc = np.exp(np.linspace(0, 3, n)) + rng.standard_normal(n) * 0.1
     topo_sc = np.maximum(topo_sc, 0.01)
-    cost_sc = topo_sc ** 2 * (1 + 0.1 * rng.standard_normal(n))
+    cost_sc = topo_sc**2 * (1 + 0.1 * rng.standard_normal(n))
     cost_sc = np.maximum(cost_sc, 0.01)
     r_sc = compute_gamma(topo_sc, cost_sc)
     results["supercritical"] = {
         "gamma": round(r_sc.gamma, 4) if np.isfinite(r_sc.gamma) else None,
         "r2": round(r_sc.r2, 4) if np.isfinite(r_sc.r2) else None,
         "verdict": r_sc.verdict,
-        "note": "Explosive exponential growth with cost ~ topo^2. Anti-scaling expected (gamma < 0).",
+        "note": "Explosive exponential growth with cost ~ topo^2. "
+        "Anti-scaling expected (gamma < 0).",
     }
 
     # 4. Perfectly ordered (subcritical) -- gamma >> 1

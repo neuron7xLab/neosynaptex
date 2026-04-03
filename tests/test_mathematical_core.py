@@ -41,7 +41,7 @@ class TestPerDomainGamma:
         rng = np.random.default_rng(42)
         topo = np.linspace(1.0, 50.0, 30)
         cost = topo ** (-2.0) * (1.0 + 0.01 * rng.standard_normal(30))
-        g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost, seed=42)
+        g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost, seed=42)
         assert abs(g - 2.0) < 0.15, f"gamma={g}"
         assert r2 > 0.9
 
@@ -50,7 +50,7 @@ class TestPerDomainGamma:
         rng = np.random.default_rng(7)
         topo = np.linspace(1.0, 40.0, 25)
         cost = topo ** (-1.0) * (1.0 + 0.02 * rng.standard_normal(25))
-        g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost, seed=7)
+        g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost, seed=7)
         assert abs(g - 1.0) < 0.15
 
     def test_ci_contains_true_gamma(self):
@@ -59,21 +59,21 @@ class TestPerDomainGamma:
         true_gamma = 1.5
         topo = np.linspace(1.0, 60.0, 40)
         cost = topo ** (-true_gamma) * (1.0 + 0.01 * rng.standard_normal(40))
-        g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost, seed=99)
+        g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost, seed=99)
         assert ci_lo <= true_gamma <= ci_hi, f"CI=[{ci_lo}, {ci_hi}], true={true_gamma}"
 
     def test_insufficient_pairs(self):
         """Less than 5 pairs -> NaN."""
         topo = np.array([1.0, 2.0, 3.0])
         cost = np.array([1.0, 0.5, 0.33])
-        g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost)
+        g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost)
         assert np.isnan(g)
 
     def test_constant_topo_nan(self):
         """Constant topo (log range < 0.5) -> NaN."""
         topo = np.full(20, 5.0)
         cost = np.random.default_rng(1).standard_normal(20) + 1.0
-        g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost)
+        g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost)
         assert np.isnan(g)
 
     def test_low_r2_nan(self):
@@ -82,14 +82,14 @@ class TestPerDomainGamma:
         topo = np.linspace(1.0, 50.0, 30)
         cost = rng.standard_normal(30) * 10.0 + 5.0
         cost = np.abs(cost) + 0.01
-        g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost, seed=42)
+        g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost, seed=42)
         assert np.isnan(g), f"Expected NaN for noise, got gamma={g}, r2={r2}"
 
     def test_negative_values_filtered(self):
         """Negative costs/topos are filtered out."""
         topo = np.array([1.0, -1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
         cost = np.array([1.0, -0.5, 0.33, 0.25, 0.2, 0.17, 0.14, 0.125, 0.11, 0.1])
-        g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost)
+        g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost)
         # Should work with remaining valid pairs
         assert isinstance(g, float)
 
@@ -99,7 +99,7 @@ class TestPerDomainGamma:
         cost = topo ** (-1.0)
         topo[3] = np.nan
         cost[7] = np.nan
-        g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost, seed=5)
+        g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost, seed=5)
         assert isinstance(g, float)
 
 
@@ -393,7 +393,7 @@ class TestPropertyBased:
         for gamma_true in [0.7, 1.0, 1.3, 1.8]:
             topo = np.linspace(1.0, 80.0, 50)
             cost = topo ** (-gamma_true) * (1.0 + 0.02 * rng.standard_normal(50))
-            g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost, seed=42)
+            g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost, seed=42)
             if g is not None and np.isfinite(g):
                 assert abs(g - gamma_true) < 0.3, f"gamma_true={gamma_true}, recovered={g}"
 
@@ -403,7 +403,7 @@ class TestPropertyBased:
         for n in [10, 25, 50, 100]:
             topo = np.linspace(1.0, 60.0, n)
             cost = topo ** (-1.2) * (1.0 + 0.01 * rng.standard_normal(n))
-            g, r2, ci_lo, ci_hi = _per_domain_gamma(topo, cost, seed=77)
+            g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo, cost, seed=77)
             if np.isfinite(g):
                 assert abs(g - 1.2) < 0.3, f"n={n}, gamma={g}"
 
@@ -414,7 +414,7 @@ class TestWhiteNoise:
         rng = np.random.default_rng(42)
         noise_topo = np.abs(rng.standard_normal(50)) + 0.1
         noise_cost = np.abs(rng.standard_normal(50)) + 0.1
-        g, r2, ci_lo, ci_hi = _per_domain_gamma(noise_topo, noise_cost, seed=42)
+        g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(noise_topo, noise_cost, seed=42)
         # Either NaN (range gate / R2 gate) or gamma far from 1.0
         if np.isfinite(g):
             assert abs(g - 1.0) > 0.3, f"White noise produced suspicious gamma={g:.3f}"

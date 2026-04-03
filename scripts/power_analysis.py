@@ -19,14 +19,12 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from scipy.stats import theilslopes
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
 def _fast_gamma(log_t: np.ndarray, log_c: np.ndarray) -> tuple[float, float]:
     """Fast gamma via OLS (for power simulation speed)."""
-    n = len(log_t)
     x_mean = np.mean(log_t)
     y_mean = np.mean(log_c)
     ss_xy = np.sum((log_t - x_mean) * (log_c - y_mean))
@@ -144,7 +142,8 @@ def main():
         "date": "2026-04-03",
         "description": "Power analysis for gamma detection at observed sample sizes",
         "method": "Monte Carlo simulation with OLS gamma estimation and bootstrap CI (n_boot=100)",
-        "note": "OLS used for speed; canonical pipeline uses Theil-Sen. Power estimates are approximate.",
+        "note": "OLS used for speed; canonical pipeline uses Theil-Sen. "
+        "Power estimates are approximate.",
         "substrates": results,
     }
 

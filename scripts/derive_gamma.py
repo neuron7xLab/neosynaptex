@@ -44,7 +44,7 @@ def derive_mock(adapter, entry_id: str, expected_gamma: float) -> dict:
 
     topo_arr = np.array(topos)
     cost_arr = np.array(costs)
-    g, r2, ci_lo, ci_hi = _per_domain_gamma(topo_arr, cost_arr, seed=42)
+    g, r2, ci_lo, ci_hi, _boot = _per_domain_gamma(topo_arr, cost_arr, seed=42)
 
     print(f"  {entry_id}: gamma={g:.4f}, r2={r2:.4f}, CI=[{ci_lo:.4f}, {ci_hi:.4f}]")
     print(f"    expected={expected_gamma}, error={abs(g - expected_gamma):.4f}")
