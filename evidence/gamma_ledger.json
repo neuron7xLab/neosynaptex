@@ -207,6 +207,32 @@
       "adapter_code_hash": null,
       "derivation_method": "specparam aperiodic exponent, 20 subjects, motor imagery runs 4/8/12"
     },
+    "hrv_physionet": {
+      "substrate": "hrv_physionet",
+      "description": "HRV PhysioNet NSR2DB — VLF spectral exponent of healthy cardiac rhythm",
+      "gamma": 0.885,
+      "ci_low": 0.834,
+      "ci_high": 1.080,
+      "r2": 0.93,
+      "n_pairs": 10,
+      "p_permutation": null,
+      "status": "VALIDATED",
+      "tier": "evidential",
+      "locked": true,
+      "data_source": {
+        "file": "PhysioNet nsr2db (remote)",
+        "sha256": null
+      },
+      "adapter_code_hash": null,
+      "derivation_method": "VLF PSD (0.003-0.04 Hz) of RR intervals, 10 subjects. DFA cross-validation: alpha=1.107±0.047",
+      "dfa_cross_validation": {
+        "alpha_mean": 1.107,
+        "alpha_std": 0.047,
+        "alpha_range": [1.04, 1.18],
+        "n_subjects": 10,
+        "interpretation": "1/f scaling confirmed (alpha≈1.0 = critical, 0.5 = white, 1.5 = Brownian)"
+      }
+    },
     "cfp_diy": {
       "substrate": "cfp_diy",
       "description": "CFP/ДІЙ — Cognitive Field Protocol, ABM co-adaptation simulation",
