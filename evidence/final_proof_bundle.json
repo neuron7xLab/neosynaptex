@@ -1,0 +1,100 @@
+{
+  "version": "1.0.0",
+  "title": "NFI Gamma-Scaling Universality \u2014 Final Proof Bundle",
+  "author": "Yaroslav Vasylenko / neuron7xLab",
+  "date": "2026-04-03",
+  "method": "compute_gamma() \u2014 Theil-Sen + bootstrap CI95",
+  "substrates": {
+    "zebrafish": {
+      "gamma": 1.0553,
+      "ci": [
+        0.8903,
+        1.1961
+      ],
+      "r2": 0.7621,
+      "n": 45,
+      "p_value": 0.005,
+      "ci_contains_unity": true,
+      "verdict": "METASTABLE"
+    },
+    "gray_scott": {
+      "gamma": 0.9375,
+      "ci": [
+        0.9259,
+        0.9497
+      ],
+      "r2": 0.9924,
+      "n": 200,
+      "p_value": 0.005,
+      "ci_contains_unity": false,
+      "verdict": "METASTABLE"
+    },
+    "bnsyn": {
+      "gamma": 0.9308,
+      "ci": [
+        0.8557,
+        1.0203
+      ],
+      "r2": 0.6416,
+      "n": 400,
+      "p_value": 0.005,
+      "ci_contains_unity": true,
+      "verdict": "METASTABLE"
+    },
+    "kuramoto": {
+      "gamma": 0.9633,
+      "ci": [
+        0.93,
+        1.0064
+      ],
+      "r2": 0.8965,
+      "n": 300,
+      "p_value": 0.005,
+      "ci_contains_unity": true,
+      "verdict": "METASTABLE"
+    },
+    "eeg_physionet": {
+      "gamma": 1.0675,
+      "ci": [
+        0.8767,
+        1.2464
+      ],
+      "r2": 0.0,
+      "n": 20,
+      "p_value": 0.02,
+      "ci_contains_unity": true,
+      "verdict": "METASTABLE"
+    }
+  },
+  "negative_controls": {
+    "white_noise": {
+      "gamma": -0.0619,
+      "r2": -0.0847,
+      "verdict": "LOW_R2",
+      "separated_from_unity": true
+    },
+    "random_walk": {
+      "gamma": 0.1819,
+      "r2": -0.0266,
+      "verdict": "LOW_R2",
+      "separated_from_unity": true
+    },
+    "supercritical": {
+      "gamma": 1.9946,
+      "r2": 0.5678,
+      "verdict": "COLLAPSE",
+      "separated_from_unity": true
+    }
+  },
+  "cross_substrate_statistics": {
+    "gamma_mean": 0.9909,
+    "gamma_std": 0.0587,
+    "ci95": [
+      0.94,
+      1.0418
+    ],
+    "ci_contains_unity": true,
+    "n_substrates": 5,
+    "theil_sen_slope": 0.007981
+  }
+}
