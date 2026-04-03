@@ -8,11 +8,15 @@ Architecture:
   128 coupled oscillators → aggregate "market index" signal
   Running windows → volatility + return efficiency
 
-Mapping (verified R² = 0.88):
+Natural frequencies: Lorentzian (Cauchy) with scale γ_freq = 0.5.
+Critical coupling: Kc = 2·γ_freq = 1.0 (exact for Lorentzian).
+Operating point: K = Kc = 1.0 (at criticality, not above).
+
+Mapping:
   topo = running volatility (complexity of price dynamics)
   cost = 1/mean(|returns|) (efficiency — higher vol → cheaper per-unit move)
 
-At critical coupling (K ≈ Kc): γ ≈ 1.0, METASTABLE.
+At critical coupling (K = Kc = 1.0): γ ≈ 1.0, METASTABLE.
 """
 
 from __future__ import annotations
@@ -34,7 +38,9 @@ class KuramotoAdapter:
     rolling windows extract topo/cost from market dynamics.
     """
 
-    def __init__(self, seed: int = 42, K: float = 1.14) -> None:
+    def __init__(self, seed: int = 42, K: float = 1.0) -> None:
+        # Kc = 2·γ_freq = 2·0.5 = 1.0 for Lorentzian with scale 0.5
+        # Operating at K = Kc (true critical coupling)
         self._rng = np.random.default_rng(seed)
         self._N = _N_OSC
         self._K = K
