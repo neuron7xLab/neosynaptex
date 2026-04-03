@@ -188,6 +188,25 @@
       "adapter_code_hash": null,
       "derivation_method": "p_perm=0.005, CI=[0.985,1.131]"
     },
+    "eeg_physionet": {
+      "substrate": "eeg_physionet",
+      "description": "EEG PhysioNet EEGBCI — aperiodic spectral exponent during motor imagery",
+      "gamma": 1.068,
+      "ci_low": 0.877,
+      "ci_high": 1.246,
+      "r2": null,
+      "n_pairs": 20,
+      "p_permutation": 0.02,
+      "status": "VALIDATED",
+      "tier": "evidential",
+      "locked": true,
+      "data_source": {
+        "file": "data/eeg_physionet/MNE-eegbci-data/",
+        "sha256": null
+      },
+      "adapter_code_hash": null,
+      "derivation_method": "specparam aperiodic exponent, 20 subjects, motor imagery runs 4/8/12"
+    },
     "cfp_diy": {
       "substrate": "cfp_diy",
       "description": "CFP/ДІЙ — Cognitive Field Protocol, ABM co-adaptation simulation",
