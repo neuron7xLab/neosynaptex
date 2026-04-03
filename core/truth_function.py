@@ -334,8 +334,8 @@ def assess_truth(
             rqa_lam = float(lam_val) if isinstance(lam_val, (int, float)) else nan
             if np.isfinite(rqa_det):
                 has_structure = rqa_det > _RQA_DET_THRESHOLD
-        except Exception:
-            pass
+        except Exception:  # noqa: BLE001 — RQA failure is non-fatal
+            pass  # nosec B110 — graceful degradation, axis remains NaN
 
         axes_tested += 1
         if has_structure:
