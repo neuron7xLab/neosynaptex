@@ -1032,6 +1032,84 @@ class Neosynaptex:
         self._last_proof_hash = None
         self._proof_count = 0
 
+    def truth_function(self) -> dict:
+        """Unified truth function -- answers: is gamma REAL or ARTIFACT?
+
+        Runs 5 independent verification axes per domain:
+          1. Tautology detection (R2 too perfect?)
+          2. Estimator consensus (Theil-Sen vs OLS vs Huber)
+          3. Surrogate significance (IAAFT null hypothesis)
+          4. DFA cross-validation (Hurst exponent agreement)
+          5. RQA regime fingerprint (deterministic structure?)
+
+        Returns dict with per-domain TruthAssessment and global verdict.
+        Call periodically (not every tick) -- runs surrogate tests.
+        """
+        from core.truth_function import assess_truth
+
+        if not self._history:
+            return {"error": "no observations", "global_verdict": "INCONCLUSIVE"}
+
+        domain_order = sorted(self._adapters.keys())
+        assessments = {}
+        verdicts = []
+
+        for name in domain_order:
+            buf = self._buffers[name]
+            topos = buf.topos()
+            costs = buf.costs()
+            gamma = self._history[-1].gamma_per_domain.get(name, float("nan"))
+            gamma_hist = self._gamma_history.get(name, [])
+
+            if not np.isfinite(gamma):
+                assessments[name] = {"verdict": "INCONCLUSIVE", "reason": "gamma is NaN"}
+                continue
+
+            a = assess_truth(
+                topos,
+                costs,
+                gamma,
+                gamma_trace=gamma_hist,
+                sr_trace=list(self._sr_trace),
+                n_surrogates=99,
+                seed=self._tick,
+            )
+            assessments[name] = {
+                "verdict": a.verdict,
+                "confidence": round(a.confidence, 3),
+                "axes_passed": a.n_axes_passed,
+                "tautology_risk": round(a.tautology_risk, 3),
+                "estimator_spread": round(a.estimator_spread, 4)
+                if np.isfinite(a.estimator_spread)
+                else None,
+                "estimators_agree": a.estimators_agree,
+                "surrogate_p": round(a.surrogate_p, 4) if np.isfinite(a.surrogate_p) else None,
+                "survives_null": a.survives_null,
+                "hurst_H": round(a.hurst_exponent, 4) if np.isfinite(a.hurst_exponent) else None,
+                "gamma_dfa": round(a.gamma_dfa, 4) if np.isfinite(a.gamma_dfa) else None,
+                "dfa_consistent": a.dfa_consistent,
+                "rqa_DET": round(a.rqa_det, 4) if np.isfinite(a.rqa_det) else None,
+                "has_structure": a.has_structure,
+            }
+            verdicts.append(a.verdict)
+
+        # Global verdict: most conservative across domains
+        if all(v == "VERIFIED" for v in verdicts):
+            global_verdict = "VERIFIED"
+        elif any(v == "CONSTRUCTED" for v in verdicts):
+            global_verdict = "CONSTRUCTED"
+        elif any(v == "FRAGILE" for v in verdicts):
+            global_verdict = "FRAGILE"
+        else:
+            global_verdict = "INCONCLUSIVE"
+
+        return {
+            "global_verdict": global_verdict,
+            "per_domain": assessments,
+            "n_domains_verified": sum(1 for v in verdicts if v == "VERIFIED"),
+            "n_domains_total": len(verdicts),
+        }
+
     def export_proof(self, path: str | None = None) -> dict:
         """Export proof bundle as JSON-serializable dict.
 
