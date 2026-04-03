@@ -516,7 +516,9 @@ class TestProof:
         nx = _full_system()
         _warmup(nx, 40)
         proof = nx.export_proof()
-        assert proof["version"] == "0.2.0"
+        from neosynaptex import __version__
+
+        assert proof["version"] == __version__
         assert proof["verdict"] in ("COHERENT", "INCOHERENT", "PARTIAL")
         assert "gamma" in proof
         assert "jacobian" in proof
