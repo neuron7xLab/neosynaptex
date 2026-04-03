@@ -3,8 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 EVIDENCE = Path(__file__).resolve().parent.parent / "evidence"
 
 
@@ -21,7 +19,10 @@ class TestProxySensitivity:
         EEG grand-average PSD γ differs from per-subject specparam γ (see §3.4)."""
         data = _load("proxy_sensitivity.json")
         for sub in ["zebrafish", "hrv"]:
-            orig = [r for r in data["results"] if r["substrate"] == sub and "original" in r["proxy"]]
+            orig = [
+                r for r in data["results"]
+                if r["substrate"] == sub and "original" in r["proxy"]
+            ]
             assert orig and orig[0]["in_metastable_band"], f"{sub} original not in band"
 
     def test_at_least_one_alt_per_substrate(self):
