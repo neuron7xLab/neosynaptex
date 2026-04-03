@@ -212,6 +212,22 @@ jobs:
       - name: Check license boundaries
         run: python scripts/check_license_boundaries.py
 
+  # ── Invariant Tests (proxy, shuffling, scale, unified) ────────────────
+  invariant-tests:
+    name: Invariant Tests
+    needs: [lint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+      - run: pip install -e ".[dev]" --quiet
+      - name: Run invariant hardening tests
+        run: pytest tests/test_invariants.py -v --timeout=60
+
   # ── CI Gate ───────────────────────────────────────────────────────────
   ci-gate:
     name: CI Gate

@@ -1,0 +1,70 @@
+{
+  "description": "Unified information space: median-scaled (C/C_median, K/K_median)",
+  "normalization": "C_norm = C/median(C), K_norm = K/median(K). Preserves log-log slope exactly (\u03b3 invariant under multiplicative rescaling).",
+  "results": {
+    "zebrafish": {
+      "gamma_original": 1.0553,
+      "gamma_unified": 1.0553,
+      "ci_low": 0.8903,
+      "ci_high": 1.1961,
+      "ci_contains_unity": true,
+      "n_valid": 45,
+      "verdict": "METASTABLE",
+      "gamma_preserved": true
+    },
+    "hrv": {
+      "gamma_original": 0.8852,
+      "gamma_unified": 0.8852,
+      "ci_low": 0.8434,
+      "ci_high": 0.9833,
+      "ci_contains_unity": false,
+      "n_valid": 10,
+      "verdict": "METASTABLE",
+      "gamma_preserved": true
+    },
+    "eeg": {
+      "gamma_original": 0.8318,
+      "gamma_unified": 0.8318,
+      "ci_low": 0.7777,
+      "ci_high": 0.9024,
+      "ci_contains_unity": false,
+      "n_valid": 132,
+      "verdict": "WARNING",
+      "gamma_preserved": true
+    },
+    "gray_scott": {
+      "gamma_original": 0.9375,
+      "gamma_unified": 0.9375,
+      "ci_low": 0.9259,
+      "ci_high": 0.9497,
+      "ci_contains_unity": false,
+      "n_valid": 200,
+      "verdict": "METASTABLE",
+      "gamma_preserved": true
+    },
+    "kuramoto": {
+      "gamma_original": 0.9804,
+      "gamma_unified": 0.9804,
+      "ci_low": 0.9468,
+      "ci_high": 1.0166,
+      "ci_contains_unity": true,
+      "n_valid": 300,
+      "verdict": "METASTABLE",
+      "gamma_preserved": true
+    },
+    "bnsyn": {
+      "gamma_original": 0.4771,
+      "gamma_unified": 0.4771,
+      "ci_low": 0.4471,
+      "ci_high": 0.5054,
+      "ci_contains_unity": false,
+      "n_valid": 995,
+      "verdict": "COLLAPSE",
+      "gamma_preserved": true
+    }
+  },
+  "tier1_mean_unified": 0.9241,
+  "n_gamma_preserved": 6,
+  "n_ci_contains_unity": 2,
+  "gate_pass": true
+}

@@ -1,0 +1,39 @@
+{
+  "description": "Random pairing shuffle: destroy C\u2194K correspondence, preserve marginals",
+  "results": {
+    "zebrafish": {
+      "gamma_real": 1.0553,
+      "gamma_shuffled_median": -0.0062,
+      "gamma_shuffled_std": 0.1875,
+      "gamma_shuffled_95CI": [
+        -0.3881,
+        0.2926
+      ],
+      "n_permutations": 199,
+      "real_closer_to_unity": true
+    },
+    "hrv": {
+      "gamma_real": 0.8852,
+      "gamma_shuffled_median": -0.0789,
+      "gamma_shuffled_std": 0.3511,
+      "gamma_shuffled_95CI": [
+        -0.593,
+        0.6981
+      ],
+      "n_permutations": 199,
+      "real_closer_to_unity": true
+    },
+    "eeg": {
+      "gamma_real": 0.8318,
+      "gamma_shuffled_median": 0.0029,
+      "gamma_shuffled_std": 0.0392,
+      "gamma_shuffled_95CI": [
+        -0.0758,
+        0.0725
+      ],
+      "n_permutations": 199,
+      "real_closer_to_unity": true
+    }
+  },
+  "all_separated": true
+}

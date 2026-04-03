@@ -1,0 +1,68 @@
+{
+  "description": "Scale invariance under downsampling",
+  "results": {
+    "zebrafish": {
+      "factors": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "gammas": [
+        1.0553,
+        1.2317,
+        1.1816,
+        1.1228
+      ],
+      "in_metastable_band": [
+        true,
+        false,
+        false,
+        true
+      ],
+      "max_consecutive_octaves": 1,
+      "stable": false
+    },
+    "hrv": {
+      "factors": [
+        1,
+        2
+      ],
+      "gammas": [
+        0.8852,
+        0.8823
+      ],
+      "in_metastable_band": [
+        true,
+        true
+      ],
+      "max_consecutive_octaves": 2,
+      "stable": false
+    },
+    "eeg": {
+      "factors": [
+        1,
+        2,
+        4,
+        8,
+        16
+      ],
+      "gammas": [
+        0.8318,
+        0.8364,
+        0.865,
+        0.8768,
+        1.0158
+      ],
+      "in_metastable_band": [
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "max_consecutive_octaves": 3,
+      "stable": true
+    }
+  }
+}

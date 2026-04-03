@@ -1,0 +1,106 @@
+{
+  "description": "Proxy sensitivity: alternative (C,K) pairs per Tier 1 substrate",
+  "results": [
+    {
+      "substrate": "zebrafish",
+      "proxy": "original: density vs NN_CV",
+      "gamma": 1.0553,
+      "ci_low": 0.8903,
+      "ci_high": 1.1961,
+      "r2": 0.7621,
+      "n_valid": 45,
+      "verdict": "METASTABLE",
+      "in_metastable_band": true
+    },
+    {
+      "substrate": "zebrafish",
+      "proxy": "alt1: population vs NN_CV",
+      "gamma": 0.4555,
+      "ci_low": 0.3846,
+      "ci_high": 0.5166,
+      "r2": 0.7616,
+      "n_valid": 45,
+      "verdict": "COLLAPSE",
+      "in_metastable_band": false
+    },
+    {
+      "substrate": "zebrafish",
+      "proxy": "alt2: density vs 1/population",
+      "gamma": 2.2929,
+      "ci_low": 2.19,
+      "ci_high": 2.3697,
+      "r2": 0.9953,
+      "n_valid": 45,
+      "verdict": "COLLAPSE",
+      "in_metastable_band": false
+    },
+    {
+      "substrate": "hrv",
+      "proxy": "original: VLF freq vs PSD",
+      "gamma": 0.8852,
+      "ci_low": 0.8434,
+      "ci_high": 0.9833,
+      "r2": 0.9928,
+      "n_valid": 10,
+      "verdict": "METASTABLE",
+      "in_metastable_band": true
+    },
+    {
+      "substrate": "hrv",
+      "proxy": "alt1: LF freq vs PSD",
+      "gamma": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "in_metastable_band": false
+    },
+    {
+      "substrate": "hrv",
+      "proxy": "alt2: full band freq vs PSD",
+      "gamma": 0.8852,
+      "ci_low": 0.8434,
+      "ci_high": 0.9833,
+      "r2": 0.9928,
+      "n_valid": 10,
+      "verdict": "METASTABLE",
+      "in_metastable_band": true
+    },
+    {
+      "substrate": "eeg",
+      "proxy": "original: 2-35Hz freq vs PSD",
+      "gamma": 0.8318,
+      "ci_low": 0.7777,
+      "ci_high": 0.9024,
+      "r2": 0.8892,
+      "n_valid": 132,
+      "verdict": "WARNING",
+      "in_metastable_band": false
+    },
+    {
+      "substrate": "eeg",
+      "proxy": "alt1: 8-30Hz freq vs PSD",
+      "gamma": 0.568,
+      "ci_low": 0.3954,
+      "ci_high": 0.7593,
+      "r2": 0.6746,
+      "n_valid": 88,
+      "verdict": "CRITICAL",
+      "in_metastable_band": false
+    },
+    {
+      "substrate": "eeg",
+      "proxy": "alt2: 2-12Hz freq vs PSD",
+      "gamma": 0.9833,
+      "ci_low": 0.6949,
+      "ci_high": 1.2847,
+      "r2": 0.7765,
+      "n_valid": 40,
+      "verdict": "METASTABLE",
+      "in_metastable_band": true
+    }
+  ],
+  "summary": {
+    "n_alternatives": 6,
+    "n_in_metastable_band": 2,
+    "pass_rate": "2/6",
+    "gate_pass": false
+  }
+}
