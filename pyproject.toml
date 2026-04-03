@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "neosynaptex"
-version = "2.1.0"
-description = "NFI — Neuromodulatory Field Intelligence. Intelligence as regime property."
+version = "3.0.0"
+description = "NFI — Neuromodulatory Field Intelligence. γ ≈ 1.0 across six substrates. Intelligence as regime property."
 readme = "README.md"
 authors = [{ name = "Yaroslav Vasylenko", email = "neuron7x@proton.me" }]
 license = { text = "AGPL-3.0-or-later" }
@@ -14,11 +14,13 @@ keywords = [
     "neuroscience",
     "criticality",
     "coherence",
-    "scaling",
+    "scaling-laws",
+    "topology-laws",
     "metastability",
-    "gamma",
-    "jacobian",
-    "granger-causality",
+    "gamma-scaling",
+    "cognitive-field-protocol",
+    "human-ai-co-adaptation",
+    "agent-based-model",
     "phase-transition",
 ]
 classifiers = [

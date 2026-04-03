@@ -35,3 +35,6 @@ migration_manifest.json
 *.weights
 .coverage
 evidence/reproduction_bundle.json
+
+# Large API response dumps
+experiments/lm_substrate/gpt4o_*_raw.json
