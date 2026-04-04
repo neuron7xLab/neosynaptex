@@ -14,6 +14,8 @@ from typing import Any
 
 import numpy as np
 
+from core.protocols import DomainAdapter
+
 logger = logging.getLogger(__name__)
 
 _MAX_STATE_KEYS = 4
@@ -39,9 +41,10 @@ class AdapterRegistry:
         self._adapters: dict[str, Any] = {}
 
     def register(self, adapter: Any) -> None:
-        """Register adapter after verifying Protocol compliance."""
-        errors = self._check_protocol(adapter)
-        if errors:
+        """Register adapter after verifying DomainAdapter Protocol compliance."""
+        # Runtime protocol check via isinstance (PEP 544 runtime_checkable)
+        if not isinstance(adapter, DomainAdapter):
+            errors = self._check_protocol(adapter)
             raise TypeError(f"Adapter fails DomainAdapter Protocol: {'; '.join(errors)}")
         domain = adapter.domain
         if domain in self._adapters:

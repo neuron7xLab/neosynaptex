@@ -6,7 +6,6 @@ JSON-RPC style, no HTTP dependencies. SSI external enforced.
 from __future__ import annotations
 
 import json
-import subprocess  # nosec B404 — used only for hardcoded git command
 import time
 from collections.abc import Generator
 from dataclasses import dataclass
@@ -14,6 +13,7 @@ from typing import Any
 
 import numpy as np
 
+from core._git import get_short_sha
 from core.contracts import SSIDomain, ssi_apply
 from core.event_bus import EventBus, SubstrateEvent
 
@@ -55,7 +55,7 @@ class CoherenceBridge:
             return {"error": "no observations", "timestamp": time.time()}
 
         state = history[-1]
-        git_sha = self._get_git_sha()
+        git_sha = get_short_sha()
 
         per_domain = {}
         for domain, gamma in state.gamma_per_domain.items():
@@ -176,15 +176,3 @@ class CoherenceBridge:
             return json.dumps(proof, indent=2, default=str, ensure_ascii=False).encode("utf-8")
         raise ValueError(f"Unsupported format: {fmt}")
 
-    @staticmethod
-    def _get_git_sha() -> str:
-        try:
-            result = subprocess.run(  # nosec B603 B607 — hardcoded git command, no user input
-                ["git", "rev-parse", "--short", "HEAD"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            return result.stdout.strip() or "unknown"
-        except Exception:
-            return "unknown"

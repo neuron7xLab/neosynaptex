@@ -24,7 +24,7 @@ keywords = [
     "phase-transition",
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -62,6 +62,10 @@ py-modules = ["neosynaptex"]
 
 [tool.setuptools.packages.find]
 include = ["core*", "contracts*", "substrates*", "agents*", "evl*"]
+
+[tool.setuptools.package-data]
+core = ["py.typed"]
+contracts = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

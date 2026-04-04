@@ -25,6 +25,7 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.stats import theilslopes
 
+from core._regression import huber_gamma, ols_gamma
 from core.iaaft import surrogate_p_value
 from core.rqa import recurrence_quantification
 
@@ -83,54 +84,9 @@ class TruthAssessment:
     confidence: float  # n_axes_passed / n_axes_tested
 
 
-def _ols_gamma(log_t: np.ndarray, log_c: np.ndarray) -> tuple[float, float]:
-    """OLS gamma estimation."""
-    n = len(log_t)
-    sx, sy = np.sum(log_t), np.sum(log_c)
-    sxx = np.sum(log_t * log_t)
-    sxy = np.sum(log_t * log_c)
-    denom = n * sxx - sx * sx
-    if abs(denom) < 1e-15:
-        return float("nan"), 0.0
-    slope = float((n * sxy - sx * sy) / denom)
-    intercept = float((sy - slope * sx) / n)
-    yhat = slope * log_t + intercept
-    ss_res = float(np.sum((log_c - yhat) ** 2))
-    ss_tot = float(np.sum((log_c - np.mean(log_c)) ** 2))
-    r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-10 else 0.0
-    return -slope, r2
-
-
-def _huber_gamma(log_t: np.ndarray, log_c: np.ndarray, delta: float = 1.345) -> float:
-    """Huber-robust gamma estimation."""
-    neg_slope, r2 = _ols_gamma(log_t, log_c)
-    if not np.isfinite(neg_slope):
-        return float("nan")
-    s = -neg_slope  # slope = -gamma, so s = slope
-    # Recompute intercept from slope
-    b = float(np.mean(log_c) - s * np.mean(log_t))
-    for _ in range(20):
-        residuals = log_c - (s * log_t + b)
-        w = np.where(
-            np.abs(residuals) <= delta,
-            1.0,
-            delta / (np.abs(residuals) + 1e-10),
-        )
-        ws = np.sum(w)
-        wx = np.sum(w * log_t)
-        wy = np.sum(w * log_c)
-        wxx = np.sum(w * log_t * log_t)
-        wxy = np.sum(w * log_t * log_c)
-        d = ws * wxx - wx * wx
-        if abs(d) < 1e-15:
-            break
-        new_s = float((ws * wxy - wx * wy) / d)
-        new_b = float((wy - new_s * wx) / ws)
-        if abs(new_s - s) < 1e-8:
-            s, b = new_s, new_b
-            break
-        s, b = new_s, new_b
-    return -s
+# Regression estimators: canonical source is core._regression
+_ols_gamma = ols_gamma
+_huber_gamma = huber_gamma
 
 
 def _dfa_exponent(signal: np.ndarray) -> float:

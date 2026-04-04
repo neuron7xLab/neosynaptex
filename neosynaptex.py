@@ -17,13 +17,14 @@ import logging
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
 
 import numpy as np
 from scipy.linalg import lstsq as scipy_lstsq
 from scipy.spatial import ConvexHull
 from scipy.stats import theilslopes
 
+from core.enums import Phase
+from core.protocols import DomainAdapter
 from core.value_function import ValueEstimate, estimate_value
 
 __all__ = [
@@ -65,33 +66,16 @@ _PERMUTATION_N = 500
 _COND_GATE = 1e6
 _EMA_ALPHA = 0.3
 
-# Phase labels
-INITIALIZING = "INITIALIZING"
-METASTABLE = "METASTABLE"
-COLLAPSING = "COLLAPSING"
-DIVERGING = "DIVERGING"
-DEGENERATE = "DEGENERATE"
-CONVERGING = "CONVERGING"
-DRIFTING = "DRIFTING"
+# Phase labels — str-compatible enums, usable as plain strings
+INITIALIZING = Phase.INITIALIZING
+METASTABLE = Phase.METASTABLE
+COLLAPSING = Phase.COLLAPSING
+DIVERGING = Phase.DIVERGING
+DEGENERATE = Phase.DEGENERATE
+CONVERGING = Phase.CONVERGING
+DRIFTING = Phase.DRIFTING
 
-
-# ---------------------------------------------------------------------------
-# Protocol
-# ---------------------------------------------------------------------------
-class DomainAdapter(Protocol):
-    """Interface each NFI subsystem implements."""
-
-    @property
-    def domain(self) -> str: ...
-
-    @property
-    def state_keys(self) -> list[str]: ...
-
-    def state(self) -> dict[str, float]: ...
-
-    def topo(self) -> float: ...
-
-    def thermo_cost(self) -> float: ...
+# DomainAdapter Protocol — canonical source is core.protocols
 
 
 # ---------------------------------------------------------------------------
@@ -536,13 +520,18 @@ class Neosynaptex:
         print(state.phase, state.gamma_mean, state.modulation)
     """
 
-    def __init__(self, window: int = 16) -> None:
+    def __init__(self, window: int = 16, event_bus: "EventBus | None" = None) -> None:
         if window < 8:
             raise ValueError(f"window must be >= 8, got {window}")
         self._window = window
         self._adapters: dict[str, DomainAdapter] = {}
         self._buffers: dict[str, _DomainBuffer] = {}
         self._tick = 0
+
+        # Event bus — reactive inter-component communication
+        from core.event_bus import EventBus
+
+        self._event_bus: EventBus = event_bus or EventBus()
 
         # Phase hysteresis
         self._confirmed_phase = INITIALIZING
@@ -579,6 +568,11 @@ class Neosynaptex:
         self._chain_root: str = self._load_chain_root()
         self._last_proof_hash: str | None = None
         self._proof_count: int = 0
+
+    @property
+    def event_bus(self) -> "EventBus":
+        """Access the event bus for subscribing to system events."""
+        return self._event_bus
 
     @staticmethod
     def _load_chain_root() -> str:
@@ -674,7 +668,20 @@ class Neosynaptex:
         return hashlib.sha256(canonical.encode()).hexdigest()
 
     def register(self, adapter: DomainAdapter) -> None:
-        """Register a domain adapter. Max 4 state variables per adapter."""
+        """Register a domain adapter with Protocol + contract validation.
+
+        Validates:
+          - DomainAdapter Protocol compliance (runtime_checkable)
+          - Max 4 state variables per adapter
+          - No duplicate domains
+        """
+        from core.protocols import DomainAdapter as _Proto
+
+        if not isinstance(adapter, _Proto):
+            raise TypeError(
+                f"Adapter does not implement DomainAdapter Protocol: "
+                f"missing {set(_Proto.__protocol_attrs__) - set(dir(adapter))}"
+            )
         keys = adapter.state_keys
         if len(keys) > _MAX_STATE_KEYS:
             raise ValueError(
@@ -824,6 +831,53 @@ class Neosynaptex:
             self._candidate_count = 1
 
         phase = self._confirmed_phase
+
+        # === Emit events for reactive inter-component communication ===
+        prev_phase = self._history[-1].phase if self._history else INITIALIZING
+        if phase != prev_phase:
+            from core.event_bus import PhaseTransitionEvent
+
+            self._event_bus.emit(
+                PhaseTransitionEvent(
+                    domain="global",
+                    old_phase=str(prev_phase),
+                    new_phase=str(phase),
+                )
+            )
+
+        # Emit gamma shift events for domains with significant change
+        if self._history:
+            prev_gammas = self._history[-1].gamma_per_domain
+            for name in domain_order:
+                g_new = gamma_per_domain[name]
+                g_old = prev_gammas.get(name, float("nan"))
+                if (
+                    np.isfinite(g_new)
+                    and np.isfinite(g_old)
+                    and abs(g_new - g_old) > 0.05
+                ):
+                    from core.event_bus import GammaShiftEvent
+
+                    self._event_bus.emit(
+                        GammaShiftEvent(
+                            domain=name,
+                            old_gamma=g_old,
+                            new_gamma=g_new,
+                        )
+                    )
+
+        # Emit coherence event
+        if np.isfinite(gamma_mean) and len(gamma_valid) >= 2:
+            from core.event_bus import CoherenceEvent
+
+            self._event_bus.emit(
+                CoherenceEvent(
+                    global_gamma=gamma_mean,
+                    per_domain_gammas=tuple(
+                        (k, v) for k, v in gamma_per_domain.items() if np.isfinite(v)
+                    ),
+                )
+            )
 
         # === Resilience tracking ===
         is_meta = phase == METASTABLE

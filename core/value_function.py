@@ -37,6 +37,8 @@ from typing import Any
 
 import numpy as np
 
+from core.enums import ValueGate
+
 logger = logging.getLogger(__name__)
 
 # Thresholds (Sutskever: keep VF simple — complexity hurts generalization)
@@ -245,9 +247,9 @@ def estimate_value(
     h_dev = _homeostatic_deviation(gamma_mean, spectral_radius, cross_coherence)
     dist = _distributional_estimate(gamma_mean)
 
-    # Gate
+    # Gate (enum-backed, str-compatible)
     if value >= VIABILITY_THRESHOLD:
-        gate = "proceed"
+        gate = ValueGate.PROCEED
         reason = (
             f"V={value:.3f} >= {VIABILITY_THRESHOLD}. "
             f"gamma={gamma_mean:.3f} sr={spectral_radius:.3f} "
@@ -255,14 +257,14 @@ def estimate_value(
             f"homeo_dev={h_dev:.3f}"
         )
     elif value >= CRITICAL_THRESHOLD:
-        gate = "caution"
+        gate = ValueGate.CAUTION
         reason = (
             f"V={value:.3f} in caution zone [{CRITICAL_THRESHOLD},{VIABILITY_THRESHOLD}). "
             f"gamma={gamma_mean:.3f} sr={spectral_radius:.3f} "
             f"valence={valence:+.3f} homeo_dev={h_dev:.3f}"
         )
     else:
-        gate = "redirect"
+        gate = ValueGate.REDIRECT
         reason = (
             f"V={value:.3f} < {CRITICAL_THRESHOLD}. "
             f"Trajectory toward incoherence. "
@@ -271,9 +273,9 @@ def estimate_value(
             f"Redirect required (Sutskever: short-circuit before catastrophic failure)."
         )
 
-    if gate == "redirect":
+    if gate == ValueGate.REDIRECT:
         logger.warning("ValueFunction REDIRECT: %s", reason)
-    elif gate == "caution":
+    elif gate == ValueGate.CAUTION:
         logger.info("ValueFunction CAUTION: %s", reason)
 
     return ValueEstimate(

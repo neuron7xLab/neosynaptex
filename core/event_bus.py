@@ -98,10 +98,29 @@ class EventBus:
         with self._lock:
             self._handlers[event_type].append(handler)
 
+    def unsubscribe(self, event_type: str, handler: EventHandler) -> bool:
+        """Unsubscribe handler from specific event type. Returns True if found."""
+        with self._lock:
+            handlers = self._handlers.get(event_type, [])
+            try:
+                handlers.remove(handler)
+                return True
+            except ValueError:
+                return False
+
     def subscribe_all(self, handler: EventHandler) -> None:
         """Subscribe handler to all events."""
         with self._lock:
             self._global_handlers.append(handler)
+
+    def unsubscribe_all(self, handler: EventHandler) -> bool:
+        """Unsubscribe handler from global events. Returns True if found."""
+        with self._lock:
+            try:
+                self._global_handlers.remove(handler)
+                return True
+            except ValueError:
+                return False
 
     def replay(self, since: float = 0.0) -> list[SubstrateEvent]:
         """Return events since timestamp (monotonic)."""

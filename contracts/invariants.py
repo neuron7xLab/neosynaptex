@@ -15,6 +15,8 @@ from collections.abc import Callable
 from enum import Enum
 from typing import Any
 
+from core.enums import Regime
+
 
 class SSIDomain(Enum):
     """SSI operational domain."""
@@ -140,17 +142,18 @@ GAMMA_THRESHOLDS = {
 def gamma_regime(gamma: float) -> str:
     """Classify gamma into operational regime.
 
-    Returns: "METASTABLE" | "WARNING" | "CRITICAL" | "COLLAPSE"
+    Returns Regime enum value (str-compatible):
+        Regime.METASTABLE | Regime.WARNING | Regime.CRITICAL | Regime.COLLAPSE
     """
     dist = abs(gamma - 1.0)
     if dist < 0.15:
-        return "METASTABLE"
+        return Regime.METASTABLE
     elif dist < 0.30:
-        return "WARNING"
+        return Regime.WARNING
     elif dist < 0.50:
-        return "CRITICAL"
+        return Regime.CRITICAL
     else:
-        return "COLLAPSE"
+        return Regime.COLLAPSE
 
 
 # ---------------------------------------------------------------------------

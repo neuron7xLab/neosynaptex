@@ -18,6 +18,7 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.stats import theilslopes
 
+from core._regression import huber_fit, ols_fit
 from core.iaaft import iaaft_surrogate, surrogate_p_value
 
 logger = logging.getLogger(__name__)
@@ -64,54 +65,9 @@ class FalsificationReport:
 # ─── Axis 1: Estimator Sensitivity ──────────────────────────────────────
 
 
-def _ols_slope(x: np.ndarray, y: np.ndarray) -> tuple[float, float, float]:
-    """OLS regression. Returns (slope, intercept, r2)."""
-    n = len(x)
-    sx, sy = np.sum(x), np.sum(y)
-    sxx = np.sum(x * x)
-    sxy = np.sum(x * y)
-    denom = n * sxx - sx * sx
-    if abs(denom) < 1e-15:
-        return float("nan"), float("nan"), 0.0
-    slope = float((n * sxy - sx * sy) / denom)
-    intercept = float((sy - slope * sx) / n)
-    yhat = slope * x + intercept
-    ss_res = float(np.sum((y - yhat) ** 2))
-    ss_tot = float(np.sum((y - np.mean(y)) ** 2))
-    r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-10 else 0.0
-    return slope, intercept, r2
-
-
-def _huber_slope(x: np.ndarray, y: np.ndarray, delta: float = 1.345) -> tuple[float, float, float]:
-    """Iteratively reweighted least squares with Huber loss. Returns (slope, intercept, r2)."""
-    # Start with OLS
-    slope, intercept, _ = _ols_slope(x, y)
-    if np.isnan(slope):
-        return float("nan"), float("nan"), 0.0
-
-    for _ in range(20):
-        residuals = y - (slope * x + intercept)
-        weights = np.where(np.abs(residuals) <= delta, 1.0, delta / np.abs(residuals + 1e-10))
-        w_sum = np.sum(weights)
-        wx = np.sum(weights * x)
-        wy = np.sum(weights * y)
-        wxx = np.sum(weights * x * x)
-        wxy = np.sum(weights * x * y)
-        denom = w_sum * wxx - wx * wx
-        if abs(denom) < 1e-15:
-            break
-        new_slope = float((w_sum * wxy - wx * wy) / denom)
-        new_intercept = float((wy - new_slope * wx) / w_sum)
-        if abs(new_slope - slope) < 1e-8:
-            slope, intercept = new_slope, new_intercept
-            break
-        slope, intercept = new_slope, new_intercept
-
-    yhat = slope * x + intercept
-    ss_res = float(np.sum((y - yhat) ** 2))
-    ss_tot = float(np.sum((y - np.mean(y)) ** 2))
-    r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-10 else 0.0
-    return slope, intercept, r2
+# Regression estimators: canonical source is core._regression
+_ols_slope = ols_fit
+_huber_slope = huber_fit
 
 
 def estimate_gamma_multi(

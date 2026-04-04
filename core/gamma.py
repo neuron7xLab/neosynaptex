@@ -20,6 +20,8 @@ from dataclasses import dataclass, field
 import numpy as np
 from scipy.stats import theilslopes
 
+from core.enums import GammaVerdict
+
 __all__ = ["compute_gamma", "GammaResult"]
 
 # Canonical parameters -- do NOT override without documented justification
@@ -83,13 +85,13 @@ def compute_gamma(
     n = len(t_valid)
 
     if n < min_pairs:
-        return GammaResult(nan, nan, nan, nan, n, "INSUFFICIENT_DATA", empty)
+        return GammaResult(nan, nan, nan, nan, n, GammaVerdict.INSUFFICIENT_DATA, empty)
 
     log_t = np.log(t_valid)
     log_c = np.log(c_valid)
 
     if np.ptp(log_t) < log_range_gate:
-        return GammaResult(nan, nan, nan, nan, n, "INSUFFICIENT_RANGE", empty)
+        return GammaResult(nan, nan, nan, nan, n, GammaVerdict.INSUFFICIENT_RANGE, empty)
 
     slope, intercept, _, _ = theilslopes(log_c, log_t)
     gamma = -slope
@@ -124,15 +126,15 @@ def compute_gamma(
         ci_high = nan
 
     if r2 < r2_gate:
-        verdict = "LOW_R2"
+        verdict = GammaVerdict.LOW_R2
     elif abs(gamma - 1.0) < 0.15:
-        verdict = "METASTABLE"
+        verdict = GammaVerdict.METASTABLE
     elif abs(gamma - 1.0) < 0.30:
-        verdict = "WARNING"
+        verdict = GammaVerdict.WARNING
     elif abs(gamma - 1.0) < 0.50:
-        verdict = "CRITICAL"
+        verdict = GammaVerdict.CRITICAL
     else:
-        verdict = "COLLAPSE"
+        verdict = GammaVerdict.COLLAPSE
 
     return GammaResult(
         gamma=float(gamma),

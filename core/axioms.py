@@ -37,6 +37,8 @@ def gamma_psd(H: float) -> float:
 
 
 # ─── GAMMA THRESHOLDS ────────────────────────────────────────────────────
+from core.enums import Regime
+
 GAMMA_THRESHOLDS = {
     "metastable": (0.85, 1.15),  # |γ-1| < 0.15 — working regime
     "warning": (0.70, 1.30),  # |γ-1| < 0.30 — monitor
@@ -46,15 +48,16 @@ GAMMA_THRESHOLDS = {
 
 
 def classify_regime(gamma: float) -> str:
+    """Classify gamma into operational regime. Returns Regime enum value."""
     dist = abs(gamma - 1.0)
     if dist < 0.15:
-        return "METASTABLE"
+        return Regime.METASTABLE
     elif dist < 0.30:
-        return "WARNING"
+        return Regime.WARNING
     elif dist < 0.50:
-        return "CRITICAL"
+        return Regime.CRITICAL
     else:
-        return "COLLAPSE"
+        return Regime.COLLAPSE
 
 
 # ─── VALIDATED SUBSTRATES (derived from gamma_ledger.json) ──────────────
