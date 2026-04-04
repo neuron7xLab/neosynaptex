@@ -17,6 +17,9 @@ For the post-merge baseline procedure, see [docs/GENESIS_RUN_PLAN.md](docs/GENES
 
 Термін оркестрація описує умови (зв’язки, часові затримки, баланс збудження й гальмування), які спрямовують цю самоорганізацію. Тобто система не програмується жорстко, а налаштовується так, щоб її компоненти синхронізувалися і породжували нові функції на рівні всієї мережі.
 
+Для формалізованого технічного трактування цієї ідеї див. [docs/EMERGENT_ORCHESTRATION_ATLAS.md](docs/EMERGENT_ORCHESTRATION_ATLAS.md).
+
+
 ## Single canonical entry surface
 
 ### One-command first run
@@ -216,6 +219,8 @@ See [docs/STATUS.md](docs/STATUS.md).
 ## Canonical links
 
 - Proof contract reference: [docs/CANONICAL_PROOF.md](docs/CANONICAL_PROOF.md)
+- Emergence interpretation atlas: [docs/EMERGENT_ORCHESTRATION_ATLAS.md](docs/EMERGENT_ORCHESTRATION_ATLAS.md)
+- Validation gap remediation playbook: [docs/VALIDATION_GAP_REMEDIATION.md](docs/VALIDATION_GAP_REMEDIATION.md)
 - Demo review and merge-readiness priorities: [docs/DEMO_REVIEW.md](docs/DEMO_REVIEW.md)
 - Reproduce proof details: [docs/proof/REPRODUCE.md](docs/proof/REPRODUCE.md)
 - System architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)

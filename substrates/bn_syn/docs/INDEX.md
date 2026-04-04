@@ -14,8 +14,10 @@ This file is the single navigation hub for project documentation (see path/docs/
 - [STATUS.md](STATUS.md) (see path/docs/STATUS.md)
 - [DOC_DEBT.md](DOC_DEBT.md) (see path/docs/DOC_DEBT.md)
 - [PROJECT_SURFACES.md](PROJECT_SURFACES.md) (see path/docs/PROJECT_SURFACES.md)
+- [EMERGENT_ORCHESTRATION_ATLAS.md](EMERGENT_ORCHESTRATION_ATLAS.md) (see path/docs/EMERGENT_ORCHESTRATION_ATLAS.md)
 - [SSOT.md](SSOT.md) (see path/docs/SSOT.md)
 - [TRACEABILITY.md](TRACEABILITY.md) (see path/docs/TRACEABILITY.md)
+- [VALIDATION_GAP_REMEDIATION.md](VALIDATION_GAP_REMEDIATION.md) (see path/docs/VALIDATION_GAP_REMEDIATION.md)
 
 ## Testing and CI
 

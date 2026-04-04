@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Invariant gate tests for CI pipeline."""
+
 import json
 from pathlib import Path
 
@@ -20,8 +21,7 @@ class TestProxySensitivity:
         data = _load("proxy_sensitivity.json")
         for sub in ["zebrafish", "hrv"]:
             orig = [
-                r for r in data["results"]
-                if r["substrate"] == sub and "original" in r["proxy"]
+                r for r in data["results"] if r["substrate"] == sub and "original" in r["proxy"]
             ]
             assert orig and orig[0]["in_metastable_band"], f"{sub} original not in band"
 

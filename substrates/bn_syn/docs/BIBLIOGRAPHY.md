@@ -132,7 +132,7 @@ Multi-timescale consolidation — sleep-wake memory model.
 Efficient spiking neuron simulation — alternative model reference.
 
 **[A-extra]** Matsumoto M., Nishimura T. (1998). Mersenne Twister. *ACM Trans. Model. Comput. Simul.*, 8(1), 3--30. DOI: [10.1145/272991.272995](https://doi.org/10.1145/272991.272995)
-Seeded deterministic RNG — reproducibility guarantee.
+Seeded deterministic RNG — reproducibility anchor.
 
 **[A-extra]** McGuirl M.R., Volkening A., Sandstede B. (2020). TDA of zebrafish patterns. *PLoS Comput. Biol.*, 16(3), e1007679. DOI: [10.1371/journal.pcbi.1007679](https://doi.org/10.1371/journal.pcbi.1007679)
 TDA gamma measurement on biological patterning — γ_WT = +1.043.
