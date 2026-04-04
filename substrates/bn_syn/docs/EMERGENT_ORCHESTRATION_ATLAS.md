@@ -100,6 +100,39 @@ A valid narrative has **triangulation**:
 
 No single file should drive a high-level conclusion in isolation.
 
+### 4.4 Worked Tier A -> Tier B inference chain (sigma/coherence/rate)
+
+**Tier A observations (instrumental only, canonical artifact surfaces):**
+
+1. `criticality_report.json` indicates sigma values that remain within the configured admissibility corridor for the evaluated horizon.
+2. `coherence_trace.npy` and `phase_space_rate_coherence.png` show sustained, bounded coherence rather than collapse to zero or saturation.
+3. `population_rate_trace.npy` and `summary_metrics.json` show non-degenerate population activity (neither flatline inactivity nor uncontrolled divergence).
+4. `run_manifest.json` confirms reproducible run context (profile/seed/contract closure).
+
+**Tier B bounded inference (allowed):**
+
+Given the four Tier A observations above, it is defensible to state that the run is **compatible with an orchestrated near-critical and synchronized-yet-bounded regime** under the implemented BN-Syn assumptions.
+
+**Explicit exclusion note:**
+
+This inference does not imply cognition, consciousness, or biological equivalence; it is a bounded model-level interpretation.
+
+### 4.5 Worked Tier C violation and correction
+
+**Violation example (not allowed):**
+
+"Because sigma is near 1 and coherence is high, BN-Syn demonstrates human-like decision making."
+
+Why this is a Tier C violation:
+
+- it jumps from internal simulation metrics to cognitive capability claims;
+- no canonical artifact in this contract directly measures cognition;
+- the claim exceeds model scope and evidence tier.
+
+**Corrected statement (allowed):**
+
+"Canonical artifacts show a near-critical, coherent population regime under configured conditions; this supports bounded dynamical interpretation only, not cognitive-capability claims."
+
 ---
 
 ## 5. Theory-to-Implementation Crosswalk
@@ -231,6 +264,3 @@ Use this compact structure in external technical briefings:
 BN-Syn is best presented as a deterministic research substrate for orchestrated emergent dynamics analysis: local nonlinear mechanics, constrained orchestration parameters, and explicit evidence artifacts.
 
 The value of this atlas is methodological: it upgrades interpretation quality from generic narrative to disciplined, review-grade technical argumentation.
-
-Companion roadmap for advanced next-step initiatives: [TACTICAL_INITIATIVES_BLUEPRINT.md](TACTICAL_INITIATIVES_BLUEPRINT.md).
-Integrated visual-analysis note (Phase-Space HUD + 3D Connectivity) is captured in the tactical blueprint integrated loop section.

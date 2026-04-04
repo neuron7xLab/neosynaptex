@@ -20,10 +20,6 @@ For the post-merge baseline procedure, see [docs/GENESIS_RUN_PLAN.md](docs/GENES
 Для формалізованого технічного трактування цієї ідеї див. [docs/EMERGENT_ORCHESTRATION_ATLAS.md](docs/EMERGENT_ORCHESTRATION_ATLAS.md).
 
 
-### Critical Observability Note
-
-Запровадження 3D Neural Connectivity Map (W2-7) у поєднанні з Phase-Space HUD (Stream 4) створює повний контур візуальної аналітики. Це критично для швидкої ідентифікації фазових кластерів, які раніше були доступні лише через сирі `.npy` траси. Див. інтегрований контур у [docs/TACTICAL_INITIATIVES_BLUEPRINT.md](docs/TACTICAL_INITIATIVES_BLUEPRINT.md).
-
 ## Single canonical entry surface
 
 ### One-command first run
@@ -224,7 +220,6 @@ See [docs/STATUS.md](docs/STATUS.md).
 
 - Proof contract reference: [docs/CANONICAL_PROOF.md](docs/CANONICAL_PROOF.md)
 - Emergence interpretation atlas: [docs/EMERGENT_ORCHESTRATION_ATLAS.md](docs/EMERGENT_ORCHESTRATION_ATLAS.md)
-- Tactical initiatives blueprint (Wave-1 + Wave-2 + Streams 15–21): [docs/TACTICAL_INITIATIVES_BLUEPRINT.md](docs/TACTICAL_INITIATIVES_BLUEPRINT.md)
 - Validation gap remediation playbook: [docs/VALIDATION_GAP_REMEDIATION.md](docs/VALIDATION_GAP_REMEDIATION.md)
 - Demo review and merge-readiness priorities: [docs/DEMO_REVIEW.md](docs/DEMO_REVIEW.md)
 - Reproduce proof details: [docs/proof/REPRODUCE.md](docs/proof/REPRODUCE.md)

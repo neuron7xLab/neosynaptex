@@ -75,6 +75,34 @@
 
 ---
 
+
+
+## 2.1 Exact verification commands (G1-G4)
+
+### G1 command
+
+```bash
+cd /workspace/neosynaptex/substrates/bn_syn && command -v pylint && pylint src/bnsyn
+```
+
+### G2 command
+
+```bash
+cd /workspace/neosynaptex/substrates/bn_syn && python -m mypy src --strict --config-file pyproject.toml
+```
+
+### G3 command
+
+```bash
+cd /workspace/neosynaptex/substrates/bn_syn && python -m build
+```
+
+### G4 command
+
+```bash
+cd /workspace/neosynaptex/substrates/bn_syn && python -m pytest -m "not (validation or property)" -q
+```
+
 ## 3) Execution Order (Recommended)
 
 1. **Toolchain first:** G1 + G3.
