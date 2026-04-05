@@ -90,9 +90,7 @@ def test_adapter_integrates_with_neosynaptex_engine() -> None:
     from neosynaptex import Neosynaptex
 
     engine = Neosynaptex(window=16)
-    engine.register(
-        SerotonergicKuramotoAdapter(concentration=0.25, seed=3)
-    )
+    engine.register(SerotonergicKuramotoAdapter(concentration=0.25, seed=3))
     state = None
     for _ in range(24):
         state = engine.observe()
@@ -175,16 +173,13 @@ def test_order_parameter_monotonic_in_concentration(
     diffs = np.diff(R_grid)
     # Allow tiny numerical non-monotonicities (< 1 %) but require the
     # global trend to be strictly decreasing.
-    assert np.all(diffs <= 1e-3), (
-        f"R(c) not non-increasing along sweep: diffs={diffs}"
-    )
+    assert np.all(diffs <= 1e-3), f"R(c) not non-increasing along sweep: diffs={diffs}"
     assert R_grid[0] > R_grid[-1] + 0.2, (
-        f"R drop from c=0 to c=1 is too small: "
-        f"{R_grid[0]:.4f} → {R_grid[-1]:.4f}"
+        f"R drop from c=0 to c=1 is too small: {R_grid[0]:.4f} → {R_grid[-1]:.4f}"
     )
     print(
         f"[R monotonicity] R(c=0)={R_grid[0]:.4f} "
-        f"R(c=1)={R_grid[-1]:.4f}  ΔR={R_grid[0]-R_grid[-1]:.4f}"
+        f"R(c=1)={R_grid[-1]:.4f}  ΔR={R_grid[0] - R_grid[-1]:.4f}"
     )
 
 
@@ -200,9 +195,7 @@ def test_order_parameter_decreases_between_canonical_points(
     """Strict R(c_lo) > R(c_hi) for every adjacent canonical pair."""
     R_lo = adapter.sample_at(c_lo)["R"]
     R_hi = adapter.sample_at(c_hi)["R"]
-    assert R_lo > R_hi, (
-        f"R({c_lo})={R_lo:.4f} !> R({c_hi})={R_hi:.4f}"
-    )
+    assert R_lo > R_hi, f"R({c_lo})={R_lo:.4f} !> R({c_hi})={R_hi:.4f}"
 
 
 # ---------------------------------------------------------------------------
@@ -213,6 +206,4 @@ def test_gamma_reproducible_across_constructions() -> None:
     a2 = SerotonergicKuramotoAdapter(concentration=0.5, seed=2024)
     g1, _ = _sweep_gamma(a1)
     g2, _ = _sweep_gamma(a2)
-    assert math.isclose(g1, g2, rel_tol=1e-9), (
-        f"γ not reproducible: {g1} vs {g2}"
-    )
+    assert math.isclose(g1, g2, rel_tol=1e-9), f"γ not reproducible: {g1} vs {g2}"

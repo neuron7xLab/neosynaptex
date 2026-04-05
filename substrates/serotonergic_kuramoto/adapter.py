@@ -68,8 +68,6 @@ transition.
 
 from __future__ import annotations
 
-from typing import Dict, List
-
 import numpy as np
 from scipy.stats import norm
 
@@ -80,12 +78,12 @@ _N_OSC = 64
 _DT = 1e-3
 _STEPS_PER_WINDOW = 10_000
 _BURN_IN_STEPS = 2_000
-_K_BASE = 2.0                # spec-literal
-_MOD_SLOPE = 0.7             # K_eff = K_base·(1 − 0.7·c)
-_SIGMA_HZ_OP = 0.065         # operational bandwidth (see module docstring)
-_MEAN_HZ = 10.0              # spec-literal centre frequency
-_N_SWEEP = 20                # concentration sweep resolution
-_N_IC = 4                    # parallel phase initial conditions (averaged)
+_K_BASE = 2.0  # spec-literal
+_MOD_SLOPE = 0.7  # K_eff = K_base·(1 − 0.7·c)
+_SIGMA_HZ_OP = 0.065  # operational bandwidth (see module docstring)
+_MEAN_HZ = 10.0  # spec-literal centre frequency
+_N_SWEEP = 20  # concentration sweep resolution
+_N_IC = 4  # parallel phase initial conditions (averaged)
 _SWEEP_MIN = 0.0
 _SWEEP_MAX = 1.0
 _PAIR_THRESHOLD = 0.3
@@ -139,9 +137,7 @@ class SerotonergicKuramotoAdapter:
         self._N = _N_OSC
 
         # Deterministic quantile frequencies (seed-independent, co-rotating)
-        self._omega = _quantile_frequencies(
-            self._N, _MEAN_HZ, _SIGMA_HZ_OP
-        )
+        self._omega = _quantile_frequencies(self._N, _MEAN_HZ, _SIGMA_HZ_OP)
         self._omega -= float(np.mean(self._omega))  # co-rotating frame
         # Empirical critical coupling (matches analytic within ε for
         # quantile draws)
@@ -149,9 +145,7 @@ class SerotonergicKuramotoAdapter:
         self._Kc = sigma_rad * float(np.sqrt(8.0 / np.pi))
 
         # Shared bank of N_IC initial phase vectors (vectorised sim)
-        self._theta0_bank = self._rng.uniform(
-            0.0, 2.0 * np.pi, (_N_IC, self._N)
-        )
+        self._theta0_bank = self._rng.uniform(0.0, 2.0 * np.pi, (_N_IC, self._N))
 
         # Run the concentration sweep
         self._c_grid = np.linspace(_SWEEP_MIN, _SWEEP_MAX, _N_SWEEP)
@@ -171,13 +165,13 @@ class SerotonergicKuramotoAdapter:
         thermo_cost} for the concentration.
         """
         K_eff = _K_BASE * (1.0 - _MOD_SLOPE * c)
-        theta = self._theta0_bank.copy()          # (N_IC, N)
-        omega_b = self._omega[None, :]            # (1, N) broadcastable
+        theta = self._theta0_bank.copy()  # (N_IC, N)
+        omega_b = self._omega[None, :]  # (1, N) broadcastable
 
         # ---- Burn-in ----
         for _ in range(_BURN_IN_STEPS):
-            z = np.exp(1j * theta).mean(axis=1)        # (N_IC,)
-            R = np.abs(z)[:, None]                     # (N_IC, 1)
+            z = np.exp(1j * theta).mean(axis=1)  # (N_IC,)
+            R = np.abs(z)[:, None]  # (N_IC, 1)
             psi = np.angle(z)[:, None]
             coupling = K_eff * R * np.sin(psi - theta)
             theta = (theta + _DT * (omega_b + coupling)) % (2.0 * np.pi)
@@ -225,9 +219,7 @@ class SerotonergicKuramotoAdapter:
         for k in range(_N_IC):
             th = theta[k]
             sin_mat = np.sin(th[:, None] - th[None, :])
-            topo_per_ic[k] = float(
-                np.sum(np.abs(sin_mat[iu]) > _PAIR_THRESHOLD)
-            )
+            topo_per_ic[k] = float(np.sum(np.abs(sin_mat[iu]) > _PAIR_THRESHOLD))
 
         return {
             "c": c,
@@ -257,10 +249,10 @@ class SerotonergicKuramotoAdapter:
         return "serotonergic_kuramoto"
 
     @property
-    def state_keys(self) -> List[str]:
+    def state_keys(self) -> list[str]:
         return ["R", "phase_entropy", "mean_plv"]
 
-    def state(self) -> Dict[str, float]:
+    def state(self) -> dict[str, float]:
         self._idx = (self._idx + 1) % len(self._samples)
         self._t += 1
         s = self._samples[self._idx]
@@ -312,15 +304,13 @@ def _fit_gamma(topos: np.ndarray, costs: np.ndarray) -> tuple[float, float]:
     if log_t.max() - log_t.min() < 1e-6:
         return float("nan"), 0.0
     result = linregress(log_t, log_c)
-    return -float(result.slope), float(result.rvalue ** 2)
+    return -float(result.slope), float(result.rvalue**2)
 
 
-def _sweep_gamma(adapter: "SerotonergicKuramotoAdapter") -> tuple[float, float]:
+def _sweep_gamma(adapter: SerotonergicKuramotoAdapter) -> tuple[float, float]:
     """Fit γ across an adapter's full concentration sweep."""
     topos = np.array([s["topo"] for s in adapter._samples], dtype=np.float64)
-    costs = np.array(
-        [s["thermo_cost"] for s in adapter._samples], dtype=np.float64
-    )
+    costs = np.array([s["thermo_cost"] for s in adapter._samples], dtype=np.float64)
     return _fit_gamma(topos, costs)
 
 
@@ -335,14 +325,10 @@ def validate_standalone(seed: int = 42) -> dict:
         f"K_c={a._Kc:.3f} rad/s  N_IC={_N_IC}  sweep={_N_SWEEP} pts"
     )
     print(
-        f"  K/K_c at c∈[0,1]: "
-        f"[{a._samples[0]['K_over_Kc']:.3f}, {a._samples[-1]['K_over_Kc']:.3f}]"
+        f"  K/K_c at c∈[0,1]: [{a._samples[0]['K_over_Kc']:.3f}, {a._samples[-1]['K_over_Kc']:.3f}]"
     )
     print()
-    print(
-        f"  {'c':>6} {'K/Kc':>7} {'R':>7} {'entropy':>9} "
-        f"{'PLV':>7} {'topo':>8} {'cost':>10}"
-    )
+    print(f"  {'c':>6} {'K/Kc':>7} {'R':>7} {'entropy':>9} {'PLV':>7} {'topo':>8} {'cost':>10}")
     for s in a._samples:
         print(
             f"  {s['c']:6.3f} {s['K_over_Kc']:7.3f} {s['R']:7.4f} "
@@ -352,9 +338,12 @@ def validate_standalone(seed: int = 42) -> dict:
 
     gamma, r2 = _sweep_gamma(a)
     regime = (
-        "METASTABLE" if abs(gamma - 1.0) < 0.15
-        else "WARNING" if abs(gamma - 1.0) < 0.30
-        else "CRITICAL" if abs(gamma - 1.0) < 0.50
+        "METASTABLE"
+        if abs(gamma - 1.0) < 0.15
+        else "WARNING"
+        if abs(gamma - 1.0) < 0.30
+        else "CRITICAL"
+        if abs(gamma - 1.0) < 0.50
         else "COLLAPSE"
     )
     print(f"\n  γ (sweep) = {gamma:.4f}   R² = {r2:.4f}   regime = {regime}")
