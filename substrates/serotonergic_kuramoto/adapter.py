@@ -122,22 +122,33 @@ class SerotonergicKuramotoAdapter:
     seed : int, default 42
         Seed for the phase initial conditions (frequencies are
         deterministic so only phase ICs depend on the seed).
+    sigma_hz_op : float, optional
+        Operational frequency bandwidth (Hz). Defaults to the module
+        constant ``_SIGMA_HZ_OP`` (0.065 Hz), which is the calibration
+        point documented in the module docstring. Exposed as a parameter
+        so that the calibration-robustness basin can be swept by
+        ``tests/test_calibration_robustness.py`` without monkey-patching
+        module state.
     """
 
     def __init__(
         self,
         concentration: float = 0.5,
         seed: int = 42,
+        sigma_hz_op: float | None = None,
     ) -> None:
         if not (0.0 <= concentration <= 1.0):
             raise ValueError("concentration must lie in [0, 1]")
         self._c_ref = float(concentration)
         self._seed = int(seed)
+        self._sigma_hz_op = float(_SIGMA_HZ_OP if sigma_hz_op is None else sigma_hz_op)
+        if self._sigma_hz_op <= 0.0:
+            raise ValueError("sigma_hz_op must be strictly positive")
         self._rng = np.random.default_rng(seed)
         self._N = _N_OSC
 
         # Deterministic quantile frequencies (seed-independent, co-rotating)
-        self._omega = _quantile_frequencies(self._N, _MEAN_HZ, _SIGMA_HZ_OP)
+        self._omega = _quantile_frequencies(self._N, _MEAN_HZ, self._sigma_hz_op)
         self._omega -= float(np.mean(self._omega))  # co-rotating frame
         # Empirical critical coupling (matches analytic within ε for
         # quantile draws)

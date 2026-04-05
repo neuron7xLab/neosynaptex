@@ -67,6 +67,9 @@ include = ["core*", "contracts*", "substrates*", "agents*", "evl*"]
 testpaths = ["tests"]
 filterwarnings = ["ignore::RuntimeWarning"]
 addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (>30 s); run explicitly or in full CI only",
+]
 
 [tool.mypy]
 python_version = "3.10"
