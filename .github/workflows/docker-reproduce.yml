@@ -18,6 +18,7 @@ on:
       - "reproduce.py"
       - "core/**"
       - "substrates/**"
+      - "evidence/gamma_ledger.json"
       - ".github/workflows/docker-reproduce.yml"
   pull_request:
     paths:
