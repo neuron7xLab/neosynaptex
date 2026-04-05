@@ -260,9 +260,9 @@
       "gamma": 1.255,
       "ci_low": 1.0323,
       "ci_high": 1.4515,
-      "r2": null,
+      "r2": 0.341483,
       "n_pairs": 10,
-      "p_permutation": null,
+      "p_permutation": 0.047904,
       "status": "VALIDATED",
       "tier": "evidential",
       "locked": true,
@@ -273,7 +273,66 @@
       "adapter_code_hash": "67c2269077f9d3fca92235aa5beb27a361e5dd7e1234ee49d9f3502594e88ea7",
       "derivation_method": "Welch PSD (2-40 Hz) + Theil-Sen slope, alpha band (7-13 Hz) excluded. 10 subjects, eyes-open resting run 1. Bootstrap CI95 n=2000.",
       "method_tier": "T1",
-      "verdict": "WARNING"
+      "verdict": "WARNING",
+      "bootstrap_metadata": {
+        "method": "per-subject gamma mean, bootstrap resampling (n=500)",
+        "gamma": 1.255023,
+        "ci_low": 1.03851,
+        "ci_high": 1.433948,
+        "std": 0.373299,
+        "n_subjects": 10,
+        "r2_between_unit": 0.341483,
+        "p_permutation": 0.047904,
+        "null_gamma": 1.0,
+        "seed": 42,
+        "bootstrap_n": 500,
+        "permutation_n": 500
+      }
+    },
+    "serotonergic_kuramoto": {
+      "substrate": "serotonergic_kuramoto",
+      "description": "Serotonergic 5-HT2A modulated Kuramoto — cross-concentration sweep of 20 points, N=64 oscillators, mean-field dynamics, 4 phase IC averaging. Calibrated model (T5) with basin width 0.010 Hz at operational sigma.",
+      "gamma": 1.0677,
+      "ci_low": 0.1453,
+      "ci_high": 1.506,
+      "r2": 0.5826,
+      "n_pairs": 20,
+      "p_permutation": 1.0,
+      "status": "VALIDATED",
+      "tier": "evidential",
+      "locked": true,
+      "data_source": {
+        "file": "substrates/serotonergic_kuramoto/adapter.py",
+        "sha256": "df55071e0dc8c2f17e2cef41d3f0047e4f3de2d495e61a8e216499d63aa816b0"
+      },
+      "adapter_code_hash": "df55071e0dc8c2f17e2cef41d3f0047e4f3de2d495e61a8e216499d63aa816b0",
+      "derivation_method": "Cross-concentration sweep, Welch log-log Theil-Sen fit on (topo, cost) pairs. K_eff = 2.0*(1 - 0.7*c), sigma_op = 0.065 Hz operational bandwidth.",
+      "method_tier": "T5",
+      "verdict": "METASTABLE",
+      "calibration_basin": {
+        "sigma_op_reference_hz": 0.065,
+        "sigma_op_basin_hz": [
+          0.058,
+          0.068
+        ],
+        "basin_width_hz": 0.01,
+        "basin_width_ratio": 1.17,
+        "test": "tests/test_calibration_robustness.py"
+      },
+      "bootstrap_metadata": {
+        "method": "Theil-Sen on resampled (topo, cost) sweep points",
+        "gamma": 1.0677,
+        "ci_low": 0.1453,
+        "ci_high": 1.506,
+        "r2": 0.5826,
+        "n_pairs": 20,
+        "p_permutation": 1.0,
+        "null_gamma": 1.0,
+        "seed": 42,
+        "bootstrap_n": 500,
+        "permutation_n": 500,
+        "notes": "Wide CI reflects finite-N folding of the (topo, cost) trajectory near the Kuramoto critical point. R2=0.58 means 42% of log-log variance is topology-dependent. Recorded honestly per IMMACULATE protocol — not a sign of a good fit, a sign of a narrow-basin calibrated model."
+      }
     }
   },
   "derivation_protocol": {
