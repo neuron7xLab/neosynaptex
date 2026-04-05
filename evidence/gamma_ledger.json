@@ -212,7 +212,7 @@
       "description": "HRV PhysioNet NSR2DB — VLF spectral exponent of healthy cardiac rhythm",
       "gamma": 0.885,
       "ci_low": 0.834,
-      "ci_high": 1.080,
+      "ci_high": 1.08,
       "r2": 0.93,
       "n_pairs": 10,
       "p_permutation": null,
@@ -228,7 +228,10 @@
       "dfa_cross_validation": {
         "alpha_mean": 1.107,
         "alpha_std": 0.047,
-        "alpha_range": [1.04, 1.18],
+        "alpha_range": [
+          1.04,
+          1.18
+        ],
         "n_subjects": 10,
         "interpretation": "1/f scaling confirmed (alpha≈1.0 = critical, 0.5 = white, 1.5 = Brownian)"
       }
@@ -250,6 +253,27 @@
       },
       "adapter_code_hash": null,
       "derivation_method": "ABM: 25 AI-quality regimes, 50 agents, 200 ticks, throughput vs error rate"
+    },
+    "eeg_resting": {
+      "substrate": "eeg_resting",
+      "description": "EEG PhysioNet EEGBCI — resting-state 1/f aperiodic exponent via Welch PSD + Theil-Sen log-log fit, alpha (7-13 Hz) excluded. Independent cross-validation of eeg_physionet (FOOOF on motor imagery).",
+      "gamma": 1.255,
+      "ci_low": 1.0323,
+      "ci_high": 1.4515,
+      "r2": null,
+      "n_pairs": 10,
+      "p_permutation": null,
+      "status": "VALIDATED",
+      "tier": "evidential",
+      "locked": true,
+      "data_source": {
+        "file": "data/eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S{001..010}/R01",
+        "sha256": "see evidence/data_hashes.json (sha256 block)"
+      },
+      "adapter_code_hash": "67c2269077f9d3fca92235aa5beb27a361e5dd7e1234ee49d9f3502594e88ea7",
+      "derivation_method": "Welch PSD (2-40 Hz) + Theil-Sen slope, alpha band (7-13 Hz) excluded. 10 subjects, eyes-open resting run 1. Bootstrap CI95 n=2000.",
+      "method_tier": "T1",
+      "verdict": "WARNING"
     }
   },
   "derivation_protocol": {
