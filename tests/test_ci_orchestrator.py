@@ -49,3 +49,33 @@ def test_substrate_smoke_missing():
     orch = CIOrchestrator()
     # Non-existent substrate should return True (skip)
     assert orch.run_substrate_smoke("nonexistent_substrate")
+
+
+def test_gamma_invariant_requires_two_finite_domains():
+    orch = CIOrchestrator()
+    check = orch.run_gamma_invariant_check({"a": np.nan, "b": 1.0, "c": np.inf})
+    assert not check["passed"]
+    assert check["reason"] == "insufficient valid gammas"
+
+
+def test_gamma_invariant_ignores_non_finite_values():
+    orch = CIOrchestrator()
+    check = orch.run_gamma_invariant_check({"a": 1.0, "b": np.nan, "c": 1.2, "d": np.inf})
+    assert check["passed"]
+    assert check["n_domains"] == 2
+    assert check["in_range"]
+
+
+def test_generate_report_captures_cross_substrate_exceptions(monkeypatch):
+    orch = CIOrchestrator()
+
+    def _raise() -> dict:
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(orch, "run_cross_substrate", _raise)
+    report = orch.generate_report()
+
+    assert not report.cross_substrate_passed
+    assert not report.gamma_invariant_passed
+    assert report.phase == "ERROR"
+    assert any("cross_substrate: boom" in err for err in report.errors)
