@@ -31,12 +31,12 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           tmp_dir="$(mktemp -d)"
-          status_code="$(curl -fsSL --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 60 \
+          status_code="$(curl -sSL --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 60 \
             -D "${tmp_dir}/headers.txt" -o "${tmp_dir}/body.json" -w '%{http_code}' \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${GH_REPO}/dependency-graph/sbom" || true)"
-          body="$(cat "${tmp_dir}/body.json")"
+          body="$(cat "${tmp_dir}/body.json" 2>/dev/null || true)"
 
           if [ -z "${status_code}" ]; then
             echo "::error::Dependency graph probe failed before receiving HTTP status."
