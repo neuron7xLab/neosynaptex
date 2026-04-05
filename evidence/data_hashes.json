@@ -1,38 +1,72 @@
 {
-  "citation": "Schalk et al. 2004 IEEE TBME 51(6):1034-1043",
-  "dataset": "PhysioNet EEGBCI eegmmidb",
-  "license": "ODC-By (Open Data Commons Attribution)",
-  "n_subjects": 12,
-  "runs_description": "Run 01 = eyes open baseline. Run 02 = eyes closed baseline.",
-  "runs_used": [
-    1,
-    2
-  ],
-  "sha256": {
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S001/S001R01.edf": "4743b736131a7e147c150e8b37711029b6cda5e356c4b3e8261a03cdcaaf8b0c",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S001/S001R02.edf": "31a95e0a880e6c3d89960d9d62c144f24cc4e9f5d7e93c7f864ef61cd49e847e",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S002/S002R01.edf": "d542689b31c977838f20b1a2062865b98ecf10a7e9702f56f101000d47f2ec68",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S002/S002R02.edf": "666a9299341ece77522df050b1ddd128179a540548d82642ba975a65b4f6d84e",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S003/S003R01.edf": "2af68afa8d4f158a7ae7f3903b66f0947925880639b7a8b5b6bb13b0c6c50f96",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S003/S003R02.edf": "41044fea497e05650c4b1f4009011b44a50a6cefd55d5afa9e1d1b7988afd6e5",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S004/S004R01.edf": "23e9645f492488d2376ac3a606d177043efc6e5fb00281c2d6648e4b06a6ce62",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S004/S004R02.edf": "32134f3ce7056fd6487855552636b8f93ea2d67631ef1da6f6474eda6040162f",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S005/S005R01.edf": "f84f58d7d96bce1700af8b2c9e333d66e4b2183e34b3ed5634840fff37845af0",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S005/S005R02.edf": "bdb498c613cd048a889899282e8f5491c23a76731f3c2be11800362b7bbcb836",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S006/S006R01.edf": "bfe32b925fdd469c90ce6913f7409cf85e4492b40d36c77b83511592d6e4c647",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S006/S006R02.edf": "f114ee8be3445ff48c78422d4cc7b6b68ab83d79f06cb47634b1710796aeda4f",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S007/S007R01.edf": "2ca422c6076860f12bce174799c5d7e85cae46b7b09a8e8519681d0f82168b22",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S007/S007R02.edf": "9afdeee151fbbcf9ab5ab3537f8f647f0303d97f506048cfdcc6a99d8da809a7",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S008/S008R01.edf": "678e47541d9903c300ba7811554ad1f8bfbe2bff086407cb4ff489d2d0e507bc",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S008/S008R02.edf": "dcd82e2a2477c52ca4a3dc784d9c04a55f935f2ed9ff10cfe0ec880d56c60edc",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S009/S009R01.edf": "37f117b69060f2c784d74fe973d6af30b3b978f9c7c127324273f5741749bb2e",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S009/S009R02.edf": "ca5a6f0a0fc6fe11696d5505c3db2b965136d85c4c0590f7c03af1b527b97242",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S010/S010R01.edf": "0d694b503e5ea0f6088a790f09390efb1be2688ad92213f5e82fa2f343cd18c4",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S010/S010R02.edf": "d44f5f6c774771bc2b6cdd6d29c7f558e11ad11e6198cf4603f473edd4b2074a",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S011/S011R01.edf": "374dfa06c6df18e3bd324f4c8aefa462bacb6bf9dcbfe8d58ae6e84ed2bbc443",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S011/S011R02.edf": "3d64573c6da6183ec5b8d230e38609d4d7f365a2aecbcc8a310c94d13c986f7e",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S012/S012R01.edf": "ad02ce8943d45f07bcf6f69714a61005e570f3fd26f0e8e1bac38c7ad80fcc73",
-    "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S012/S012R02.edf": "b4f7e8b1b083835899b7b6cbb58c582fd8290311135b3e0148c5b6ffee4f6b1a"
-  },
-  "url": "https://physionet.org/content/eegmmidb/1.0.0/"
+  "datasets": {
+    "eeg_physionet": {
+      "dataset": "PhysioNet EEGBCI eegmmidb",
+      "url": "https://physionet.org/content/eegmmidb/1.0.0/",
+      "license": "ODC-By (Open Data Commons Attribution)",
+      "citation": "Schalk et al. 2004 IEEE TBME 51(6):1034-1043",
+      "runs_used": [
+        1,
+        2
+      ],
+      "runs_description": "Run 01 = eyes open baseline. Run 02 = eyes closed baseline.",
+      "n_subjects": 12,
+      "sha256": {
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S001/S001R01.edf": "4743b736131a7e147c150e8b37711029b6cda5e356c4b3e8261a03cdcaaf8b0c",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S001/S001R02.edf": "31a95e0a880e6c3d89960d9d62c144f24cc4e9f5d7e93c7f864ef61cd49e847e",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S002/S002R01.edf": "d542689b31c977838f20b1a2062865b98ecf10a7e9702f56f101000d47f2ec68",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S002/S002R02.edf": "666a9299341ece77522df050b1ddd128179a540548d82642ba975a65b4f6d84e",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S003/S003R01.edf": "2af68afa8d4f158a7ae7f3903b66f0947925880639b7a8b5b6bb13b0c6c50f96",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S003/S003R02.edf": "41044fea497e05650c4b1f4009011b44a50a6cefd55d5afa9e1d1b7988afd6e5",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S004/S004R01.edf": "23e9645f492488d2376ac3a606d177043efc6e5fb00281c2d6648e4b06a6ce62",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S004/S004R02.edf": "32134f3ce7056fd6487855552636b8f93ea2d67631ef1da6f6474eda6040162f",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S005/S005R01.edf": "f84f58d7d96bce1700af8b2c9e333d66e4b2183e34b3ed5634840fff37845af0",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S005/S005R02.edf": "bdb498c613cd048a889899282e8f5491c23a76731f3c2be11800362b7bbcb836",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S006/S006R01.edf": "bfe32b925fdd469c90ce6913f7409cf85e4492b40d36c77b83511592d6e4c647",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S006/S006R02.edf": "f114ee8be3445ff48c78422d4cc7b6b68ab83d79f06cb47634b1710796aeda4f",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S007/S007R01.edf": "2ca422c6076860f12bce174799c5d7e85cae46b7b09a8e8519681d0f82168b22",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S007/S007R02.edf": "9afdeee151fbbcf9ab5ab3537f8f647f0303d97f506048cfdcc6a99d8da809a7",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S008/S008R01.edf": "678e47541d9903c300ba7811554ad1f8bfbe2bff086407cb4ff489d2d0e507bc",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S008/S008R02.edf": "dcd82e2a2477c52ca4a3dc784d9c04a55f935f2ed9ff10cfe0ec880d56c60edc",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S009/S009R01.edf": "37f117b69060f2c784d74fe973d6af30b3b978f9c7c127324273f5741749bb2e",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S009/S009R02.edf": "ca5a6f0a0fc6fe11696d5505c3db2b965136d85c4c0590f7c03af1b527b97242",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S010/S010R01.edf": "0d694b503e5ea0f6088a790f09390efb1be2688ad92213f5e82fa2f343cd18c4",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S010/S010R02.edf": "d44f5f6c774771bc2b6cdd6d29c7f558e11ad11e6198cf4603f473edd4b2074a",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S011/S011R01.edf": "374dfa06c6df18e3bd324f4c8aefa462bacb6bf9dcbfe8d58ae6e84ed2bbc443",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S011/S011R02.edf": "3d64573c6da6183ec5b8d230e38609d4d7f365a2aecbcc8a310c94d13c986f7e",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S012/S012R01.edf": "ad02ce8943d45f07bcf6f69714a61005e570f3fd26f0e8e1bac38c7ad80fcc73",
+        "eeg_physionet/MNE-eegbci-data/files/eegmmidb/1.0.0/S012/S012R02.edf": "b4f7e8b1b083835899b7b6cbb58c582fd8290311135b3e0148c5b6ffee4f6b1a"
+      }
+    },
+    "hrv_fantasia": {
+      "dataset": "PhysioNet Fantasia Database",
+      "url": "https://physionet.org/content/fantasia/1.0.0/",
+      "license": "ODC-By (Open Data Commons Attribution)",
+      "citation": "Iyengar et al. 1996 Am J Physiol 271:R1078-R1084",
+      "cohort": "young (f1y01–f1y10), 10 healthy subjects",
+      "description": "120-minute continuous ECG at 250 Hz with cardiologist-validated R-peak annotations (.ecg). We use .hea + .ecg only; raw .dat signal not required.",
+      "sha256": {
+        "fantasia/f1y01.hea": "519eff62d1ad082ea1f3ed68e4e90dc474dc35f7c99757b1d00cdaf1738bc9c2",
+        "fantasia/f1y01.ecg": "7f1da797a9292ca296ac93affec2bf16f43f0c88cf2a2f5850a3336c3b2d59f0",
+        "fantasia/f1y02.hea": "9f9539b217b186e55eb10bd02c33d8fd716f8bc644d4ae5e5c815c063a8da77e",
+        "fantasia/f1y02.ecg": "69db69c56e929436d70e433b6040d99ed8c4e90a2ed2ca00ac6828b2dd28b77d",
+        "fantasia/f1y03.hea": "51f76b2873ac92e84fd05a842d7580926c875ff12e895c3f4287679b5057d764",
+        "fantasia/f1y03.ecg": "f047c92b8f73ac0ed3ae1135ecaa3e801c6f33f2f4472d7959973409184cde87",
+        "fantasia/f1y04.hea": "2dfebac593c932bc4c73e49c834da796f55195c2758dba80c459af5fe7f368b5",
+        "fantasia/f1y04.ecg": "99c246a99d2e89325da8357c8ed7b0c9709d3646b98064f012412e9d60252eb4",
+        "fantasia/f1y05.hea": "e4b2cb36a48626d893fb9a6c74e13b3681c7d7ce8b2396eaafbff6d47ffa4180",
+        "fantasia/f1y05.ecg": "09d7d6aa616192db4bb2de532be2cf6e9c5435e97da37796d1c8823aced0daa7",
+        "fantasia/f1y06.hea": "f2b5aeb9954288cd5de0e5eed274705321610a18d9fa6923801263c32b9ddbf1",
+        "fantasia/f1y06.ecg": "fe2c84b940fbf19067bc9c1c9c47367006ec9735089cbcf0a37aa99e8cd666ce",
+        "fantasia/f1y07.hea": "38128068262c493c60cfe37e3730ad4dc24467b0f97eb3d44092c5f8034aa55a",
+        "fantasia/f1y07.ecg": "c697147846ad2dac1b0f35e44cde42a64ca2ea9f2b0ddc2ce45dad965e40d657",
+        "fantasia/f1y08.hea": "74cded67d8460176178abd3552f6bfa7de87e5249fe5bd1ad2458de44b10e80e",
+        "fantasia/f1y08.ecg": "1d4e98631066d2c4a06fb152fbc79ff4bc1407712281bec05bce4001307e3c99",
+        "fantasia/f1y09.hea": "3d72f47c294b3d54f8a3fc2805b7c6a02b5ffa19c69e814cf783d3884c8639c0",
+        "fantasia/f1y09.ecg": "4b2a9ca353f4fe32eafdcf3a881ec0eb79205f3db6c1e7ce17555cc151d01e96",
+        "fantasia/f1y10.hea": "df4a8a086037415a18cc23c367b5d009c6e0904d512b087d54ac85acfed46d9c",
+        "fantasia/f1y10.ecg": "e95ab008c113a7be8e177ab93b51076b4ebf6bb67b6895d4fb05b078a5be6183"
+      }
+    }
+  }
 }

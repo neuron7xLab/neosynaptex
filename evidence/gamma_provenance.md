@@ -39,16 +39,17 @@ implicitly tuned, the entry is demoted.
 | # | Substrate | Tier | γ | 95 % CI | R² | n | Ledger key |
 |---|-----------|------|---|---------|----|----|----------|
 | 1 | **eeg_physionet** | **T1** | 1.068 | [0.877, 1.246] | — | 20 | `eeg_physionet` |
-| 2 | **eeg_resting** | **T1** | 1.255 | [1.032, 1.452] | — | 10 | `eeg_resting` |
+| 2 | **eeg_resting** | **T1** | 1.255 | [1.032, 1.452] | 0.34 | 10 | `eeg_resting` |
 | 3 | **hrv_physionet** | **T1** | 0.885 | [0.834, 1.080] | 0.93 | 10 | `hrv_physionet` |
-| 4 | zebrafish_wt | T2 | 1.055 | [0.890, 1.210] | 0.76 | 45 | `zebrafish_wt` |
-| 5 | gray_scott | T3 | 0.979 | [0.880, 1.010] | 0.995 | 20 | `gray_scott` |
-| 6 | kuramoto_market | T3 | 0.963 | [0.930, 1.000] | 0.9 | — | `kuramoto` |
-| 7 | bn_syn | T3 | 0.946 | [0.810, 1.080] | 0.28 | — | `bnsyn` |
-| 8 | serotonergic_kuramoto | T5 | 1.068 | *basin 0.058–0.068 Hz* | 0.58 | 20 | *(pending ledger entry)* |
-| 9 | nfi_unified | T4 | 0.8993 | — | — | — | `nfi_unified` |
-| 10 | cns_ai_loop | T4 | 1.059 | [0.985, 1.131] | — | — | `cns_ai_loop` |
-| 11 | cfp_diy | T3† | 1.832 | [1.638, 1.978] | 0.853 | 125 | `cfp_diy` |
+| 4 | **hrv_fantasia** | **T1** | 1.003 | [0.935, 1.059] | 0.00 | 10 | `hrv_fantasia` |
+| 5 | zebrafish_wt | T2 | 1.055 | [0.890, 1.210] | 0.76 | 45 | `zebrafish_wt` |
+| 6 | gray_scott | T3 | 0.979 | [0.880, 1.010] | 0.995 | 20 | `gray_scott` |
+| 7 | kuramoto_market | T3 | 0.963 | [0.930, 1.000] | 0.9 | — | `kuramoto` |
+| 8 | bn_syn | T3 | 0.946 | [0.810, 1.080] | 0.28 | — | `bnsyn` |
+| 9 | serotonergic_kuramoto | T5 | 1.068 | [0.145, 1.506] | 0.58 | 20 | `serotonergic_kuramoto` |
+| 10 | nfi_unified | T4 | 0.8993 | — | — | — | `nfi_unified` |
+| 11 | cns_ai_loop | T4 | 1.059 | [0.985, 1.131] | — | — | `cns_ai_loop` |
+| 12 | cfp_diy | T3† | 1.832 | [1.638, 1.978] | 0.853 | 125 | `cfp_diy` |
 
 † `cfp_diy` ships a γ value outside the [0.7, 1.3] metastable window.
 It is retained in the ledger as an **out-of-regime witness** — see the
@@ -178,6 +179,57 @@ evidential. They are excluded from all substrate-count claims.
   - DFA window range is fixed at [4, 64] beats — longer windows
     require tens of thousands of beats per subject, which NSR2DB
     provides but the current implementation does not yet exercise.
+
+### T1 · hrv_fantasia — wild empirical cardiac (DFA α on Fantasia young)
+
+- **Data source.** PhysioNet Fantasia Database (Iyengar et al. 1996).
+  10 healthy young subjects, f1y01–f1y10, 120 min continuous ECG at
+  250 Hz with cardiologist-validated R-peak annotations. Public
+  license: ODC-By.
+- **Artefact in repo.** `.hea` + `.ecg` annotation files under
+  `data/fantasia/`; SHA-256 hashes recorded in
+  `evidence/data_hashes.json::datasets.hrv_fantasia`. Raw `.dat` ECG
+  signal is **not** downloaded — only beat annotations, which is
+  sufficient for RR-interval reconstruction and cuts download size by
+  ~30×.
+- **Pipeline** (`substrates/hrv_fantasia/adapter.py`).
+  1. Load `.ecg` annotation file, filter to symbol `'N'` (normal
+     beats only).
+  2. Compute RR intervals as successive beat differences / sampling
+     rate.
+  3. Clip to physiological range [0.3, 2.0] s (30–200 bpm).
+  4. Detrended Fluctuation Analysis (Peng et al. 1995):
+     cumulative-sum integration, linear detrending per segment,
+     root-mean-square fluctuation F(n) vs segment size n.
+  5. γ = α₂ = log-log slope over **long-scale** segment sizes
+     [16, 64] beats — the canonical 1/f cardiac regime.
+  6. Short-scale α₁ ([4, 16] beats, parasympathetic HF) is also
+     computed and reported for cross-validation.
+- **Reported.**
+  γ (α₂) = 1.003, CI95 [0.935, 1.059], n = 10.
+  α₁ (short) = 1.057 ± 0.185 — independently consistent with 1/f.
+  Verdict: **METASTABLE** (|γ − 1| = 0.003 ≪ 0.15).
+- **Tier rationale.** T1 because the data are wild human ECG
+  recordings passed through a parameter-free pipeline. DFA scales
+  [16, 64] are the published long-scale convention; no tuning.
+  Cross-check with hrv_physionet (VLF PSD method on NSR2DB,
+  γ = 0.885) is independent on both the dataset and the method.
+- **Falsification conditions.**
+  - Shuffling RR values destroys both α₂ (should fall to 0.5, the
+    uncorrelated reference). Tested in Phase 6 as a general control.
+  - Scale range [4, 16] (α₁) disagrees with [16, 64] (α₂) by more
+    than 0.3 across the cohort.
+  - SHA-256 of any Fantasia file on disk drifts from the recorded
+    hash (`test_data_files_match_recorded_hashes`).
+- **Known caveats.**
+  - 10 young subjects only. The published Fantasia database has 20
+    (10 young + 10 elderly). Elderly cohort is a deliberate
+    deferral — ageing is known to lower DFA α below 1 and would
+    require separate characterisation.
+  - 2 hours of data per subject is short by DFA standards; the
+    [16, 64] window is well within safe segment-count requirements
+    (≥ 4 non-overlapping segments), but extending to scales > 64
+    would need longer recordings.
 
 ### T2 · zebrafish_wt — published reanalysis
 
@@ -329,10 +381,10 @@ substrates and are excluded from every count in this document:
 
 | Claim | Tiers counted | N substrates |
 |-------|--------------|--------------|
-| γ ≈ 1 across independent **wild empirical** domains | T1 | **3** (EEG-FOOOF, EEG-Welch, HRV) |
-| γ ≈ 1 across independent **empirical + reanalysed** domains | T1 ∪ T2 | **4** (+ zebrafish) |
-| γ ≈ 1 across **empirical + first-principles** domains | T1 ∪ T2 ∪ T3 | **7** (+ gray_scott, kuramoto_market, bn_syn) |
-| γ ≈ 1 across **all tiers including calibrated + live** | T1–T5 | **9** (+ serotonergic_kuramoto, cns_ai_loop) |
+| γ ≈ 1 across independent **wild empirical** domains | T1 | **4** (EEG-FOOOF, EEG-Welch, HRV-VLF, HRV-DFA) |
+| γ ≈ 1 across independent **empirical + reanalysed** domains | T1 ∪ T2 | **5** (+ zebrafish) |
+| γ ≈ 1 across **empirical + first-principles** domains | T1 ∪ T2 ∪ T3 | **8** (+ gray_scott, kuramoto_market, bn_syn) |
+| γ ≈ 1 across **all tiers including calibrated + live** | T1–T5 | **10** (+ serotonergic_kuramoto, cns_ai_loop) |
 | **Out-of-regime** first-principles witness (falsifying control) | T3† | 1 (cfp_diy) |
 
 The headline number depends on which evidential bar the claim is

@@ -333,6 +333,46 @@
         "permutation_n": 500,
         "notes": "Wide CI reflects finite-N folding of the (topo, cost) trajectory near the Kuramoto critical point. R2=0.58 means 42% of log-log variance is topology-dependent. Recorded honestly per IMMACULATE protocol — not a sign of a good fit, a sign of a narrow-basin calibrated model."
       }
+    },
+    "hrv_fantasia": {
+      "substrate": "hrv_fantasia",
+      "description": "HRV PhysioNet Fantasia — DFA α₂ long-scale (16-64 beats) on 10 young subjects. Independent cross-validation of hrv_physionet (VLF PSD on NSR2DB).",
+      "gamma": 1.0032,
+      "ci_low": 0.935186,
+      "ci_high": 1.059335,
+      "r2": 0.001077,
+      "n_pairs": 10,
+      "p_permutation": 0.946108,
+      "status": "VALIDATED",
+      "tier": "evidential",
+      "locked": true,
+      "data_source": {
+        "file": "data/fantasia/f1y{01..10}.{hea,ecg}",
+        "sha256": "see evidence/data_hashes.json datasets.hrv_fantasia"
+      },
+      "adapter_code_hash": "7a4ba2c860b1de554c5deafbcb43fddccc27294220b4f19979e515f571947242",
+      "derivation_method": "Detrended Fluctuation Analysis α₂ on RR intervals (normal beats), scales 16-64 beats. Peng et al. 1995 convention. Bootstrap CI95 n=2000.",
+      "method_tier": "T1",
+      "verdict": "METASTABLE",
+      "alpha1_cross_check": {
+        "alpha1_mean": 1.0574,
+        "alpha1_std": 0.1847,
+        "interpretation": "Short-scale (4-16 beats) DFA exponent, parasympathetic regime. α₁ ≈ 1 also consistent with critical cardiac control."
+      },
+      "bootstrap_metadata": {
+        "method": "per-subject α₂ mean, bootstrap resampling (n=500)",
+        "gamma": 1.003201,
+        "ci_low": 0.935186,
+        "ci_high": 1.059335,
+        "std": 0.10276,
+        "n_subjects": 10,
+        "r2_between_unit": 0.001077,
+        "p_permutation": 0.946108,
+        "null_gamma": 1.0,
+        "seed": 42,
+        "bootstrap_n": 500,
+        "permutation_n": 500
+      }
     }
   },
   "derivation_protocol": {

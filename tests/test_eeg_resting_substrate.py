@@ -73,19 +73,23 @@ def test_adapter_has_domain_adapter_interface():
 
 
 def test_data_hashes_file_exists_and_is_well_formed():
-    """evidence/data_hashes.json must exist and list at least 20 EDF files."""
+    """evidence/data_hashes.json must list at least 20 EEG EDF files
+    and carry citation + license in the eeg_physionet block."""
     hashes_path = Path(__file__).parent.parent / "evidence" / "data_hashes.json"
     assert hashes_path.exists(), "evidence/data_hashes.json missing"
     data = json.loads(hashes_path.read_text())
-    assert "sha256" in data
-    assert len(data["sha256"]) >= 20, f"expected ≥ 20 hashed EDF files, got {len(data['sha256'])}"
-    # Every value must look like a SHA-256 hex digest
-    for path_key, digest in data["sha256"].items():
+    assert "datasets" in data, "expected datasets block in data_hashes.json"
+    eeg_block = data["datasets"].get("eeg_physionet")
+    assert eeg_block is not None, "missing eeg_physionet dataset in hashes"
+    assert "sha256" in eeg_block
+    assert len(eeg_block["sha256"]) >= 20, (
+        f"expected ≥ 20 hashed EDF files, got {len(eeg_block['sha256'])}"
+    )
+    for path_key, digest in eeg_block["sha256"].items():
         assert len(digest) == 64, f"bad digest for {path_key}"
         int(digest, 16)  # raises if not hex
-    # Citation and license must be declared
-    assert "license" in data
-    assert "citation" in data
+    assert "license" in eeg_block
+    assert "citation" in eeg_block
 
 
 # ---------------------------------------------------------------------------
@@ -179,10 +183,11 @@ def test_data_files_match_recorded_hashes():
 
     hashes_path = Path(__file__).parent.parent / "evidence" / "data_hashes.json"
     data = json.loads(hashes_path.read_text())
+    eeg_hashes = data["datasets"]["eeg_physionet"]["sha256"]
     repo_root = Path(__file__).parent.parent
     data_root = repo_root / "data"
     checked = 0
-    for rel_path, expected in data["sha256"].items():
+    for rel_path, expected in eeg_hashes.items():
         full = data_root / rel_path
         if not full.exists():
             # File not present on this machine — skip silently
