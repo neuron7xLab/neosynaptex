@@ -1,0 +1,67 @@
+# Pre-commit hooks for NeoSynaptex
+#
+# Mirrors the CI "Lint & Format" job plus a fast pytest subset, so that
+# any commit that would break `main` is blocked before it leaves the
+# laptop. Scopes are restricted to the first-party CI paths
+# (neosynaptex.py core/ contracts/ evl/ tests/) to avoid touching
+# vendored helm/jinja templates under substrates/*/deploy/.
+#
+# Install once per clone:   pre-commit install
+# Run manually on all files: pre-commit run --all-files
+
+repos:
+  # ------------------------------------------------------------------
+  # Ruff: lint + format (mirrors .github/workflows/ci.yml Lint & Format)
+  # ------------------------------------------------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.0
+    hooks:
+      - id: ruff
+        name: ruff check (CI paths)
+        files: ^(neosynaptex\.py|core/|contracts/|evl/|tests/).*\.py$
+      - id: ruff-format
+        name: ruff format --check (CI paths)
+        args: ["--check"]
+        files: ^(neosynaptex\.py|core/|contracts/|evl/|tests/).*\.py$
+
+  # ------------------------------------------------------------------
+  # Hygiene: scoped to first-party Python only. Helm/Jinja templates
+  # under substrates/kuramoto/deploy/ and substrates/mlsdm/deploy/
+  # are vendored third-party artefacts and must remain untouched.
+  # ------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        files: ^(neosynaptex\.py|core/|contracts/|evl/|tests/|substrates/(serotonergic_kuramoto|hrv|lotka_volterra|gray_scott|bn_syn|eeg_physionet|hrv_physionet|hrv_fantasia|eeg_resting|zebrafish|cfp_diy|cns_ai_loop|hippocampal_ca1|mfn)/).*\.py$
+      - id: end-of-file-fixer
+        files: ^(neosynaptex\.py|core/|contracts/|evl/|tests/|substrates/(serotonergic_kuramoto|hrv|lotka_volterra|gray_scott|bn_syn|eeg_physionet|hrv_physionet|hrv_fantasia|eeg_resting|zebrafish|cfp_diy|cns_ai_loop|hippocampal_ca1|mfn)/).*\.py$
+      - id: check-yaml
+        files: ^(\.github/workflows/|\.pre-commit-config\.yaml$)
+      - id: check-added-large-files
+        args: ["--maxkb=2000"]
+      - id: check-merge-conflict
+
+  # ------------------------------------------------------------------
+  # Fast regression pytest: catches 95 % of breakage in under a minute.
+  # The full suite (412+ tests) still runs in CI.
+  # ------------------------------------------------------------------
+  - repo: local
+    hooks:
+      - id: pytest-fast
+        name: pytest (fast regression subset)
+        entry: python3 -m pytest
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+        args:
+          - tests/test_adapter_registry.py
+          - tests/test_gamma_invariant.py
+          - tests/test_invariants.py
+          - tests/test_mathematical_core.py
+          - tests/test_neosynaptex_engine.py
+          - tests/test_new_substrates.py
+          - -x
+          - -q
+          - --timeout=60
+          - --no-header
