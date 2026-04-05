@@ -17,13 +17,17 @@ permissions:
   contents: read
   security-events: write
 
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
 jobs:
   analyze:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - uses: github/codeql-action/init@v3
         with:
           languages: python

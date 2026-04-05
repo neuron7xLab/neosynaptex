@@ -3,8 +3,16 @@ name: Dependency Review
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
 
 jobs:
   review:
@@ -23,11 +31,17 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           tmp_dir="$(mktemp -d)"
-          status_code="$(curl -sS -D "${tmp_dir}/headers.txt" -o "${tmp_dir}/body.json" -w '%{http_code}' \
+          status_code="$(curl -fsSL --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 60 \
+            -D "${tmp_dir}/headers.txt" -o "${tmp_dir}/body.json" -w '%{http_code}' \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GH_REPO}/dependency-graph/sbom")"
+            "https://api.github.com/repos/${GH_REPO}/dependency-graph/sbom" || true)"
           body="$(cat "${tmp_dir}/body.json")"
+
+          if [ -z "${status_code}" ]; then
+            echo "::error::Dependency graph probe failed before receiving HTTP status."
+            exit 1
+          fi
 
           if [ "${status_code}" = "200" ]; then
             echo "mode=run" >> "${GITHUB_OUTPUT}"
