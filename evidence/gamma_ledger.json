@@ -19,7 +19,8 @@
         "sha256": null
       },
       "adapter_code_hash": null,
-      "derivation_method": "McGuirl 2020, derived density->NN_CV"
+      "derivation_method": "McGuirl 2020, derived density->NN_CV",
+      "method_tier": "T2"
     },
     "gray_scott": {
       "substrate": "gray_scott",
@@ -38,7 +39,8 @@
         "sha256": null
       },
       "adapter_code_hash": null,
-      "derivation_method": "PDE simulation, F-sweep 20 equilibria"
+      "derivation_method": "PDE simulation, F-sweep 20 equilibria",
+      "method_tier": "T3"
     },
     "kuramoto": {
       "substrate": "kuramoto_market",
@@ -57,7 +59,8 @@
         "sha256": null
       },
       "adapter_code_hash": null,
-      "derivation_method": "128-oscillator Kc simulation, vol->1/|ret|"
+      "derivation_method": "128-oscillator Kc simulation, vol->1/|ret|",
+      "method_tier": "T3"
     },
     "bnsyn": {
       "substrate": "bn_syn",
@@ -76,7 +79,8 @@
         "sha256": null
       },
       "adapter_code_hash": null,
-      "derivation_method": "1/f spiking network, rate->CV"
+      "derivation_method": "1/f spiking network, rate->CV",
+      "method_tier": "T3"
     },
     "mock_spike": {
       "substrate": "mock_bnsyn",
@@ -166,7 +170,8 @@
         "sha256": null
       },
       "adapter_code_hash": null,
-      "derivation_method": "first live cycle measurement"
+      "derivation_method": "first live cycle measurement",
+      "method_tier": "T4"
     },
     "cns_ai_loop": {
       "substrate": "cns_ai_loop",
@@ -186,7 +191,8 @@
         "sha256": null
       },
       "adapter_code_hash": null,
-      "derivation_method": "p_perm=0.005, CI=[0.985,1.131]"
+      "derivation_method": "p_perm=0.005, CI=[0.985,1.131]",
+      "method_tier": "T4"
     },
     "eeg_physionet": {
       "substrate": "eeg_physionet",
@@ -205,7 +211,8 @@
         "sha256": null
       },
       "adapter_code_hash": null,
-      "derivation_method": "specparam aperiodic exponent, 20 subjects, motor imagery runs 4/8/12"
+      "derivation_method": "specparam aperiodic exponent, 20 subjects, motor imagery runs 4/8/12",
+      "method_tier": "T1"
     },
     "hrv_physionet": {
       "substrate": "hrv_physionet",
@@ -234,7 +241,8 @@
         ],
         "n_subjects": 10,
         "interpretation": "1/f scaling confirmed (alpha≈1.0 = critical, 0.5 = white, 1.5 = Brownian)"
-      }
+      },
+      "method_tier": "T1"
     },
     "cfp_diy": {
       "substrate": "cfp_diy",
@@ -252,7 +260,8 @@
         "sha256": null
       },
       "adapter_code_hash": null,
-      "derivation_method": "ABM: 25 AI-quality regimes, 50 agents, 200 ticks, throughput vs error rate"
+      "derivation_method": "ABM: 25 AI-quality regimes, 50 agents, 200 ticks, throughput vs error rate",
+      "method_tier": "T3"
     },
     "eeg_resting": {
       "substrate": "eeg_resting",
