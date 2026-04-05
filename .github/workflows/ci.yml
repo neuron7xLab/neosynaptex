@@ -79,7 +79,7 @@ jobs:
           print('gamma_PSD = 2H+1: VERIFIED')
           "
       - name: Run tests
-        run: pytest tests/ -v --tb=short --timeout=300
+        run: pytest tests/ -v --tb=short --timeout=300 --junitxml=junit-${{ matrix.python-version }}.xml
       - name: Self-verify axioms
         run: python3 -c "from core.axioms import SUBSTRATE_GAMMA, gamma_psd, verify_axiom_consistency; print('axioms OK:', len(SUBSTRATE_GAMMA), 'substrates')"
       - name: Demo
@@ -235,19 +235,24 @@ jobs:
     needs: [lint, typecheck, verify, invariants, coverage, canonical-gate]
     runs-on: ubuntu-latest
     steps:
-      - name: Verify all required jobs passed
+      - name: Verify all upstream jobs passed
+        env:
+          NEEDS_JSON: ${{ toJson(needs) }}
         run: |
-          results=(
-            "${{ needs.lint.result }}"
-            "${{ needs.verify.result }}"
-            "${{ needs.invariants.result }}"
-            "${{ needs.coverage.result }}"
-            "${{ needs.canonical-gate.result }}"
-          )
-          for r in "${results[@]}"; do
-            if [[ "$r" != "success" ]]; then
-              echo "::error::Required CI job failed: $r"
-              exit 1
-            fi
-          done
-          echo "All CI gates passed."
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          needs = json.loads(os.environ["NEEDS_JSON"])
+          failing = {
+              name: meta.get("result", "unknown")
+              for name, meta in needs.items()
+              if meta.get("result") != "success"
+          }
+          if failing:
+              for name, result in failing.items():
+                  print(f"::error::Upstream job '{name}' result={result}")
+              sys.exit(1)
+          print(f"All upstream jobs passed ({len(needs)} jobs).")
+          PY
