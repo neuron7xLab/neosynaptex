@@ -1,0 +1,123 @@
+name: Docker Reproduce
+
+# Build-validate the Dockerfile.reproduce image on every push to main
+# and every pull request. Does NOT run the full reproduction (which
+# takes ~6 minutes) — only verifies that the image builds, the
+# dependencies resolve, and `python -c 'import neosynaptex'` succeeds.
+#
+# A scheduled weekly run also executes the full entrypoint so that
+# slow data downloads and substrate runs are sanity-checked without
+# slowing the per-commit loop.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile.reproduce"
+      - "pyproject.toml"
+      - "reproduce.py"
+      - "core/**"
+      - "substrates/**"
+      - ".github/workflows/docker-reproduce.yml"
+  pull_request:
+    paths:
+      - "Dockerfile.reproduce"
+      - "pyproject.toml"
+      - "reproduce.py"
+  schedule:
+    # Weekly at 04:15 UTC on Sundays — full reproduction loop
+    - cron: "15 4 * * 0"
+  workflow_dispatch:
+    inputs:
+      run_full_reproduction:
+        description: "Run the full entrypoint (reproduce.py + pytest)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build reproduction image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.reproduce
+          tags: neosynaptex-repro:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke-test — import the package
+        run: |
+          docker run --rm --entrypoint python neosynaptex-repro:ci -c "
+          import neosynaptex
+          from core.gamma import compute_gamma
+          from core.bootstrap import bootstrap_summary
+          from substrates.gray_scott.adapter import GrayScottAdapter
+          from substrates.kuramoto.adapter import KuramotoAdapter
+          from substrates.serotonergic_kuramoto.adapter import SerotonergicKuramotoAdapter
+          print('import OK')
+          "
+
+      - name: Smoke-test — ledger provenance
+        run: |
+          docker run --rm --entrypoint python neosynaptex-repro:ci -c "
+          import json
+          with open('evidence/gamma_ledger.json') as f:
+              d = json.load(f)
+          print('ledger entries:', len(d['entries']))
+          t1 = [k for k, v in d['entries'].items() if v.get('method_tier') == 'T1']
+          print('T1 witnesses:', t1)
+          assert len(t1) >= 3, f'expected at least 3 T1 witnesses, got {len(t1)}'
+          "
+
+      - name: Smoke-test — fast pytest subset
+        run: |
+          docker run --rm --entrypoint python neosynaptex-repro:ci -m pytest \
+            tests/test_mathematical_core.py \
+            tests/test_bootstrap_helpers.py \
+            tests/test_gamma_invariant.py \
+            tests/test_invariants.py \
+            -q --timeout=60
+
+  full-reproduction:
+    name: Full reproduction (weekly)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: |
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' &&
+       inputs.run_full_reproduction)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.reproduce
+          tags: neosynaptex-repro:full
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run full entrypoint
+        run: docker run --rm neosynaptex-repro:full

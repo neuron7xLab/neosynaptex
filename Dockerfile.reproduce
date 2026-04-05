@@ -1,0 +1,106 @@
+# Dockerfile.reproduce — one-command reproduction image for NeoSynaptex
+#
+# Build once:
+#   docker build -f Dockerfile.reproduce -t neosynaptex-repro:latest .
+#
+# Reproduce everything:
+#   docker run --rm neosynaptex-repro:latest
+#
+# The default entrypoint runs the full reproduction pipeline:
+#   1. `python reproduce.py`               — end-to-end γ claim reproduction
+#   2. `pytest tests/ -q -m "not slow"`    — full non-slow test suite
+#   3. prints git commit SHA + ledger entry count for provenance
+#
+# For a shell inside the container:
+#   docker run --rm -it --entrypoint /bin/bash neosynaptex-repro:latest
+#
+# For the full test suite including slow tests (requires more time):
+#   docker run --rm neosynaptex-repro:latest pytest tests/ -q
+#
+# Notes on data:
+#   - The image ships with no external data. Substrates that require
+#     PhysioNet downloads (eeg_physionet, eeg_resting, hrv_physionet,
+#     hrv_fantasia) will download on first run; their tests skip
+#     gracefully when the download is unavailable.
+#   - Simulation substrates (gray_scott, kuramoto_market, bn_syn,
+#     serotonergic_kuramoto) and all unit tests run fully offline.
+
+# ----- Base image ------------------------------------------------------------
+# Python 3.12 matches the CI matrix; slim-bookworm keeps the image small.
+FROM python:3.12-slim-bookworm
+
+LABEL org.opencontainers.image.title="neosynaptex-repro"
+LABEL org.opencontainers.image.description="NeoSynaptex γ-scaling reproduction image"
+LABEL org.opencontainers.image.licenses="AGPL-3.0-or-later"
+LABEL org.opencontainers.image.source="https://github.com/neuron7xLab/neosynaptex"
+
+# ----- System dependencies ---------------------------------------------------
+# build-essential: numpy/scipy wheels are prebuilt but some transitive
+#                  deps (wfdb, specparam) may still need a compiler.
+# git            : reproduce.py prints git commit SHA; empty repos fall
+#                  back gracefully.
+# ca-certificates: PhysioNet downloads over HTTPS.
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        git \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# ----- Working directory -----------------------------------------------------
+WORKDIR /neosynaptex
+
+# ----- Python environment ----------------------------------------------------
+# Copy pyproject first so `pip install -e .[dev]` can be cached across
+# source-only changes.
+COPY pyproject.toml ./
+COPY LICENSE README.md ./
+
+# Upgrade pip + install in one layer to avoid old-pip resolver issues.
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# ----- Source tree -----------------------------------------------------------
+# Copy the rest of the repo AFTER deps for better layer caching.
+COPY . /neosynaptex
+
+# Install the package with dev extras. The pyproject.toml already pins
+# the canonical versions; we leave `ruff`, `mypy`, `pre-commit` in so
+# that a `docker run … pre-commit run --all-files` is possible.
+RUN python -m pip install -e ".[dev]" \
+    # Optional dev extras — enable the T1 wild-empirical substrates when
+    # data downloads are available. Failure here is non-fatal because the
+    # tests skip gracefully on ImportError.
+    && python -m pip install mne specparam wfdb
+
+# ----- Entrypoint ------------------------------------------------------------
+# Single command reproduces everything a reviewer needs to see:
+#   - reproduce.py prints the γ table and VERDICT
+#   - pytest runs the full non-slow suite including falsification controls
+#   - a final one-liner prints provenance (commit SHA + ledger entry count)
+#
+# Using `bash -c` chained with `&&` so any step's failure aborts the run
+# with a non-zero exit, which is what `docker run … || echo fail` users
+# expect.
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["\
+set -euo pipefail; \
+echo '==== NeoSynaptex reproduction ===='; \
+echo 'commit:' $(git -C /neosynaptex rev-parse HEAD 2>/dev/null || echo unknown); \
+echo 'python:' $(python --version); \
+echo; \
+echo '---- 1/3 reproduce.py ----'; \
+python reproduce.py; \
+echo; \
+echo '---- 2/3 pytest (non-slow) ----'; \
+python -m pytest tests/ -q -m 'not slow' --timeout=300 --no-header; \
+echo; \
+echo '---- 3/3 ledger provenance ----'; \
+python -c 'import json; d = json.load(open(\"evidence/gamma_ledger.json\")); print(\"ledger entries:\", len(d[\"entries\"])); [print(f\"  {k}: gamma={v.get(\\\"gamma\\\")}\") for k, v in d[\"entries\"].items() if v.get(\"method_tier\") == \"T1\"]'; \
+echo; \
+echo '==== done ===='; \
+"]
