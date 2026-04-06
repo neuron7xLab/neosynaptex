@@ -115,11 +115,11 @@ def enforce_state_not_proof(state_source: str, proof_source: str) -> None:
 # ---------------------------------------------------------------------------
 # INVARIANT_III: BOUNDED MODULATION
 # ---------------------------------------------------------------------------
-_MODULATION_BOUND = 0.05
+from core.constants import MODULATION_BOUND as _MODULATION_BOUND
 
 
 def enforce_bounded_modulation(modulation: float) -> float:
-    """Gate: clamp modulation to [-0.05, +0.05].
+    """Gate: clamp modulation to [-MODULATION_BOUND, +MODULATION_BOUND].
 
     Unbounded modulation collapses the regime.
     Returns clamped value (never raises -- clamps instead).
@@ -128,29 +128,22 @@ def enforce_bounded_modulation(modulation: float) -> float:
 
 
 # ---------------------------------------------------------------------------
-# GAMMA THRESHOLD SPECIFICATION
+# GAMMA THRESHOLD SPECIFICATION (delegated to core.constants)
 # ---------------------------------------------------------------------------
+from core.constants import (
+    GAMMA_THRESHOLD_CRITICAL,
+    GAMMA_THRESHOLD_METASTABLE,
+    GAMMA_THRESHOLD_WARNING,
+)
+
 GAMMA_THRESHOLDS = {
-    "metastable": (0.85, 1.15),
-    "warning": (0.70, 1.30),
-    "critical": (0.50, 1.50),
+    "metastable": (1.0 - GAMMA_THRESHOLD_METASTABLE, 1.0 + GAMMA_THRESHOLD_METASTABLE),
+    "warning": (1.0 - GAMMA_THRESHOLD_WARNING, 1.0 + GAMMA_THRESHOLD_WARNING),
+    "critical": (1.0 - GAMMA_THRESHOLD_CRITICAL, 1.0 + GAMMA_THRESHOLD_CRITICAL),
 }
 
-
-def gamma_regime(gamma: float) -> str:
-    """Classify gamma into operational regime.
-
-    Returns: "METASTABLE" | "WARNING" | "CRITICAL" | "COLLAPSE"
-    """
-    dist = abs(gamma - 1.0)
-    if dist < 0.15:
-        return "METASTABLE"
-    elif dist < 0.30:
-        return "WARNING"
-    elif dist < 0.50:
-        return "CRITICAL"
-    else:
-        return "COLLAPSE"
+# Re-export canonical classify_regime from axioms — NO local duplicate.
+from core.axioms import classify_regime as gamma_regime  # noqa: E402, F401
 
 
 # ---------------------------------------------------------------------------

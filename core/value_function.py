@@ -37,6 +37,18 @@ from typing import Any
 
 import numpy as np
 
+__all__ = [
+    "CRITICAL_THRESHOLD",
+    "DistributionalEstimate",
+    "GAMMA_HEADS",
+    "N_GAMMA_HEADS",
+    "NEURO_WEIGHTS",
+    "VIABILITY_THRESHOLD",
+    "ValueEstimate",
+    "estimate_value",
+    "estimate_value_from_state",
+]
+
 logger = logging.getLogger(__name__)
 
 # Thresholds (Sutskever: keep VF simple — complexity hurts generalization)

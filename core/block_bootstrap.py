@@ -13,6 +13,15 @@ from typing import Any, NamedTuple
 import numpy as np
 from scipy.stats import theilslopes
 
+__all__ = [
+    "BootstrapResult",
+    "SUBSTRATE_BLOCK_PARAMS",
+    "circular_block_bootstrap",
+    "compute_block_bootstrap",
+    "effective_sample_size",
+    "integrated_autocorr_time",
+]
+
 
 class BootstrapResult(NamedTuple):
     gamma: float

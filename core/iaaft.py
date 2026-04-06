@@ -8,6 +8,13 @@ import time
 
 import numpy as np
 
+__all__ = [
+    "iaaft_multivariate",
+    "iaaft_surrogate",
+    "kuramoto_iaaft",
+    "surrogate_p_value",
+]
+
 
 def iaaft_surrogate(
     signal: np.ndarray,
