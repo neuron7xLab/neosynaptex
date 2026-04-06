@@ -10,7 +10,7 @@
 
 [build]
 rustflags = [
-    # Standard LLVM loop optimizations
+    # Standard LLVM loop optimizations (names match LLVM pass registry)
     "-C", "llvm-args=--enable-loopinterchange",
     "-C", "llvm-args=--enable-loop-flatten",
     "-C", "llvm-args=--inline-threshold=275",
