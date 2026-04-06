@@ -232,9 +232,13 @@ SUBSTRATE_GAMMA = {
         ("gray_scott", "gray_scott"),
         ("kuramoto_market", "kuramoto"),
         ("bn_syn", "bnsyn"),
-        ("nfi_unified", "nfi_unified"),
-        ("cns_ai_loop", "cns_ai_loop"),
+        ("eeg_physionet", "eeg_physionet"),
+        ("hrv_physionet", "hrv_physionet"),
+        ("eeg_resting", "eeg_resting"),
+        ("serotonergic_kuramoto", "serotonergic_kuramoto"),
+        ("hrv_fantasia", "hrv_fantasia"),
     ]
+    if _GR.get(eid, "gamma") is not None
 }
 
 
