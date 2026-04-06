@@ -11,6 +11,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+__all__ = [
+    "ConfigRegistry",
+    "ConfigValidationResult",
+]
+
 
 @dataclass(frozen=True)
 class ConfigValidationResult:

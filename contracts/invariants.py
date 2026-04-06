@@ -115,6 +115,8 @@ def enforce_state_not_proof(state_source: str, proof_source: str) -> None:
 # ---------------------------------------------------------------------------
 # INVARIANT_III: BOUNDED MODULATION
 # ---------------------------------------------------------------------------
+# Contracts layer is self-contained — no imports from core to avoid cycles.
+# These values MUST match core.constants (tested in CI invariant checks).
 _MODULATION_BOUND = 0.05
 
 
@@ -130,6 +132,8 @@ def enforce_bounded_modulation(modulation: float) -> float:
 # ---------------------------------------------------------------------------
 # GAMMA THRESHOLD SPECIFICATION
 # ---------------------------------------------------------------------------
+# Self-contained — canonical values duplicated here to avoid circular import.
+# core.constants holds the same values for core/ modules.
 GAMMA_THRESHOLDS = {
     "metastable": (0.85, 1.15),
     "warning": (0.70, 1.30),
@@ -138,19 +142,10 @@ GAMMA_THRESHOLDS = {
 
 
 def gamma_regime(gamma: float) -> str:
-    """Classify gamma into operational regime.
+    """Re-export canonical classify_regime from axioms (lazy to avoid circular import)."""
+    from core.axioms import classify_regime
 
-    Returns: "METASTABLE" | "WARNING" | "CRITICAL" | "COLLAPSE"
-    """
-    dist = abs(gamma - 1.0)
-    if dist < 0.15:
-        return "METASTABLE"
-    elif dist < 0.30:
-        return "WARNING"
-    elif dist < 0.50:
-        return "CRITICAL"
-    else:
-        return "COLLAPSE"
+    return classify_regime(gamma)
 
 
 # ---------------------------------------------------------------------------

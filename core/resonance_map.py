@@ -28,7 +28,6 @@ Design notes
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Final
 
 import numpy as np
 from numpy.typing import NDArray
@@ -36,6 +35,12 @@ from numpy.typing import NDArray
 from core.coherence_state_space import (
     CoherenceState,
     CoherenceStateSpace,
+)
+from core.constants import (
+    BIFURCATION_THRESHOLD,
+    DIAGNOSIS_WINDOW,
+    PHASE_CHAOTIC_LOWER,
+    PHASE_FROZEN_UPPER,
 )
 
 __all__ = [
@@ -45,8 +50,6 @@ __all__ = [
 ]
 
 FloatArray = NDArray[np.float64]
-
-_NEAR_BIFURCATION_THRESHOLD: Final[float] = 0.95
 
 
 @dataclass(frozen=True)
@@ -93,21 +96,23 @@ class ResonanceMap:
     spectral_radius_trajectory: FloatArray
 
 
-def _classify_regime(gamma: float) -> str:
-    """Classify operating regime from γ value.
+def _classify_operating_regime(gamma: float) -> str:
+    """Classify phase-space operating regime from γ value.
 
-    - frozen: γ < 0.85 (over-damped, rigid)
-    - critical: 0.85 ≤ γ ≤ 1.15 (near-critical, adaptive)
-    - chaotic: γ > 1.15 (under-damped, unstable)
+    NOTE: This uses phase-space semantics (frozen/critical/chaotic) for
+    bifurcation detection — different from axioms.classify_regime() which
+    uses gamma-scaling semantics (METASTABLE/WARNING/CRITICAL/COLLAPSE).
+    Thresholds from core.constants.
+
+    - frozen: γ < PHASE_FROZEN_UPPER (over-damped, rigid)
+    - critical: PHASE_FROZEN_UPPER ≤ γ ≤ PHASE_CHAOTIC_LOWER (near-critical)
+    - chaotic: γ > PHASE_CHAOTIC_LOWER (under-damped, unstable)
     """
-    if gamma < 0.85:
+    if gamma < PHASE_FROZEN_UPPER:
         return "frozen"
-    if gamma > 1.15:
+    if gamma > PHASE_CHAOTIC_LOWER:
         return "chaotic"
     return "critical"
-
-
-_DIAGNOSIS_WINDOW: Final[int] = 3  # consecutive steps for confident diagnosis
 
 
 class ResonanceAnalyzer:
@@ -131,7 +136,7 @@ class ResonanceAnalyzer:
         n_steps: int,
         inputs: FloatArray | None = None,
         rng: np.random.Generator | None = None,
-        bifurcation_threshold: float = _NEAR_BIFURCATION_THRESHOLD,
+        bifurcation_threshold: float = BIFURCATION_THRESHOLD,
     ) -> ResonanceMap:
         """Run model and produce full resonance analytics.
 
@@ -171,7 +176,7 @@ class ResonanceAnalyzer:
                 bifurcation_events.append(t)
             prev_near_bif = near_bif
 
-            regime = _classify_regime(state.gamma)
+            regime = _classify_operating_regime(state.gamma)
             regimes.append(regime)
 
             snapshots.append(
@@ -191,8 +196,8 @@ class ResonanceAnalyzer:
 
         # Time-to-diagnosis: first index where 3 consecutive same-regime steps
         ttd = n_steps  # default: never diagnosed
-        for i in range(_DIAGNOSIS_WINDOW - 1, len(regimes)):
-            window = regimes[i - _DIAGNOSIS_WINDOW + 1 : i + 1]
+        for i in range(DIAGNOSIS_WINDOW - 1, len(regimes)):
+            window = regimes[i - DIAGNOSIS_WINDOW + 1 : i + 1]
             if len(set(window)) == 1:
                 ttd = i
                 break
@@ -224,7 +229,7 @@ class ResonanceAnalyzer:
     def analyze_trajectory(
         self,
         trajectory: FloatArray,
-        bifurcation_threshold: float = _NEAR_BIFURCATION_THRESHOLD,
+        bifurcation_threshold: float = BIFURCATION_THRESHOLD,
     ) -> ResonanceMap:
         """Analyze a pre-computed trajectory (no simulation).
 

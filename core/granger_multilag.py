@@ -9,6 +9,10 @@ from __future__ import annotations
 import numpy as np
 from scipy.linalg import lstsq as scipy_lstsq
 
+__all__ = [
+    "granger_multilag",
+]
+
 
 def _bic(rss: float, n: int, k: int) -> float:
     """Bayesian Information Criterion: BIC = n*ln(RSS/n) + k*ln(n)."""

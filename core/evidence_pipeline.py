@@ -15,6 +15,12 @@ from typing import Any
 
 from core.evidence_schema import EvidenceRecord, record_to_dict, validate_record
 
+__all__ = [
+    "EvidencePipeline",
+    "RawEvidence",
+    "ValidatedEvidence",
+]
+
 
 @dataclass(frozen=True)
 class RawEvidence:

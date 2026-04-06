@@ -11,6 +11,20 @@ from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
+__all__ = [
+    "AXIOM_0",
+    "GAMMA_THRESHOLDS",
+    "INVARIANTS",
+    "INV_YV1_FORMAL",
+    "INV_YV1_TEXT",
+    "POSITION",
+    "SUBSTRATE_GAMMA",
+    "check_inv_yv1",
+    "classify_regime",
+    "gamma_psd",
+    "verify_axiom_consistency",
+]
+
 # ─── INV-YV1: GRADIENT ONTOLOGY (ZEROTH AXIOM) ──────────────────────────
 # Author: Yaroslav Vasylenko
 #
@@ -38,9 +52,8 @@ INV_YV1_TEXT = (
     "Статичний градієнт — конденсатор. Живий градієнт — процес."
 )
 
-# Operational thresholds for INV-YV1 verification
-INV_YV1_DELTA_V_MIN = 1e-6  # below this, gradient is considered dead
-INV_YV1_D_DELTA_V_MIN = 1e-8  # below this, gradient is considered static
+# Operational thresholds — imported from single source of truth
+from core.constants import INV_YV1_D_DELTA_V_MIN, INV_YV1_DELTA_V_MIN
 
 
 def check_inv_yv1(
@@ -141,21 +154,28 @@ def gamma_psd(H: float) -> float:
 
 
 # ─── GAMMA THRESHOLDS ────────────────────────────────────────────────────
+from core.constants import (
+    GAMMA_THRESHOLD_CRITICAL,
+    GAMMA_THRESHOLD_METASTABLE,
+    GAMMA_THRESHOLD_WARNING,
+)
+
 GAMMA_THRESHOLDS = {
-    "metastable": (0.85, 1.15),  # |γ-1| < 0.15 — working regime
-    "warning": (0.70, 1.30),  # |γ-1| < 0.30 — monitor
-    "critical": (0.50, 1.50),  # |γ-1| < 0.50 — cascade review
-    "collapse": None,  # outside — full stop
+    "metastable": (1.0 - GAMMA_THRESHOLD_METASTABLE, 1.0 + GAMMA_THRESHOLD_METASTABLE),
+    "warning": (1.0 - GAMMA_THRESHOLD_WARNING, 1.0 + GAMMA_THRESHOLD_WARNING),
+    "critical": (1.0 - GAMMA_THRESHOLD_CRITICAL, 1.0 + GAMMA_THRESHOLD_CRITICAL),
+    "collapse": None,
 }
 
 
 def classify_regime(gamma: float) -> str:
+    """Classify gamma into operational regime using canonical thresholds."""
     dist = abs(gamma - 1.0)
-    if dist < 0.15:
+    if dist < GAMMA_THRESHOLD_METASTABLE:
         return "METASTABLE"
-    elif dist < 0.30:
+    elif dist < GAMMA_THRESHOLD_WARNING:
         return "WARNING"
-    elif dist < 0.50:
+    elif dist < GAMMA_THRESHOLD_CRITICAL:
         return "CRITICAL"
     else:
         return "COLLAPSE"

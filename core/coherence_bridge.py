@@ -17,6 +17,12 @@ import numpy as np
 from core.contracts import SSIDomain, ssi_apply
 from core.event_bus import EventBus, SubstrateEvent
 
+__all__ = [
+    "CoherenceBridge",
+    "DomainDiagnostics",
+    "InterventionSuggestion",
+]
+
 
 @dataclass(frozen=True)
 class DomainDiagnostics:

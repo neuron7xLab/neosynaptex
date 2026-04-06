@@ -12,6 +12,8 @@ Auto-selects tau via Average Mutual Information (AMI) if not provided.
 
 from __future__ import annotations
 
+__all__ = ["recurrence_quantification"]
+
 import numpy as np
 
 

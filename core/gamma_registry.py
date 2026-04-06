@@ -11,6 +11,11 @@ import json
 from pathlib import Path
 from typing import Any
 
+__all__ = [
+    "GammaRegistry",
+    "GammaRegistryError",
+]
+
 _LEDGER_PATH = Path(__file__).resolve().parent.parent / "evidence" / "gamma_ledger.json"
 
 

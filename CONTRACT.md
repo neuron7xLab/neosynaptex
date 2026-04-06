@@ -23,10 +23,11 @@ Violation of any invariant constitutes a build failure.
 
 | # | Invariant | Enforcement |
 |---|-----------|-------------|
+| **YV1** | **ΔV > 0 ∧ dΔV/dt ≠ 0 (Gradient Ontology)** | **`check_inv_yv1()` in `core/axioms.py`; `observe()` diagnoses every tick; thresholds in `core/constants.py`** |
 | I-1 | Gamma is derived, never stored | `observe()` recomputes every call; no `gamma` attribute on `Neosynaptex` |
 | I-2 | STATE != PROOF | `NeosynaptexState` is `frozen=True`; `phi` and `diagnostic` are independent copies |
 | I-3 | Zero external deps beyond numpy/scipy | No sklearn, torch, pandas, plotly |
-| I-4 | Bounded modulation | `\|mod\| <= 0.05` enforced by `np.clip` |
+| I-4 | Bounded modulation | `\|mod\| <= MODULATION_BOUND` enforced by `enforce_bounded_modulation()` |
 | I-5 | ASCII identifiers | No Cyrillic character with ord > 127 in any non-comment code |
 
 ---

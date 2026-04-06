@@ -8,6 +8,14 @@ from typing import Any
 
 import numpy as np
 
+__all__ = [
+    "EvidenceRecord",
+    "REQUIRED_FIELDS",
+    "record_from_dict",
+    "record_to_dict",
+    "validate_record",
+]
+
 
 @dataclass(frozen=True)
 class EvidenceRecord:

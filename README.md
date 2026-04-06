@@ -16,7 +16,7 @@
 <p align="center">
   <a href="#eight-substrates"><img src="https://img.shields.io/badge/substrates-8-blueviolet?style=for-the-badge" alt="8 substrates"></a>
   <a href="#the-number"><img src="https://img.shields.io/badge/%CE%B3%20%E2%89%88%201.0-universal-gold?style=for-the-badge" alt="gamma"></a>
-  <a href="#tests"><img src="https://img.shields.io/badge/tests-351-brightgreen?style=for-the-badge" alt="tests"></a>
+  <a href="#tests"><img src="https://img.shields.io/badge/tests-603-brightgreen?style=for-the-badge" alt="tests"></a>
   <a href="#the-signal"><img src="https://img.shields.io/badge/p--value-0.005-red?style=for-the-badge" alt="p-value"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge" alt="license"></a>
 </p>
@@ -381,10 +381,10 @@ Thread-safe (`RLock`). Persistent across restarts (`save_state`/`load_state`). D
 ## Tests
 
 ```
-351 passed, 4 CI workflows green
+603 passed, 5 CI workflows green
 
-tests/                 29 test files across core, contracts, evl, substrates, experiments
-                       Including 5 scientific integrity guards (AST-level γ injection detection)
+tests/                 47 test files across core, contracts, evl, substrates, experiments
+                       Including 5 scientific integrity guards + INV-YV1 gradient ontology
 ```
 
 <br>
@@ -393,12 +393,14 @@ tests/                 29 test files across core, contracts, evl, substrates, ex
 
 | # | Invariant | Guarantee |
 |---|-----------|-----------|
-| 1 | **gamma derived only** | recomputed every `observe()`, never stored |
-| 2 | **STATE != PROOF** | `NeosynaptexState` is `frozen=True`, independent copies |
-| 3 | **zero external deps** | only `numpy` + `scipy` |
-| 4 | **bounded modulation** | \|m\| <= 0.05 always |
-| 5 | **all identifiers ASCII** | zero Cyrillic in code |
-| 6 | **circuit breaker** | system operates under partial adapter failure |
+| **YV1** | **ΔV > 0 ∧ dΔV/dt ≠ 0** | **gradient ontology — system must be a living gradient, not a capacitor** |
+| I | **gamma derived only** | recomputed every `observe()`, never stored |
+| II | **STATE != PROOF** | `NeosynaptexState` is `frozen=True`, independent copies |
+| III | **bounded modulation** | \|m\| <= 0.05 always |
+| IV | **SSI external only** | internal self-obfuscation corrupts observe() |
+| V | **zero external deps** | only `numpy` + `scipy` |
+| VI | **all identifiers ASCII** | zero Cyrillic in code |
+| VII | **circuit breaker** | system operates under partial adapter failure |
 
 <br>
 
@@ -408,22 +410,22 @@ tests/                 29 test files across core, contracts, evl, substrates, ex
 neosynaptex/
 |
 +-- neosynaptex.py                    engine: γ-scaling, Jacobian, phase dynamics
-+-- core/                             21 modules: axioms, falsification, evidence, RQA
++-- core/                             30 modules: axioms, state-space, FDT, OEB, benchmark, resonance, ablation
 +-- contracts/                        invariant enforcement + truth criterion
 +-- substrates/                       8 substrate adapters (zebrafish → CFP/ДІЙ)
 +-- evl/                              evidence verification ledger
 +-- experiments/                      reproducible outputs + figures
 |   +-- scaffolding_trap/             dskill/dt law, delegation suppression
 |   +-- lm_substrate/                 GPT-4o-mini γ derivation (null result)
-+-- tests/                            351 tests, 29 files
++-- tests/                            603 tests, 47 files
 +-- scripts/                          13 operational scripts
 +-- evidence/                         gamma_ledger.json + proof chains
-+-- .github/workflows/                4 CI workflows (all green)
++-- .github/workflows/                5 CI workflows (all green)
 |
 +-- CFP_PROTOCOL.md                   Cognitive Field Protocol v3.0
 +-- CONTRACT.md                       invariants + formulas
 +-- XFORM_MANUSCRIPT_DRAFT.md         publication draft
-+-- REPO_TOPOLOGY.md                  architectural map v2.0
++-- REPO_TOPOLOGY.md                  architectural map v3.0
 |
 +-- pyproject.toml                    v3.0.0, Python 3.10+, numpy/scipy
 +-- LICENSE                           AGPL-3.0-or-later

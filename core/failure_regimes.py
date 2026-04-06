@@ -8,6 +8,10 @@ from __future__ import annotations
 import numpy as np
 from scipy.stats import theilslopes
 
+__all__ = [
+    "scan_failure_regimes",
+]
+
 
 def scan_failure_regimes(
     noise_levels: list[float] | None = None,

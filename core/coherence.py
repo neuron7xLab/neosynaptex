@@ -9,6 +9,10 @@ from __future__ import annotations
 
 import numpy as np
 
+__all__ = [
+    "transfer_entropy_gamma",
+]
+
 
 def _embed(x: np.ndarray, k: int) -> np.ndarray:
     """Time-delay embedding: rows are [x[t-k], ..., x[t-1], x[t]]."""
