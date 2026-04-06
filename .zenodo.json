@@ -1,0 +1,29 @@
+{
+  "title": "NeoSynaptex: γ ≈ 1.0 as Universal Scaling Signature of Intelligence",
+  "description": "Reference implementation and evidence bundle for the NFI hypothesis: intelligence is a regime property characterized by gamma-scaling exponent near 1.0, observed independently across 8+ substrates spanning biology, chemistry, computation, and markets.",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Vasylenko, Yaroslav",
+      "affiliation": "Independent Researcher / neuron7xLab"
+    }
+  ],
+  "keywords": [
+    "criticality",
+    "gamma-scaling",
+    "intelligence",
+    "universality",
+    "phase-transition",
+    "near-criticality",
+    "substrate-independence"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/neuron7xLab/neosynaptex",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ],
+  "access_right": "open"
+}
