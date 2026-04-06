@@ -154,9 +154,49 @@ def gamma_regime(gamma: float) -> str:
 
 
 # ---------------------------------------------------------------------------
+# INVARIANT_YV1: GRADIENT ONTOLOGY (ZEROTH — above all others)
+# ---------------------------------------------------------------------------
+def enforce_gradient_ontology(
+    alive_frac: float,
+    dynamic_frac: float,
+    *,
+    alive_threshold: float = 0.5,
+    dynamic_threshold: float = 0.5,
+) -> str:
+    """Gate: verify INV-YV1 — ΔV > 0 ∧ dΔV/dt ≠ 0.
+
+    Does not raise — returns diagnosis string. Callers decide severity.
+    A system at dead equilibrium or static capacitor is not intelligent;
+    it is not an error, it is an ontological state.
+
+    Returns:
+        "living_gradient", "static_capacitor", "dead_equilibrium",
+        or "transient".
+    """
+    if alive_frac <= alive_threshold:
+        return "dead_equilibrium"
+    if dynamic_frac <= dynamic_threshold:
+        return "static_capacitor"
+    if alive_frac > 0.9 and dynamic_frac > 0.9:
+        return "living_gradient"
+    return "transient"
+
+
+# ---------------------------------------------------------------------------
 # Contract registry
 # ---------------------------------------------------------------------------
 INVARIANTS = {
+    "YV1": {
+        "name": "GRADIENT_ONTOLOGY",
+        "axiom": "INV-YV1",
+        "rule": "ΔV > 0 ∧ dΔV/dt ≠ 0 — system must maintain a living gradient",
+        "reason": (
+            "existence = sustained non-equilibrium; "
+            "static gradient = capacitor; "
+            "zero gradient = noise"
+        ),
+        "enforcement": "enforce_gradient_ontology() returns diagnosis",
+    },
     "I": {
         "name": "GAMMA_DERIVED_ONLY",
         "axiom": "AXIOM_0",

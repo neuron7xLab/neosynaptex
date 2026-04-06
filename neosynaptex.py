@@ -159,6 +159,11 @@ class NeosynaptexState:
     # --- Internal value function (X8 v2) ---
     value_estimate: ValueEstimate | None = None
 
+    # --- INV-YV1: Gradient Ontology ---
+    gradient_diagnosis: str = (
+        "unknown"  # living_gradient / static_capacitor / dead_equilibrium / transient
+    )
+
     class _Cfg:
         arbitrary_types_allowed = True
 
@@ -914,6 +919,23 @@ class Neosynaptex:
             "resilience": {"departures": self._departures, "returns": self._returns},
         }
 
+        # === INV-YV1: Gradient Ontology diagnosis ===
+        gradient_diagnosis = "unknown"
+        if len(self._history) >= 2:
+            from contracts.invariants import enforce_gradient_ontology
+
+            # Build a trajectory from recent phi vectors
+            recent = self._history[-(self._window) :]
+            if len(recent) >= 2:
+                traj = np.array([s.phi for s in recent], dtype=np.float64)
+                if traj.ndim == 2 and traj.shape[0] >= 2:
+                    eq = np.mean(traj, axis=0)
+                    dv = np.linalg.norm(traj - eq, axis=1)
+                    alive_frac = float(np.mean(dv > 1e-6))
+                    ddv = np.abs(np.diff(dv))
+                    dynamic_frac = float(np.mean(ddv > 1e-8)) if len(ddv) > 0 else 0.0
+                    gradient_diagnosis = enforce_gradient_ontology(alive_frac, dynamic_frac)
+
         state = NeosynaptexState(
             t=self._tick,
             phi=phi.copy(),
@@ -943,6 +965,7 @@ class Neosynaptex:
             adaptive_window=self._adaptive_window,
             ci_width_mean=ci_width_mean,
             value_estimate=value_estimate,
+            gradient_diagnosis=gradient_diagnosis,
         )
 
         self._history.append(state)
