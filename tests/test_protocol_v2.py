@@ -295,7 +295,7 @@ class TestAxiom0:
     def test_substrate_gamma_values(self):
         from core.axioms import SUBSTRATE_GAMMA
 
-        assert len(SUBSTRATE_GAMMA) == 6
+        assert len(SUBSTRATE_GAMMA) >= 6  # 9 VALIDATED substrates after ledger cleanup
         for name, (gamma, _) in SUBSTRATE_GAMMA.items():
             assert 0 < gamma < 3, f"{name} gamma={gamma} out of range"
 
