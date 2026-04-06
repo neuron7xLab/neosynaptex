@@ -41,3 +41,4 @@ experiments/lm_substrate/gpt4o_*_raw.json
 data/eeg_physionet/MNE-eegbci-data/
 data/fantasia/
 core/rust/geosync-accel/Cargo.lock
+core/rust/geosync-accel/target/
