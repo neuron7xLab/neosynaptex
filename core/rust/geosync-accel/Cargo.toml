@@ -1,0 +1,88 @@
+[package]
+name = "geosync-accel"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = """
+GEOSYNC-ACCEL — High-performance Rust accelerator for neosynaptex
+gamma-scaling computations. Implements DLPack/Arrow zero-copy ABI,
+SIMD-dispatched mathematical kernels, Hilbert-curve spatial indexing,
+and cache-oblivious data structures for geospatial HPC workloads.
+"""
+authors = ["neuron7xLab <neuron7x@proton.me>"]
+license = "AGPL-3.0-or-later"
+readme = "README.md"
+keywords = ["gamma-scaling", "simd", "dlpack", "arrow", "geospatial"]
+
+[features]
+default = ["python"]
+python = ["pyo3/extension-module"]
+simd-nightly = []  # Enable experimental std::simd features
+io-uring = []      # Enable io_uring kernel-bypass I/O
+
+[lib]
+name = "geosync_accel"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# PyO3 for CPython bindings — zero-overhead FFI layer
+pyo3 = { version = "0.23", features = ["extension-module"] }
+
+# Arrow memory format — zero-copy columnar data exchange
+arrow = { version = "54", default-features = false, features = ["ffi"] }
+
+# Rayon for data-parallel bootstrap/SIMD workloads
+rayon = "1.10"
+
+# Thiserror for ergonomic error types
+thiserror = "2"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[build-dependencies]
+pyo3-build-config = "0.23"
+
+[[bench]]
+name = "gamma_kernel"
+harness = false
+
+# ═══════════════════════════════════════════════════════════════════
+# 2026 RELEASE PIPELINE — PGO + BOLT + Cross-Language LTO
+# ═══════════════════════════════════════════════════════════════════
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+debug = false
+strip = "symbols"
+
+[profile.release.build-override]
+opt-level = 3
+
+# ═══════════════════════════════════════════════════════════════════
+# Profiling profile (PGO Stage 1: Instrument)
+# Build with: RUSTFLAGS="-Cprofile-generate=/tmp/pgo-data" cargo build --profile pgo-instrument
+# ═══════════════════════════════════════════════════════════════════
+[profile.pgo-instrument]
+inherits = "release"
+debug = 1  # Keep frame pointers for profiling
+
+# ═══════════════════════════════════════════════════════════════════
+# PGO Stage 2: Optimize with collected profile data
+# Build with: RUSTFLAGS="-Cprofile-use=/tmp/pgo-data/merged.profdata" cargo build --profile pgo-optimize
+# ═══════════════════════════════════════════════════════════════════
+[profile.pgo-optimize]
+inherits = "release"
+
+[package.metadata.maturin]
+name = "geosync_accel"
+
+# ═══════════════════════════════════════════════════════════════════
+# RUSTFLAGS for maximum LLVM vectorization (set in .cargo/config.toml):
+#   -C llvm-args=-polly
+#   -C llvm-args=-enable-loop-interchange
+#   -C inline-threshold=275
+# ═══════════════════════════════════════════════════════════════════

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "geosync-accel"
+version = "0.1.0"
+description = "GEOSYNC-ACCEL: Rust-accelerated gamma-scaling with DLPack/Arrow zero-copy ABI"
+requires-python = ">=3.10"
+license = { text = "AGPL-3.0-or-later" }
+authors = [{ name = "neuron7xLab", email = "neuron7x@proton.me" }]
+keywords = ["gamma-scaling", "simd", "dlpack", "arrow", "geospatial", "hpc"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering",
+]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+module-name = "geosync_accel"
+
+# Cross-Language LTO: enables LLVM to inline across CPython C API and Rust
+# Requires: rustc nightly + clang as the CPython compiler
+# [tool.maturin]
+# rustc-cfg = ['lto="thin"']
