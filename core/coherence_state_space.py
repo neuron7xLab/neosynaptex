@@ -384,6 +384,22 @@ class CoherenceStateSpace:
             entropy_slope=float(dS),
         )
 
+    # -- INV-YV1 gradient ontology check ----------------------------
+
+    def check_gradient_ontology(
+        self,
+        trajectory: FloatArray,
+    ) -> dict[str, object]:
+        """Verify INV-YV1 (ΔV > 0 ∧ dΔV/dt ≠ 0) on a state trajectory.
+
+        Delegates to ``core.axioms.check_inv_yv1``. Returns diagnosis:
+        "living_gradient", "static_capacitor", "dead_equilibrium",
+        or "transient".
+        """
+        from core.axioms import check_inv_yv1
+
+        return check_inv_yv1(trajectory, dt=self.params.dt)
+
     # -- Convenience -----------------------------------------------
 
     def with_params(self, **overrides: float) -> CoherenceStateSpace:
