@@ -115,11 +115,13 @@ def enforce_state_not_proof(state_source: str, proof_source: str) -> None:
 # ---------------------------------------------------------------------------
 # INVARIANT_III: BOUNDED MODULATION
 # ---------------------------------------------------------------------------
-from core.constants import MODULATION_BOUND as _MODULATION_BOUND
+# Contracts layer is self-contained — no imports from core to avoid cycles.
+# These values MUST match core.constants (tested in CI invariant checks).
+_MODULATION_BOUND = 0.05
 
 
 def enforce_bounded_modulation(modulation: float) -> float:
-    """Gate: clamp modulation to [-MODULATION_BOUND, +MODULATION_BOUND].
+    """Gate: clamp modulation to [-0.05, +0.05].
 
     Unbounded modulation collapses the regime.
     Returns clamped value (never raises -- clamps instead).
@@ -128,22 +130,22 @@ def enforce_bounded_modulation(modulation: float) -> float:
 
 
 # ---------------------------------------------------------------------------
-# GAMMA THRESHOLD SPECIFICATION (delegated to core.constants)
+# GAMMA THRESHOLD SPECIFICATION
 # ---------------------------------------------------------------------------
-from core.constants import (
-    GAMMA_THRESHOLD_CRITICAL,
-    GAMMA_THRESHOLD_METASTABLE,
-    GAMMA_THRESHOLD_WARNING,
-)
-
+# Self-contained — canonical values duplicated here to avoid circular import.
+# core.constants holds the same values for core/ modules.
 GAMMA_THRESHOLDS = {
-    "metastable": (1.0 - GAMMA_THRESHOLD_METASTABLE, 1.0 + GAMMA_THRESHOLD_METASTABLE),
-    "warning": (1.0 - GAMMA_THRESHOLD_WARNING, 1.0 + GAMMA_THRESHOLD_WARNING),
-    "critical": (1.0 - GAMMA_THRESHOLD_CRITICAL, 1.0 + GAMMA_THRESHOLD_CRITICAL),
+    "metastable": (0.85, 1.15),
+    "warning": (0.70, 1.30),
+    "critical": (0.50, 1.50),
 }
 
-# Re-export canonical classify_regime from axioms — NO local duplicate.
-from core.axioms import classify_regime as gamma_regime  # noqa: E402, F401
+
+def gamma_regime(gamma: float) -> str:
+    """Re-export canonical classify_regime from axioms (lazy to avoid circular import)."""
+    from core.axioms import classify_regime
+
+    return classify_regime(gamma)
 
 
 # ---------------------------------------------------------------------------
