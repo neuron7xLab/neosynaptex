@@ -16,7 +16,7 @@
 <p align="center">
   <a href="#eight-substrates"><img src="https://img.shields.io/badge/substrates-8-blueviolet?style=for-the-badge" alt="8 substrates"></a>
   <a href="#the-number"><img src="https://img.shields.io/badge/%CE%B3%20%E2%89%88%201.0-universal-gold?style=for-the-badge" alt="gamma"></a>
-  <a href="#tests"><img src="https://img.shields.io/badge/tests-603-brightgreen?style=for-the-badge" alt="tests"></a>
+  <a href="#tests"><img src="https://img.shields.io/badge/tests-651-brightgreen?style=for-the-badge" alt="tests"></a>
   <a href="#the-signal"><img src="https://img.shields.io/badge/p--value-0.005-red?style=for-the-badge" alt="p-value"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge" alt="license"></a>
 </p>
@@ -381,9 +381,9 @@ Thread-safe (`RLock`). Persistent across restarts (`save_state`/`load_state`). D
 ## Tests
 
 ```
-603 passed, 5 CI workflows green
+651 passed, 6 CI workflows green
 
-tests/                 47 test files across core, contracts, evl, substrates, experiments
+tests/                 50 test files across core, contracts, evl, substrates, formal
                        Including 5 scientific integrity guards + INV-YV1 gradient ontology
 ```
 
@@ -410,17 +410,18 @@ tests/                 47 test files across core, contracts, evl, substrates, ex
 neosynaptex/
 |
 +-- neosynaptex.py                    engine: γ-scaling, Jacobian, phase dynamics
-+-- core/                             30 modules: axioms, state-space, FDT, OEB, benchmark, resonance, ablation
++-- core/                             30 modules, ~6000 LOC: axioms, state-space, FDT, OEB, benchmark, resonance, ablation
 +-- contracts/                        invariant enforcement + truth criterion
 +-- substrates/                       8 substrate adapters (zebrafish → CFP/ДІЙ)
 +-- evl/                              evidence verification ledger
 +-- experiments/                      reproducible outputs + figures
 |   +-- scaffolding_trap/             dskill/dt law, delegation suppression
 |   +-- lm_substrate/                 GPT-4o-mini γ derivation (null result)
-+-- tests/                            603 tests, 47 files
++-- tests/                            651 tests, 50 files
 +-- scripts/                          13 operational scripts
 +-- evidence/                         gamma_ledger.json + proof chains
-+-- .github/workflows/                5 CI workflows (all green)
++-- .github/workflows/                6 CI workflows (all green)
++-- formal/                           3 modules: proofs, falsification, substrate diversity
 |
 +-- CFP_PROTOCOL.md                   Cognitive Field Protocol v3.0
 +-- CONTRACT.md                       invariants + formulas

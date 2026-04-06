@@ -12,8 +12,9 @@
 
 ```
 neosynaptex/
-├── neosynaptex.py          ← Single-file engine (1360 LOC, all γ computation)
-├── core/                   ← Infrastructure (30 modules, ~5700 LOC)
+├── neosynaptex.py          ← Single-file engine (1384 LOC, all γ computation)
+├── core/                   ← Infrastructure (30 modules, ~6000 LOC)
+│   ├── constants.py        ← Single source of truth for ALL thresholds
 │   ├── axioms.py           ← INV-YV1 + AXIOM_0 + check_inv_yv1()
 │   ├── coherence_state_space.py  ← 4-D state-space model (S, γ, E_obj, σ²)
 │   ├── gamma_fdt_estimator.py    ← FDT γ-estimator (auto, not manual tuning)
@@ -21,72 +22,120 @@ neosynaptex/
 │   ├── hallucination_benchmark.py ← 15 scenarios, ΔS prediction, perturbation
 │   ├── resonance_map.py    ← Phase-space analytics, bifurcation detection
 │   ├── ablation_study.py   ← Role vs energy vs hybrid Pareto comparison
-│   └── ... (21 legacy modules)
+│   └── ... (21 legacy modules: gamma, falsification, iaaft, rqa, etc.)
 ├── contracts/              ← Invariants (YV1 + I–IV) + truth criterion
-├── substrates/             ← Independent γ witnesses (8 substrates)
+├── formal/                 ← Proofs, falsification protocol, substrate diversity
+│   ├── proofs.py           ← 3 machine-verifiable theorems (γ=2H+1, susceptibility, INV-YV1)
+│   ├── falsification_protocol.py ← 8 conditions (F1–F8), Verdict: SURVIVES
+│   └── substrate_diversity.py    ← Universality evidence across 3+ domains
+├── substrates/             ← 16 substrate adapters (8 VALIDATED)
 ├── evl/                    ← Evidence Verification Ledger
 ├── experiments/            ← experiment_cards.py + reproducible outputs
-├── tests/                  ← 600+ tests, 47 test files
+├── tests/                  ← 651 tests, 50 test files
 ├── scripts/                ← 13 operational scripts
-├── evidence/               ← gamma_ledger.json + proof chains
+├── evidence/               ← gamma_ledger.json (16 entries) + proof chains
 ├── data/golden/            ← Benchmark anchors
 ├── docs/                   ← Science, manuscripts
-├── formal/                 ← Coq/TLA+ specifications
 ├── agents/                 ← Agent subsystem
-└── .github/workflows/      ← CI (4 workflows, all green)
+└── .github/workflows/      ← CI (6 workflows, all green)
 ```
 
-## Substrate Map
+## Substrate Map (from gamma_ledger.json)
 
-| Substrate | Package | γ | Status | Source |
-|-----------|---------|---|--------|--------|
-| Zebrafish | `substrates/zebrafish/` | 1.055 | VALIDATED | McGuirl 2020 .mat data |
-| Gray-Scott | `substrates/gray_scott/` | 0.979 | VALIDATED | PDE simulation, F-sweep |
-| Kuramoto | `substrates/kuramoto/` | 0.963 | VALIDATED | 128-oscillator Kc sim |
-| BN-Syn | `substrates/bn_syn/` | 0.946 | VALIDATED | 1/f spiking network |
-| CNS-AI | `substrates/cns_ai_loop/` | 1.059 | CONSTRUCTED | Cognitive loop sim |
-| CFP/ДІЙ | `substrates/cfp_diy/` | 1.832 | CONSTRUCTED | ABM, 25 AI-quality regimes |
-| HRV | `substrates/hrv/` | −0.306 | CONSTRUCTED | Synthetic 1/f RR |
-| Lotka-Volterra | `substrates/lotka_volterra/` | −1.103 | CONSTRUCTED | Competition dynamics |
+### VALIDATED (8 substrates, 4 scientific domains)
 
-## Core Modules
+| Substrate | γ | CI | Domain | Source |
+|-----------|---|-----|--------|--------|
+| Zebrafish | 1.055 | [0.89, 1.21] | Biology | McGuirl 2020 calcium imaging |
+| Gray-Scott | 0.979 | [0.88, 1.01] | Chemistry | PDE reaction-diffusion, F-sweep |
+| Kuramoto | 0.963 | [0.93, 1.00] | Network dynamics | 128-oscillator phase sync |
+| BN-Syn | 0.946 | — | Network dynamics | 1/f spiking network |
+| EEG PhysioNet | 1.068 | — | Neuroscience | EEGBCI motor imagery |
+| EEG Resting | 1.255 | — | Neuroscience | Resting-state alpha |
+| HRV Fantasia | 1.003 | — | Physiology | PhysioNet Fantasia RR |
+| Serotonergic Kuramoto | 1.068 | — | Network dynamics | 5-HT modulated oscillators |
+
+### Other entries (8: 4 DERIVED/mock, 2 PENDING, 1 CONSTRUCTED, 1 outlier)
+
+| Substrate | γ | Status | Note |
+|-----------|---|--------|------|
+| HRV PhysioNet | 0.885 | VALIDATED | Near boundary |
+| CNS-AI Loop | 1.059 | PENDING | Awaiting real cognitive data |
+| NFI Unified | 0.899 | PENDING | Cross-substrate aggregate |
+| CFP/ДІЙ | 1.832 | CONSTRUCTED | Outlier — ABM, not γ ≈ 1 |
+| 4× Mock | 0.95–1.09 | DERIVED | Synthetic, not evidential |
+
+## Core Modules (30)
 
 | Module | Purpose |
 |--------|---------|
-| `axioms.py` | γ_PSD = 2H+1, regime classification |
+| **`constants.py`** | **Single source of truth for ALL thresholds** |
+| **`axioms.py`** | **INV-YV1 + AXIOM_0 + γ_PSD = 2H+1 + check_inv_yv1()** |
+| **`coherence_state_space.py`** | **4-D state-space model (S, γ, E_obj, σ²)** |
+| **`gamma_fdt_estimator.py`** | **FDT γ-estimator (auto-calibration, not manual)** |
+| **`objection_energy_budget.py`** | **PID critic gain controller + energy brake** |
+| **`hallucination_benchmark.py`** | **15 scenarios, ΔS prediction, perturbation** |
+| **`resonance_map.py`** | **Phase-space analytics, bifurcation detection** |
+| **`ablation_study.py`** | **Role vs energy vs hybrid Pareto comparison** |
 | `adapter_registry.py` | Auto-discovery of substrate adapters |
 | `coherence_bridge.py` | JSON-RPC API surface |
-| `falsification.py` | Automated falsification logic |
+| `falsification.py` | Automated falsification (3 axes: estimator, null, bias) |
+| `gamma.py` | Canonical compute_gamma() with bootstrap CI |
 | `gamma_registry.py` | Read-only gateway to gamma_ledger.json |
 | `evidence_pipeline.py` | Collect → validate → register → query |
-| `granger_multilag.py` | Cross-substrate causality |
+| `granger_multilag.py` | Cross-substrate Granger causality |
 | `block_bootstrap.py` | Bootstrap CI computation |
 | `iaaft.py` | Surrogate generation (amplitude-adjusted FFT) |
 | `rqa.py` | Recurrence quantification analysis |
-| `value_function.py` | Value estimation |
-| `multiverse.py` | Multi-parameter sensitivity |
+| `value_function.py` | Internal value estimation |
+| `multiverse.py` | Multi-parameter sensitivity analysis |
+| `coherence.py` | Transfer entropy γ estimation |
+| `config_registry.py` | Dynamic configuration management |
+| `contracts.py` | Core-level invariant enforcement |
+| `dnca_bridge.py` | Dynamic Network Coherence Adapter |
+| `event_bus.py` | Pub/sub event system |
+| `events.py` | Event dataclasses |
+| `evidence_schema.py` | Evidence entry schema validation |
+| `failure_regimes.py` | Noise × window failure mapping |
+| `truth_function.py` | Truth function computation |
+| `bootstrap.py` | Legacy bootstrap helpers |
+
+## Formal (3)
+
+| Module | Purpose |
+|--------|---------|
+| `proofs.py` | 3 machine-verifiable theorems (γ=2H+1, susceptibility, INV-YV1) |
+| `falsification_protocol.py` | 8 conditions (F1–F8), Verdict: SURVIVES |
+| `substrate_diversity.py` | Universality evidence across 3+ scientific domains |
 
 ## Experiments
 
 | Experiment | Path | Key Finding |
 |------------|------|-------------|
-| Scaffolding Trap | `experiments/scaffolding_trap/` | dskill/dt = 0.02 × gap × effort, delegation −9.5%/10% |
-| LM Substrate | `experiments/lm_substrate/` | Stateless γ≈0 (null), coupled chain pending |
+| Experiment Cards | `experiments/experiment_cards.py` | 5 TRL-kit cards covering Tasks 1–6 |
+| Scaffolding Trap | `experiments/scaffolding_trap/` | dskill/dt = 0.02 × gap × effort |
+| LM Substrate | `experiments/lm_substrate/` | Stateless γ≈0 (null result) |
 
-## CI Workflows
+## CI Workflows (6)
 
-| Workflow | Jobs | Status |
-|----------|------|--------|
-| NFI CI | lint, typecheck, verify×3, invariants, coverage, canonical-gate, ci-gate | GREEN |
-| Security | bandit SAST, pip-audit, gitleaks | GREEN |
-| CodeQL | SAST analysis | GREEN |
-| Benchmarks | Performance regression | GREEN |
+| Workflow | File | Jobs | Status |
+|----------|------|------|--------|
+| NFI CI | `ci.yml` | lint, typecheck, verify×3, invariants, coverage, canonical-gate, ci-gate | GREEN |
+| Security | `security.yml` | bandit SAST, pip-audit, gitleaks | GREEN |
+| CodeQL | `codeql.yml` | SAST analysis | GREEN |
+| Benchmarks | `benchmarks.yml` | γ substrate benchmarks, core test performance | GREEN |
+| Dependency Review | `dependency-review.yml` | License + vulnerability scan on PRs | GREEN |
+| Docker Reproduce | `docker-reproduce.yml` | One-command reproduction validation | GREEN |
 
-## Contracts
+## Invariants (5)
 
-- `γ derived only, never assigned` — enforced by gamma_registry.py + AST tests
-- `STATE ≠ PROOF` — CRR state ≠ topology law proof
-- `SSI external only` — external measurement, no hidden state inference
+| # | Name | Enforcement |
+|---|------|-------------|
+| **YV1** | **Gradient Ontology: ΔV > 0 ∧ dΔV/dt ≠ 0** | `check_inv_yv1()` + `observe()` runtime diagnosis |
+| I | γ derived only, never assigned | `gamma_registry.py` + AST tests |
+| II | STATE ≠ PROOF | Independent substrate verification |
+| III | Bounded modulation (\|m\| ≤ 0.05) | `enforce_bounded_modulation()` clamp |
+| IV | SSI external only | `ssi_enforce_domain()` raises on INTERNAL |
 - `Bounded modulation` — CPR drift triggers recalibration
 
 ## Evidence Chain
