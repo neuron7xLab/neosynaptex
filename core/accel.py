@@ -32,11 +32,11 @@ __all__ = [
 # ═══════════════════════════════════════════════════════════════════
 
 try:
-    import geosync_accel as _rust  # type: ignore[import-not-found]
+    import geosync_accel as _rust
 
     ACCEL_BACKEND: str = "rust+simd"
 except ImportError:
-    _rust = None  # type: ignore[assignment]
+    _rust = None
     ACCEL_BACKEND = "numpy"
 
 
@@ -120,7 +120,7 @@ def hilbert_sort(
         coord_list = list(coords)
 
     if _rust is not None:
-        return _rust.hilbert_sort(coord_list, order=order)
+        return list(_rust.hilbert_sort(coord_list, order=order))
 
     # Pure Python fallback (O(n log n) with simple Z-order approximation)
     return _hilbert_sort_fallback(coord_list, order)
@@ -137,7 +137,7 @@ def hilbert_indices(
         coord_list = list(coords)
 
     if _rust is not None:
-        return _rust.hilbert_indices(coord_list, order=order)
+        return list(_rust.hilbert_indices(coord_list, order=order))
 
     # Fallback: Z-order (Morton code) approximation
     return _hilbert_indices_fallback(coord_list, order)
@@ -191,7 +191,7 @@ def euclidean_distances(
     ay_list = list(np.asarray(ay, dtype=np.float64).ravel())
 
     if _rust is not None:
-        return _rust.euclidean_distances(ax_list, ay_list, bx, by)
+        return list(_rust.euclidean_distances(ax_list, ay_list, bx, by))
 
     # numpy fallback
     ax_arr = np.array(ax_list)
