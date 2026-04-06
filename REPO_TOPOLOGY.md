@@ -1,16 +1,32 @@
-# NeoSynaptex Repository Topology (v2.0)
+# NeoSynaptex Repository Topology (v3.0)
+
+## Zeroth Axiom (INV-YV1: Gradient Ontology)
+
+> **ΔV > 0 ∧ dΔV/dt ≠ 0**
+>
+> Existence = sustained non-equilibrium. Static gradient = capacitor.
+> Zero gradient = noise. Intelligence = resistance to decay.
+> — Yaroslav Vasylenko
 
 ## Architecture Overview
 
 ```
 neosynaptex/
-├── neosynaptex.py          ← Single-file engine (1200 LOC, all γ computation)
-├── core/                   ← Infrastructure (21 modules, 3500 LOC)
-├── contracts/              ← Invariants + truth criterion
+├── neosynaptex.py          ← Single-file engine (1360 LOC, all γ computation)
+├── core/                   ← Infrastructure (30 modules, ~5700 LOC)
+│   ├── axioms.py           ← INV-YV1 + AXIOM_0 + check_inv_yv1()
+│   ├── coherence_state_space.py  ← 4-D state-space model (S, γ, E_obj, σ²)
+│   ├── gamma_fdt_estimator.py    ← FDT γ-estimator (auto, not manual tuning)
+│   ├── objection_energy_budget.py ← PID critic gain controller + energy brake
+│   ├── hallucination_benchmark.py ← 15 scenarios, ΔS prediction, perturbation
+│   ├── resonance_map.py    ← Phase-space analytics, bifurcation detection
+│   ├── ablation_study.py   ← Role vs energy vs hybrid Pareto comparison
+│   └── ... (21 legacy modules)
+├── contracts/              ← Invariants (YV1 + I–IV) + truth criterion
 ├── substrates/             ← Independent γ witnesses (8 substrates)
 ├── evl/                    ← Evidence Verification Ledger
-├── experiments/            ← Reproducible experiment outputs
-├── tests/                  ← 370+ tests, 29 test files
+├── experiments/            ← experiment_cards.py + reproducible outputs
+├── tests/                  ← 600+ tests, 47 test files
 ├── scripts/                ← 13 operational scripts
 ├── evidence/               ← gamma_ledger.json + proof chains
 ├── data/golden/            ← Benchmark anchors
