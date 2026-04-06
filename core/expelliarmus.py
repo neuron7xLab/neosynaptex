@@ -155,7 +155,8 @@ class Expelliarmus:
         # Pre-perturbation assessment
         pre_check = check_inv_yv1(traj[:mid], dt=dt)
         pre_diag = str(pre_check["diagnosis"])
-        dv_before = float(np.mean(pre_check["delta_v"]))
+        pre_dv = np.asarray(pre_check["delta_v"], dtype=np.float64)
+        dv_before = float(np.mean(pre_dv))
         g_before = float(np.mean(traj[:mid, 1])) if traj.shape[1] > 1 else 0.0
 
         # Inject perturbation: add epsilon-scaled noise to second half
@@ -167,12 +168,13 @@ class Expelliarmus:
         # Post-perturbation assessment
         post_check = check_inv_yv1(perturbed, dt=dt)
         post_diag = str(post_check["diagnosis"])
-        dv_after = float(np.mean(post_check["delta_v"]))
+        post_dv = np.asarray(post_check["delta_v"], dtype=np.float64)
+        dv_after = float(np.mean(post_dv))
         g_after = float(np.mean(perturbed[:, 1])) if perturbed.shape[1] > 1 else 0.0
 
         # Recovery time: first step where ΔV exceeds threshold
         recovery = self.tau_recovery
-        dv_series = np.asarray(post_check["delta_v"], dtype=np.float64)
+        dv_series = post_dv
         for i in range(len(dv_series)):
             if dv_series[i] > INV_YV1_DELTA_V_MIN:
                 recovery = i
