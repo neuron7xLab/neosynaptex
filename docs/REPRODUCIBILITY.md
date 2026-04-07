@@ -213,7 +213,7 @@ listed tolerance should be investigated.
 |-----------|---------------|-----------|------|-------|
 | zebrafish_wt | 1.055 | ±0.05 | T1 | McGuirl 2020 data |
 | eeg_physionet | 1.068 | ±0.05 | T1 | PhysioNet EEGBCI, n=20 |
-| eeg_resting | 1.255 | ±0.10 | T1 | Welch PSD slope |
+| eeg_resting | 1.255 | ±0.10 | T1 | Welch PSD slope — gamma above tight window; CI=[1.032,1.452] (see note) |
 | hrv_physionet | 0.885 | ±0.05 | T1 | PhysioNet NSR2DB |
 | hrv_fantasia | 1.003 | ±0.05 | T1 | Fantasia dataset |
 | gray_scott | 0.979 | ±0.02 | T3 | PDE simulation, F-sweep |
@@ -227,6 +227,16 @@ random seed, so they should be bit-exact. The tolerance is provided for
 environments where floating-point differs slightly between platforms. T3
 substrates are deterministic simulations (seed=42). T5 substrates have wide
 bootstrap CI by design.
+
+**Note on `eeg_resting` (gamma = 1.255):** This substrate's point estimate is
+above the [0.85, 1.15] tight metastable window. The bootstrap CI [1.032, 1.452]
+does not contain 1.0. The ledger records this with `verdict: "WARNING"`. It is
+still counted as a T1 evidential substrate because the measurement is real
+empirical data with a valid permutation p-value (p = 0.048). The elevated gamma
+may reflect the alpha-band exclusion in the Welch PSD method — see
+`evidence/gamma_ledger.json::eeg_resting` for full bootstrap metadata. The
+headline claim uses the wider H1 window [0.85, 1.15] with CI-containing-1.0
+across the cross-substrate mean, not per-substrate point estimates.
 
 ---
 
