@@ -81,7 +81,9 @@ def test_unity_window_selector():
     """Mask should select only windows where |γ − 1| < ε."""
     gamma = np.array([0.5, 0.9, 0.95, 1.0, 1.05, 1.1, 1.5, 2.0])
     mask = select_unity_windows(gamma, epsilon=0.10)
-    # |0.9 - 1| = 0.1, strict < means False; |0.95 - 1| = 0.05 < 0.10 → True
+    # NOTE: |0.9 - 1| = 0.1 in exact arithmetic, but in IEEE 754 float64
+    # 1.0 - 0.9 = 0.09999999999999998 < 0.10 → True.
+    # |1.1 - 1| = 0.10000000000000009 > 0.10 → False.
     expected = np.array([False, True, True, True, True, False, False, False])
     np.testing.assert_array_equal(mask, expected)
 

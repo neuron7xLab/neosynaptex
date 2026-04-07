@@ -53,7 +53,7 @@ def build_cross_substrate(
     medians = [s["median_ratio"] for s in substrates if s["verdict"] != "insufficient"]
     if medians:
         pooled_median = float(np.median(medians))
-        # Simple percentile CI on the pooled medians
+        # Descriptive percentile range across substrate medians (not bootstrap CI)
         if len(medians) >= 2:
             pooled_ci = [float(np.percentile(medians, 2.5)), float(np.percentile(medians, 97.5))]
         else:

@@ -247,7 +247,7 @@ def compute_spectral_energy_ratio(
             continue
         threshold = total * core_fraction
         core_mask = cum <= threshold
-        # Always include at least the first mode
+        # Ensure core is non-empty to avoid degenerate partitions
         if not core_mask.any():
             core_mask[0] = True
         e_core = float(sorted_psd[core_mask].sum())
@@ -351,12 +351,13 @@ def evaluate_phi_gamma(
     null_median = float(np.median(null_ratios)) if len(null_ratios) > 0 else 0.0
 
     # Permutation p-value: fraction of null medians as extreme as observed
+    n_perm_boot = 2000  # bootstrap replicates for null median distribution
     if len(null_ratios) > 0:
         # Compare observed median to null distribution of medians
         rng = np.random.default_rng(seed)
         n_null = len(null_ratios)
-        null_medians = np.empty(2000)
-        for i in range(2000):
+        null_medians = np.empty(n_perm_boot)
+        for i in range(n_perm_boot):
             sample = rng.choice(null_ratios, size=min(n, n_null), replace=True)
             null_medians[i] = np.median(sample)
         # Two-sided test: distance from null_median
