@@ -1,0 +1,123 @@
+{
+  "hypothesis": "H_phi_gamma",
+  "phi": 1.618033988749895,
+  "phi_inv": 0.6180339887498949,
+  "epsilon": 0.1,
+  "window": 256,
+  "step": 32,
+  "substrates": [
+    {
+      "name": "demo_substrate_A",
+      "ratio_method": "R1",
+      "n_windows": 121,
+      "n_unity_windows": 0,
+      "median_ratio": 0.0,
+      "mean_ratio": 0.0,
+      "bootstrap_ci": [
+        0.0,
+        0.0
+      ],
+      "distance_to_phi": 1.618033988749895,
+      "distance_to_phi_inv": 0.6180339887498949,
+      "null_median": 0.0,
+      "p_value": 1.0,
+      "verdict": "insufficient"
+    },
+    {
+      "name": "demo_substrate_A",
+      "ratio_method": "R2",
+      "n_windows": 121,
+      "n_unity_windows": 0,
+      "median_ratio": 0.0,
+      "mean_ratio": 0.0,
+      "bootstrap_ci": [
+        0.0,
+        0.0
+      ],
+      "distance_to_phi": 1.618033988749895,
+      "distance_to_phi_inv": 0.6180339887498949,
+      "null_median": 0.0,
+      "p_value": 1.0,
+      "verdict": "insufficient"
+    },
+    {
+      "name": "demo_substrate_A",
+      "ratio_method": "R3",
+      "n_windows": 121,
+      "n_unity_windows": 0,
+      "median_ratio": 0.0,
+      "mean_ratio": 0.0,
+      "bootstrap_ci": [
+        0.0,
+        0.0
+      ],
+      "distance_to_phi": 1.618033988749895,
+      "distance_to_phi_inv": 0.6180339887498949,
+      "null_median": 0.0,
+      "p_value": 1.0,
+      "verdict": "insufficient"
+    },
+    {
+      "name": "demo_substrate_B",
+      "ratio_method": "R1",
+      "n_windows": 121,
+      "n_unity_windows": 0,
+      "median_ratio": 0.0,
+      "mean_ratio": 0.0,
+      "bootstrap_ci": [
+        0.0,
+        0.0
+      ],
+      "distance_to_phi": 1.618033988749895,
+      "distance_to_phi_inv": 0.6180339887498949,
+      "null_median": 0.0,
+      "p_value": 1.0,
+      "verdict": "insufficient"
+    },
+    {
+      "name": "demo_substrate_B",
+      "ratio_method": "R2",
+      "n_windows": 121,
+      "n_unity_windows": 0,
+      "median_ratio": 0.0,
+      "mean_ratio": 0.0,
+      "bootstrap_ci": [
+        0.0,
+        0.0
+      ],
+      "distance_to_phi": 1.618033988749895,
+      "distance_to_phi_inv": 0.6180339887498949,
+      "null_median": 0.0,
+      "p_value": 1.0,
+      "verdict": "insufficient"
+    },
+    {
+      "name": "demo_substrate_B",
+      "ratio_method": "R3",
+      "n_windows": 121,
+      "n_unity_windows": 0,
+      "median_ratio": 0.0,
+      "mean_ratio": 0.0,
+      "bootstrap_ci": [
+        0.0,
+        0.0
+      ],
+      "distance_to_phi": 1.618033988749895,
+      "distance_to_phi_inv": 0.6180339887498949,
+      "null_median": 0.0,
+      "p_value": 1.0,
+      "verdict": "insufficient"
+    }
+  ],
+  "cross_substrate": {
+    "n_support": 0,
+    "n_reject": 0,
+    "n_insufficient": 6,
+    "pooled_median_ratio": 0.0,
+    "pooled_ci": [
+      0.0,
+      0.0
+    ],
+    "closest_target": "none"
+  }
+}

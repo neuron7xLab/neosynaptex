@@ -1,0 +1,16 @@
+# H_φγ Invariant — Fixed Definitions
+# DO NOT DRIFT from these values.
+phi: 1.6180339887498949
+phi_inv: 0.6180339887498949
+epsilon: 0.10
+epsilon_sensitivity: [0.05, 0.10, 0.15, 0.20]
+window: 256
+step: 32
+core_fraction: 0.382        # top 38.2% by centrality = core
+periphery_fraction: 0.618   # remaining 61.8% = periphery
+centrality_metric: "weighted_degree"
+energy_method: "squared_amplitude"  # sum(x_i^2) per node per window
+min_unity_windows: 30
+n_bootstrap: 2000
+p_value_threshold: 0.05
+delta: 1.0e-12              # denominator guard
