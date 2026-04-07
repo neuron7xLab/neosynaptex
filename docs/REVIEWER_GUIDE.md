@@ -197,5 +197,145 @@ severity classification and the next-step mitigation.
 
 ---
 
+## Detailed Mechanism Table with Formulas
+
+The table below provides the precise mathematical definition of each
+diagnostic. For narrative descriptions see [`docs/science/MECHANISMS.md`](science/MECHANISMS.md).
+
+| # | Mechanism | Formula | Key parameter | Output field |
+|---|-----------|---------|---------------|-------------|
+| 1 | **Gamma scaling** | `log K = -gamma * log C + log A` (Theil-Sen) | Bootstrap n=500, R2 >= 0.3 | `gamma_per_domain`, `gamma_mean` |
+| 2 | **Bootstrap CI** | Percentile interval [2.5, 97.5] of 500 Theil-Sen fits on resampled pairs | Confidence level 95% | `gamma_ci_per_domain` |
+| 3 | **Permutation p** | `p = count(|slope_perm| >= |slope_obs|) / 500` | 500 permutations of cost array | `universal_scaling_p` |
+| 4 | **Per-domain Jacobian** | `J = argmin ||X[t+1] - J @ X[t]||_F` (least squares) | Condition gate < 1e6 | `sr_per_domain`, `cond_per_domain` |
+| 5 | **Spectral radius** | `rho = max |eigenvalue(J)|` | Metastable: [0.80, 1.25] | `spectral_radius` |
+| 6 | **Cross-coherence** | `coherence = 1 - std(gamma) / mean(gamma)` clamped to [0,1] | Coherent if > 0.85 | `cross_coherence` |
+| 7 | **Granger causality** | `F = (RSS_red - RSS_full) / RSS_full * (T-3); influence = F/(1+F)` | VAR(1), lag p=1 | `granger_graph` |
+| 8 | **Anomaly isolation** | `score[d] = |gamma[d] - mean(gamma \ {d})|` (leave-one-out) | Outlier if > 0.3 | `anomaly_score` |
+| 9 | **Phase portrait** | `area = ConvexHull((gamma, rho) trajectory).volume; recurrence = frac(|point - centroid| < 0.05)` | Requires >= 3 points | `portrait` |
+| 10 | **Resilience** | `resilience = returns / departures` (from METASTABLE) | `NaN` if no departure | `resilience_score` |
+| 11 | **Modulation signal** | `mod[d] = clip(1.0 - gamma[d], -0.05, +0.05)` | Bounded diagnostic, not control | `modulation` |
+| 12 | **Cross-domain Jacobian** | `J[i][j] = d(gamma_i)/d(state_mean_j)` (least squares after 64 ticks) | Condition gate < 1e6 | `cross_jacobian` |
+| 13 | **Gamma EMA** | `ema[t] = 0.3 * gamma[t] + 0.7 * ema[t-1]` | alpha=0.3 | `gamma_ema_per_domain` |
+| 14 | **dGamma/dt** | Theil-Sen slope on `gamma_trace[-window:]` | Convergence diagnostic | `dgamma_dt` |
+
+---
+
+## Reviewer FAQ
+
+### "Why is gamma = 1.0 and not a tuned parameter?"
+
+Gamma is **never assigned** — it is always computed from data via Theil-Sen
+regression on (log topo, log cost) pairs. The claim is not that we set
+gamma = 1.0; it is that we measured it and found it close to 1.0 across
+independent substrates. The invariant `"gamma derived only, never assigned"`
+is enforced in `core/gamma_registry.py` and verified by `tests/test_gamma_registry.py`.
+
+If gamma were a tuned parameter, you would find it hard-coded somewhere in
+`neosynaptex.py` or the adapter files. Search for `gamma = 1` in the source —
+you will not find an assignment.
+
+### "Why AGPL and not MIT?"
+
+AGPL-3.0 was chosen to ensure that any modifications deployed as a service
+(e.g., a hosted diagnostic API) must be published. This closes the "application
+service provider" loophole that MIT/GPL leave open. Full rationale:
+[`docs/adr/ADR-002-agpl-license.md`](adr/ADR-002-agpl-license.md).
+
+### "How do I verify the bootstrap CI?"
+
+Run the bit-exact reproducibility tests:
+
+```bash
+pytest tests/test_bootstrap_helpers.py::test_bootstrap_summary_is_deterministic_under_seed -v
+pytest tests/test_eeg_resting_substrate.py::test_reproducibility_bitexact -v
+pytest tests/test_hrv_fantasia_substrate.py::test_reproducibility_bitexact -v
+```
+
+All three must produce the same CI values on every run (seed=42). You can
+also inspect `core/bootstrap.py::bootstrap_summary` directly — it is
+~50 lines of straightforward numpy code.
+
+To independently verify a specific substrate CI:
+
+```python
+from core.gamma import compute_gamma
+import numpy as np
+
+# Load your own (topo, cost) pairs from the adapter
+gamma, r2, ci_lo, ci_hi, _ = compute_gamma(topos, costs, seed=42, n_bootstrap=500)
+print(f"gamma={gamma:.4f}  CI=[{ci_lo:.4f}, {ci_hi:.4f}]  R2={r2:.4f}")
+```
+
+### "What does METASTABLE mean?"
+
+METASTABLE is the phase label assigned when both conditions hold:
+1. `gamma_mean` in [0.85, 1.15] (gamma within 15% of unity)
+2. `spectral_radius` in [0.80, 1.25] (Jacobian eigenvalue near unity)
+
+The name reflects the dynamical systems concept of metastability: the system
+operates near a critical point but has not collapsed into a fixed point
+(CONVERGING) or diverged (DEGENERATE). Phase classification requires 3
+consecutive ticks in the new phase (hysteresis) to avoid flickering.
+See `neosynaptex.py::_classify_phase` for the exact rules.
+
+### "What is cfp_diy and why is gamma = 1.83?"
+
+`cfp_diy` is a "do it yourself" control substrate where the user manually
+curates (topo, cost) pairs from informal interactions. It is not a wild
+empirical dataset. Gamma = 1.83 means the system is in the DIVERGING regime —
+cost does not decrease fast enough relative to complexity.
+
+This substrate is included **openly as a falsifying control**, not as evidence
+for the gamma = 1.0 claim. It is documented in `evidence/gamma_ledger.json`
+with `status: "VALIDATED"` and `tier: "T3†"` (out-of-regime) and excluded
+from the headline cross-substrate mean.
+
+### "How was the pre-registration done?"
+
+Pre-registration means that the adapter code (and hence the expected gamma)
+was committed to the repository *before* the gamma value was written into the
+ledger. You can verify this from `evidence/PREREG.md` which records the commit
+hash for each substrate's pre-registration.
+
+Check for any substrate S:
+
+```bash
+git log --oneline substrates/S/adapter.py   # shows when adapter was committed
+git log --oneline evidence/gamma_ledger.json  # shows when ledger entry was added
+```
+
+The adapter commit must predate the ledger entry.
+
+---
+
+## External Verification
+
+An independent audit of the repository was conducted on 2026-04-01. The audit
+report is available at:
+
+[`AUDIT_REPORT_2026-04-01.md`](../AUDIT_REPORT_2026-04-01.md)
+
+The audit verified:
+- Gamma computation code matches the described Theil-Sen + bootstrap method.
+- Ledger entries are consistent with test outputs.
+- The proof chain `evl/proof_chain.jsonl` is hash-consistent.
+- No hard-coded gamma values found in source code.
+- AGPL license is correctly applied to all source files.
+
+---
+
+## Reproducibility
+
+For a step-by-step guide to independently reproducing all results, see:
+
+[`docs/REPRODUCIBILITY.md`](REPRODUCIBILITY.md)
+
+This covers Docker, bare Python, and CI paths, plus instructions for
+interpreting all output files (`xform_gamma_report.json`,
+`xform_proof_bundle.json`, `coherence_bridge_demo.json`).
+
+---
+
 **Last audit:** 2026-04-05. Provenance frozen against commit
 `git rev-parse HEAD`.
