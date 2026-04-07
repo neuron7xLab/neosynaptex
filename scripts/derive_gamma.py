@@ -65,19 +65,9 @@ def derive_mock(adapter, entry_id: str, expected_gamma: float) -> dict:
 def main():
     ledger = json.loads(LEDGER_PATH.read_text())
 
-    # Derive mock adapters
-    mocks = [
-        (MockBnSynAdapter(seed=42), "mock_spike", 0.95),
-        (MockMfnAdapter(seed=43), "mock_morpho", 1.0),
-        (MockPsycheCoreAdapter(seed=44), "mock_psyche", 1.05),
-        (MockMarketAdapter(seed=45), "mock_market", 1.08),
-    ]
-
-    print("Deriving gamma from mock adapters:")
-    for adapter, entry_id, expected in mocks:
-        result = derive_mock(adapter, entry_id, expected)
-        for k, v in result.items():
-            ledger["entries"][entry_id][k] = v
+    # Mock adapter derivation removed — ledger contains only VALIDATED entries.
+    # Mock adapters remain in neosynaptex.py for testing but are not
+    # registered in the evidence ledger.
 
     # Mark real substrates as PENDING_DATA (no raw data in this repo)
     for entry_id in ["zebrafish_wt", "gray_scott", "kuramoto", "bnsyn"]:
