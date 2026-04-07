@@ -1,0 +1,34 @@
+# GEOSYNC-ACCEL — LLVM Optimization Flags (2026 Standard)
+#
+# These flags enable aggressive LLVM vectorization and loop optimization.
+# For distribution via PyPI wheels, do NOT set target-cpu=native here;
+# instead rely on runtime SIMD dispatch (Function Multi-Versioning).
+#
+# NOTE: Polyhedral optimizer (-polly) requires a custom LLVM build with Polly.
+# The flags below use standard LLVM passes available in all rustc distributions.
+# To enable Polly, rebuild rustc with Polly support and uncomment the flags.
+
+[build]
+rustflags = [
+    # Standard LLVM loop optimizations (names match LLVM pass registry)
+    "-C", "llvm-args=--enable-loopinterchange",
+    "-C", "llvm-args=--enable-loop-flatten",
+    "-C", "llvm-args=--inline-threshold=275",
+    # Vectorizer tuning
+    "-C", "llvm-args=--vectorize-loops",
+    "-C", "llvm-args=--vectorize-slp",
+]
+
+# ═══════════════════════════════════════════════════════════════════
+# Extended flags for builds WITH Polly support (uncomment if available):
+# rustflags = [
+#     "-C", "llvm-args=-polly",
+#     "-C", "llvm-args=-polly-vectorizer=stripmine",
+#     "-C", "llvm-args=-enable-loop-interchange",
+#     "-C", "llvm-args=--inline-threshold=275",
+# ]
+# ═══════════════════════════════════════════════════════════════════
+#
+# BOLT post-link optimization (after release build):
+# llvm-bolt target/release/libgeosync_accel.so -o optimized.so \
+#   -data=perf.fdata -reorder-blocks=ext-tsp -reorder-functions=hfsort+
