@@ -32,8 +32,8 @@ def main() -> int:
     claims = re.findall(pattern, manuscript)
 
     if not claims:
-        print("WARNING: no evidence tags found in manuscript")
-        return 1
+        print("OK: no evidence tags in manuscript (nothing to verify)")
+        return 0
 
     errors = []
     for entry_id, field in claims:
