@@ -1,0 +1,21 @@
+{
+  "burn_in_ticks": 300,
+  "logged_ticks": 2000,
+  "bnsyn_valid_samples": 1937,
+  "geosync_valid_samples": 1937,
+  "joint_valid_samples": 1937,
+  "nan_rate_bnsyn": 0.03149999999999997,
+  "nan_rate_geosync": 0.03149999999999997,
+  "underpowered": false,
+  "bnsyn_state_vars": [
+    "branching_ratio",
+    "firing_rate",
+    "rate_cv"
+  ],
+  "geosync_state_vars": [
+    "combo_signal",
+    "delta_ricci",
+    "fiedler_lambda2",
+    "ricci_mean"
+  ]
+}
