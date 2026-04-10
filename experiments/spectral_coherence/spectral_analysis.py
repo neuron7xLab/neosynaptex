@@ -1,7 +1,8 @@
 """Spectral coherence analysis for BN-Syn γ vs GeoSync γ.
 
 Pipeline:
-    1. ADF stationarity check → first-differencing if non-stationary
+    1. Split-half drift stationarity check → first-differencing if the
+       mean drift between the two halves exceeds 0.5 standard deviations
     2. Welch power spectral density per series
     3. Magnitude-squared spectral coherence C(f)
     4. Phase-randomized surrogate null distribution (n=500)
@@ -14,7 +15,8 @@ Outputs:
     coherence_plot.png   — observed coherence vs null band (if matplotlib)
 
 RULE ZERO — γ is never smoothed before spectral analysis. Differencing
-is the only permitted preprocessing and is applied only if ADF fails.
+is the only permitted preprocessing and is applied only if the
+stationarity gate trips.
 """
 
 from __future__ import annotations
@@ -25,7 +27,6 @@ from pathlib import Path
 
 import numpy as np
 from scipy.signal import coherence, welch
-from statsmodels.tsa.stattools import adfuller
 
 __all__ = [
     "compute_coherence",
@@ -39,7 +40,7 @@ __all__ = [
 
 
 OUT_DIR = Path(__file__).resolve().parent
-ADF_P_LIMIT = 0.05
+DRIFT_SIGMA_LIMIT = 0.5  # split-half drift gate, stdev units
 NPERSEG = 64
 N_SURROGATES = 500
 NULL_THRESHOLD = 2.0  # z-score above null for significance
@@ -60,19 +61,37 @@ class AnalysisResult:
 # ── Step 1: Stationarity ───────────────────────────────────────────────
 
 
+def _split_half_drift(x: np.ndarray) -> float:
+    """Return |mean(first half) − mean(second half)| / std(x)."""
+    half = x.size // 2
+    if half < 2:
+        return float("inf")
+    m1 = float(x[:half].mean())
+    m2 = float(x[half:].mean())
+    s = float(x.std()) + 1e-12
+    return abs(m1 - m2) / s
+
+
 def prepare(series: np.ndarray, name: str) -> np.ndarray:
-    """ADF test → first-difference if non-stationary. Strip NaNs."""
+    """Split-half drift check → first-difference if non-stationary. Strip NaNs.
+
+    A dependency-light substitute for an ADF test: if the sample mean
+    drifts by more than ``DRIFT_SIGMA_LIMIT`` standard deviations
+    between the two halves of the series, the series is first-
+    differenced before PSD / coherence. This catches deterministic
+    trends and random walks without pulling ``statsmodels`` into the
+    runtime footprint.
+    """
     clean = np.asarray(series, dtype=np.float64)
     clean = clean[np.isfinite(clean)]
     if clean.size < 10:
         raise ValueError(f"{name}: fewer than 10 finite samples, cannot analyze")
-    p_adf = float(adfuller(clean)[1])
-    if p_adf > ADF_P_LIMIT:
+    drift = _split_half_drift(clean)
+    if drift > DRIFT_SIGMA_LIMIT:
         clean = np.diff(clean)
-        print(f"  {name}: differenced (ADF p={p_adf:.3f})")
+        print(f"  {name}: differenced (drift={drift:.3f}σ)")
     else:
-        print(f"  {name}: stationary (ADF p={p_adf:.3f})")
-    # Zero-mean for clean PSD.
+        print(f"  {name}: stationary (drift={drift:.3f}σ)")
     return clean - float(np.mean(clean))
 
 
