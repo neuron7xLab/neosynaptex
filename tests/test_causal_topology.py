@@ -4,37 +4,47 @@ The eight baseline tests from the original brief (1-8) plus three
 extra gates introduced in the v4 upgrade: composite distance range,
 motif distribution sums to one, and a null-family p-value sanity
 check on an independent pair.
+
+The experiment modules depend on :mod:`networkx`, which is not in the
+project's runtime dependencies (the core stack is numpy + scipy only).
+We gate the whole module behind ``importorskip`` so CI environments
+without networkx skip this file cleanly instead of failing collection.
 """
 
 from __future__ import annotations
 
-import networkx as nx
-import numpy as np
+import pytest
 
-from experiments.causal_topology.causal_graph import (
+pytest.importorskip("networkx")
+
+# The imports below transitively import networkx; the skip above guards them.
+import networkx as nx  # noqa: E402
+import numpy as np  # noqa: E402
+
+from experiments.causal_topology.causal_graph import (  # noqa: E402
     CausalGraphExtractor,
     granger_test,
 )
-from experiments.causal_topology.composite_distance import (
+from experiments.causal_topology.composite_distance import (  # noqa: E402
     CompositeWeights,
     composite_components,
     composite_distance,
 )
-from experiments.causal_topology.graph_similarity import (
+from experiments.causal_topology.graph_similarity import (  # noqa: E402
     degree_sequence_distance,
     graph_edit_distance_normalized,
     spectral_graph_distance,
 )
-from experiments.causal_topology.motifs import (
+from experiments.causal_topology.motifs import (  # noqa: E402
     kl_divergence,
     motif_distribution,
 )
-from experiments.causal_topology.nulls import run_null_battery
-from experiments.causal_topology.regime_analysis import (
+from experiments.causal_topology.nulls import run_null_battery  # noqa: E402
+from experiments.causal_topology.regime_analysis import (  # noqa: E402
     compare_topology_by_regime,
     is_metastable,
 )
-from experiments.causal_topology.verdict import (
+from experiments.causal_topology.verdict import (  # noqa: E402
     VerdictInputs,
     assign_verdict,
 )
