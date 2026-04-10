@@ -1,0 +1,55 @@
+{
+  "metastable_window_strict": [
+    0.85,
+    1.15
+  ],
+  "metastable_window_relaxed": [
+    0.5,
+    1.5
+  ],
+  "mean_D_meta": NaN,
+  "mean_D_other": 0.28126096817155133,
+  "relaxed_mean_D_meta": 0.2946809531213639,
+  "relaxed_mean_D_other": 0.27285983938183117,
+  "relaxed_delta_D": -0.021821113739532716,
+  "relaxed_n_metastable": 770,
+  "relaxed_n_other": 1230,
+  "relaxed_mannwhitney_p": 0.9999999999999997,
+  "relaxed_effect_size": -0.3748062189662781,
+  "delta_D": NaN,
+  "mannwhitney_p": NaN,
+  "effect_size": NaN,
+  "n_metastable_pairs": 0,
+  "n_other_pairs": 2000,
+  "null_mean_D": NaN,
+  "null_p": NaN,
+  "null_battery": {},
+  "null_worst_p": NaN,
+  "motif_KL": NaN,
+  "motif_KL_null": 8.238345587443325,
+  "segment_pass": false,
+  "segment_deltas": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "edge_persistence": 0.16666666666666666,
+  "direction_consistency": 0.5,
+  "aligned_vs_random_gap": NaN,
+  "aligned_mean": NaN,
+  "random_mean": NaN,
+  "metric_agreement_ratio": 0.0,
+  "verdict": "TOPOLOGY_INDEPENDENT",
+  "gates_passed": [],
+  "gates_failed": [
+    "delta_D>0",
+    "mannwhitney_p<0.01",
+    "null_worst_p<0.01",
+    "motif_KL<motif_KL_null",
+    "metric_agreement>=0.75",
+    "segment_pass",
+    "edge_persistence>=0.6",
+    "direction_consistency>=0.8",
+    "aligned_vs_random_gap>0"
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "characteristic_timescale_bnsyn_ticks": 6.4,
+  "characteristic_timescale_geosync_ticks": 7.0,
+  "physical_frequency_match": true,
+  "f_bnsyn": 0.15625,
+  "f_geosync": 0.14285714285714285,
+  "v1_peak_frequencies": [
+    0.2031,
+    0.25
+  ],
+  "v2_peak_frequency_welch": 0.140625,
+  "v2_peak_frequency_multitaper": 0.042333505420753745,
+  "frequency_stable": false,
+  "max_coherence_welch": 0.21336211300272162,
+  "max_coherence_multitaper": 0.8002455870273898,
+  "wavelet_peak_band": [
+    0.02,
+    0.11290322580645161
+  ],
+  "wavelet_persistent_band": true,
+  "max_z_score": 0.6851339359615712,
+  "empirical_p_value": 1.0,
+  "segment_robustness_pass": true,
+  "segment_peak_frequencies": [
+    0.140625,
+    0.140625,
+    0.265625
+  ],
+  "estimator_agreement": false,
+  "repetition_detected": false,
+  "bnsyn_valid_samples": 1937,
+  "geosync_valid_samples": 1937,
+  "joint_valid_samples": 1937,
+  "nan_rate_bnsyn": 0.03149999999999997,
+  "nan_rate_geosync": 0.03149999999999997,
+  "verdict": "SPECTRALLY_INDEPENDENT",
+  "verdict_reasons": [
+    "welch_coherence<0.3",
+    "z<2.0",
+    "p>=0.05"
+  ],
+  "verdict_gates_passed": [
+    "physical_frequency_match",
+    "max_coherence_multitaper>0.5",
+    "wavelet_persistent_band",
+    "segment_robustness_pass",
+    "no_repetition",
+    "nan_rate_bnsyn<0.05"
+  ],
+  "verdict_gates_failed": [
+    "frequency_stable",
+    "max_coherence_welch>0.5",
+    "max_z_score>3",
+    "empirical_p<0.01",
+    "estimator_agreement"
+  ],
+  "per_family_z": {
+    "phase_randomized": 1.3247217998737677,
+    "time_shuffled": 1.332044633099084,
+    "circular_shift": 0.6851339359615712,
+    "time_reversed": NaN
+  },
+  "n_surrogates_welch_mt": 500,
+  "n_surrogates_wavelet": 100,
+  "underpowered": false
+}
