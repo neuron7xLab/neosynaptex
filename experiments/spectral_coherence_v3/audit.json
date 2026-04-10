@@ -1,0 +1,34 @@
+{
+  "bnsyn": {
+    "characteristic_timescale_ticks": 6.4,
+    "estimation_method": "psd",
+    "supporting_stats": {
+      "acf_1e_lag_ticks": 0.45,
+      "psd_dominant_period_ticks": 6.4,
+      "psd_peak_frequency_internal": 0.0078125,
+      "burst_interval_ticks": 0.08943788041532402,
+      "pop_rates_len": 10000,
+      "pop_rate_mean": 0.027409500000000003,
+      "pop_rate_std": 0.023389245600275353,
+      "steps_per_tick": 20
+    }
+  },
+  "geosync": {
+    "characteristic_timescale_ticks": 7.0,
+    "estimation_method": "psd",
+    "supporting_stats": {
+      "acf_1e_lag_ticks": 1.0,
+      "psd_dominant_period_ticks": 7.0,
+      "psd_peak_frequency": 0.14285714285714285,
+      "event_interval_ticks": 1.6388888888888888,
+      "n_bars": 119,
+      "n_tickers": 19,
+      "aggregate_mean": 0.00792560695638942,
+      "aggregate_std": 0.0063026361702074145
+    }
+  },
+  "f_bnsyn": 0.15625,
+  "f_geosync": 0.14285714285714285,
+  "physical_frequency_match": true,
+  "physical_match_tolerance": 0.05
+}

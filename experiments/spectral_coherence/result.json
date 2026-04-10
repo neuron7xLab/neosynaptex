@@ -1,0 +1,18 @@
+{
+  "n_ticks": 500,
+  "bnsyn_valid": 364,
+  "geosync_valid": 491,
+  "n_samples_analyzed": 364,
+  "nperseg": 64,
+  "significant_frequencies": [
+    0.203125,
+    0.25
+  ],
+  "peak_coherence": 0.3445025789076312,
+  "peak_frequency": 0.46875,
+  "verdict": "WEAK_SPECTRAL_OVERLAP",
+  "detail": "2 marginal frequency, max C=0.345",
+  "null_threshold": 2.0,
+  "n_surrogates": 500,
+  "max_z_score": 3.262635329784873
+}

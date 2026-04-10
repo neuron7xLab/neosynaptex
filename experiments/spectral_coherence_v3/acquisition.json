@@ -1,0 +1,18 @@
+{
+  "burn_in_ticks": 300,
+  "logged_ticks": 2000,
+  "bnsyn_valid_samples": 1937,
+  "geosync_valid_samples": 1937,
+  "joint_valid_samples": 1937,
+  "nan_rate_bnsyn": 0.03149999999999997,
+  "nan_rate_geosync": 0.03149999999999997,
+  "underpowered": false,
+  "bnsyn_gamma_range": [
+    0.2081805911708476,
+    0.7524592530785242
+  ],
+  "geosync_gamma_range": [
+    0.7078291646285025,
+    1.4328062340939158
+  ]
+}
