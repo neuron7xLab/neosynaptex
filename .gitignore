@@ -15,6 +15,7 @@ build/
 venv/
 node_modules/
 proof_*.json
+proof_*.jsonl
 migration_manifest.json
 
 # Data files — stay in source repos
