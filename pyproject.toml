@@ -59,9 +59,27 @@ Issues = "https://github.com/neuron7xLab/neosynaptex/issues"
 
 [tool.setuptools]
 py-modules = ["neosynaptex"]
+include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["core*", "contracts*", "substrates*", "agents*", "evl*"]
+include = [
+    "core*",
+    "contracts*",
+    "substrates*",
+    "agents*",
+    "evl*",
+    "evidence",
+    "evidence_bundle_v1",
+]
+
+# Ship the canonical γ-ledger and proof-chain manifest as package data so
+# that ``pip install`` (wheel or editable) carries the artifacts read at
+# module-import time by ``core.gamma_registry`` and
+# ``neosynaptex._load_chain_root``. Without this the wheel imports crash
+# with ``GammaRegistryError: Ledger not found`` on every consumer.
+[tool.setuptools.package-data]
+evidence = ["*.json", "*.jsonl", "*.txt"]
+evidence_bundle_v1 = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

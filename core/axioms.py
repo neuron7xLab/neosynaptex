@@ -187,7 +187,18 @@ from core.gamma_registry import GammaRegistry as _GR
 
 
 def _load_substrate_gamma() -> dict[str, tuple[float | None, str]]:
-    """Load SUBSTRATE_GAMMA from the canonical ledger, not hardcoded."""
+    """Load SUBSTRATE_GAMMA from the canonical ledger, not hardcoded.
+
+    Gracefully degrades to an empty mapping when the canonical ledger is
+    unavailable (e.g. when neosynaptex is imported from a wheel whose
+    ``evidence/`` data files were not packaged). Callers that genuinely
+    need substrate ground-truth re-check the registry explicitly and
+    surface a domain-specific error — the witness-only consumers in
+    neurophase do not, so this keeps import-time side effects safe.
+    """
+
+    from core.gamma_registry import GammaRegistryError as _GRError
+
     _map = {
         "zebrafish": "zebrafish_wt",
         "gray_scott": "gray_scott",
@@ -199,11 +210,12 @@ def _load_substrate_gamma() -> dict[str, tuple[float | None, str]]:
         "serotonergic_kuramoto": "serotonergic_kuramoto",
         "hrv_fantasia": "hrv_fantasia",
     }
-    result = {}
+    result: dict[str, tuple[float | None, str]] = {}
     for name, eid in _map.items():
         try:
             entry = _GR.get_entry(eid)
-        except (KeyError, ValueError):
+        except (_GRError, KeyError, ValueError):
+            result[name] = (None, "ledger-unavailable")
             continue
         gamma = entry.get("gamma")
         method = entry.get("derivation_method", "")
@@ -211,7 +223,13 @@ def _load_substrate_gamma() -> dict[str, tuple[float | None, str]]:
     return result
 
 
-SUBSTRATE_GAMMA = _load_substrate_gamma()
+try:
+    SUBSTRATE_GAMMA = _load_substrate_gamma()
+except Exception:  # pragma: no cover - defensive import-safety net
+    # Absolute last-resort fallback: keep ``import core`` usable even
+    # when the ledger loader itself explodes. Strict substrate tests
+    # re-exercise the registry and will fail loudly there.
+    SUBSTRATE_GAMMA = {}
 
 # ─── INVARIANTS ──────────────────────────────────────────────────────────
 INVARIANTS = {
