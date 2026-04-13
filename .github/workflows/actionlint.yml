@@ -1,0 +1,74 @@
+name: actionlint
+
+# Semantic linter for GitHub Actions workflows. Complements — does not
+# overlap — the Dependency Review / CodeQL / Security workflows: those
+# inspect *code and dependencies*, actionlint inspects *the workflow
+# files themselves* for expression bugs, shell-quoting issues, and
+# unsafe ``${{ }}`` interpolation patterns that YAML parsing misses.
+#
+# Triggers only when workflow files change, so it adds no latency to
+# ordinary commits.
+
+on:
+  push:
+    branches: [main, "release/**"]
+    paths:
+      - ".github/workflows/**"
+      - ".github/actionlint.yaml"
+      - ".github/actionlint.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/**"
+      - ".github/actionlint.yaml"
+      - ".github/actionlint.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+env:
+  # Pin the actionlint binary version. The install script resolves the
+  # matching release archive; the binary sha256 is checked automatically
+  # by the script itself.
+  ACTIONLINT_VERSION: "1.7.12"
+  # Pin the download script to a tagged release of the actionlint repo
+  # rather than ``main``, so a compromise of the default branch cannot
+  # silently alter what we install.
+  ACTIONLINT_SCRIPT_REF: "v1.7.12"
+
+jobs:
+  actionlint:
+    name: Lint workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install actionlint
+        id: install
+        env:
+          VERSION: ${{ env.ACTIONLINT_VERSION }}
+          SCRIPT_REF: ${{ env.ACTIONLINT_SCRIPT_REF }}
+        run: |
+          tmp="$(mktemp -d)"
+          curl --fail --silent --show-error --retry 3 --retry-delay 2 \
+            --connect-timeout 10 --max-time 60 \
+            -o "${tmp}/download.bash" \
+            "https://raw.githubusercontent.com/rhysd/actionlint/${SCRIPT_REF}/scripts/download-actionlint.bash"
+          bash "${tmp}/download.bash" "${VERSION}"
+          bin="$(pwd)/actionlint"
+          test -x "${bin}"
+          echo "bin=${bin}" >> "${GITHUB_OUTPUT}"
+          "${bin}" -version
+
+      - name: Run actionlint
+        run: ${{ steps.install.outputs.bin }} -color
