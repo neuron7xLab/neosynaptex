@@ -17,14 +17,18 @@ name = "tradepulse_accel"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-numpy = "0.22"
-pyo3 = { version = "0.22", features = ["extension-module"] }
+# pyo3 0.22 carries GHSA-pph8-gcv7-4qj5 (buffer overflow in
+# `PyString::from_object`); the advisory is patched in 0.24.1+. We
+# align numpy + pyo3 + pyo3-build-config on the same 0.28 line since
+# PyO3 versions itself across the trio in lockstep.
+numpy = "0.28"
+pyo3 = { version = "0.28", features = ["extension-module"] }
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
 
 [build-dependencies]
-pyo3-build-config = "0.22"
+pyo3-build-config = "0.28"
 
 [[bench]]
 name = "numeric"

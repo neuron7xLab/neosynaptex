@@ -111,6 +111,24 @@ updates:
     allow:
       - dependency-type: "direct"
 
+  # ── cargo: substrates/kuramoto/rust/tradepulse-accel ────────────────
+  - package-ecosystem: "cargo"
+    directory: "/substrates/kuramoto/rust/tradepulse-accel"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Etc/UTC"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps(rust)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "rust"
+    allow:
+      - dependency-type: "direct"
+
   # ── npm: substrates/kuramoto/ui/dashboard (Playwright + ESLint) ─────
   - package-ecosystem: "npm"
     directory: "/substrates/kuramoto/ui/dashboard"
