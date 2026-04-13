@@ -1,5 +1,5 @@
 ---
-version: v1.0
+version: v1.1
 date: 2026-04-14
 owner: neuron7xLab
 status: active
@@ -12,18 +12,53 @@ governance: >-
   Changes are framework-level. Named PR required. Diff reviewed against
   the rules this file enforces. Version bumps tracked in title and
   frontmatter; never silently amended.
-kill_criteria_heuristic:
-  # Heuristic signals that SHOULD trigger a framework review. NOT yet
-  # instrumented as metrics — see SYSTEM_PROTOCOL.md "Measurement
-  # discipline". Each entry requires a measurable operationalisation
-  # before it can be called a metric; until then these are pattern
-  # observations that a human auditor uses to decide whether to open a
-  # revision PR. Log the failure type before revising.
-  - responses consistently identify wrong bottlenecks
-  - barrier rule produces structure without signal reduction
-  - claim status taxonomy stops being applied in practice
-  - a task type appears that this frame handles poorly
-kill_criteria_measurement_status: not_instrumented
+kill_criteria:
+  # Each entry is one falsification signal for this framework. A signal
+  # is either ``instrumented`` — has a measurement contract (substrate,
+  # signal, method, window, controls, fake-alternative, falsifier) and
+  # a tool that implements it — or ``not_instrumented`` — a pattern a
+  # human auditor watches for without a machine-readable contract.
+  # See SYSTEM_PROTOCOL.md §Measurement discipline for the promotion
+  # rule.
+  - id: wrong_bottlenecks
+    statement: responses consistently identify wrong bottlenecks
+    measurement_status: not_instrumented
+  - id: structure_without_signal
+    statement: barrier rule produces structure without signal reduction
+    measurement_status: not_instrumented
+  - id: taxonomy_disuse
+    statement: claim status taxonomy stops being applied in practice
+    measurement_status: instrumented
+    signal_contract:
+      tool: tools/audit/claim_status_applied.py
+      substrate: git repo (commit messages + canon documents)
+      signal: >-
+        Per commit, count of the five canonical taxonomy labels
+        (measured, derived, hypothesized, unverified analogy, falsified)
+        in structured contexts (YAML status: / claim_status: / claim: /
+        p_status: fields, bullets with inline backticked or plain
+        labels, inline backticked labels in tables or prose).
+      method: tools.audit.claim_status_applied.count_labels_in_texts + run_audit
+      window: rolling 30-day, trend across 3 consecutive windows
+      controls: >-
+        Normalize by total commits per window; exclude self-references
+        to SYSTEM_PROTOCOL.md to prevent the canon doc from trivially
+        satisfying its own audit.
+      fake_alternative_guard: >-
+        Ritual label-pasting is caught by the diversity gate —
+        verdict "applied" requires >= 2 distinct labels used across the
+        latest window.
+      falsifier: >-
+        Three consecutive 30-day windows each with zero labeled blocks
+        while total_commits > 0 → verdict "stopped" → mandates a
+        framework-revision PR per the governance rule above.
+      test_suite: tests/audit/test_claim_status_applied.py
+  - id: poor_task_type
+    statement: a task type appears that this frame handles poorly
+    measurement_status: not_instrumented
+# Deprecated in v1.1 — per-signal measurement_status replaces the flat
+# scalar. Retained here as a commented marker; no tool reads it.
+# kill_criteria_measurement_status: <see kill_criteria[*].measurement_status>
 changelog:
   - version: v1.0
     date: 2026-04-14
@@ -31,6 +66,16 @@ changelog:
       Initial versioned artifact. Derived from multi-session adversarial
       refinement. Grounded in CANONICAL_POSITION.md and
       docs/ADVERSARIAL_CONTROLS.md. Canonized via PR #74.
+  - version: v1.1
+    date: 2026-04-14
+    summary: >-
+      Restructured kill_criteria into a list of objects with per-signal
+      measurement_status. Transitioned signal "taxonomy_disuse" from
+      not_instrumented to instrumented via tools/audit/claim_status_applied.py
+      (23 deterministic tests). Other three signals remain
+      not_instrumented. Frontmatter key renamed from kill_criteria_heuristic
+      to kill_criteria; flat scalar kill_criteria_measurement_status
+      deprecated and replaced by per-item status.
 ---
 
 # SYSTEM PROTOCOL — NEOSYNAPTEX MEASUREMENT FRAMEWORK v1
