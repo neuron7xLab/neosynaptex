@@ -50,7 +50,7 @@ dev = [
 ]
 security = [
     "pip-audit>=2.10.0",
-    "bandit>=1.7.9",
+    "bandit>=1.9.4",
 ]
 
 [project.urls]
