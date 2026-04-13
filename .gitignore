@@ -30,6 +30,8 @@ migration_manifest.json
 *.dat
 # Canonical evidence scaffolds — append-only, pre-registered
 !evidence/levin_bridge/*.csv
+# Levin bridge test fixtures — reference rows, source-controlled
+!tests/levin_bridge/fixtures/*.csv
 *.bin
 *.model
 *.onnx
