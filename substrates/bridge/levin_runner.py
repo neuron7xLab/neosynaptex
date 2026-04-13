@@ -337,7 +337,8 @@ class MFNPlusAdapter(AdapterBase):
 class KuramotoAdapter(AdapterBase):
     """Kuramoto substrate — **TradePulse Δr proxy** (not a classical oscillator).
 
-    Entrypoint: ``substrates.kuramoto.analytics.regime.src.core.tradepulse_v21.TradePulseV21Pipeline``.
+    Entrypoint: ``tradepulse_v21.TradePulseV21Pipeline`` in
+    ``substrates/kuramoto/analytics/regime/src/core/``.
     Knob tuple: ``window`` × ``ema_alpha``.
     P: ``ModelPerformance.auc`` on held-out folds; viability AUC > 0.55.
 
@@ -531,7 +532,10 @@ def run_plan(
 def _build_argparser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="levin_runner",
-        description="Levin → Neosynaptex bridge runner (see docs/protocols/levin_bridge_protocol.md).",
+        description=(
+            "Levin → Neosynaptex bridge runner "
+            "(see docs/protocols/levin_bridge_protocol.md)."
+        ),
     )
     p.add_argument(
         "--dry-run",
