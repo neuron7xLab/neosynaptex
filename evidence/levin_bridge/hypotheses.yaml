@@ -78,16 +78,48 @@ variables:
     substrate_specific: true
     preregistration_status: per-substrate
     current_preregistrations:
-      # Populated by follow-up PRs — one per substrate that defines P.
-      # Example entry schema (commented because zero substrates are
-      # preregistered at the time this file was written):
-      #
-      # mfn_plus:
-      #   formula: <exact per-step or ensemble formula>
-      #   viability_rule: <threshold or range>
-      #   commit_sha: <SHA at which the formula was introduced>
-      #   notes: <free text>
-      {}
+      mfn_plus:
+        substrate: mfn_plus
+        contract_version: v2
+        p_status: not_defined
+        decision_rationale: >-
+          MFN+ is a morphogenesis simulator, not a task-solver.
+          SimulationResult exposes only activity counters (growth_events,
+          turing_activations, clamping_events) plus the raw field and
+          history. None of these is a task-level productivity metric in
+          the Levin-bridge sense. Higher-level modules expose candidate
+          task frames (active inference against a preregistered target
+          field; forecasting accuracy; cross-seed reproducibility), but
+          every one of them requires a substrate-owner decision that
+          has not been made. Defining any of them without that decision
+          is semantic inflation, which the contract-v2 split was
+          introduced to prevent.
+        blocking_reason: >-
+          No canonical, substrate-native productivity metric exists for
+          MFN+ at the time of this preregistration. Three candidate
+          options were evaluated and each requires an unresolved
+          canonical decision — see
+          docs/protocols/mfn_plus_productivity_prereg.md §3.
+        required_future_decision: >-
+          A future substrate-owner PR must resolve exactly one of the
+          three options named in mfn_plus_productivity_prereg.md §3
+          (target-anchored active inference, forecasting accuracy with a
+          post-output-control semantics rule, or cross-seed
+          reproducibility re-framed as a non-productivity metric). Only
+          after such a PR lands may MFN+ rows transition from
+          p_status=not_defined to p_status=defined. Wiring that emits
+          numeric P without that transition is fabrication.
+        evaluated_candidates_rejected:
+          - name: growth_events
+            rejection_reason: activity counter, not task output
+          - name: turing_activations
+            rejection_reason: activity counter, not task output
+          - name: clamping_events
+            rejection_reason: activity counter, not task output
+          - name: cross_seed_reproducibility_inverse_variance
+            rejection_reason: conflates stability with productivity
+        commit_sha: to_be_stamped_at_merge
+        companion_doc: docs/protocols/mfn_plus_productivity_prereg.md
 
 hypotheses:
   - id: H1
