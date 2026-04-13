@@ -1,0 +1,62 @@
+# Adversarial controls for the Levin → Neosynaptex bridge.
+# Canonical protocol: docs/protocols/levin_bridge_protocol.md
+# Machine-readable form of Step 6.
+#
+# Every substrate in scope MUST generate at least four control runs
+# matching the four families below before any result can be promoted
+# to LEVIN_BRIDGE_VERDICT.md.
+
+schema_version: 1
+protocol: docs/protocols/levin_bridge_protocol.md
+
+control_families:
+  - id: shuffle
+    name: Shuffle control
+    destroys: temporal_or_graph_structure
+    preserves: marginal_distributions
+    rationale: >-
+      Tests whether gamma values depend on organisation rather than
+      mere distribution matching.
+    required_per_substrate: true
+
+  - id: matched_noise
+    name: Matched-noise control
+    destroys: organisation
+    preserves: variance_and_energy
+    rationale: >-
+      Tests whether the observed gamma reflects organised coordination
+      as opposed to any stochastic process with matched first and
+      second moments.
+    required_per_substrate: true
+
+  - id: overcoupled_collapse
+    name: Overcoupled collapse control
+    destroys: adaptability
+    preserves: high_synchrony
+    rationale: >-
+      Tests the upper-bound failure mode: pathological synchrony is
+      NOT the target. If gamma ≈ 1 appears here, it is not a marker of
+      productive coordination.
+    required_per_substrate: true
+
+  - id: undercoupled_fragmentation
+    name: Undercoupled fragmentation control
+    destroys: integration
+    preserves: independence
+    rationale: >-
+      Tests the lower-bound failure mode: fragmented substrate must
+      NOT produce gamma ≈ 1. If it does, the estimator is confounded.
+    required_per_substrate: true
+
+minimum_controls_per_substrate: 4
+
+evaluation_rules:
+  - rule: null_indistinguishability_kills
+    statement: >-
+      If any control family's gamma distribution is statistically
+      indistinguishable from the productive expanded-horizon condition
+      (KS p >= 0.05 with n >= 30 runs per cell), the bridge is falsified.
+  - rule: single_substrate_support_is_insufficient
+    statement: >-
+      Support from exactly one substrate family is NOT sufficient to
+      claim cross-substrate bridge survival. See protocol Step 9.

@@ -1,0 +1,91 @@
+# Pre-registered hypotheses for the Levin → Neosynaptex bridge.
+# Canonical protocol: docs/protocols/levin_bridge_protocol.md
+# This file is the machine-readable form of Step 5.
+#
+# Any analysis notebook or test that claims to evaluate the bridge MUST
+# load this file, map each hypothesis ID to a concrete statistical test,
+# and fail the run if any required test is missing.
+
+schema_version: 1
+protocol: docs/protocols/levin_bridge_protocol.md
+
+variables:
+  H:
+    name: integration_horizon
+    description: >-
+      Effective spatiotemporal extent over which a perturbation can
+      influence coordinated system behavior. Operationalisation is
+      substrate-specific; see protocol Step 7.
+    scale: ratio
+    rank_normalised: true
+  C:
+    name: coordination_strength
+    description: >-
+      Substrate-appropriate coordination metric: phase locking,
+      synchrony, graph coherence, mutual predictability, or stable
+      inter-agent coupling.
+    scale: ratio
+  gamma:
+    name: gamma_metastability
+    description: >-
+      Neosynaptex metastability signature from organisational cost vs
+      topological complexity. See docs/science/MECHANISMS.md §1 and
+      core/gamma.py.
+    scale: ratio
+    target: 1.0
+  P:
+    name: productivity
+    description: >-
+      Task-level output metric showing the system is functionally
+      performing, not merely complex. Required for viability check.
+    scale: ratio
+
+hypotheses:
+  - id: H1
+    type: primary
+    statement: >-
+      Higher H and stronger C predict gamma moving toward 1.0 while P
+      remains viable.
+    operationalisation:
+      - Spearman rank correlation between H and |gamma - 1| is negative
+        and significant (p < 0.01, two-sided) after substrate-wise
+        stratification.
+      - Partial correlation controlling for P retains sign and
+        significance.
+      - Interaction term H × C is a non-trivial regressor of gamma
+        after controlling for each alone.
+  - id: H0
+    type: null
+    statement: >-
+      No consistent relation between (H, C) and gamma survives null
+      controls.
+    operationalisation:
+      - Shuffled-control permutation distribution of the H↔gamma
+        correlation contains the observed value at p >= 0.05.
+  - id: H2
+    type: alternative
+    statement: >-
+      Expanded H increases complexity but degrades function, producing
+      drift or collapse rather than gamma≈1 stabilisation.
+    operationalisation:
+      - In at least one substrate, the expanded-horizon regime shows
+        gamma drifting away from 1.0 while P declines monotonically.
+      - Rejection of H2 does NOT confirm H1; they are not exhaustive.
+
+kill_criterion:
+  id: KILL
+  statement: >-
+    If gamma approaches 1.0 equally often in shuffled, scrambled, or
+    non-productive controls, the bridge fails and LEVIN_BRIDGE_VERDICT
+    must record the failed canonical statement from protocol Step 10.
+  operationalisation:
+    - Distribution of gamma in any control condition from
+      evidence/levin_bridge/controls.yaml is statistically
+      indistinguishable (KS test p >= 0.05) from the productive
+      expanded-horizon condition.
+
+forbidden_claims:
+  - gamma_equals_one_proves_intelligence
+  - gamma_equals_one_proves_cognition
+  - gamma_equals_one_validates_universal_agency
+  - visual_or_pareidolic_analogy_as_evidence
