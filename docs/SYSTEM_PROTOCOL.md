@@ -1,3 +1,38 @@
+---
+version: v1.0
+date: 2026-04-14
+owner: neuron7xLab
+status: active
+status_taxonomy: [draft, active, superseded, archived]
+pair_documents:
+  - CANONICAL_POSITION.md
+  - docs/ADVERSARIAL_CONTROLS.md
+  - docs/REPLICATION_PROTOCOL.md
+governance: >-
+  Changes are framework-level. Named PR required. Diff reviewed against
+  the rules this file enforces. Version bumps tracked in title and
+  frontmatter; never silently amended.
+kill_criteria_heuristic:
+  # Heuristic signals that SHOULD trigger a framework review. NOT yet
+  # instrumented as metrics — see SYSTEM_PROTOCOL.md "Measurement
+  # discipline". Each entry requires a measurable operationalisation
+  # before it can be called a metric; until then these are pattern
+  # observations that a human auditor uses to decide whether to open a
+  # revision PR. Log the failure type before revising.
+  - responses consistently identify wrong bottlenecks
+  - barrier rule produces structure without signal reduction
+  - claim status taxonomy stops being applied in practice
+  - a task type appears that this frame handles poorly
+kill_criteria_measurement_status: not_instrumented
+changelog:
+  - version: v1.0
+    date: 2026-04-14
+    summary: >-
+      Initial versioned artifact. Derived from multi-session adversarial
+      refinement. Grounded in CANONICAL_POSITION.md and
+      docs/ADVERSARIAL_CONTROLS.md. Canonized via PR #74.
+---
+
 # SYSTEM PROTOCOL — NEOSYNAPTEX MEASUREMENT FRAMEWORK v1
 
 > **Status.** Canonical. Version 1. Peer-level to `CANONICAL_POSITION.md`,
