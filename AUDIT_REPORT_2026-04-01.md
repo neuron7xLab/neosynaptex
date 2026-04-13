@@ -171,3 +171,33 @@ Repository contains significant intellectual capital but is architecturally mult
 - `evidence/registry.json`
 - `governance/MIGRATION_LEDGER.md`
 - `REPO_TOPOLOGY.md`
+
+15. SHIELD_HARDENING
+- STATUS: COMPLETE
+- DATE: 2026-04-13
+- LOCATION: `tests/falsification/test_shield_hardening.py`
+- TESTS_ADDED: 4 adversarial tests (+ 5 parametrized/auxiliary cases = 9 collected)
+- FAILURE_MODES_COVERED: A, B, C, D
+  - A — Circular construction: AST walk of every `substrates/*/adapter.py`
+    flags any `thermo_cost` body that calls `self.topo()`. Adapters that
+    own gamma outside the protocol (via `get_gamma_result` /
+    `compute_gamma`) are recorded as protocol-compatibility-shim
+    exemptions and logged by name so they cannot quietly multiply.
+    Current exemptions: `eeg_physionet`, `eeg_resting`, `hrv_fantasia`
+    (all derive gamma directly from per-subject DFA / aperiodic
+    exponents; the circular `thermo_cost = 1/topo` is vestigial and
+    never touches the reported gamma).
+  - B — Data leakage: `observe()` is called twice with an RNG-level
+    perturbation in between; the reported gamma must differ and the
+    adapter must carry no `gamma` or `_gamma_cached` attribute.
+  - C — Window gaming: synthetic stream with known `gamma_true = 1.0`
+    is run through `core.gamma.compute_gamma` at window in
+    {8, 16, 32, 64}; every recovered gamma must lie in [0.80, 1.20]
+    and their std across {8, 16, 32, 64, 128} must be < 0.15.
+  - D — Adversarial injection: an adapter providing `gamma = 1.0`,
+    `_gamma_cached = 1.0`, `_compute_gamma()` returning 1.0, and a
+    `"gamma"` key in its state dict is registered with `gamma_true`
+    of 0.5 in its (topo, cost) stream; the engine must report ~0.5
+    and never 1.0. A structural AST check further asserts the engine's
+    `observe()` body contains no `adapter.gamma` attribute access.
+- FULL-SUITE STATUS: 802 passed, 20 skipped, 0 failed (~5 min local).
