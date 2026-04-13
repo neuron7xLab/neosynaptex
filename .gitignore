@@ -28,6 +28,8 @@ migration_manifest.json
 *.csv
 *.tsv
 *.dat
+# Canonical evidence scaffolds — append-only, pre-registered
+!evidence/levin_bridge/*.csv
 *.bin
 *.model
 *.onnx
