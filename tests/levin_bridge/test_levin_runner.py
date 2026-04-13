@@ -1,9 +1,12 @@
 """Deterministic tests for the Levin bridge runner scaffolding.
 
 These tests exercise the substrate-independent machinery: the CSV
-schema and append-only writer, control-family transforms, plan
-construction, and dry-run orchestration. Concrete substrate wiring is
-tested in substrate-owned test suites once the ``execute`` methods land.
+schema (v2) and append-only writer, control-family transforms, plan
+construction, dry-run orchestration, v1→v2 migration, and the new
+contract split that makes ``P`` optional with explicit ``P_status``.
+
+Concrete substrate wiring is tested in substrate-owned test suites
+once the ``execute`` methods land.
 """
 
 from __future__ import annotations
@@ -17,17 +20,26 @@ import pytest
 
 from substrates.bridge.levin_runner import (
     ADAPTERS,
+    SCHEMA_V1_COLUMNS,
+    SCHEMA_V2_COLUMNS,
+    SCHEMA_VERSION,
     BNSynAdapter,
     ControlFamily,
     KuramotoAdapter,
     MFNPlusAdapter,
+    PStatus,
     RunRow,
+    SchemaVersionMismatch,
     append_rows,
     apply_post_output_control,
     build_plan,
     git_head_sha,
+    migrate_v1_to_v2,
     run_plan,
 )
+
+_FIXTURES = pathlib.Path(__file__).parent / "fixtures"
+
 
 # ---------------------------------------------------------------------------
 # Adapter shape
@@ -156,19 +168,22 @@ def test_plan_uses_regime_knobs_for_output_level_controls():
 
 
 # ---------------------------------------------------------------------------
-# Dry-run orchestration
+# Dry-run orchestration (v2 contract)
 # ---------------------------------------------------------------------------
 
 
-def test_dry_run_emits_nan_metrics_and_dry_sha():
+def test_dry_run_emits_nan_metrics_with_p_none_and_not_defined():
     plan = build_plan([BNSynAdapter])
     rows = run_plan(plan, dry_run=True, commit_sha="abc123")
     assert len(rows) == 15  # 3 regimes × 5 controls
     for row in rows:
         assert row.commit_sha.startswith("DRYRUN:")
+        assert row.schema_version == SCHEMA_VERSION
         assert math.isnan(row.gamma)
         assert math.isnan(row.H_raw)
         assert row.n_samples == 0
+        assert row.P is None, "dry-run has not measured any productivity metric; P must be None"
+        assert row.P_status is PStatus.NOT_DEFINED
 
 
 def test_run_plan_raises_without_wiring():
@@ -178,49 +193,127 @@ def test_run_plan_raises_without_wiring():
 
 
 # ---------------------------------------------------------------------------
-# CSV writer
+# RunRow v2 invariants
 # ---------------------------------------------------------------------------
 
 
-def _make_row(**overrides) -> RunRow:
+def _defined_row(**overrides) -> RunRow:
     base = dict(
-        substrate="mfn_plus",
+        substrate="example_substrate_with_prereg",
         regime="intermediate",
         control_family=ControlFamily.PRODUCTIVE,
         H_raw=0.18,
         H_rank=2.0,
-        C=0.5,
-        gamma=0.97,
-        gamma_ci_lo=0.90,
-        gamma_ci_hi=1.04,
-        P=42.0,
-        n_samples=1000,
-        commit_sha="abc123",
+        C=0.973,
+        gamma=0.984,
+        gamma_ci_lo=0.912,
+        gamma_ci_hi=1.047,
+        P=0.732,
+        P_status=PStatus.DEFINED,
+        n_samples=1024,
+        commit_sha="0" * 40,
         timestamp_utc="2026-04-14T00:00:00Z",
     )
     base.update(overrides)
     return RunRow(**base)
 
 
-def test_append_rows_writes_header_then_row(tmp_path: pathlib.Path):
+def _not_defined_row(**overrides) -> RunRow:
+    base = dict(
+        substrate="example_substrate_no_prereg",
+        regime="intermediate",
+        control_family=ControlFamily.PRODUCTIVE,
+        H_raw=0.18,
+        H_rank=2.0,
+        C=0.973,
+        gamma=0.984,
+        gamma_ci_lo=0.912,
+        gamma_ci_hi=1.047,
+        P=None,
+        P_status=PStatus.NOT_DEFINED,
+        n_samples=1024,
+        commit_sha="0" * 40,
+        timestamp_utc="2026-04-14T00:00:00Z",
+    )
+    base.update(overrides)
+    return RunRow(**base)
+
+
+def test_runrow_accepts_numeric_p_with_defined_status():
+    row = _defined_row()
+    assert pytest.approx(0.732) == row.P
+    assert row.P_status is PStatus.DEFINED
+    cells = row.as_csv_row()
+    assert cells[0] == SCHEMA_VERSION
+    # P column is 11th (index 10), P_status is 12th (index 11)
+    assert cells[10] == "0.732"
+    assert cells[11] == "defined"
+
+
+def test_runrow_accepts_none_p_with_not_defined():
+    row = _not_defined_row()
+    assert row.P is None
+    assert row.P_status is PStatus.NOT_DEFINED
+    cells = row.as_csv_row()
+    assert cells[10] == "", "None P must serialise as an empty CSV cell"
+    assert cells[11] == "not_defined"
+
+
+def test_runrow_accepts_none_p_with_preregistered_pending():
+    row = _not_defined_row(P_status=PStatus.PREREGISTERED_PENDING)
+    assert row.P is None
+    assert row.P_status is PStatus.PREREGISTERED_PENDING
+    cells = row.as_csv_row()
+    assert cells[10] == ""
+    assert cells[11] == "preregistered_pending"
+
+
+def test_runrow_rejects_numeric_p_with_not_defined_status():
+    with pytest.raises(ValueError, match="P_status=DEFINED"):
+        _defined_row(P_status=PStatus.NOT_DEFINED)
+
+
+def test_runrow_rejects_none_p_with_defined_status():
+    with pytest.raises(ValueError, match="DEFINED"):
+        _not_defined_row(P_status=PStatus.DEFINED)
+
+
+# ---------------------------------------------------------------------------
+# CSV writer (v2 schema enforcement)
+# ---------------------------------------------------------------------------
+
+
+def test_append_rows_writes_v2_header_then_defined_row(tmp_path: pathlib.Path):
     out = tmp_path / "metrics.csv"
-    written = append_rows([_make_row()], out)
+    written = append_rows([_defined_row()], out)
     assert written == 1
     with out.open() as fh:
         reader = csv.reader(fh)
         header = next(reader)
         data = next(reader)
-    assert header[0] == "substrate"
+    assert tuple(header) == SCHEMA_V2_COLUMNS
+    assert header[0] == "schema_version"
     assert header[-1] == "timestamp_utc"
-    assert len(header) == 13
-    assert data[0] == "mfn_plus"
-    assert data[2] == "productive"
+    assert len(header) == 15
+    assert data[0] == SCHEMA_VERSION
+    assert data[11] == "defined"
+
+
+def test_append_rows_writes_none_p_as_empty_cell(tmp_path: pathlib.Path):
+    out = tmp_path / "metrics.csv"
+    append_rows([_not_defined_row()], out)
+    with out.open() as fh:
+        reader = csv.reader(fh)
+        next(reader)
+        data = next(reader)
+    assert data[10] == "", "None P must be written as an empty CSV cell"
+    assert data[11] == "not_defined"
 
 
 def test_append_rows_is_append_only(tmp_path: pathlib.Path):
     out = tmp_path / "metrics.csv"
-    append_rows([_make_row()], out)
-    append_rows([_make_row(regime="expanded")], out)
+    append_rows([_defined_row()], out)
+    append_rows([_not_defined_row(regime="expanded")], out)
     with out.open() as fh:
         lines = fh.read().strip().splitlines()
     assert len(lines) == 3  # header + 2 rows
@@ -228,11 +321,96 @@ def test_append_rows_is_append_only(tmp_path: pathlib.Path):
     assert "expanded" in lines[2]
 
 
-def test_append_rows_rejects_schema_drift(tmp_path: pathlib.Path):
+def test_append_rows_rejects_v1_header(tmp_path: pathlib.Path):
+    out = tmp_path / "legacy.csv"
+    out.write_text(",".join(SCHEMA_V1_COLUMNS) + "\n", encoding="utf-8")
+    with pytest.raises(SchemaVersionMismatch, match="legacy v1 header"):
+        append_rows([_defined_row()], out)
+
+
+def test_append_rows_rejects_unknown_header(tmp_path: pathlib.Path):
+    out = tmp_path / "bogus.csv"
+    out.write_text("foo,bar,baz\n", encoding="utf-8")
+    with pytest.raises(SchemaVersionMismatch, match="unknown header"):
+        append_rows([_defined_row()], out)
+
+
+# ---------------------------------------------------------------------------
+# v1 → v2 migration
+# ---------------------------------------------------------------------------
+
+
+def test_migrate_v1_header_only_is_noop_on_v2(tmp_path: pathlib.Path):
     out = tmp_path / "metrics.csv"
-    out.write_text("bogus,header\n")
-    with pytest.raises(ValueError, match="schema drift"):
-        append_rows([_make_row()], out)
+    out.write_text(",".join(SCHEMA_V2_COLUMNS) + "\n", encoding="utf-8")
+    assert migrate_v1_to_v2(out) == 0
+    # header preserved
+    assert out.read_text(encoding="utf-8").splitlines()[0] == ",".join(SCHEMA_V2_COLUMNS)
+
+
+def test_migrate_v1_header_only_rewrites_to_v2(tmp_path: pathlib.Path):
+    out = tmp_path / "legacy.csv"
+    out.write_text(",".join(SCHEMA_V1_COLUMNS) + "\n", encoding="utf-8")
+    assert migrate_v1_to_v2(out) == 0
+    assert out.read_text(encoding="utf-8").splitlines()[0] == ",".join(SCHEMA_V2_COLUMNS)
+
+
+def test_migrate_v1_with_data_refuses_without_opt_in(tmp_path: pathlib.Path):
+    out = tmp_path / "legacy.csv"
+    legacy_row = [
+        "mfn_plus",
+        "intermediate",
+        "productive",
+        "0.18",
+        "2",
+        "0.9",
+        "0.95",
+        "0.9",
+        "1.0",
+        "0.5",  # v1 mandatory P
+        "100",
+        "0" * 40,
+        "2026-04-14T00:00:00Z",
+    ]
+    with out.open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(SCHEMA_V1_COLUMNS)
+        writer.writerow(legacy_row)
+    with pytest.raises(SchemaVersionMismatch, match="legacy data row"):
+        migrate_v1_to_v2(out)
+
+
+def test_migrate_v1_with_data_opt_in_empties_p_and_flags_pending(tmp_path: pathlib.Path):
+    out = tmp_path / "legacy.csv"
+    legacy_row = [
+        "mfn_plus",
+        "intermediate",
+        "productive",
+        "0.18",
+        "2",
+        "0.9",
+        "0.95",
+        "0.9",
+        "1.0",
+        "0.5",
+        "100",
+        "0" * 40,
+        "2026-04-14T00:00:00Z",
+    ]
+    with out.open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(SCHEMA_V1_COLUMNS)
+        writer.writerow(legacy_row)
+    n = migrate_v1_to_v2(out, allow_data_rows=True)
+    assert n == 1
+    with out.open() as fh:
+        reader = csv.reader(fh)
+        header = next(reader)
+        row = next(reader)
+    assert tuple(header) == SCHEMA_V2_COLUMNS
+    assert row[0] == SCHEMA_VERSION
+    assert row[10] == "", "migration must not carry v1 P forward as defined"
+    assert row[11] == "preregistered_pending"
 
 
 # ---------------------------------------------------------------------------
@@ -245,3 +423,43 @@ def test_git_head_sha_returns_nonempty():
     assert sha
     # Either a full 40-char SHA or our explicit UNSTAMPED sentinel.
     assert len(sha) == 40 or sha.startswith("UNSTAMPED:")
+
+
+# ---------------------------------------------------------------------------
+# Fixtures — canonical examples of both contract states
+# ---------------------------------------------------------------------------
+
+
+def test_fixture_row_with_p_is_valid_v2():
+    path = _FIXTURES / "row_with_P.csv"
+    with path.open() as fh:
+        reader = csv.reader(fh)
+        header = next(reader)
+        row = next(reader)
+    assert tuple(header) == SCHEMA_V2_COLUMNS
+    assert row[0] == SCHEMA_VERSION
+    assert row[10] != "", "fixture row_with_P must have numeric P"
+    assert row[11] == "defined"
+    assert float(row[10]) == pytest.approx(0.732)
+
+
+def test_fixture_row_without_p_is_valid_v2():
+    path = _FIXTURES / "row_without_P.csv"
+    with path.open() as fh:
+        reader = csv.reader(fh)
+        header = next(reader)
+        row = next(reader)
+    assert tuple(header) == SCHEMA_V2_COLUMNS
+    assert row[0] == SCHEMA_VERSION
+    assert row[10] == "", "fixture row_without_P must have empty P cell"
+    assert row[11] == "not_defined"
+
+
+def test_canonical_csv_header_is_v2(tmp_path: pathlib.Path):
+    """evidence/levin_bridge/cross_substrate_horizon_metrics.csv must be v2."""
+
+    repo_root = pathlib.Path(__file__).resolve().parents[2]
+    canonical = repo_root / "evidence" / "levin_bridge" / "cross_substrate_horizon_metrics.csv"
+    assert canonical.exists()
+    header_line = canonical.read_text(encoding="utf-8").splitlines()[0]
+    assert tuple(header_line.split(",")) == SCHEMA_V2_COLUMNS

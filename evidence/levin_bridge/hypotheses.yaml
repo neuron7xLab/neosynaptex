@@ -6,8 +6,36 @@
 # load this file, map each hypothesis ID to a concrete statistical test,
 # and fail the run if any required test is missing.
 
-schema_version: 1
+schema_version: 1  # version of THIS YAML file's structure
 protocol: docs/protocols/levin_bridge_protocol.md
+contract_version: v2  # version of the CSV row contract in cross_substrate_horizon_metrics.csv
+contract_split:
+  required:
+    - H
+    - C
+    - gamma
+  optional:
+    - P  # substrate-specific; nullable under contract v2
+validation_rules:
+  - rule: regime_claims_require_H_C_gamma
+    statement: >-
+      Any row missing a numeric value for H_raw, H_rank, C, gamma,
+      gamma_ci_lo, or gamma_ci_hi is invalid and MUST NOT enter any
+      analysis, including regime diagnostics.
+  - rule: productivity_claims_require_defined_P
+    statement: >-
+      Only rows with P_status == "defined" may feed productivity or
+      capability claims. Rows with P_status in {"not_defined",
+      "preregistered_pending"} are valid for H/C/gamma analysis and
+      falsification controls, but are EXCLUDED from every P-dependent
+      viability check at Step 9.
+  - rule: no_silent_legacy_reinterpretation
+    statement: >-
+      Legacy contract-v1 rows (pre-schema-bump) MUST be migrated
+      explicitly via substrates.bridge.levin_runner.migrate_v1_to_v2
+      OR rejected. v1 P values are never silently carried forward
+      with P_status == "defined". Migration opts them into
+      P_status == "preregistered_pending" with P emptied.
 
 variables:
   H:
@@ -37,8 +65,29 @@ variables:
     name: productivity
     description: >-
       Task-level output metric showing the system is functionally
-      performing, not merely complex. Required for viability check.
+      performing, not merely complex. **Optional under contract v2**:
+      each substrate that wishes to feed productivity claims must
+      preregister its own P definition in a separate contract PR
+      (see `mfn_plus_contract_report.md` for the MFN+ precedent).
+      When preregistered and numeric, the row's P_status is "defined".
+      When absent, the row's P_status is "not_defined" or
+      "preregistered_pending", and the row is VALID for H/C/gamma
+      regime analysis but EXCLUDED from every productivity-gated claim.
     scale: ratio
+    required: false
+    substrate_specific: true
+    preregistration_status: per-substrate
+    current_preregistrations:
+      # Populated by follow-up PRs — one per substrate that defines P.
+      # Example entry schema (commented because zero substrates are
+      # preregistered at the time this file was written):
+      #
+      # mfn_plus:
+      #   formula: <exact per-step or ensemble formula>
+      #   viability_rule: <threshold or range>
+      #   commit_sha: <SHA at which the formula was introduced>
+      #   notes: <free text>
+      {}
 
 hypotheses:
   - id: H1

@@ -51,15 +51,21 @@ from typing import Any
 import numpy as np
 
 __all__ = [
+    "SCHEMA_V1_COLUMNS",
+    "SCHEMA_V2_COLUMNS",
+    "SCHEMA_VERSION",
     "AdapterBase",
     "BNSynAdapter",
     "ControlFamily",
     "KuramotoAdapter",
     "MFNPlusAdapter",
+    "PStatus",
     "RunRow",
+    "SchemaVersionMismatch",
     "apply_post_output_control",
     "build_plan",
     "git_head_sha",
+    "migrate_v1_to_v2",
     "run_plan",
 ]
 
@@ -67,7 +73,14 @@ logger = logging.getLogger(__name__)
 
 _REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 _DEFAULT_CSV = _REPO_ROOT / "evidence" / "levin_bridge" / "cross_substrate_horizon_metrics.csv"
-_CSV_SCHEMA: tuple[str, ...] = (
+
+# Canonical schema version carried per-row. Bump on every structural change.
+SCHEMA_VERSION: str = "v2"
+
+# Legacy v1 — 13 columns, no schema_version, no P_status, P non-nullable.
+# Retained ONLY so the writer can refuse it with a precise error and point
+# callers at ``migrate_v1_to_v2``. Never writable.
+SCHEMA_V1_COLUMNS: tuple[str, ...] = (
     "substrate",
     "regime",
     "control_family",
@@ -83,6 +96,49 @@ _CSV_SCHEMA: tuple[str, ...] = (
     "timestamp_utc",
 )
 
+# Canonical v2 — 15 columns.
+#
+# Contract split (this PR):
+#
+# * Required, cross-substrate comparable: ``H_raw``, ``H_rank``, ``C``,
+#   ``gamma``, ``gamma_ci_lo``, ``gamma_ci_hi``.
+# * Optional, substrate-specific: ``P`` (may be empty).
+#
+# ``P_status`` is the explicit signal for downstream analysis. A row with
+# ``P_status == "not_defined"`` is valid for regime diagnostics (H / C / γ)
+# but MUST NOT feed any productivity or capability claim. ``schema_version``
+# is stamped on every row so mixed-version ledgers are always detectable.
+SCHEMA_V2_COLUMNS: tuple[str, ...] = (
+    "schema_version",
+    "substrate",
+    "regime",
+    "control_family",
+    "H_raw",
+    "H_rank",
+    "C",
+    "gamma",
+    "gamma_ci_lo",
+    "gamma_ci_hi",
+    "P",
+    "P_status",
+    "n_samples",
+    "commit_sha",
+    "timestamp_utc",
+)
+
+# Public alias for the currently-canonical schema. Code that writes rows
+# MUST reference this name rather than v1/v2 directly, so the next bump
+# lands cleanly.
+_CSV_SCHEMA: tuple[str, ...] = SCHEMA_V2_COLUMNS
+
+
+class SchemaVersionMismatch(ValueError):
+    """Raised when an existing CSV header does not match the canonical schema.
+
+    Never silently coerces legacy rows. Callers must either run
+    ``migrate_v1_to_v2`` explicitly or write to a fresh file.
+    """
+
 
 class ControlFamily(str, enum.Enum):
     """Five control families the bridge evaluates per (substrate, regime)."""
@@ -94,6 +150,25 @@ class ControlFamily(str, enum.Enum):
     UNDERCOUPLED_FRAGMENTATION = "undercoupled_fragmentation"
 
 
+class PStatus(str, enum.Enum):
+    """Explicit productivity-contract status per row.
+
+    * ``DEFINED`` — ``P`` is a numeric value produced by a substrate-native,
+      preregistered productivity metric. Only rows in this state may feed
+      productivity or capability claims.
+    * ``NOT_DEFINED`` — no preregistered P contract exists for this
+      substrate. ``P`` MUST be empty in the CSV. The row is still valid for
+      regime diagnostics (H / C / γ) and for every falsification control.
+    * ``PREREGISTERED_PENDING`` — a P contract has been proposed and
+      referenced in ``evidence/levin_bridge/hypotheses.yaml`` but the
+      adapter that computes it has not yet landed. ``P`` MUST be empty.
+    """
+
+    DEFINED = "defined"
+    NOT_DEFINED = "not_defined"
+    PREREGISTERED_PENDING = "preregistered_pending"
+
+
 # ---------------------------------------------------------------------------
 # Data record
 # ---------------------------------------------------------------------------
@@ -101,7 +176,20 @@ class ControlFamily(str, enum.Enum):
 
 @dataclasses.dataclass(frozen=True)
 class RunRow:
-    """One row of ``cross_substrate_horizon_metrics.csv``."""
+    """One row of ``cross_substrate_horizon_metrics.csv`` (schema v2).
+
+    Required, cross-substrate comparable — MUST be numeric:
+    ``H_raw``, ``H_rank``, ``C``, ``gamma``, ``gamma_ci_lo``, ``gamma_ci_hi``.
+
+    Optional, substrate-specific:
+    ``P``. ``None`` is a legal value and is written as an empty CSV cell.
+    When ``P is None`` the row's ``P_status`` MUST be ``NOT_DEFINED`` or
+    ``PREREGISTERED_PENDING``. When ``P`` is a float, ``P_status`` MUST be
+    ``DEFINED``. ``__post_init__`` enforces this pair-invariant.
+
+    ``schema_version`` is stamped per-row so mixed-version ledgers are
+    always detectable.
+    """
 
     substrate: str
     regime: str
@@ -112,15 +200,32 @@ class RunRow:
     gamma: float
     gamma_ci_lo: float
     gamma_ci_hi: float
-    P: float
+    P: float | None
+    P_status: PStatus
     n_samples: int
     commit_sha: str
     timestamp_utc: str
+    schema_version: str = SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if self.P is None and self.P_status is PStatus.DEFINED:
+            raise ValueError(
+                "RunRow invariant: P is None but P_status is DEFINED. "
+                "A defined productivity value MUST be numeric."
+            )
+        if self.P is not None and self.P_status is not PStatus.DEFINED:
+            raise ValueError(
+                "RunRow invariant: P is numeric but P_status is not DEFINED. "
+                "A numeric P MUST carry P_status=DEFINED; use None for "
+                "NOT_DEFINED / PREREGISTERED_PENDING."
+            )
 
     def as_csv_row(self) -> list[str]:
-        """Serialise to a CSV row in canonical schema order."""
+        """Serialise to a CSV row in canonical v2 schema order."""
 
+        p_cell = "" if self.P is None else f"{self.P:.6g}"
         return [
+            self.schema_version,
             self.substrate,
             self.regime,
             self.control_family.value,
@@ -130,7 +235,8 @@ class RunRow:
             f"{self.gamma:.6g}",
             f"{self.gamma_ci_lo:.6g}",
             f"{self.gamma_ci_hi:.6g}",
-            f"{self.P:.6g}",
+            p_cell,
+            self.P_status.value,
             str(self.n_samples),
             self.commit_sha,
             self.timestamp_utc,
@@ -216,10 +322,14 @@ def git_head_sha(repo_root: pathlib.Path = _REPO_ROOT) -> str:
 def append_rows(rows: Iterable[RunRow], out_path: pathlib.Path = _DEFAULT_CSV) -> int:
     """Append rows to the canonical CSV; return count written.
 
-    Enforces the schema header on an empty or missing file. Raises
-    ``ValueError`` if an existing file's header does not match the
-    canonical schema (suggests schema drift — never rewrite, always
-    extend via a schema bump per the evidence-directory rules).
+    Enforces ``SCHEMA_V2_COLUMNS`` on an empty or missing file. Raises
+    ``SchemaVersionMismatch`` in two distinct cases so callers know whether
+    the remediation is migration or rejection:
+
+    * existing header == ``SCHEMA_V1_COLUMNS`` — legacy ledger; point at
+      ``migrate_v1_to_v2``. Never silently coerced.
+    * existing header is anything else unknown — reject as corrupt. Manual
+      audit required; no guesswork.
     """
 
     out_path = pathlib.Path(out_path)
@@ -230,21 +340,106 @@ def append_rows(rows: Iterable[RunRow], out_path: pathlib.Path = _DEFAULT_CSV) -
         with out_path.open("r", newline="", encoding="utf-8") as fh:
             first_line = fh.readline().strip()
             existing_header = tuple(first_line.split(","))
-            if existing_header != _CSV_SCHEMA:
-                raise ValueError(
-                    "schema drift: existing header "
-                    f"{existing_header!r} != canonical {_CSV_SCHEMA!r}"
+            if existing_header == SCHEMA_V2_COLUMNS:
+                pass
+            elif existing_header == SCHEMA_V1_COLUMNS:
+                raise SchemaVersionMismatch(
+                    "legacy v1 header detected; run "
+                    "`substrates.bridge.levin_runner.migrate_v1_to_v2("
+                    f"{str(out_path)!r})` explicitly before appending. "
+                    "Silent reinterpretation of v1 rows is forbidden."
+                )
+            else:
+                raise SchemaVersionMismatch(
+                    f"unknown header {existing_header!r} at {out_path}; "
+                    f"expected canonical {SCHEMA_V2_COLUMNS!r} "
+                    "or legacy v1 for migration."
                 )
 
     count = 0
     with out_path.open("a", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
         if needs_header:
-            writer.writerow(_CSV_SCHEMA)
+            writer.writerow(SCHEMA_V2_COLUMNS)
         for row in rows:
             writer.writerow(row.as_csv_row())
             count += 1
     return count
+
+
+def migrate_v1_to_v2(path: pathlib.Path, *, allow_data_rows: bool = False) -> int:
+    """Migrate a v1 ledger at ``path`` to v2 in place.
+
+    Header-only files are migrated freely: the single header line is
+    rewritten to ``SCHEMA_V2_COLUMNS``. No data semantics change.
+
+    Data rows are NOT auto-mapped. Legacy v1 rows carried a mandatory ``P``
+    whose substrate-native semantics were never canonical; silently
+    re-interpreting those values as v2 ``P`` with ``P_status=DEFINED`` is
+    exactly the fabrication this schema bump exists to prevent. If data
+    rows are present, raises ``SchemaVersionMismatch`` unless the caller
+    opts into ``allow_data_rows=True`` — in which case every legacy row is
+    rewritten with ``schema_version="v2"``, ``P=""``, ``P_status="preregistered_pending"``
+    so that the productivity semantics are explicitly marked as needing
+    substrate-specific audit before they can feed any claim.
+
+    Returns the number of non-header rows migrated (0 for a header-only
+    file).
+    """
+
+    path = pathlib.Path(path)
+    if not path.exists():
+        raise FileNotFoundError(path)
+
+    with path.open("r", newline="", encoding="utf-8") as fh:
+        reader = csv.reader(fh)
+        try:
+            header = tuple(next(reader))
+        except StopIteration:
+            header = ()
+        data = list(reader)
+
+    if header == SCHEMA_V2_COLUMNS:
+        return 0  # already v2; no-op.
+    if header != SCHEMA_V1_COLUMNS:
+        raise SchemaVersionMismatch(f"cannot migrate: header {header!r} is neither v1 nor v2.")
+    if data and not allow_data_rows:
+        raise SchemaVersionMismatch(
+            f"{path} has {len(data)} legacy data row(s); v1 P semantics "
+            "are not canonical and cannot be silently re-labelled. "
+            "Call migrate_v1_to_v2(..., allow_data_rows=True) only after "
+            "review — it will rewrite every row with "
+            "P_status=preregistered_pending and P emptied."
+        )
+
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(SCHEMA_V2_COLUMNS)
+        migrated = 0
+        for legacy in data:
+            # Map v1 columns → v2 by field name.
+            v1 = dict(zip(SCHEMA_V1_COLUMNS, legacy, strict=False))
+            writer.writerow(
+                [
+                    SCHEMA_VERSION,
+                    v1.get("substrate", ""),
+                    v1.get("regime", ""),
+                    v1.get("control_family", ""),
+                    v1.get("H_raw", ""),
+                    v1.get("H_rank", ""),
+                    v1.get("C", ""),
+                    v1.get("gamma", ""),
+                    v1.get("gamma_ci_lo", ""),
+                    v1.get("gamma_ci_hi", ""),
+                    "",  # P emptied — no silent carry-forward
+                    PStatus.PREREGISTERED_PENDING.value,
+                    v1.get("n_samples", ""),
+                    v1.get("commit_sha", ""),
+                    v1.get("timestamp_utc", ""),
+                ]
+            )
+            migrated += 1
+    return migrated
 
 
 # ---------------------------------------------------------------------------
@@ -275,7 +470,16 @@ class AdapterBase:
       undercoupled-fragmentation control.
     * ``execute(knobs, seed)`` — run the real substrate and return the
       output time series or sufficient artefact for γ/C/P extraction.
-    * ``compute_metrics(output)`` — return ``(H, C, γ, γ_ci, P, n)``.
+    * ``compute_metrics(output)`` — return
+      ``(H, C, γ, γ_ci, P, P_status, n)`` under schema v2.
+
+      ``P`` may be ``None``. When ``None``, ``P_status`` MUST be
+      ``NOT_DEFINED`` or ``PREREGISTERED_PENDING``; when a float,
+      ``P_status`` MUST be ``DEFINED``. Substrates without a
+      preregistered productivity contract return ``(..., None,
+      PStatus.NOT_DEFINED, n)``. A row emitted in that state is valid
+      for regime diagnostics (H / C / γ) and MUST NOT feed any
+      productivity or capability claim downstream.
     """
 
     name: str = ""
@@ -302,7 +506,9 @@ class AdapterBase:
 
     def compute_metrics(
         self, output: np.ndarray
-    ) -> tuple[float, float, float, tuple[float, float], float, int]:  # pragma: no cover - abstract
+    ) -> tuple[
+        float, float, float, tuple[float, float], float | None, PStatus, int
+    ]:  # pragma: no cover - abstract
         raise NotImplementedError(
             f"{self.name}: compute_metrics() not wired. γ estimation "
             "must go through core/gamma.py, not an ad-hoc estimator."
@@ -490,7 +696,8 @@ def run_plan(
                     gamma=float("nan"),
                     gamma_ci_lo=float("nan"),
                     gamma_ci_hi=float("nan"),
-                    P=float("nan"),
+                    P=None,
+                    P_status=PStatus.NOT_DEFINED,
                     n_samples=0,
                     commit_sha=f"DRYRUN:{commit_sha}",
                     timestamp_utc=timestamp,
@@ -503,7 +710,7 @@ def run_plan(
             ControlFamily.MATCHED_NOISE,
         ):
             output = apply_post_output_control(output, cell.control_family, seed=seed)
-        H_raw, C, gamma, (ci_lo, ci_hi), P, n = adapter.compute_metrics(output)
+        H_raw, C, gamma, (ci_lo, ci_hi), P, p_status, n = adapter.compute_metrics(output)
         rows.append(
             RunRow(
                 substrate=cell.substrate,
@@ -516,6 +723,7 @@ def run_plan(
                 gamma_ci_lo=ci_lo,
                 gamma_ci_hi=ci_hi,
                 P=P,
+                P_status=p_status,
                 n_samples=n,
                 commit_sha=commit_sha,
                 timestamp_utc=timestamp,
@@ -533,8 +741,7 @@ def _build_argparser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="levin_runner",
         description=(
-            "Levin → Neosynaptex bridge runner "
-            "(see docs/protocols/levin_bridge_protocol.md)."
+            "Levin → Neosynaptex bridge runner (see docs/protocols/levin_bridge_protocol.md)."
         ),
     )
     p.add_argument(

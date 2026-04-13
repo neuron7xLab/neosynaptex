@@ -1,1 +1,1 @@
-substrate,regime,control_family,H_raw,H_rank,C,gamma,gamma_ci_lo,gamma_ci_hi,P,n_samples,commit_sha,timestamp_utc
+schema_version,substrate,regime,control_family,H_raw,H_rank,C,gamma,gamma_ci_lo,gamma_ci_hi,P,P_status,n_samples,commit_sha,timestamp_utc

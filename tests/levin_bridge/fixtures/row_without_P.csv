@@ -1,0 +1,2 @@
+schema_version,substrate,regime,control_family,H_raw,H_rank,C,gamma,gamma_ci_lo,gamma_ci_hi,P,P_status,n_samples,commit_sha,timestamp_utc
+v2,example_substrate_no_prereg,intermediate,productive,0.18,2,0.973,0.984,0.912,1.047,,not_defined,1024,0000000000000000000000000000000000000000,2026-04-14T00:00:00Z

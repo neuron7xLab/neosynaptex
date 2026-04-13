@@ -95,12 +95,21 @@ Normalise H into a comparable rank scale across substrates. Record both raw and 
 
 ## Step 8 — Main analysis
 
-For every run, record `(substrate, regime, H, C, γ, P, commit_sha, timestamp)`.
+For every run, record one v2 row per
+`evidence/levin_bridge/cross_substrate_horizon_metrics.csv`. The CSV contract
+is split (see `evidence/levin_bridge/hypotheses.yaml`):
+
+- **Required, cross-substrate comparable:** `H_raw`, `H_rank`, `C`, `gamma`,
+  `gamma_ci_lo`, `gamma_ci_hi`.
+- **Optional, substrate-specific:** `P`. Always paired with an explicit
+  `P_status` ∈ {`defined`, `not_defined`, `preregistered_pending`}. A row
+  with `P_status != "defined"` is valid for regime diagnostics and MUST be
+  excluded from every productivity-gated claim.
 
 Primary analyses:
 
 - Monotonic relation between H and |γ − 1|.
-- Partial relation between H and γ controlling for P.
+- Partial relation between H and γ controlling for P **where `P_status == "defined"`**.
 - Relation between C and γ.
 - Interaction term: `H × C → γ`.
 - Robustness under perturbation and ablation.
@@ -129,6 +138,11 @@ A result is only interesting if it survives heterogeneity.
 - Effect disappears under matched controls.
 - γ ≈ 1 tracks scale inflation but not productivity.
 - γ ≈ 1 occurs equally in pathological overcoupling and successful coordination.
+
+The "γ ≈ 1 tracks scale inflation but not productivity" criterion can only
+be evaluated on substrates whose rows carry `P_status == "defined"`. For
+substrates still in `not_defined` or `preregistered_pending`, that branch
+is deferred until a preregistered P contract lands.
 
 ## Step 10 — Canonical interpretation rule
 
