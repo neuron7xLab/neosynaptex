@@ -158,14 +158,79 @@ _FRONTMATTER = re.compile(r"\A---\n(.*?\n)---\n", re.DOTALL)
 
 
 def _load_yaml(body: str) -> dict:
+    """Parse the ``kill_criteria:`` frontmatter subset.
+
+    Uses ``pyyaml`` when available; falls back to a narrow
+    hand-parser. Keeps the Verifier runnable in minimal CI images
+    that do not install pyyaml instead of hard-failing.
+    """
+
     try:
         import yaml  # type: ignore[import-untyped]
-    except ImportError as exc:  # pragma: no cover - fallback
-        raise RuntimeError(
-            "pyyaml is required for tools.adversarial.verifier; install via `pip install pyyaml`"
-        ) from exc
+    except ImportError:  # pragma: no cover - fallback path
+        return _parse_kill_criteria_fallback(body)
     data = yaml.safe_load(body)
     return {} if data is None else data
+
+
+def _parse_kill_criteria_fallback(body: str) -> dict:
+    """Narrow hand-parser — parity with ``tools.audit.kill_signal_coverage``.
+
+    Returns ``{}`` (NOT ``{"kill_criteria": []}``) when the body
+    contains no ``kill_criteria:`` line. Downstream callers that
+    require the key will then raise their own error.
+    """
+
+    criteria: list[dict[str, object]] = []
+    current: dict[str, object] | None = None
+    current_contract: dict[str, str] | None = None
+    in_kill = False
+    kill_criteria_seen = False
+
+    for raw in body.splitlines():
+        if raw.startswith("kill_criteria:"):
+            in_kill = True
+            kill_criteria_seen = True
+            continue
+        if in_kill and raw and not raw.startswith(" ") and not raw.startswith("#"):
+            break
+        if not in_kill:
+            continue
+        if raw.lstrip().startswith("#") or not raw.strip():
+            continue
+
+        stripped = raw.rstrip()
+        indent = len(stripped) - len(stripped.lstrip(" "))
+        line = stripped.strip()
+
+        if line.startswith("- ") and indent == 2:
+            current = {}
+            current_contract = None
+            criteria.append(current)
+            remainder = line[2:].strip()
+            if remainder:
+                key, _, val = remainder.partition(":")
+                current[key.strip()] = val.strip()
+            continue
+        if current is None:
+            continue
+        if indent == 4 and line == "signal_contract:":
+            current_contract = {}
+            current["signal_contract"] = current_contract  # type: ignore[assignment]
+            continue
+        if indent == 6 and current_contract is not None and ":" in line:
+            key, _, val = line.partition(":")
+            current_contract[key.strip()] = val.strip()
+            continue
+        if indent == 4 and ":" in line:
+            key, _, val = line.partition(":")
+            current[key.strip()] = val.strip()
+            current_contract = None
+            continue
+
+    if not kill_criteria_seen:
+        return {}
+    return {"kill_criteria": criteria}
 
 
 def load_instrumented_contracts(
