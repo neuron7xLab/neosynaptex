@@ -31,3 +31,12 @@ replications:
     commit_sha: TO_BE_STAMPED_AT_MERGE
     claim_tested: "γ on FRED INDPRO monthly log-returns is separable from shuffled, IAAFT, and AR(1) null families per NULL_MODEL_HIERARCHY.md §4."
     interpretation_boundary: "Bounded-secondary method pilot. Does NOT license any market criticality claim or cross-substrate γ convergence. Retrospectively filed, not pre-data OSF prereg."
+  - id: binance_btcusdt_1h_pilot_2026_04_14
+    date: 2026-04-14
+    substrate_class: market_microstructure
+    lab: internal
+    prereg_path: evidence/replications/binance_btcusdt_1h/prereg.yaml
+    verdict: pending
+    commit_sha: TO_BE_STAMPED_AT_MERGE
+    claim_tested: "γ on BTCUSDT hourly log-returns from Binance is separable from shuffled, IAAFT, and AR(1) null families AND r² >= 0.5."
+    interpretation_boundary: "Result: γ ≈ 0, r² ≈ 0.001, all nulls indistinguishable — substrate exhibits white-noise spectrum at this resolution. Does NOT license any cross-substrate γ ≈ 1 claim. Hourly resolution too coarse for true microstructure burst dynamics; LOBSTER substrate (BLOCKED_BY_ACQUISITION) remains the path for that. Honest substrate-level narrowing of the universal-γ-near-1 framing at this resolution."

@@ -1,6 +1,6 @@
 {
-  "min_replications_count": 1,
-  "rationale": "First replication filed: fred_indpro pilot on 2026-04-14 (claim_status=hypothesized, not separable from AR(1)/IAAFT nulls — honest negative finding). Bump applied in the same PR that added the entry to evidence/replications/registry.yaml per filing protocol. Regressing requires an explicit diff visible at review.",
+  "min_replications_count": 2,
+  "rationale": "Two replications filed: (1) fred_indpro on 2026-04-14 (γ=0.94, AR(1)-non-separable, hypothesized); (2) binance_btcusdt_1h on 2026-04-14 (γ≈0, r²≈0.001, white-noise spectrum, all nulls indistinguishable, hypothesized). Both honest negative findings that narrow the market-lane γ-claim. Bumped 1→2 in the same PR that added the BTCUSDT entry per filing protocol.",
   "last_bumped": "2026-04-14",
   "canonical_source": "evidence/replications/registry.yaml"
 }
