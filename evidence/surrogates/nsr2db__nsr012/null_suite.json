@@ -1,0 +1,83 @@
+{
+  "cohort": "nsr2db",
+  "config": {
+    "dfa_scales": [
+      16,
+      22,
+      30,
+      40,
+      54,
+      64
+    ],
+    "families": [
+      "shuffled",
+      "iaaft",
+      "ar1",
+      "poisson",
+      "latent_gmm"
+    ],
+    "n_beats_cap": 10000,
+    "n_surrogates_per_layer": 200,
+    "required_separable_layers": 3,
+    "statistic": "DFA_alpha_16_64_beats",
+    "z_borderline_low": 2.0,
+    "z_separable": 3.0
+  },
+  "n_beats_used": 10000,
+  "overall_verdict": "SEPARABLE",
+  "per_layer": [
+    {
+      "family": "shuffled",
+      "statistic_null_mean": 0.5045866896959612,
+      "statistic_null_p05": 0.47610066273736174,
+      "statistic_null_p50": 0.5057130813129911,
+      "statistic_null_p95": 0.5288160408235224,
+      "statistic_null_std": 0.016506686235513535,
+      "verdict": "SEPARABLE",
+      "z_score": 40.7562474935745
+    },
+    {
+      "family": "iaaft",
+      "statistic_null_mean": 1.2164743094954908,
+      "statistic_null_p05": 1.1621289551504201,
+      "statistic_null_p50": 1.214065791763647,
+      "statistic_null_p95": 1.2681412205671245,
+      "statistic_null_std": 0.031724449113253776,
+      "verdict": "NOT_SEPARABLE",
+      "z_score": -1.2336551580909834
+    },
+    {
+      "family": "ar1",
+      "statistic_null_mean": 1.4701374777645384,
+      "statistic_null_p05": 1.4230089864153668,
+      "statistic_null_p50": 1.465892548483862,
+      "statistic_null_p95": 1.5205241227336082,
+      "statistic_null_std": 0.030069653611288976,
+      "verdict": "SEPARABLE",
+      "z_score": -9.737398452946685
+    },
+    {
+      "family": "poisson",
+      "statistic_null_mean": 0.504132930479923,
+      "statistic_null_p05": 0.4776763159314405,
+      "statistic_null_p50": 0.5032100353205043,
+      "statistic_null_p95": 0.5301436005826938,
+      "statistic_null_std": 0.01698711105493021,
+      "verdict": "SEPARABLE",
+      "z_score": 39.63030244239333
+    },
+    {
+      "family": "latent_gmm",
+      "statistic_null_mean": 0.9780569014361995,
+      "statistic_null_p05": 0.9280781632787088,
+      "statistic_null_p50": 0.9803215005779428,
+      "statistic_null_p95": 1.023965995295827,
+      "statistic_null_std": 0.028919723921881357,
+      "verdict": "SEPARABLE",
+      "z_score": 6.8908119009514675
+    }
+  ],
+  "rr_sha256": "00fc7d5020c5249072e3c21b9e59a50bbc2791916a1e0f5eef4eff6d677c5420",
+  "statistic_real": 1.1773372792093304,
+  "subject_record": "nsr012"
+}

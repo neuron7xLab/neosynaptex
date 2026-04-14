@@ -1,0 +1,331 @@
+{
+  "actual_n_subjects": 15,
+  "annotation_extension": "ecg",
+  "citation": "Baim et al. (1986). Survival of patients with severe congestive heart failure. JACC 7(3):661-670. PhysioNet BIDMC CHF DB.",
+  "dataset_name": "chfdb",
+  "expected_n_subjects": 15,
+  "generated_utc": "2026-04-14T13:21:33Z",
+  "license": "ODC-By 1.0",
+  "nominal_fs_hz": 250.0,
+  "pn_dir": "chfdb",
+  "role": "development_pathology",
+  "source_url": "https://physionet.org/content/chfdb/1.0.0/",
+  "subjects": [
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 2.092,
+      "mean_rr_s": 0.953241,
+      "min_rr_s": 0.628,
+      "n_annotations": 75548,
+      "n_normal_beats": 74985,
+      "n_rr_intervals": 74474,
+      "record": "chf01",
+      "recording_duration_s": 71977.336,
+      "rr_sha256": "0105617d4347731fe177a50203d19c0ea6c56ae9b9c476d39c0e9780e59e65dc",
+      "status": "ok",
+      "std_rr_s": 0.084717,
+      "symbols_observed": [
+        "+",
+        "N",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 462.18,
+      "mean_rr_s": 0.610472,
+      "min_rr_s": 0.312,
+      "n_annotations": 114548,
+      "n_normal_beats": 91031,
+      "n_rr_intervals": 67830,
+      "record": "chf02",
+      "recording_duration_s": 71171.676,
+      "rr_sha256": "3632a6ff73dfee03ae26ba83316c4369c35b0124ae252af6ec641ed93e0f7fb9",
+      "status": "ok",
+      "std_rr_s": 2.504159,
+      "symbols_observed": [
+        "N",
+        "Q",
+        "S",
+        "V"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 4.228,
+      "mean_rr_s": 0.89277,
+      "min_rr_s": 0.316,
+      "n_annotations": 81301,
+      "n_normal_beats": 78722,
+      "n_rr_intervals": 76845,
+      "record": "chf03",
+      "recording_duration_s": 71994.456,
+      "rr_sha256": "3d886ea05b0e8ccd853a30e86af5f5fc38bdceb55b990dc3fa6c7a67eacc209e",
+      "status": "ok",
+      "std_rr_s": 0.061248,
+      "symbols_observed": [
+        "E",
+        "N",
+        "Q",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 1.244,
+      "mean_rr_s": 0.640491,
+      "min_rr_s": 0.456,
+      "n_annotations": 112366,
+      "n_normal_beats": 110774,
+      "n_rr_intervals": 109249,
+      "record": "chf04",
+      "recording_duration_s": 71994.644,
+      "rr_sha256": "1a4b630a3fced70facaed93d82b65faa3271da89434faa5f7f6b6f2087009fa0",
+      "status": "ok",
+      "std_rr_s": 0.052268,
+      "symbols_observed": [
+        "N",
+        "S",
+        "V"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 1.804,
+      "mean_rr_s": 0.597462,
+      "min_rr_s": 0.428,
+      "n_annotations": 119153,
+      "n_normal_beats": 118463,
+      "n_rr_intervals": 117789,
+      "record": "chf05",
+      "recording_duration_s": 71208.612,
+      "rr_sha256": "ba7830f7f7f4893bcfc92153cb49b188d34d343b599006e17646ee3f2eba3fe6",
+      "status": "ok",
+      "std_rr_s": 0.050705,
+      "symbols_observed": [
+        "E",
+        "N",
+        "Q",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 1.244,
+      "mean_rr_s": 0.599921,
+      "min_rr_s": 0.212,
+      "n_annotations": 118634,
+      "n_normal_beats": 111894,
+      "n_rr_intervals": 105920,
+      "record": "chf06",
+      "recording_duration_s": 71159.568,
+      "rr_sha256": "298b9e6bb7e9081af80b5547c15bfefcca1a98f4f3017ca6c85e59364a1c641d",
+      "status": "ok",
+      "std_rr_s": 0.088059,
+      "symbols_observed": [
+        "+",
+        "N",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 1.04,
+      "mean_rr_s": 0.77824,
+      "min_rr_s": 0.408,
+      "n_annotations": 92584,
+      "n_normal_beats": 90503,
+      "n_rr_intervals": 88495,
+      "record": "chf07",
+      "recording_duration_s": 71994.928,
+      "rr_sha256": "067853494fa74dd7ab542dc39734d8e4fe8ab7493522e430cead438cd6d9fb79",
+      "status": "ok",
+      "std_rr_s": 0.057935,
+      "symbols_observed": [
+        "N",
+        "Q",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 1.456,
+      "mean_rr_s": 0.793758,
+      "min_rr_s": 0.392,
+      "n_annotations": 90759,
+      "n_normal_beats": 89577,
+      "n_rr_intervals": 88484,
+      "record": "chf08",
+      "recording_duration_s": 71994.584,
+      "rr_sha256": "c5f30f10d2b7587b3f87c93f65f198b3349a4a9d734a539873080d7b72c73387",
+      "status": "ok",
+      "std_rr_s": 0.059367,
+      "symbols_observed": [
+        "N",
+        "Q",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 2.644,
+      "mean_rr_s": 0.619106,
+      "min_rr_s": 0.424,
+      "n_annotations": 115052,
+      "n_normal_beats": 114096,
+      "n_rr_intervals": 113213,
+      "record": "chf09",
+      "recording_duration_s": 71186.068,
+      "rr_sha256": "753eb50dc2ed8c56113ade9fc05f65d57e8a4376fef47fa7e6656b48cfb20f94",
+      "status": "ok",
+      "std_rr_s": 0.034618,
+      "symbols_observed": [
+        "N",
+        "Q",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 13.504,
+      "mean_rr_s": 0.488284,
+      "min_rr_s": 0.304,
+      "n_annotations": 147305,
+      "n_normal_beats": 146819,
+      "n_rr_intervals": 146517,
+      "record": "chf10",
+      "recording_duration_s": 71982.38,
+      "rr_sha256": "041c9e00f2f548d7807ccfbb86235e85401baa4ca782925aa84cc98a6320f1d3",
+      "status": "ok",
+      "std_rr_s": 0.086502,
+      "symbols_observed": [
+        "+",
+        "N",
+        "Q",
+        "S",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 1.34,
+      "mean_rr_s": 0.622946,
+      "min_rr_s": 0.376,
+      "n_annotations": 115639,
+      "n_normal_beats": 115098,
+      "n_rr_intervals": 114654,
+      "record": "chf11",
+      "recording_duration_s": 71994.452,
+      "rr_sha256": "c87039de3dcf0ed8662c0b47c4d3dc09c4bd180b24417de8bfe9bb708f319431",
+      "status": "ok",
+      "std_rr_s": 0.084487,
+      "symbols_observed": [
+        "N",
+        "Q",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 1.396,
+      "mean_rr_s": 0.619964,
+      "min_rr_s": 0.364,
+      "n_annotations": 115127,
+      "n_normal_beats": 115092,
+      "n_rr_intervals": 115060,
+      "record": "chf12",
+      "recording_duration_s": 71368.18,
+      "rr_sha256": "e34a908023ee6cfd6fc5f2e31458f9f7b7a0e1354fe9508fc67807733c9100b3",
+      "status": "ok",
+      "std_rr_s": 0.100456,
+      "symbols_observed": [
+        "N",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 2.492,
+      "mean_rr_s": 0.622495,
+      "min_rr_s": 0.5,
+      "n_annotations": 115650,
+      "n_normal_beats": 115230,
+      "n_rr_intervals": 114814,
+      "record": "chf13",
+      "recording_duration_s": 71985.924,
+      "rr_sha256": "972d6fadf1d513ee6083c07bef63371a9a8f97b40f2f3741e308c329fc68d4be",
+      "status": "ok",
+      "std_rr_s": 0.027087,
+      "symbols_observed": [
+        "N",
+        "Q",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 2.888,
+      "mean_rr_s": 0.768819,
+      "min_rr_s": 0.36,
+      "n_annotations": 93676,
+      "n_normal_beats": 93502,
+      "n_rr_intervals": 93356,
+      "record": "chf14",
+      "recording_duration_s": 71994.956,
+      "rr_sha256": "df6798c1aa176a6c157dd2e83154165eb887df44305cd1f8f5219afec54a07df",
+      "status": "ok",
+      "std_rr_s": 0.070645,
+      "symbols_observed": [
+        "+",
+        "N",
+        "Q",
+        "S",
+        "V",
+        "r"
+      ]
+    },
+    {
+      "fs_hz": 250.0,
+      "max_rr_s": 3.6,
+      "mean_rr_s": 0.623493,
+      "min_rr_s": 0.424,
+      "n_annotations": 115198,
+      "n_normal_beats": 112365,
+      "n_rr_intervals": 109655,
+      "record": "chf15",
+      "recording_duration_s": 71973.22,
+      "rr_sha256": "a180d222f213dbe89c5fc14d6ff04072948ba2d8d65681937b1d8f197786f892",
+      "status": "ok",
+      "std_rr_s": 0.066801,
+      "symbols_observed": [
+        "E",
+        "N",
+        "Q",
+        "S",
+        "V",
+        "r"
+      ]
+    }
+  ],
+  "wfdb_version": "4.3.1"
+}

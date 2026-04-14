@@ -1,0 +1,151 @@
+# Immutable analysis split — PhysioNet cardiac γ-program
+#
+# Generated from data/manifests/*_manifest.json on 2026-04-14.
+# Primary unit of analysis = subject. Windows are nested observations.
+#
+# This YAML is LOCKED by the sha256 constant in
+# tools/data/analysis_split.py. Any edit here must also update the
+# constant and carry an explicit code-review entry (see §immutability).
+#
+# Changing split membership AFTER a run has calibrated thresholds is a
+# protocol violation — see CLAIM_BOUNDARY §E-02 / E-03.
+
+schema_version: 1
+protocol_document: docs/protocols/ANALYSIS_SPLIT.md
+primary_unit: subject
+window_policy: "nested_within_subject"
+created_utc: "2026-04-14T13:30:00Z"
+
+cohort_assignment:
+  nsr2db: development
+  chfdb: development
+  chf2db: external
+  nsrdb: external
+
+splits:
+  development:
+    cohorts: ['nsr2db', 'chfdb']
+    n_subjects: 69
+    subjects:
+      - {cohort: nsr2db, record: nsr001}
+      - {cohort: nsr2db, record: nsr002}
+      - {cohort: nsr2db, record: nsr003}
+      - {cohort: nsr2db, record: nsr004}
+      - {cohort: nsr2db, record: nsr005}
+      - {cohort: nsr2db, record: nsr006}
+      - {cohort: nsr2db, record: nsr007}
+      - {cohort: nsr2db, record: nsr008}
+      - {cohort: nsr2db, record: nsr009}
+      - {cohort: nsr2db, record: nsr010}
+      - {cohort: nsr2db, record: nsr011}
+      - {cohort: nsr2db, record: nsr012}
+      - {cohort: nsr2db, record: nsr013}
+      - {cohort: nsr2db, record: nsr014}
+      - {cohort: nsr2db, record: nsr015}
+      - {cohort: nsr2db, record: nsr016}
+      - {cohort: nsr2db, record: nsr017}
+      - {cohort: nsr2db, record: nsr018}
+      - {cohort: nsr2db, record: nsr019}
+      - {cohort: nsr2db, record: nsr020}
+      - {cohort: nsr2db, record: nsr021}
+      - {cohort: nsr2db, record: nsr022}
+      - {cohort: nsr2db, record: nsr023}
+      - {cohort: nsr2db, record: nsr024}
+      - {cohort: nsr2db, record: nsr025}
+      - {cohort: nsr2db, record: nsr026}
+      - {cohort: nsr2db, record: nsr027}
+      - {cohort: nsr2db, record: nsr028}
+      - {cohort: nsr2db, record: nsr029}
+      - {cohort: nsr2db, record: nsr030}
+      - {cohort: nsr2db, record: nsr031}
+      - {cohort: nsr2db, record: nsr032}
+      - {cohort: nsr2db, record: nsr033}
+      - {cohort: nsr2db, record: nsr034}
+      - {cohort: nsr2db, record: nsr035}
+      - {cohort: nsr2db, record: nsr036}
+      - {cohort: nsr2db, record: nsr037}
+      - {cohort: nsr2db, record: nsr038}
+      - {cohort: nsr2db, record: nsr039}
+      - {cohort: nsr2db, record: nsr040}
+      - {cohort: nsr2db, record: nsr041}
+      - {cohort: nsr2db, record: nsr042}
+      - {cohort: nsr2db, record: nsr043}
+      - {cohort: nsr2db, record: nsr044}
+      - {cohort: nsr2db, record: nsr045}
+      - {cohort: nsr2db, record: nsr046}
+      - {cohort: nsr2db, record: nsr047}
+      - {cohort: nsr2db, record: nsr048}
+      - {cohort: nsr2db, record: nsr049}
+      - {cohort: nsr2db, record: nsr050}
+      - {cohort: nsr2db, record: nsr051}
+      - {cohort: nsr2db, record: nsr052}
+      - {cohort: nsr2db, record: nsr053}
+      - {cohort: nsr2db, record: nsr054}
+      - {cohort: chfdb, record: chf01}
+      - {cohort: chfdb, record: chf02}
+      - {cohort: chfdb, record: chf03}
+      - {cohort: chfdb, record: chf04}
+      - {cohort: chfdb, record: chf05}
+      - {cohort: chfdb, record: chf06}
+      - {cohort: chfdb, record: chf07}
+      - {cohort: chfdb, record: chf08}
+      - {cohort: chfdb, record: chf09}
+      - {cohort: chfdb, record: chf10}
+      - {cohort: chfdb, record: chf11}
+      - {cohort: chfdb, record: chf12}
+      - {cohort: chfdb, record: chf13}
+      - {cohort: chfdb, record: chf14}
+      - {cohort: chfdb, record: chf15}
+
+  external:
+    cohorts: ['chf2db', 'nsrdb']
+    n_subjects: 47
+    subjects:
+      - {cohort: chf2db, record: chf201}
+      - {cohort: chf2db, record: chf202}
+      - {cohort: chf2db, record: chf203}
+      - {cohort: chf2db, record: chf204}
+      - {cohort: chf2db, record: chf205}
+      - {cohort: chf2db, record: chf206}
+      - {cohort: chf2db, record: chf207}
+      - {cohort: chf2db, record: chf208}
+      - {cohort: chf2db, record: chf209}
+      - {cohort: chf2db, record: chf210}
+      - {cohort: chf2db, record: chf211}
+      - {cohort: chf2db, record: chf212}
+      - {cohort: chf2db, record: chf213}
+      - {cohort: chf2db, record: chf214}
+      - {cohort: chf2db, record: chf215}
+      - {cohort: chf2db, record: chf216}
+      - {cohort: chf2db, record: chf217}
+      - {cohort: chf2db, record: chf218}
+      - {cohort: chf2db, record: chf219}
+      - {cohort: chf2db, record: chf220}
+      - {cohort: chf2db, record: chf221}
+      - {cohort: chf2db, record: chf222}
+      - {cohort: chf2db, record: chf223}
+      - {cohort: chf2db, record: chf224}
+      - {cohort: chf2db, record: chf225}
+      - {cohort: chf2db, record: chf226}
+      - {cohort: chf2db, record: chf227}
+      - {cohort: chf2db, record: chf228}
+      - {cohort: chf2db, record: chf229}
+      - {cohort: nsrdb, record: 16265}
+      - {cohort: nsrdb, record: 16272}
+      - {cohort: nsrdb, record: 16273}
+      - {cohort: nsrdb, record: 16420}
+      - {cohort: nsrdb, record: 16483}
+      - {cohort: nsrdb, record: 16539}
+      - {cohort: nsrdb, record: 16773}
+      - {cohort: nsrdb, record: 16786}
+      - {cohort: nsrdb, record: 16795}
+      - {cohort: nsrdb, record: 17052}
+      - {cohort: nsrdb, record: 17453}
+      - {cohort: nsrdb, record: 18177}
+      - {cohort: nsrdb, record: 18184}
+      - {cohort: nsrdb, record: 19088}
+      - {cohort: nsrdb, record: 19090}
+      - {cohort: nsrdb, record: 19093}
+      - {cohort: nsrdb, record: 19140}
+      - {cohort: nsrdb, record: 19830}
+
