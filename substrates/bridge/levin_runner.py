@@ -40,11 +40,9 @@ import csv
 import dataclasses
 import datetime as _dt
 import enum
-import hashlib
 import logging
 import os
 import pathlib
-import subprocess
 from collections.abc import Iterable, Sequence
 from typing import Any
 
@@ -295,23 +293,18 @@ def apply_post_output_control(
 
 
 def git_head_sha(repo_root: pathlib.Path = _REPO_ROOT) -> str:
-    """Return the current HEAD SHA, or ``"UNSTAMPED:<hash>"`` if git unavailable.
+    """Return the current HEAD SHA, or the ``UNSTAMPED:<12hex>`` sentinel.
 
-    Any row appended to ``cross_substrate_horizon_metrics.csv`` must carry
-    a verifiable SHA. When running outside a checkout we still emit a
-    pseudo-stamp so the row is not silently un-provenanced; such rows
-    MUST be rejected at review.
+    Thin re-export of the canonical ``tools.audit.git_sha.git_head_sha``.
+    Kept in this module for backward compat with existing imports.
+    Any row appended to ``cross_substrate_horizon_metrics.csv`` must
+    carry a verifiable SHA; rows stamped with the sentinel MUST be
+    rejected at review.
     """
 
-    try:
-        out = subprocess.check_output(
-            ["git", "-C", str(repo_root), "rev-parse", "HEAD"],
-            stderr=subprocess.DEVNULL,
-        )
-        return out.decode().strip()
-    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
-        fake = hashlib.sha1(str(repo_root).encode()).hexdigest()
-        return f"UNSTAMPED:{fake[:12]}"
+    from tools.audit.git_sha import git_head_sha as _canonical
+
+    return _canonical(repo_root)
 
 
 # ---------------------------------------------------------------------------

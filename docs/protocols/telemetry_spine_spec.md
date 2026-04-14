@@ -96,7 +96,7 @@ renamed.
 | `timestamp_utc` | `str` | yes | RFC 3339 UTC with millisecond precision. |
 | `event_type` | `str` | yes | Dotted canonical category. See §6. |
 | `substrate` | `str` | yes | Substrate or tool identifier (`bn_syn`, `bridge`, `audit.claim_status`, `ci.claim_status_check`, `pr_lifecycle`, …). |
-| `commit_sha` | `str` | yes | Full 40-char SHA of the code that emitted the event, OR the `UNSTAMPED:<hash>` sentinel from `tools/audit/claim_status_applied.py::git_head_sha`. No silent un-stamped events. |
+| `commit_sha` | `str` | yes | Full 40-char SHA of the code that emitted the event, OR the `UNSTAMPED:<hash>` sentinel from `tools/audit/git_sha.py::git_head_sha`. No silent un-stamped events. |
 | `outcome` | `str` | no | `"ok" \| "fail" \| "partial" \| "skip"` where applicable. |
 | `duration_ms` | `float` | no | For span-like events. |
 | `payload` | `object` | no | Event-specific structured data. See §7 for redaction rules. |
@@ -157,8 +157,8 @@ A conforming emitter MUST expose at least the following operations:
   `substrates/kuramoto/core/tracing/distributed.py`.
 - `stamp_commit_sha() -> str` — single helper used by every emitter
   to fill `commit_sha` consistently, backed by
-  `tools/audit/claim_status_applied.git_head_sha` to keep the
-  un-stamped sentinel identical across tools.
+  `tools/audit/git_sha.git_head_sha` to keep the un-stamped
+  sentinel identical across tools.
 
 Emitters MUST be safe to call in environments without OTel installed
 and without a writable collection target — in that case they log to
