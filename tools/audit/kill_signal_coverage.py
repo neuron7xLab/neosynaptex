@@ -96,16 +96,25 @@ def _parse_kill_criteria_fallback(body: str) -> dict:
     Recognises this shape (one level of nesting under each list
     element, strings only) and nothing more. Any other frontmatter
     key is ignored.
+
+    Invariant: returns ``{}`` (NOT ``{"kill_criteria": []}``) when
+    the body contains no ``kill_criteria:`` line at all. Returning
+    an empty list in that case would mask the absence of the key and
+    let ``load_kill_criteria`` silently return ``[]`` instead of
+    raising ``IntegrityError``. That was a CI-reproducible bug
+    (#82/#83/#93/#94 test_load_kill_criteria_rejects_missing_list).
     """
 
     criteria: list[dict[str, object]] = []
     current: dict[str, object] | None = None
     current_contract: dict[str, str] | None = None
     in_kill = False
+    kill_criteria_seen = False
 
     for raw in body.splitlines():
         if raw.startswith("kill_criteria:"):
             in_kill = True
+            kill_criteria_seen = True
             continue
         if in_kill and raw and not raw.startswith(" ") and not raw.startswith("#"):
             # Next top-level key ends the kill_criteria block.
@@ -146,6 +155,8 @@ def _parse_kill_criteria_fallback(body: str) -> dict:
             current_contract = None
             continue
 
+    if not kill_criteria_seen:
+        return {}
     return {"kill_criteria": criteria}
 
 
