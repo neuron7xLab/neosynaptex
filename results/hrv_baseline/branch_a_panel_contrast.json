@@ -1,0 +1,96 @@
+{
+  "effect_size": "cohen_d_pooled_sd",
+  "interpretation_boundary": "Panel-level within-substrate contrast. Classical HRV features only \u2014 no MFDFA, no \u03b3. Does NOT license a clinical diagnostic claim. Promotion of Branch A to a per-subject marker requires the MFDFA (h(q=2), \u0394h) blind-validation protocol in manuscript/hrv_bounded_preprint_skeleton.md \u00a73.5.",
+  "labels": {
+    "healthy": {
+      "cohorts": [
+        "nsr2db",
+        "nsrdb"
+      ],
+      "n_subjects": 72
+    },
+    "pathology": {
+      "cohorts": [
+        "chf2db",
+        "chfdb"
+      ],
+      "n_subjects": 44
+    }
+  },
+  "metrics": {
+    "dfa_alpha1": {
+      "cohen_d": 1.519,
+      "healthy_mean": 1.2435,
+      "healthy_std": 0.167,
+      "pathology_mean": 0.9255,
+      "pathology_std": 0.2649,
+      "welch_df": 64.1,
+      "welch_t": 7.145
+    },
+    "dfa_alpha2": {
+      "cohen_d": -0.921,
+      "healthy_mean": 1.0432,
+      "healthy_std": 0.1132,
+      "pathology_mean": 1.1812,
+      "pathology_std": 0.1958,
+      "welch_df": 60.8,
+      "welch_t": -4.262
+    },
+    "lf_hf_ratio": {
+      "cohen_d": 1.089,
+      "healthy_mean": 4.1664,
+      "healthy_std": 2.737,
+      "pathology_mean": 1.7094,
+      "pathology_std": 1.0636,
+      "welch_df": 100.3,
+      "welch_t": 6.821
+    },
+    "poincare_sd1_ms": {
+      "cohen_d": 0.576,
+      "healthy_mean": 21.8447,
+      "healthy_std": 10.5485,
+      "pathology_mean": 15.4191,
+      "pathology_std": 12.1016,
+      "welch_df": 81.6,
+      "welch_t": 2.911
+    },
+    "poincare_sd2_ms": {
+      "cohen_d": 2.057,
+      "healthy_mean": 191.8637,
+      "healthy_std": 43.6023,
+      "pathology_mean": 94.5921,
+      "pathology_std": 52.8126,
+      "welch_df": 78.1,
+      "welch_t": 10.265
+    },
+    "rmssd_ms": {
+      "cohen_d": 0.576,
+      "healthy_mean": 30.8929,
+      "healthy_std": 14.9177,
+      "pathology_mean": 21.8058,
+      "pathology_std": 17.1141,
+      "welch_df": 81.6,
+      "welch_t": 2.911
+    },
+    "sample_entropy": {
+      "cohen_d": -0.771,
+      "healthy_mean": 0.7606,
+      "healthy_std": 0.2929,
+      "pathology_mean": 1.0139,
+      "pathology_std": 0.3797,
+      "welch_df": 74.0,
+      "welch_t": -3.788
+    },
+    "sdnn_ms": {
+      "cohen_d": 2.044,
+      "healthy_mean": 136.7256,
+      "healthy_std": 30.9202,
+      "pathology_mean": 68.3008,
+      "pathology_std": 37.334,
+      "welch_df": 78.3,
+      "welch_t": 10.205
+    }
+  },
+  "schema_version": 1,
+  "test": "welch_t_two_sided_unpaired"
+}

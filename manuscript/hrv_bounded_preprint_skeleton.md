@@ -1,9 +1,10 @@
 # A Two-Branch Honest Report on γ-Scaling and Multifractal Width in Human Heart-Rate Variability — Skeleton
 
-> **Status.** Preprint **skeleton**. Version 0.1, scaffold filed
-> 2026-04-14. Contains section structure, the bounded-claim framing,
-> the blind-validation protocol, and placeholders for numbers that
-> will land as the n=116 cohort data arrives. Not yet a submission.
+> **Status.** Preprint **skeleton**. Version 0.2, filed 2026-04-14.
+> Contains section structure, the bounded-claim framing, the blind-
+> validation protocol, and the n=116 panel-level Branch A contrast
+> (§4.2). MFDFA full-cohort marker (§4.3) and Branch B full-cohort γ
+> (§5.3) remain reserved. Not yet a submission.
 >
 > **Intended venue.** arXiv (q-bio.NC cross-listed to stat.AP).
 > Targeted as a **bounded-claim pilot report**, not a discovery paper.
@@ -36,8 +37,9 @@ regression is **not** consistent with γ ≈ 1 (n=5 mean 0.50 ± 0.44,
 range [0.07, 1.09]). A universal cross-substrate γ framing is not
 supported by the cardiac substrate at the pilot scale. The two
 branches are reported jointly to prevent selective framing;
-neither licenses the other. Full-cohort reanalysis (n=54 NSR +
-n=62 CHF = n=116) and one external-lab SHA-locked replication
+neither licenses the other. Full-cohort reanalysis (n=72 healthy +
+n=44 CHF = n=116 across NSR2DB/NSRDB/CHF2DB/CHFDB) and one
+external-lab SHA-locked replication
 gate promotion of either claim.
 
 ---
@@ -64,10 +66,13 @@ gate promotion of either claim.
 
 ## 2. Data
 
-- **Source.** PhysioNet NSR2DB (healthy, n=54) and CHF2DB
-  (congestive heart failure, n=62). Full-cohort target n=116.
+- **Source.** Four PhysioNet cardiac cohorts, total n=116:
+  - Healthy (n=72): NSR2DB (n=54) + NSRDB (n=18).
+  - Pathology (n=44): CHF2DB (n=29) + CHFDB (n=15).
 - **Annotation filter.** Normal beats only (symbol `== "N"`).
-- **RR truncation.** First 20 000 RR intervals per subject.
+- **RR truncation.** Per-pipeline: 20 000 beats for the MFDFA/γ
+  pipeline; full record (≈50 k–140 k beats) for the classical HRV
+  panel in §4.2.
 - **Reproducibility.** Every subject's RR array is SHA-256 pinned
   in `docs/EXTERNAL_REPLICATION_INVITATION.md` §4. The SHA is the
   byte-level invariant; any external pipeline whose SHAs match is
@@ -148,11 +153,39 @@ A success promotes Branch A to `measured_within_substrate_blinded`.
 - Cluster separation consistent with Goldberger 2002
   HRV-loses-complexity direction.
 
-### 4.2 Full cohort (placeholder, n=54 NSR + n=62 CHF)
+### 4.2 Full cohort — classical HRV panel (n=72 healthy vs n=44 CHF)
 
-- Results filed after the n=116 run lands. Tables and figures
-  reserved.
-- Blind-validation result reserved.
+Panel-level contrast on the n=116 cohort (`results/hrv_baseline/
+branch_a_panel_contrast.json`). Welch's t, two-sided, unpaired; Cohen
+d with pooled SD. **This is the panel-scale separation**, not the
+MFDFA `(h(q=2), Δh)` marker of §4.1 — the full-cohort MFDFA run is
+still open and lands under §4.3.
+
+| Metric             | Healthy (n=72)    | CHF (n=44)        | Welch t | Cohen d |
+|--------------------|-------------------|-------------------|---------|---------|
+| DFA α₁             | 1.244 ± 0.167     | 0.925 ± 0.265     |  +7.14  |  +1.52  |
+| DFA α₂             | 1.043 ± 0.113     | 1.181 ± 0.196     |  −4.26  |  −0.92  |
+| Sample entropy     | 0.761 ± 0.293     | 1.014 ± 0.380     |  −3.79  |  −0.77  |
+| SDNN (ms)          | 136.7 ± 30.9      | 68.3 ± 37.3       | +10.21  |  +2.04  |
+| RMSSD (ms)         | 30.9 ± 14.9       | 21.8 ± 17.1       |  +2.91  |  +0.58  |
+| LF/HF              | 4.17 ± 2.74       | 1.71 ± 1.06       |  +6.82  |  +1.09  |
+| Poincaré SD1 (ms)  | 21.8 ± 10.5       | 15.4 ± 12.1       |  +2.91  |  +0.58  |
+| Poincaré SD2 (ms)  | 191.9 ± 43.6      | 94.6 ± 52.8       | +10.27  |  +2.06  |
+
+**Direction check.** DFA α₁ drops and DFA α₂ rises under CHF — the
+classical Goldberger-2002 "loss-of-complexity" pattern at the panel
+level. SDNN and Poincaré SD2 (both long-timescale amplitude
+measures) collapse; RMSSD / SD1 (short-timescale) drop less. Sample
+entropy rises in CHF, which runs *against* the loose "complexity
+decreases" summary of the literature at the single-scale Richman-
+Moorman definition; this is not new (e.g. Costa-Goldberger 2002
+multiscale entropy re-interprets that single-scale rise), but it is
+worth flagging here rather than silently smoothing it out.
+
+### 4.3 Full cohort — MFDFA `(h(q=2), Δh)` marker (reserved)
+
+- Full-cohort MFDFA run and the blind-validation step of §3.5 land
+  here. This is the promotion gate for Branch A.
 
 ### 4.3 Interpretation boundary for Branch A
 
@@ -186,7 +219,7 @@ A success promotes Branch A to `measured_within_substrate_blinded`.
   `docs/REPLICATION_PROTOCOL.md` §3) against the universal-γ
   framing.
 
-### 5.3 Full cohort (placeholder, n=54 NSR)
+### 5.3 Full cohort (placeholder, n=72 healthy)
 
 - Per-subject γ distribution, reserved.
 - Stratification by age / sex (as available in PhysioNet metadata),
@@ -241,7 +274,8 @@ Full citations to land with v1.0.
 | Version | Date       | State                                                       |
 |---------|------------|-------------------------------------------------------------|
 | 0.1     | 2026-04-14 | Skeleton filed. Section structure + pilot numbers + blind-validation protocol. Full-cohort numbers reserved. |
-| 0.2     | TBD        | Full n=116 results landed. Blind-validation executed.       |
+| 0.2     | 2026-04-14 | n=116 panel-level Branch A contrast landed (§4.2). MFDFA full-cohort marker (§4.3) + Branch B cross-subject γ (§5.3) still reserved. |
+| 0.3     | TBD        | Full-cohort MFDFA + blind-validation executed.              |
 | 1.0     | TBD        | External-replication gate passed; preprint submitted.       |
 
 ## 11. Authors and contributions
