@@ -48,4 +48,13 @@ replications:
     verdict: pending
     commit_sha: TO_BE_STAMPED_AT_MERGE
     claim_tested: "γ on PhysioNet NSR2DB nsr001 RR-interval VLF-band PSD is separable from shuffled, IAAFT, and AR(1) null families per NULL_MODEL_HIERARCHY.md §4."
-    interpretation_boundary: "PILOT n=1 subject. γ=1.0855 (CI [0.918, 1.240], r²=0.97). 2/3 nulls separable: shuffled z=+12.4 ✓, AR(1) z=-4.26 ✓, IAAFT z=-1.58 ✗. IAAFT non-separability means γ is a LINEAR self-similarity signature (captured by amplitude spectrum + marginal distribution), NOT a proof of nonlinear criticality. Does NOT license cardiac criticality, pathological rhythm, or cross-substrate γ ≈ 1 universal claim. Single subject is insufficient statistical power; multi-subject + latent-variable null is the next step. First non-market substrate in registry."
+    interpretation_boundary: "PILOT n=1 subject. γ=1.0855 (CI [0.918, 1.240], r²=0.97). 2/3 nulls separable: shuffled z=+12.4 ✓, AR(1) z=-4.26 ✓, IAAFT z=-1.58 ✗. IAAFT non-separability means γ is a LINEAR self-similarity signature (captured by amplitude spectrum + marginal distribution), NOT a proof of nonlinear criticality. SUPERSEDED by physionet_nsr2db_n5_multifractal_2026_04_14 — n=1 was an outlier."
+  - id: physionet_nsr2db_n5_multifractal_2026_04_14
+    date: 2026-04-14
+    substrate_class: physiological_cardiac
+    lab: internal
+    prereg_path: evidence/replications/physionet_nsr2db_multifractal/prereg.yaml
+    verdict: theory_revision
+    commit_sha: TO_BE_STAMPED_AT_MERGE
+    claim_tested: "Across 5 PhysioNet NSR2DB subjects, (a) γ at VLF band is consistent across subjects near 1.0; (b) MFDFA Δh distinguishes monofractal vs multifractal regime; (c) beat-interval null rejects, demonstrating γ requires temporally-ordered beat structure."
+    interpretation_boundary: "5-subject pilot. γ mean=0.50 std=0.44 range [0.07, 1.09] — n=1 nsr001 was an OUTLIER. MFDFA Δh mean=0.19 ± 0.09 (multifractal across all 5). Beat-interval null rejects on 4/5 subjects (γ requires beat-temporal order; closes IAAFT gap). Cardiac substrate is now SHOWN to be inconsistent with universal γ ≈ 1 framing at the n=5 pilot level. Per-subject HRV γ may remain a regime marker candidate with per-subject calibration; no cross-substrate convergence support is licensed. Does NOT license pathological / state / age generalisation."

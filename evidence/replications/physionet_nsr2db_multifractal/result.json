@@ -1,0 +1,258 @@
+{
+  "substrate": "physionet_hrv_nsr2db_multifractal",
+  "claim_status": "hypothesized",
+  "n_subjects_ok": 5,
+  "gamma": {
+    "mean": 0.5016,
+    "std": 0.4436,
+    "min": 0.0724,
+    "max": 1.0855
+  },
+  "r2_mean": 0.6687,
+  "mfdfa_delta_h": {
+    "n_subjects": 5,
+    "mean": 0.1854,
+    "std": 0.092,
+    "min": 0.0611,
+    "max": 0.294
+  },
+  "mfdfa_h_at_q2": {
+    "n_subjects": 5,
+    "mean": 1.0955,
+    "std": 0.0899
+  },
+  "beat_interval_null": {
+    "n_subjects_separable_z3": 4,
+    "n_subjects_total": 5
+  },
+  "per_subject": [
+    {
+      "record": "nsr001",
+      "provenance": {
+        "record_name": "nsr001",
+        "n_normal_beats": 106379,
+        "n_rr_intervals": 106378,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.7611,
+        "std_rr_s": 0.1718,
+        "rr_sha256": "461bdc30e26a8a7dc8ad1e848acf6e751cb09630d2152840c6bdb9c2a843ea99",
+        "fetched_utc": "2026-04-14T11:17:04Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 3.54
+      },
+      "gamma": {
+        "value": 1.0855,
+        "ci_low": 0.918,
+        "ci_high": 1.2404,
+        "r2": 0.9726,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 0.1274,
+        "delta_alpha": 0.2614,
+        "h_at_q2": 1.1826,
+        "h_at_q_neg3": 1.2784810014443133,
+        "h_at_q_pos3": 1.15104655485869,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": -0.0499,
+        "sigma": 0.0683,
+        "z_score": 16.634,
+        "null_ci_low": -0.1707,
+        "null_ci_high": 0.0513,
+        "real_outside_null_ci": true,
+        "separable_at_z3": true
+      }
+    },
+    {
+      "record": "nsr002",
+      "provenance": {
+        "record_name": "nsr002",
+        "n_normal_beats": 111100,
+        "n_rr_intervals": 111099,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.7563,
+        "std_rr_s": 0.1366,
+        "rr_sha256": "f61dc40ebf5c33e02cc1622ffebdd39375ce95eca0e0a34f95de8f1529df52d7",
+        "fetched_utc": "2026-04-14T11:17:07Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 3.81
+      },
+      "gamma": {
+        "value": 0.3306,
+        "ci_low": 0.1876,
+        "ci_high": 0.4641,
+        "r2": 0.5881,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 0.2382,
+        "delta_alpha": 0.4927,
+        "h_at_q2": 1.0312,
+        "h_at_q_neg3": 1.211977848022038,
+        "h_at_q_pos3": 0.9737486318072841,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": 0.0296,
+        "sigma": 0.0597,
+        "z_score": 5.041,
+        "null_ci_low": -0.0985,
+        "null_ci_high": 0.1207,
+        "real_outside_null_ci": true,
+        "separable_at_z3": true
+      }
+    },
+    {
+      "record": "nsr003",
+      "provenance": {
+        "record_name": "nsr003",
+        "n_normal_beats": 97274,
+        "n_rr_intervals": 97273,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.8738,
+        "std_rr_s": 0.2449,
+        "rr_sha256": "da0e3bd3b4b41e20547a82a4ed49dfe9a0640d9e753f14c15012e69af331632d",
+        "fetched_utc": "2026-04-14T11:17:10Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 4.79
+      },
+      "gamma": {
+        "value": 0.0724,
+        "ci_low": -0.2548,
+        "ci_high": 0.6105,
+        "r2": -0.0696,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 0.2063,
+        "delta_alpha": 0.3901,
+        "h_at_q2": 0.9713,
+        "h_at_q_neg3": 1.0742537956521208,
+        "h_at_q_pos3": 0.8865243517395429,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": 0.0164,
+        "sigma": 0.047,
+        "z_score": 1.194,
+        "null_ci_low": -0.0852,
+        "null_ci_high": 0.0851,
+        "real_outside_null_ci": false,
+        "separable_at_z3": false
+      }
+    },
+    {
+      "record": "nsr004",
+      "provenance": {
+        "record_name": "nsr004",
+        "n_normal_beats": 97779,
+        "n_rr_intervals": 97778,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.8513,
+        "std_rr_s": 0.1731,
+        "rr_sha256": "ffdecb35ff9a2d655208353bb81217a987a476603899a477b10278cfe70c099f",
+        "fetched_utc": "2026-04-14T11:17:13Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 4.33
+      },
+      "gamma": {
+        "value": 0.8509,
+        "ci_low": 0.457,
+        "ci_high": 0.9757,
+        "r2": 0.932,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 0.0611,
+        "delta_alpha": 0.1392,
+        "h_at_q2": 1.1501,
+        "h_at_q_neg3": 1.188385040371801,
+        "h_at_q_pos3": 1.1273217562272797,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": -0.0279,
+        "sigma": 0.075,
+        "z_score": 11.725,
+        "null_ci_low": -0.1792,
+        "null_ci_high": 0.1,
+        "real_outside_null_ci": true,
+        "separable_at_z3": true
+      }
+    },
+    {
+      "record": "nsr005",
+      "provenance": {
+        "record_name": "nsr005",
+        "n_normal_beats": 116261,
+        "n_rr_intervals": 116260,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.7398,
+        "std_rr_s": 0.2375,
+        "rr_sha256": "1adb63b67e7ff6ca431576e2a7aca834344150d293b11e75a3548ab121693c93",
+        "fetched_utc": "2026-04-14T11:17:17Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 3.4
+      },
+      "gamma": {
+        "value": 0.1687,
+        "ci_low": 0.1374,
+        "ci_high": 0.2142,
+        "r2": 0.9203,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 0.294,
+        "delta_alpha": 0.5383,
+        "h_at_q2": 1.1425,
+        "h_at_q_neg3": 1.349440816269805,
+        "h_at_q_pos3": 1.0554799520315936,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": 0.0241,
+        "sigma": 0.0356,
+        "z_score": 4.061,
+        "null_ci_low": -0.0384,
+        "null_ci_high": 0.0937,
+        "real_outside_null_ci": true,
+        "separable_at_z3": true
+      }
+    }
+  ],
+  "config": {
+    "n_surrogates_beat_null": 30,
+    "rr_truncate": 20000,
+    "seed": 42,
+    "mfdfa_q_range": [
+      -3.0,
+      3.0
+    ],
+    "mfdfa_q_step": 0.5,
+    "mfdfa_fit_order": 1
+  },
+  "interpretation_boundary": "5-subject pilot. MFDFA \u0394h quantifies multifractality; narrow \u0394h = monofractal stable regime, wide \u0394h = rich multi-regime dynamics. Beat-interval null shuffles RR sequence itself (preserves marginal, destroys beat-order, does NOT preserve linear spectrum \u2014 closes the IAAFT gap). Does NOT license claims about pathological dynamics, exercise/stress regimes, or universal cross-substrate \u03b3. Per docs/CLAIM_BOUNDARY.md \u00a73.1.",
+  "fetched_utc": "2026-04-14T11:17:17Z"
+}
