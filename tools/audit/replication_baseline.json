@@ -1,6 +1,6 @@
 {
-  "min_replications_count": 4,
-  "rationale": "Four replications: (1) fred_indpro (γ=0.94, AR(1)-non-sep); (2) btcusdt_1h (γ≈0, white-noise); (3) nsr2db nsr001 n=1 pilot SUPERSEDED; (4) nsr2db n=5 multifractal pilot — γ mean=0.50 std=0.44 (n=1 was outlier), Δh=0.19 multifractal, h(q=2)=1.10 metastable, beat-null rejects 4/5. Two-dimensional fingerprint (h(q=2), Δh) replaces single-γ marker. Cross-substrate convergence NOT supported by cardiac substrate at n=5 pilot. Bumped 3→4 in the same PR.",
+  "min_replications_count": 5,
+  "rationale": "Five replications: (1) fred_indpro (γ=0.94, AR(1)-non-sep); (2) btcusdt_1h (γ≈0, white-noise); (3) nsr2db nsr001 n=1 SUPERSEDED; (4) nsr2db n=5 multifractal (γ varies, Δh=0.19, beat-null 4/5); (5) chf2db pathology contrast — FIRST POSITIVE FINDING: 2D (h(q=2), Δh) fingerprint discriminates NSR vs CHF with Cohen's d=-2.56 on h(q=2) and +1.85 on Δh. Cardiac substrate has defensible WITHIN-substrate marker (per-cohort calibration); cross-substrate convergence still NOT supported. Bumped 4→5 in same PR.",
   "last_bumped": "2026-04-14",
   "canonical_source": "evidence/replications/registry.yaml"
 }

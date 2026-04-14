@@ -1,0 +1,249 @@
+{
+  "substrate": "physionet_hrv_chf2db_contrast",
+  "claim_status": "hypothesized",
+  "n_subjects_ok": 5,
+  "chf_aggregate": {
+    "gamma_mean": 1.5434,
+    "gamma_std": 1.1802,
+    "r2_mean": 0.5678,
+    "delta_h_mean": 0.6564,
+    "delta_h_std": 0.3484,
+    "h_at_q2_mean": 0.7358,
+    "h_at_q2_std": 0.1774,
+    "beat_null_separable_count": "3/5"
+  },
+  "contrast_vs_nsr2db": {
+    "nsr_reference": "evidence/replications/physionet_nsr2db_multifractal/result.json",
+    "nsr_h_at_q2_mean": 1.0955,
+    "nsr_h_at_q2_std": 0.0899,
+    "nsr_delta_h_mean": 0.1854,
+    "nsr_delta_h_std": 0.092,
+    "chf_h_at_q2_mean": 0.7358,
+    "chf_h_at_q2_std": 0.1774,
+    "chf_delta_h_mean": 0.6564,
+    "chf_delta_h_std": 0.3484,
+    "welch_t_h_at_q2": -4.046,
+    "cohen_d_h_at_q2": -2.559,
+    "welch_t_delta_h": 2.923,
+    "cohen_d_delta_h": 1.849
+  },
+  "per_subject": [
+    {
+      "record": "chf201",
+      "provenance": {
+        "record_name": "chf201",
+        "n_normal_beats": 112123,
+        "n_rr_intervals": 112122,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.7388,
+        "std_rr_s": 0.0808,
+        "rr_sha256": "04cc92049d8aa1e89ac2b20a484e829d697cc514822a3ded7126815cd6de1b51",
+        "fetched_utc": "2026-04-14T11:24:25Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 4.11
+      },
+      "gamma": {
+        "value": 0.3594,
+        "ci_low": 0.2867,
+        "ci_high": 0.4441,
+        "r2": 0.9638,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 0.2015,
+        "delta_alpha": 0.4048,
+        "h_at_q2": 1.0384,
+        "h_at_q_neg3": 1.1944913961808679,
+        "h_at_q_pos3": 0.9929999763976637,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": 0.036,
+        "sigma": 0.0458,
+        "z_score": 7.067,
+        "null_ci_low": -0.026,
+        "null_ci_high": 0.13,
+        "real_outside_null_ci": true,
+        "separable_at_z3": true
+      }
+    },
+    {
+      "record": "chf202",
+      "provenance": {
+        "record_name": "chf202",
+        "n_normal_beats": 109059,
+        "n_rr_intervals": 109058,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.6806,
+        "std_rr_s": 0.1809,
+        "rr_sha256": "9ed97812073907ed1cfaf8e6779f476e58c132f0b456263f0aa644383cf51cbe",
+        "fetched_utc": "2026-04-14T11:24:29Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 3.49
+      },
+      "gamma": {
+        "value": 0.8806,
+        "ci_low": 0.4049,
+        "ci_high": 1.5347,
+        "r2": 0.0545,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 0.7824,
+        "delta_alpha": 1.1462,
+        "h_at_q2": 0.6537,
+        "h_at_q_neg3": 1.2780976443526062,
+        "h_at_q_pos3": 0.4956602201114558,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": 1.1415,
+        "sigma": 0.1189,
+        "z_score": -2.195,
+        "null_ci_low": 0.876,
+        "null_ci_high": 1.238,
+        "real_outside_null_ci": false,
+        "separable_at_z3": false
+      }
+    },
+    {
+      "record": "chf203",
+      "provenance": {
+        "record_name": "chf203",
+        "n_normal_beats": 98884,
+        "n_rr_intervals": 98883,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.7945,
+        "std_rr_s": 0.8809,
+        "rr_sha256": "12557f3ba1f4e11ea2a49e697c6c34aedbb7208b44a1647ad78b1dabe6d90b1e",
+        "fetched_utc": "2026-04-14T11:24:32Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 4.43
+      },
+      "gamma": {
+        "value": 2.9875,
+        "ci_low": 1.7823,
+        "ci_high": 3.5749,
+        "r2": 0.5184,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 1.0208,
+        "delta_alpha": 1.3506,
+        "h_at_q2": 0.5877,
+        "h_at_q_neg3": 1.4772493799049549,
+        "h_at_q_pos3": 0.45644061982408435,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": 2.9207,
+        "sigma": 0.1707,
+        "z_score": 0.391,
+        "null_ci_low": 2.5847,
+        "null_ci_high": 3.1237,
+        "real_outside_null_ci": false,
+        "separable_at_z3": false
+      }
+    },
+    {
+      "record": "chf204",
+      "provenance": {
+        "record_name": "chf204",
+        "n_normal_beats": 96320,
+        "n_rr_intervals": 96319,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.7715,
+        "std_rr_s": 0.1687,
+        "rr_sha256": "8ee9967197aa16520c4051eac9c7a83bd079a7c67d5fa986deb639e34f9f93c5",
+        "fetched_utc": "2026-04-14T11:24:36Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 4.2
+      },
+      "gamma": {
+        "value": 0.8605,
+        "ci_low": 0.6142,
+        "ci_high": 1.2411,
+        "r2": 0.7553,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 0.3844,
+        "delta_alpha": 0.6585,
+        "h_at_q2": 0.738,
+        "h_at_q_neg3": 1.0283086996586752,
+        "h_at_q_pos3": 0.6438767703312115,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": 0.1087,
+        "sigma": 0.0349,
+        "z_score": 21.561,
+        "null_ci_low": 0.021,
+        "null_ci_high": 0.1498,
+        "real_outside_null_ci": true,
+        "separable_at_z3": true
+      }
+    },
+    {
+      "record": "chf205",
+      "provenance": {
+        "record_name": "chf205",
+        "n_normal_beats": 133482,
+        "n_rr_intervals": 133481,
+        "fs_hz": 128.0,
+        "mean_rr_s": 0.6204,
+        "std_rr_s": 0.6983,
+        "rr_sha256": "a28c172125cc04c150be06f0d06e1dec6410847e51fa71c63584346a66677bfe",
+        "fetched_utc": "2026-04-14T11:24:39Z",
+        "rr_truncated_to": 20000,
+        "rr_truncated_duration_hours": 3.54
+      },
+      "gamma": {
+        "value": 2.6288,
+        "ci_low": 1.7466,
+        "ci_high": 3.5918,
+        "r2": 0.547,
+        "n_frequencies_fit": 10
+      },
+      "mfdfa": {
+        "delta_h": 0.8929,
+        "delta_alpha": 1.1283,
+        "h_at_q2": 0.661,
+        "h_at_q_neg3": 1.4564413406230303,
+        "h_at_q_pos3": 0.5635121338209743,
+        "n_q_values": 13,
+        "n_scales": 20,
+        "fit_order": 1
+      },
+      "beat_interval_null": {
+        "family": "beat_interval",
+        "n_surrogates": 30,
+        "mu": 3.3972,
+        "sigma": 0.254,
+        "z_score": -3.026,
+        "null_ci_low": 2.9074,
+        "null_ci_high": 3.793,
+        "real_outside_null_ci": true,
+        "separable_at_z3": true
+      }
+    }
+  ],
+  "interpretation_boundary": "5-subject CHF pilot vs n=5 NSR healthy reference. Welch t / Cohen's d on (h(q=2), \u0394h) cluster differences. Does NOT license clinical claims; n=5 vs n=5 is underpowered for diagnostic statements. A predictable shift in the 2D fingerprint between healthy and CHF would license 'cardiac regime marker is pathology-discriminative' as a working hypothesis worth scaling. Per docs/CLAIM_BOUNDARY.md \u00a73.1.",
+  "fetched_utc": "2026-04-14T11:24:40Z"
+}
