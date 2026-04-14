@@ -1,6 +1,6 @@
 # Canonical Position
 
-> γ ≈ 1.0 is an **empirically confirmed correlate** of a metastable critical regime in coupled, productive dynamical systems — from biological CNS to digital agents. It is a **strong cross-substrate hypothesis**, not a definition of intelligence.
+> γ ≈ 1.0 is a **candidate cross-substrate regime marker** of metastable critical regimes in coupled, productive dynamical systems. The protocol treats it as a **falsifiable hypothesis under active test** — not a confirmed correlate, not a universal law, not a definition of intelligence. Current evidence is **substrate-dependent**: `evidence/replications/registry.yaml` records both supportive and falsifying verdicts.
 >
 > The Neosynaptex protocol requires **independent replication**, **falsification tests**, **adversarial controls**, and **active counter-example search**. Levin provides the biological precedent for distributed agency; the operational bridge between **H** (integration horizon), **C** (coordination), **γ** (metastability), and **P** (productivity) is under audit **directly at every level of systemic description**.
 >
@@ -21,7 +21,7 @@
 - Any visual or pareidolic image treated as evidence.
 - Any statement that conflates biological precedent (Levin) with a proven law about software or LLM systems.
 
-## Required engagements before any promotion above "correlate"
+## Required engagements before any promotion above "candidate marker"
 
 1. **Independent replication** — at least one party who did not build the estimator reproduces the γ value from raw substrate output.
 2. **Falsification tests** — pre-registered predictions with explicit kill criteria (see `docs/protocols/levin_bridge_protocol.md` Step 5).

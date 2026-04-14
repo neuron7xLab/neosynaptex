@@ -1,5 +1,23 @@
 # IMMACULATE Protocol — Final Report
 
+> **⚠ HISTORICAL SNAPSHOT — SUPERSEDED.** This report documents the
+> repository state as of **2026-04-05**. Its framing ("submittable
+> for peer review", "γ ≈ 1 across 4 independent wild empirical
+> domains") is no longer supportable and is retained only as an
+> audit artefact of the claim-strength trajectory. Between 2026-04-05
+> and 2026-04-14 the γ-program falsification discipline tightened
+> materially: the `cns_ai_loop` substrate was downgraded to
+> `falsified` (non-reproducible corpus, see
+> `docs/CLAIM_BOUNDARY_CNS_AI.md`), cardiac HRV at the n=5 pilot
+> level produced γ mean 0.50 ± 0.44 (NOT γ ≈ 1 across subjects),
+> and BTCUSDT hourly produced γ ≈ 0. **Current canonical state lives
+> in `evidence/replications/registry.yaml` and
+> `CANONICAL_POSITION.md`; the language in this report predates
+> those.** Do not cite this document in new manuscripts or press.
+> The words "proves" in §"Bottom line" and §"What 'immaculate' means"
+> reflect the pre-protocol language standard and would not be
+> accepted under the current `docs/CLAIM_BOUNDARY.md` barrier.
+>
 > **Scope.** This report summarises the state of the NeoSynaptex
 > repository after execution of the IMMACULATE Protocol (nine phases,
 > 2026-04-05). Each phase was a self-contained deliverable locked
@@ -10,8 +28,9 @@
 > Commits land between `969a92a` (Phase 1 pre-commit hook) and
 > `81de48b` (Phase 9 reviewer docs).
 >
-> **Bottom line.** The repository is in a submittable state for peer
-> review: 4 wild-empirical T1 witnesses, honest tier taxonomy, basin
+> **Bottom line (2026-04-05 framing; see supersession notice above).**
+> The repository is in a submittable state for peer review: 4
+> wild-empirical T1 witnesses, honest tier taxonomy, basin
 > robustness for the one calibrated substrate, bootstrap+permutation
 > metadata in the ledger, falsification battery that proves γ breaks
 > when structure is destroyed, one-command Docker reproduction with
