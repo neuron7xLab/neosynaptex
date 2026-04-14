@@ -1,0 +1,42 @@
+name: adapter_scope_check
+
+# Canon ↔ code drift detector for the Levin-bridge in-scope substrate
+# set. Parses ``evidence/levin_bridge/horizon_knobs.md`` for the
+# "Substrates in scope after audit. <word> —" declaration and
+# compares the declared count against
+# ``substrates.bridge.levin_runner.ADAPTERS``. Also verifies that
+# every ``Adapter code location`` path in the pre-registration block
+# exists on disk.
+#
+# A failure here means the canon and the runner disagree about how
+# many substrates are in scope, or the pre-registration table points
+# at code that has been removed or renamed. Reconcile before merge.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy
+
+      - name: Run adapter-scope drift check
+        run: python -m tools.audit.adapter_scope_check
