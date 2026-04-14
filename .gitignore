@@ -18,6 +18,11 @@ proof_*.json
 proof_*.jsonl
 migration_manifest.json
 
+# Telemetry spine runtime output (docs/protocols/telemetry_spine_spec.md §9).
+# Append-only JSONL events produced at run time; not committed to the repo.
+telemetry/
+
+
 # Data files — stay in source repos
 *.parquet
 *.h5

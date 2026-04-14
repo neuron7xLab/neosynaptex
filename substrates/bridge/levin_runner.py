@@ -356,6 +356,15 @@ def append_rows(rows: Iterable[RunRow], out_path: pathlib.Path = _DEFAULT_CSV) -
                     "or legacy v1 for migration."
                 )
 
+    # Lazy import so this module stays importable in environments
+    # without ``tools/telemetry`` on the path. Emission is best-effort:
+    # if the telemetry module is unavailable or raises, the CSV write
+    # still succeeds per spec §8 (silent degradation).
+    try:
+        from tools.telemetry.emit import emit_event as _emit_event
+    except ImportError:  # pragma: no cover - optional dep path
+        _emit_event = None
+
     count = 0
     with out_path.open("a", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
@@ -364,6 +373,20 @@ def append_rows(rows: Iterable[RunRow], out_path: pathlib.Path = _DEFAULT_CSV) -
         for row in rows:
             writer.writerow(row.as_csv_row())
             count += 1
+            if _emit_event is not None:
+                _emit_event(
+                    "evidence.cross_substrate_horizon_metrics.append",
+                    "bridge",
+                    payload={
+                        "substrate": row.substrate,
+                        "regime": row.regime,
+                        "control_family": row.control_family.value,
+                        "schema_version": row.schema_version,
+                        "P_status": row.P_status.value,
+                        "n_samples": row.n_samples,
+                    },
+                    outcome="ok",
+                )
     return count
 
 
