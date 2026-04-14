@@ -1,6 +1,6 @@
 {
-  "min_replications_count": 3,
-  "rationale": "Three replications filed: (1) fred_indpro 2026-04-14 (γ=0.94, AR(1)-non-separable, hypothesized); (2) binance_btcusdt_1h 2026-04-14 (γ≈0, white-noise, hypothesized); (3) physionet_nsr2db_nsr001 2026-04-14 (γ=1.09, r²=0.97, 2/3 nulls separable, IAAFT non-sep — γ as linear self-similarity signature, NOT proof of nonlinear criticality, hypothesized). First non-market substrate. Bumped 2→3 in the same PR per filing protocol.",
+  "min_replications_count": 5,
+  "rationale": "Five replications: (1) fred_indpro (γ=0.94, AR(1)-non-sep); (2) btcusdt_1h (γ≈0, white-noise); (3) nsr2db nsr001 n=1 SUPERSEDED; (4) nsr2db n=5 multifractal (γ varies, Δh=0.19, beat-null 4/5); (5) chf2db pathology contrast — FIRST POSITIVE FINDING: 2D (h(q=2), Δh) fingerprint discriminates NSR vs CHF with Cohen's d=-2.56 on h(q=2) and +1.85 on Δh. Cardiac substrate has defensible WITHIN-substrate marker (per-cohort calibration); cross-substrate convergence still NOT supported. Bumped 4→5 in same PR.",
   "last_bumped": "2026-04-14",
   "canonical_source": "evidence/replications/registry.yaml"
 }

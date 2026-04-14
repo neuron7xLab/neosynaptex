@@ -1,0 +1,52 @@
+[2026-04-14 14:17:01,515] MFDFA + beat-interval pilot: 5 records × 30 surrogates each
+[2026-04-14 14:17:01,515] === nsr001 ===
+[2026-04-14 14:17:02,956] GET https://physionet.org/content/nsr2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:17:03,225] GET https://physionet.org/files/nsr2db/1.0.0/nsr001.ecg: 200 0-213678/213678
+[2026-04-14 14:17:04,784] GET https://physionet.org/files/nsr2db/1.0.0/nsr001.hea: 200 0-33/33
+[2026-04-14 14:17:04,791]   raw n_rr=106378 mean=0.761s
+[2026-04-14 14:17:04,793]   truncated n_rr=20000 → uniform n=50998
+[2026-04-14 14:17:04,795]   γ=1.0855 CI=[0.9180,1.2404] r²=0.973
+[2026-04-14 14:17:05,004]   MFDFA: Δh=0.1274 h(q=2)=1.1826 n_samples=20000
+[2026-04-14 14:17:05,004]   beat_interval null: 30 surrogates...
+[2026-04-14 14:17:05,110]     μ=-0.0499 σ=0.0683 z=16.634 sep=True
+[2026-04-14 14:17:05,111] === nsr002 ===
+[2026-04-14 14:17:05,855] GET https://physionet.org/content/nsr2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:17:06,089] GET https://physionet.org/files/nsr2db/1.0.0/nsr002.ecg: 200 0-222782/222782
+[2026-04-14 14:17:07,906] GET https://physionet.org/files/nsr2db/1.0.0/nsr002.hea: 200 0-33/33
+[2026-04-14 14:17:07,914]   raw n_rr=111099 mean=0.756s
+[2026-04-14 14:17:07,915]   truncated n_rr=20000 → uniform n=54800
+[2026-04-14 14:17:07,918]   γ=0.3306 CI=[0.1876,0.4641] r²=0.588
+[2026-04-14 14:17:08,124]   MFDFA: Δh=0.2382 h(q=2)=1.0312 n_samples=20000
+[2026-04-14 14:17:08,124]   beat_interval null: 30 surrogates...
+[2026-04-14 14:17:08,236]     μ=0.0296 σ=0.0597 z=5.041 sep=True
+[2026-04-14 14:17:08,237] === nsr003 ===
+[2026-04-14 14:17:08,997] GET https://physionet.org/content/nsr2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:17:09,248] GET https://physionet.org/files/nsr2db/1.0.0/nsr003.ecg: 200 0-195778/195778
+[2026-04-14 14:17:10,778] GET https://physionet.org/files/nsr2db/1.0.0/nsr003.hea: 200 0-33/33
+[2026-04-14 14:17:10,784]   raw n_rr=97273 mean=0.874s
+[2026-04-14 14:17:10,786]   truncated n_rr=20000 → uniform n=68977
+[2026-04-14 14:17:10,789]   γ=0.0724 CI=[-0.2548,0.6105] r²=-0.070
+[2026-04-14 14:17:10,995]   MFDFA: Δh=0.2063 h(q=2)=0.9713 n_samples=20000
+[2026-04-14 14:17:10,995]   beat_interval null: 30 surrogates...
+[2026-04-14 14:17:11,124]     μ=0.0164 σ=0.0470 z=1.194 sep=False
+[2026-04-14 14:17:11,125] === nsr004 ===
+[2026-04-14 14:17:12,119] GET https://physionet.org/content/nsr2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:17:12,375] GET https://physionet.org/files/nsr2db/1.0.0/nsr004.ecg: 200 0-195694/195694
+[2026-04-14 14:17:13,759] GET https://physionet.org/files/nsr2db/1.0.0/nsr004.hea: 200 0-33/33
+[2026-04-14 14:17:13,765]   raw n_rr=97778 mean=0.851s
+[2026-04-14 14:17:13,767]   truncated n_rr=20000 → uniform n=62391
+[2026-04-14 14:17:13,769]   γ=0.8509 CI=[0.4570,0.9757] r²=0.932
+[2026-04-14 14:17:13,976]   MFDFA: Δh=0.0611 h(q=2)=1.1501 n_samples=20000
+[2026-04-14 14:17:13,976]   beat_interval null: 30 surrogates...
+[2026-04-14 14:17:14,107]     μ=-0.0279 σ=0.0750 z=11.725 sep=True
+[2026-04-14 14:17:14,108] === nsr005 ===
+[2026-04-14 14:17:14,885] GET https://physionet.org/content/nsr2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:17:15,134] GET https://physionet.org/files/nsr2db/1.0.0/nsr005.ecg: 200 0-234602/234602
+[2026-04-14 14:17:17,488] GET https://physionet.org/files/nsr2db/1.0.0/nsr005.hea: 200 0-33/33
+[2026-04-14 14:17:17,494]   raw n_rr=116260 mean=0.740s
+[2026-04-14 14:17:17,496]   truncated n_rr=20000 → uniform n=48980
+[2026-04-14 14:17:17,498]   γ=0.1687 CI=[0.1374,0.2142] r²=0.920
+[2026-04-14 14:17:17,706]   MFDFA: Δh=0.2940 h(q=2)=1.1425 n_samples=20000
+[2026-04-14 14:17:17,706]   beat_interval null: 30 surrogates...
+[2026-04-14 14:17:17,817]     μ=0.0241 σ=0.0356 z=4.061 sep=True
+[2026-04-14 14:17:17,819] wrote evidence/replications/physionet_nsr2db_multifractal/result.json

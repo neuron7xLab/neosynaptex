@@ -1,0 +1,52 @@
+[2026-04-14 14:24:19,984] CHF2DB pathology contrast: 5 records × 30 surrogates each
+[2026-04-14 14:24:19,984] === chf201 ===
+[2026-04-14 14:24:22,646] GET https://physionet.org/content/chf2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:24:23,030] GET https://physionet.org/files/chf2db/1.0.0/chf201.ecg: 200 0-224468/224468
+[2026-04-14 14:24:25,955] GET https://physionet.org/files/chf2db/1.0.0/chf201.hea: 200 0-51/51
+[2026-04-14 14:24:25,961]   raw n_rr=112122 mean=0.739s
+[2026-04-14 14:24:25,964]   truncated n_rr=20000 → uniform n=59205
+[2026-04-14 14:24:25,967]   γ=0.3594 CI=[0.2867,0.4441] r²=0.964
+[2026-04-14 14:24:26,175]   MFDFA: Δh=0.2015 h(q=2)=1.0384 n_samples=20000
+[2026-04-14 14:24:26,175]   beat_interval null: 30 surrogates...
+[2026-04-14 14:24:26,307]     μ=0.0360 σ=0.0458 z=7.067 sep=True
+[2026-04-14 14:24:26,308] === chf202 ===
+[2026-04-14 14:24:27,011] GET https://physionet.org/content/chf2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:24:27,346] GET https://physionet.org/files/chf2db/1.0.0/chf202.ecg: 200 0-219092/219092
+[2026-04-14 14:24:29,146] GET https://physionet.org/files/chf2db/1.0.0/chf202.hea: 200 0-51/51
+[2026-04-14 14:24:29,152]   raw n_rr=109058 mean=0.681s
+[2026-04-14 14:24:29,154]   truncated n_rr=20000 → uniform n=50252
+[2026-04-14 14:24:29,156]   γ=0.8806 CI=[0.4049,1.5347] r²=0.055
+[2026-04-14 14:24:29,366]   MFDFA: Δh=0.7824 h(q=2)=0.6537 n_samples=20000
+[2026-04-14 14:24:29,366]   beat_interval null: 30 surrogates...
+[2026-04-14 14:24:29,473]     μ=1.1415 σ=0.1189 z=-2.195 sep=False
+[2026-04-14 14:24:29,474] === chf203 ===
+[2026-04-14 14:24:30,400] GET https://physionet.org/content/chf2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:24:30,643] GET https://physionet.org/files/chf2db/1.0.0/chf203.ecg: 200 0-201316/201316
+[2026-04-14 14:24:32,920] GET https://physionet.org/files/chf2db/1.0.0/chf203.hea: 200 0-51/51
+[2026-04-14 14:24:32,927]   raw n_rr=98883 mean=0.794s
+[2026-04-14 14:24:32,928]   truncated n_rr=20000 → uniform n=63744
+[2026-04-14 14:24:32,931]   γ=2.9875 CI=[1.7823,3.5749] r²=0.518
+[2026-04-14 14:24:33,140]   MFDFA: Δh=1.0208 h(q=2)=0.5877 n_samples=20000
+[2026-04-14 14:24:33,141]   beat_interval null: 30 surrogates...
+[2026-04-14 14:24:33,265]     μ=2.9207 σ=0.1707 z=0.391 sep=False
+[2026-04-14 14:24:33,266] === chf204 ===
+[2026-04-14 14:24:34,085] GET https://physionet.org/content/chf2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:24:34,357] GET https://physionet.org/files/chf2db/1.0.0/chf204.ecg: 200 0-197776/197776
+[2026-04-14 14:24:36,188] GET https://physionet.org/files/chf2db/1.0.0/chf204.hea: 200 0-51/51
+[2026-04-14 14:24:36,194]   raw n_rr=96319 mean=0.771s
+[2026-04-14 14:24:36,196]   truncated n_rr=20000 → uniform n=60493
+[2026-04-14 14:24:36,199]   γ=0.8605 CI=[0.6142,1.2411] r²=0.755
+[2026-04-14 14:24:36,409]   MFDFA: Δh=0.3844 h(q=2)=0.7380 n_samples=20000
+[2026-04-14 14:24:36,409]   beat_interval null: 30 surrogates...
+[2026-04-14 14:24:36,530]     μ=0.1087 σ=0.0349 z=21.561 sep=True
+[2026-04-14 14:24:36,531] === chf205 ===
+[2026-04-14 14:24:37,295] GET https://physionet.org/content/chf2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:24:37,563] GET https://physionet.org/files/chf2db/1.0.0/chf205.ecg: 200 0-273480/273480
+[2026-04-14 14:24:39,793] GET https://physionet.org/files/chf2db/1.0.0/chf205.hea: 200 0-51/51
+[2026-04-14 14:24:39,801]   raw n_rr=133481 mean=0.620s
+[2026-04-14 14:24:39,803]   truncated n_rr=20000 → uniform n=50957
+[2026-04-14 14:24:39,805]   γ=2.6288 CI=[1.7466,3.5918] r²=0.547
+[2026-04-14 14:24:40,014]   MFDFA: Δh=0.8929 h(q=2)=0.6610 n_samples=20000
+[2026-04-14 14:24:40,014]   beat_interval null: 30 surrogates...
+[2026-04-14 14:24:40,122]     μ=3.3972 σ=0.2540 z=-3.026 sep=True
+[2026-04-14 14:24:40,124] wrote evidence/replications/physionet_chf2db_contrast/result.json

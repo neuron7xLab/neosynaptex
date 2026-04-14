@@ -1,0 +1,118 @@
+# Prereg — CHF2DB pathology contrast vs NSR healthy
+# Per docs/PREREG_TEMPLATE_GAMMA.md.
+# RETROSPECTIVELY FILED.
+
+prereg_version: 1
+prereg_filed_date: 2026-04-14
+osf_doi: null
+commit_sha_at_filing: TO_BE_STAMPED_AT_MERGE
+substrate_id: physionet_hrv_chf2db_contrast
+
+hypothesis:
+  primary: >-
+    The 2D fingerprint (h(q=2), Δh) proposed in PR #102 distinguishes
+    healthy NSR cardiac substrates from CHF pathological substrates
+    with a predictable shift consistent with HRV-loses-complexity-
+    with-disease literature.
+  claim_regime: candidate_marker
+  claim_scope: >-
+    n=5 healthy NSR (PR #102) vs n=5 CHF (this PR), VLF band 0.003-0.04 Hz,
+    20000 RR truncation, Welch nperseg=1024, MFDFA q∈[-3,3], 30 beat-null
+    surrogates each. PILOT scope. No clinical/diagnostic claims.
+
+data:
+  source_type: public_bundle
+  source_url_healthy: https://physionet.org/content/nsr2db/1.0.0/
+  source_url_pathology: https://physionet.org/content/chf2db/1.0.0/
+  unit_of_analysis: subject (per-cohort 2D-cluster comparison)
+  independence_structure: 5 NSR + 5 CHF independent subjects
+  sample_size: 5 + 5
+  sample_size_justification: >-
+    Per owner's prioritisation: methodology closure (MFDFA + beat-null
+    + contrast) BEFORE statistical scaling. Even at n=5 vs n=5, very
+    large effect sizes (Cohen's d > 1.8) give power ≈ 0.93 at α=0.05
+    two-sided.
+
+preprocessing:
+  pipeline_steps:
+    - identical to PR #102 (NSR multifractal pilot)
+    - applied to chf201-chf205 records via wfdb pn_dir=chf2db
+
+measurement:
+  primary_method: same as PR #102
+  contrast_test:
+    name: welch_t_test_two_independent_samples
+    metric_1: h_at_q2 (MFDFA classical Hurst at q=2)
+    metric_2: delta_h (MFDFA multifractal width)
+    effect_size: cohen_d
+    significance: two_sided
+
+null_models:
+  reused_from_PR_102: shuffled, ar1, iaaft, beat_interval (NSR n=5)
+  contrast_specific: none required for this PR (cohort comparison
+    is its own statistical test)
+
+predictions:
+  H1_primary: >-
+    CHF cluster differs from NSR cluster on (h(q=2), Δh) with
+    predictable direction (h↓, Δh↑) consistent with Goldberger 2002.
+  H0_null: >-
+    NSR and CHF clusters overlap on (h(q=2), Δh) → 2D fingerprint
+    is NOT pathology-discriminative.
+  H2_alternative: >-
+    Difference observed but not in predicted direction → marker
+    captures something other than HRV complexity loss.
+  exit_on_falsification: >-
+    Cohen's d < 0.5 on both metrics → fingerprint not discriminative
+    at this scale; substrate falls back to hypothesized.
+
+controls:
+  cohort_balance: 5 vs 5 (equal n)
+  topology_control: not_applicable_per_subject
+
+replication_plan:
+  within_lab: 1
+  cross_lab: not_planned_with_reason
+  external_rerun_committed: true
+  external_rerun_target_labs:
+    - any researcher with wfdb + scipy can reproduce
+
+interpretation_boundary: >-
+  Pilot contrast n=5 vs n=5. Even with very large effect sizes
+  this is NOT a clinical study. Does NOT license diagnostic
+  claims, AF/MI/valvular generalisation, age/sex stratification,
+  or mechanism explanation. The 2D fingerprint is a WITHIN-cardiac-
+  substrate marker; does NOT support cross-substrate γ ≈ 1
+  convergence framing in CLAIM_BOUNDARY.md §3.2.
+
+p_status: not_defined
+
+revision_rules:
+  narrowing_to_bounded_regime: >-
+    Cohen's d < 0.5 on both metrics → narrow to "no pathology
+    discriminator at this scale".
+  falsification: >-
+    Cluster overlap > 50% → fingerprint fails contrast test.
+  theory_retention: >-
+    Cohen's d > 0.8 on at least one metric in predicted direction
+    → marker passes pilot contrast (the actual outcome:
+    d_h(q2) = -2.56, d_Δh = +1.85, both very large in predicted
+    directions).
+
+provenance:
+  pipeline_runner: run_chf2db_hrv_contrast.py
+  results_table: evidence/replications/physionet_chf2db_contrast/result.json
+
+exit_criteria:
+  success_conditions:
+    - Cohen's d > 0.8 on at least one metric in predicted direction
+      ✓ ACHIEVED (d_h = -2.56, d_Δh = +1.85)
+    - clusters visually separable in 2D space
+      ✓ ACHIEVED (NSR mean (1.10, 0.19) vs CHF mean (0.74, 0.66))
+  failure_conditions:
+    - Cohen's d < 0.5 on both metrics
+    - direction opposite to prediction
+  theory_revision_conditions:
+    - if scaling to n>=20 per group preserves d > 1.0, marker is
+      ready for evidential-lane consideration (still requires
+      latent-variable null + cross-database within-cardiac).

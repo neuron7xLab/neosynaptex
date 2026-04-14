@@ -1,0 +1,138 @@
+# Prereg — NSR2DB n=5 multifractal pilot (MFDFA + beat-interval null)
+# Per docs/PREREG_TEMPLATE_GAMMA.md.
+#
+# RETROSPECTIVELY FILED. Pilot run first; this prereg documents
+# the exact configuration. Caps claim_status at hypothesized.
+
+prereg_version: 1
+prereg_filed_date: 2026-04-14
+osf_doi: null
+commit_sha_at_filing: TO_BE_STAMPED_AT_MERGE
+substrate_id: physionet_hrv_nsr2db_multifractal
+
+hypothesis:
+  primary: >-
+    Across 5 PhysioNet NSR2DB subjects, (a) HRV γ at VLF band is
+    consistent across subjects near 1.0; (b) MFDFA Δh measures the
+    multifractal width and distinguishes monofractal vs multifractal
+    regime; (c) beat-interval null rejects, demonstrating γ requires
+    temporally-ordered beat structure (closes IAAFT gap from n=1 pilot).
+  claim_regime: candidate_marker
+  claim_scope: >-
+    5 healthy subjects, NSR2DB only, RR truncated to first 20000 beats,
+    VLF band 0.003-0.04 Hz. PILOT scope. No pathological / age /
+    state / multi-database inference.
+
+data:
+  source_type: public_bundle
+  source_url: https://physionet.org/content/nsr2db/1.0.0/
+  unit_of_analysis: subject (per-subject γ, Δh, beat-null)
+  independence_structure: 5 independent healthy adult subjects
+  sample_size: 5
+  sample_size_justification: >-
+    Per owner's prioritisation: methodology closure (MFDFA + beat-null)
+    BEFORE statistical scaling. n=5 is sufficient to test cross-subject
+    γ consistency at the qualitative level; n=50+ deferred to next PR.
+
+preprocessing:
+  pipeline_steps:
+    - parse PhysioNet annotation file via wfdb.rdann
+    - filter to normal beats (symbol == "N")
+    - first 20000 RR intervals per subject
+    - cubic-spline interpolate onto uniform 4 Hz grid for γ-fit
+    - MFDFA on RAW RR sequence (not interpolated; classical HRV practice)
+
+measurement:
+  primary_method:
+    name: welch_psd_theilsen_vlf_band
+    band_hz: [0.003, 0.04]
+    nperseg: 1024
+    fs_uniform: 4.0
+  multifractal_method:
+    name: MFDFA_kantelhardt_2002
+    q_range: [-3.0, 3.0]
+    q_step: 0.5
+    s_min: 16
+    s_max: n_RR_truncated // 4
+    n_scales: 20
+    fit_order: 1
+
+null_models:
+  beat_interval:
+    enabled: true
+    n_surrogates: 30
+    description: >-
+      shuffle the RR sequence ITSELF (before uniform interpolation).
+      Preserves marginal RR distribution; destroys beat-to-beat order;
+      does NOT preserve linear power spectrum (interpolation grid
+      changes). Closes the IAAFT gap from the n=1 pilot.
+  shuffled_uniform: false  # done in n=1 pilot
+  iaaft: false             # done in n=1 pilot
+  ar1: false               # done in n=1 pilot
+  poisson: false
+  latent_variable: false   # DEFERRED — primary threat model still required
+
+  significance_threshold:
+    z_score_cutoff: 3.0
+    ci_level: 0.95
+
+predictions:
+  H1_primary: γ near 1 cross-subject AND beat-null rejects → multifractal regime marker
+  H0_null: γ varies wildly cross-subject AND/OR beat-null fails → no marker
+  H2_alternative: >-
+    γ varies wildly per-subject (the actual outcome) → narrow to
+    per-subject calibration; cross-substrate convergence not licensed
+  exit_on_falsification: >-
+    cross-subject γ std > 0.3 → universal γ ≈ 1 NOT supported by this substrate
+
+controls:
+  surrogate_families: [beat_interval]
+  perturbation_set: []
+  topology_control:
+    required: false
+
+replication_plan:
+  within_lab: 1
+  cross_lab: not_planned_with_reason
+  external_rerun_committed: true
+  external_rerun_target_labs:
+    - any researcher with wfdb + scipy can reproduce
+
+interpretation_boundary: >-
+  5-subject pilot, healthy NSR only, truncated RR, VLF band only.
+  Does NOT license cardiac criticality, pathological dynamics,
+  exercise/stress/age generalisation, or universal γ ≈ 1 across
+  substrates. Multifractal Δh > 0 is independent confirmation of
+  multi-regime structure but does NOT prove criticality. Per
+  CLAIM_BOUNDARY.md §3.1.
+
+p_status: not_defined
+
+revision_rules:
+  narrowing_to_bounded_regime: >-
+    cross-subject γ std > 0.3 → narrow to per-subject marker, drop
+    universal claim
+  falsification: >-
+    beat-interval null fails on majority of subjects → γ doesn't
+    require beat-temporal order → drop substrate from cross-substrate
+    convergence
+  theory_retention: >-
+    ALL of: cross-subject γ within ±0.2 of 1.0, Δh > 0 (multifractal),
+    beat-null rejects on >= 4/5 subjects → cardiac retains as marker
+    candidate (still requires latent-variable null + pathology contrast
+    + 50+ subjects before evidential promotion)
+
+provenance:
+  pipeline_runner: run_nsr2db_hrv_multifractal.py
+  results_table: evidence/replications/physionet_nsr2db_multifractal/result.json
+
+exit_criteria:
+  success_conditions:
+    - cross-subject γ std < 0.2 AND mean ∈ [0.8, 1.2]
+    - Δh mean > 0 (multifractal) ✓ ACHIEVED (Δh = 0.19)
+    - beat-interval null rejects >= 4/5 subjects ✓ ACHIEVED (4/5)
+  failure_conditions:
+    - cross-subject γ std > 0.3 ✗ TRIGGERED (std = 0.44 → narrow scope)
+  theory_revision_conditions:
+    - cross-subject γ std > 0.3 → revise to per-subject marker
+      (NOT universal cross-substrate)
