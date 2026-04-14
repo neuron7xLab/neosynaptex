@@ -148,7 +148,13 @@ def _parse_registry_fallback(text: str) -> dict:
                 val = val[1:-1]
             current[key.strip()] = val
 
-    if "replications" not in top:
+    # If the ``replications:`` line was seen, record the parsed list.
+    # If it was NOT seen, leave ``top`` without the key so that
+    # ``load_registry`` raises IntegrityError for missing key — per
+    # the contract. Silently defaulting to ``[]`` would mask the
+    # missing-key case and let the gate pass when it should fail
+    # (CI-reproducible bug on #83).
+    if in_list or replications:
         top["replications"] = replications
     return top
 
