@@ -1,0 +1,24 @@
+# Replications registry — canonical index.
+# Canonical protocol: docs/REPLICATION_PROTOCOL.md
+# Filing guide: evidence/replications/README.md
+# Gate: tools/audit/replication_index_check.py
+#
+# Each entry has the shape:
+#
+#   - id: <slug>
+#     date: YYYY-MM-DD
+#     substrate_class: in_vivo_cns | neuronal_culture | simulated_agent
+#     lab: <identifier or "internal">
+#     prereg_path: evidence/replications/<slug>/prereg.yaml
+#     verdict: support | falsification | theory_revision | pending
+#     commit_sha: <SHA at filing>
+#     claim_tested: <one sentence, minimum-admissible form>
+#     interpretation_boundary: <one sentence, what the result does NOT license>
+#
+# Adding an entry is a three-file diff: registry.yaml, the prereg file,
+# and tools/audit/replication_baseline.json (bump
+# min_replications_count). The gate fails if any of the three drifts.
+
+schema_version: 1
+protocol: docs/REPLICATION_PROTOCOL.md
+replications: []
