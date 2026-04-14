@@ -1,0 +1,40 @@
+name: replication_index
+
+# Ratchet: evidence/replications/registry.yaml MUST always have at
+# least ``min_replications_count`` entries
+# (tools/audit/replication_baseline.json), every entry MUST satisfy
+# the shape contract (required keys, allowed substrate_class,
+# allowed verdict), and every ``prereg_path`` MUST exist on disk.
+#
+# Filing a replication is a three-file diff: the prereg YAML, the
+# registry entry, and the baseline bump. The gate fails if any of
+# the three drifts.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml
+
+      - name: Run replication-index ratchet
+        run: python -m tools.audit.replication_index_check

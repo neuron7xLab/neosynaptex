@@ -1,0 +1,6 @@
+{
+  "min_replications_count": 0,
+  "rationale": "Scaffold-time baseline. Zero independent replications have been filed against γ-claims. Bump this number in the same PR that adds an entry to evidence/replications/registry.yaml; regressing it requires an explicit diff visible at review.",
+  "last_bumped": "2026-04-14",
+  "canonical_source": "evidence/replications/registry.yaml"
+}
