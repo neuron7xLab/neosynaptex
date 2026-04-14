@@ -176,15 +176,14 @@ gamma = 0.991 +/- 0.052
  HUMAN
 ```
 <b>CNS-AI Loop</b><br>
-<code>gamma = 1.059</code><br>
-<sub>CI: [0.985, 1.131]</sub><br>
-<sub>n = 8271</sub><br>
-<sub>p = 0.005</sub>
+<sub>[EXPLORATORY — corpus non-reproducible]</sub><br>
+<sub>Historical figures γ≈1.059, n≈8271 are <b>not evidence</b>.</sub><br>
+<sub>See <a href="docs/CLAIM_BOUNDARY_CNS_AI.md">CLAIM_BOUNDARY_CNS_AI.md</a></sub>
 </td>
 </tr>
 <tr>
 <td align="center" colspan="6">
-<sub>All six validated substrates have 95% CI containing gamma = 1.0</sub>
+<sub>Five validated substrates have 95% CI containing gamma = 1.0. The CNS-AI Loop cell is retained for historical continuity only (downgraded 2026-04-14).</sub>
 </td>
 </tr>
 <tr>
