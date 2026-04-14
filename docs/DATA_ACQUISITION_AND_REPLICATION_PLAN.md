@@ -131,14 +131,19 @@ Priority:     High — largest neural unit count; cross-region internal
 Compute:      ~TB download; streaming AWS preferred.
 ```
 
-## 3. Per-Tier expected γ
+## 3. Per-Tier prior γ ranges
 
-A reminder: `CLAIM_BOUNDARY.md §3` forbids stating γ expectations as
-if they were results. This section states **search ranges** per the
-Morrell-Nemenman-Sederberg 2024 caveat and the Priesemann σ≈0.98
-consensus.
+These are **prior ranges from Hengen-Shew 2025 meta-analysis, the
+Priesemann σ≈0.98 consensus, and the Morrell-Nemenman-Sederberg 2024
+latent-variable caveat — NOT predictions.** Each row is a literature
+prior intended for orientation only. `CLAIM_BOUNDARY.md §3` forbids
+stating γ expectations as if they were results. **These priors are
+to be updated after the first replication report lands on each
+substrate class; at that point they become posterior bands, not
+priors.** Until a Phase IV–VI report exists for a substrate, its
+row here carries zero evidential weight for any claim.
 
-| Substrate class | Search range for γ | Primary null family most likely to threaten |
+| Substrate class | Prior range for γ (literature-sourced) | Primary null family most likely to threaten |
 |---|---|---|
 | fmri_human_rest | 0.8–1.4 | latent_variable |
 | eeg_human_imagery | 0.8–1.4 | latent_variable, iaaft |
