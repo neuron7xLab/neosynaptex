@@ -106,12 +106,47 @@ def _read_input(argv: list[str]) -> str:
     return sys.stdin.read()
 
 
+def _emit_safely(event_type: str, **kwargs: object) -> None:
+    """Best-effort telemetry emit; never raises, never blocks the check.
+
+    Observability is a side channel. If ``tools.telemetry`` is missing
+    (minimal CI image) or the sink is broken, the audit verdict still
+    stands. This matches ``telemetry_spine_spec.md §8``.
+    """
+
+    try:
+        from tools.telemetry.emit import emit_event
+
+        emit_event(event_type, "audit.pr_body_check", **kwargs)  # type: ignore[arg-type]
+    except Exception:  # noqa: BLE001 — silent-drop per spec §8
+        return
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
-    text = _read_input(argv)
-    ok, reason = validate(text)
-    stream = sys.stdout if ok else sys.stderr
-    print(reason, file=stream)
+
+    try:
+        from tools.telemetry.emit import span
+    except ImportError:
+        span = None  # type: ignore[assignment]
+
+    if span is None:
+        text = _read_input(argv)
+        ok, reason = validate(text)
+        stream = sys.stdout if ok else sys.stderr
+        print(reason, file=stream)
+        return 0 if ok else 2
+
+    with span("audit.pr_body_check.run", "audit.pr_body_check"):
+        text = _read_input(argv)
+        ok, reason = validate(text)
+        stream = sys.stdout if ok else sys.stderr
+        print(reason, file=stream)
+        _emit_safely(
+            "audit.pr_body_check.verdict",
+            payload={"reason_head": reason[:200]},
+            outcome="ok" if ok else "fail",
+        )
     return 0 if ok else 2
 
 

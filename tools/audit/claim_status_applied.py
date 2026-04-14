@@ -373,6 +373,28 @@ def _format_report(windows: Sequence[WindowReport], verdict: Verdict) -> str:
     return "\n".join(lines)
 
 
+_VERDICT_OUTCOME: dict[str, str] = {
+    "applied": "ok",
+    "at_risk": "partial",
+    "stopped": "fail",
+}
+
+
+def _emit_safely(event_type: str, **kwargs: object) -> None:
+    """Best-effort telemetry emit; never raises, never blocks the verdict.
+
+    Observability is a side channel — a broken sink MUST NOT change
+    the audit result. Matches ``telemetry_spine_spec.md §8``.
+    """
+
+    try:
+        from tools.telemetry.emit import emit_event
+
+        emit_event(event_type, "audit.claim_status", **kwargs)  # type: ignore[arg-type]
+    except Exception:  # noqa: BLE001 — silent-drop per spec §8
+        return
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
         prog="claim_status_applied",
@@ -390,8 +412,32 @@ def main(argv: list[str] | None = None) -> int:
         help="Exit non-zero if verdict is at_risk or stopped.",
     )
     ns = p.parse_args(argv)
-    windows, verdict = run_audit(window_days=ns.window_days, n_windows=ns.n_windows, cwd=ns.cwd)
-    print(_format_report(windows, verdict))
+
+    try:
+        from tools.telemetry.emit import span
+    except ImportError:
+        span = None  # type: ignore[assignment]
+
+    if span is None:
+        windows, verdict = run_audit(window_days=ns.window_days, n_windows=ns.n_windows, cwd=ns.cwd)
+        print(_format_report(windows, verdict))
+        if ns.strict and verdict.name in {"at_risk", "stopped"}:
+            return 2
+        return 0
+
+    with span("audit.claim_status.run", "audit.claim_status"):
+        windows, verdict = run_audit(window_days=ns.window_days, n_windows=ns.n_windows, cwd=ns.cwd)
+        print(_format_report(windows, verdict))
+        _emit_safely(
+            "audit.claim_status.verdict",
+            payload={
+                "verdict": verdict.name,
+                "reason_head": verdict.reason[:200],
+                "n_windows": len(windows),
+                "window_days": ns.window_days,
+            },
+            outcome=_VERDICT_OUTCOME.get(verdict.name, "skip"),
+        )
     if ns.strict and verdict.name in {"at_risk", "stopped"}:
         return 2
     return 0
