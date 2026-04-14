@@ -1,128 +1,121 @@
 #!/usr/bin/env python3
-"""Derive gamma from real CNS-AI session data.
+"""CNS-AI Loop — DATA SOURCE NON-EXISTENT (downgraded 2026-04-14).
 
-Uses latency CV as topo proxy, 1/accuracy as cost proxy.
-Consistent with manuscript Section 2.3.
+================================================================
+SUBSTRATE DOWNGRADE NOTICE
+================================================================
+
+This module previously derived a γ estimate from "CNS-AI session
+data" on the path below. The substrate claim was downgraded to
+``falsified_downgraded`` on 2026-04-14 per
+``docs/CLAIM_BOUNDARY_CNS_AI.md``. Reasons:
+
+1. The archive that produced the headline ``n=8271`` does not
+   exist as a reproducible corpus. It was a scan of the owner's
+   local workspace at a specific point in time; that workspace
+   state is not preserved.
+2. The unit of analysis in the surviving report is file-system
+   entries classified by extension (``.py``, ``.odt``, ``.md``,
+   ``.txt``, ``.json``) — a category error relative to the
+   substrate's nominal claim about human-AI cognitive loops.
+
+Path mismatch is canonised in
+``docs/protocols/CNS_AI_PATH_CONTRACT.md``. The loader below no
+longer attempts a silent fallback; it raises
+``CorpusNotFoundError`` with a pointer at the canonical boundary
+document.
+
+The historical shape of the loader — latency-CV × n as topo,
+1/accuracy as cost — is retained in the body of this file for
+archival reference only. It does NOT execute against any
+extant corpus.
+
+================================================================
 """
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
-import numpy as np
-from scipy.stats import theilslopes
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+_CANON_BOUNDARY = _REPO_ROOT / "docs" / "CLAIM_BOUNDARY_CNS_AI.md"
+_PATH_CONTRACT = _REPO_ROOT / "docs" / "protocols" / "CNS_AI_PATH_CONTRACT.md"
 
-SESSIONS_DIR = Path(__file__).resolve().parent / "evidence" / "sessions"
-EVIDENCE_DIR = Path(__file__).resolve().parent.parent.parent / "evidence"
+
+class CorpusNotFoundError(FileNotFoundError):
+    """Raised when the CNS-AI corpus is requested — it does not exist.
+
+    The substrate was downgraded on 2026-04-14 because the corpus
+    that produced ``γ=1.059, n=8271`` is non-reproducible (see
+    ``docs/CLAIM_BOUNDARY_CNS_AI.md``). No silent fallback is
+    permitted; every caller MUST handle this exception explicitly,
+    typically by downgrading its own claim or refusing to proceed.
+    """
 
 
 def load_sessions() -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
-    productive: list[tuple[float, float]] = []
-    non_productive: list[tuple[float, float]] = []
-    if not SESSIONS_DIR.exists():
-        return productive, non_productive
+    """Deprecated: raises ``CorpusNotFoundError`` by contract.
 
-    for session_dir in sorted(SESSIONS_DIR.glob("session_*")):
-        analysis_file = session_dir / "analysis.json"
-        if not analysis_file.exists():
-            continue
-        with open(analysis_file) as f:
-            data = json.load(f)
+    Historically this walked ``substrates/cns_ai_loop/evidence/sessions/``
+    expecting ``session_*/analysis.json`` with statistics from a
+    session collector. That directory never contained the 8271
+    files counted in ``xform_full_archive_gamma_report.json``, and
+    the actual workspace scan that produced them is not preserved.
+    See ``docs/protocols/CNS_AI_PATH_CONTRACT.md`` §2–§3.
+    """
 
-        stats = data.get("statistics", {})
-        n = stats.get("n_tasks", 0)
-        accuracy = stats.get("accuracy_pct", 0) / 100.0
-        latency_cv = stats.get("latency_cv")
-
-        if n < 20 or latency_cv is None or accuracy == 0:
-            continue
-
-        topo = latency_cv * n
-        cost = max(1.0 - accuracy, 0.01)
-
-        if accuracy >= 0.75:
-            productive.append((topo, cost))
-        else:
-            non_productive.append((topo, cost))
-
-    return productive, non_productive
+    raise CorpusNotFoundError(
+        "CNS-AI corpus is non-reproducible. The substrate has been "
+        f"downgraded to 'falsified_downgraded'. See {_CANON_BOUNDARY} "
+        f"for the boundary contract and {_PATH_CONTRACT} for the "
+        "frozen record of the path mismatch. Callers MUST NOT attempt "
+        "to fall back to any other path; doing so reintroduces the "
+        "category error that triggered the downgrade."
+    )
 
 
-def compute_gamma(points: list[tuple[float, float]], label: str) -> dict | None:
-    if len(points) < 5:
-        print(f"  {label}: INSUFFICIENT DATA (n={len(points)}, need >= 5)")
-        return None
+def compute_gamma(
+    points: list[tuple[float, float]], label: str
+) -> dict | None:  # pragma: no cover - no corpus to exercise
+    """Deprecated: the CNS-AI γ derivation pipeline is no longer executed.
 
-    topos = np.array([p[0] for p in points])
-    costs = np.array([p[1] for p in points])
+    Retained as a function signature for archival reference only.
+    Any invocation with non-empty points is meaningless because the
+    corpus they were supposed to come from does not exist. Invoking
+    this function directly is not prohibited, but the returned γ
+    has no evidential standing under
+    ``docs/CLAIM_BOUNDARY_CNS_AI.md``.
+    """
 
-    mask = (topos > 0) & (costs > 0)
-    topos, costs = topos[mask], costs[mask]
-    if len(topos) < 5:
-        print(f"  {label}: INSUFFICIENT POSITIVE DATA (n={len(topos)})")
-        return None
-
-    log_t = np.log(topos)
-    log_c = np.log(costs)
-
-    if np.ptp(log_t) < 0.5:
-        print(f"  {label}: RANGE_GATE FAILED (ptp={np.ptp(log_t):.3f} < 0.5)")
-        return None
-
-    slope, intercept, lo, hi = theilslopes(log_c, log_t)
-    gamma = -slope
-
-    yhat = slope * log_t + intercept
-    ss_r = float(np.sum((log_c - yhat) ** 2))
-    ss_t = float(np.sum((log_c - log_c.mean()) ** 2))
-    r2 = 1.0 - ss_r / ss_t if ss_t > 1e-10 else 0.0
-
-    if r2 < 0.5:
-        print(f"  {label}: R2_GATE FAILED (r2={r2:.3f} < 0.5)")
-        return None
-
-    print(f"  {label}: g={gamma:.4f} CI=[{-hi:.3f},{-lo:.3f}] R2={r2:.3f} n={len(topos)}")
-    return {
-        "gamma": round(float(gamma), 4),
-        "ci_lo": round(float(-hi), 4),
-        "ci_hi": round(float(-lo), 4),
-        "r2": round(float(r2), 3),
-        "n": int(len(topos)),
-    }
+    _ = points, label
+    raise CorpusNotFoundError(
+        "compute_gamma() is disabled. CNS-AI substrate is downgraded. "
+        f"See {_CANON_BOUNDARY}."
+    )
 
 
 def main() -> int:
-    print("=== CNS-AI Real Gamma Derivation ===\n")
-    productive, non_productive = load_sessions()
-    print(f"Sessions: {len(productive)} productive, {len(non_productive)} non-productive\n")
+    """CLI entry — always fails loud with the downgrade notice."""
 
-    all_points = productive + non_productive
-    g_all = compute_gamma(all_points, "ALL sessions")
-    g_prod = compute_gamma(productive, "PRODUCTIVE (acc >= 75%)")
-    g_non = compute_gamma(non_productive, "NON-PRODUCTIVE (acc < 75%)")
-
-    if g_all:
-        result = {
-            "substrate": "cns_ai_real",
-            "gamma": g_all["gamma"],
-            "ci": [g_all["ci_lo"], g_all["ci_hi"]],
-            "r2": g_all["r2"],
-            "n": g_all["n"],
-            "productive_gamma": g_prod["gamma"] if g_prod else None,
-            "non_productive_gamma": g_non["gamma"] if g_non else None,
-            "status": "DERIVED_REAL",
-        }
-        out = EVIDENCE_DIR / "cns_ai_real_gamma.json"
-        out.write_text(json.dumps(result, indent=2))
-        print(f"\n  Saved: {out}")
-        return 0
-
-    print("\n  NO REAL DATA AVAILABLE.")
-    print("  Run: python substrates/cns_ai_loop/collector.py --duration 30")
-    print("  Then: python substrates/cns_ai_loop/analyze.py")
-    print("  Minimum: 20 sessions with >= 20 tasks each")
-    return 1
+    print(
+        "CNS-AI substrate is DOWNGRADED (falsified_downgraded).",
+        file=sys.stderr,
+    )
+    print(
+        f"See {_CANON_BOUNDARY.relative_to(_REPO_ROOT)} for the "
+        "boundary contract.",
+        file=sys.stderr,
+    )
+    print(
+        f"See {_PATH_CONTRACT.relative_to(_REPO_ROOT)} for the "
+        "frozen path-mismatch record.",
+        file=sys.stderr,
+    )
+    print(
+        "This script no longer derives γ. No silent fallback.",
+        file=sys.stderr,
+    )
+    return 2
 
 
 if __name__ == "__main__":

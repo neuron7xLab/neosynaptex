@@ -105,22 +105,54 @@ therefore executed against a wider workspace or an historical
 snapshot. **Which workspace, and when, the engine cannot
 determine.**
 
-## 2. Protocol-mandated fields — OWNER TO COMPLETE
+## 2. Protocol-mandated fields — OWNER RESOLUTION
 
-The following fields are required by
-`CNS-AI Validation Protocol v1 §Step 2`. The engine **refuses** to
-fill them from inference because §XIII of the constitution
-prohibits "synthetic evidence created to satisfy a protocol
-narrative". Owner MUST populate.
+Owner verdict (2026-04-14, delivered via session handoff):
 
-- **storage_location**: `<UNRESOLVED — local machine | private repo | external storage | historical export bundle>`
-- **owner**: `<UNRESOLVED — the person who retains operational access>`
-- **raw_file_count**: `<UNRESOLVED — total files in the archive before productive/non-productive split>`
-- **total_sessions_or_documents**: `<UNRESOLVED — if the archive contains sessions rather than files, how many>`
-- **current_accessibility_status**: `<UNRESOLVED — readable today / behind credentials / offline / lost>`
-- **decisions_jsonl_present**: **no** (verified: zero files in repo). If a `decisions.jsonl` exists in the physical archive, state where.
-- **events_jsonl_alone_used**: `<UNRESOLVED>` — the 12 session dirs in `evidence/sessions/` carry only `events.jsonl`; if the 8271-count archive also had only events (no decisions), the protocol may not treat it as evidential.
-- **unit_of_analysis_for_8271**: `documents (files classified by extension)`. Forensically verified from `xform_full_archive_gamma_report.json` `by_ext` tree. Owner: confirm or correct.
+> The archive does not exist as a separate corpus. The `n=8271` figure
+> is a scan of a local workspace at a point in time — files, not
+> cognitive sessions. The corpus is non-reproducible.
+
+Resolved field values:
+
+- **storage_location**: `local_workspace_snapshot` — not an archive in the
+  protocol-compatible sense. The scan was against the owner's local
+  filesystem at some point in time; that exact filesystem state is
+  not preserved.
+- **owner**: repository owner (`neuron7xLab`). No separate corpus
+  custodian exists.
+- **raw_file_count**: **non-determinable.** The live filesystem at the
+  scan moment is gone; the 8271 figure is the only surviving count.
+- **total_sessions_or_documents**: **not-applicable.** The `n=8271`
+  counts FILES, not sessions or documents in any evidential sense.
+- **current_accessibility_status**: **lost.** The exact workspace
+  state that produced `n=8271` cannot be reconstructed.
+- **decisions_jsonl_present**: **no** (never existed for this
+  substrate).
+- **events_jsonl_alone_used**: **no** — neither sessions nor decisions
+  were the input; file-system scan by extension was.
+- **unit_of_analysis_for_8271**: **confirmed — file-system entries
+  classified by extension** (`.py`, `.odt`, `.md`, `.txt`, `.json`).
+  This is a **category error** relative to the substrate's nominal
+  claim: CNS-AI was described as a human-AI cognitive loop
+  substrate, but the measurement was performed over static files,
+  not over cognitive episodes.
+
+Consequences of the resolution, per `CNS-AI Validation Protocol v1`:
+
+- **§Step 2** is closed with verdict **source data non-existent**.
+- **§Steps 3–10** are closed as **blocked: source data
+  non-existent**. None of them can be populated retroactively
+  without fabricating a corpus that never was.
+- **§Step 10 decision rule branch C** applies:
+  `Falsified / downgraded`. The criterion met is
+  *"unit-of-analysis / self-label bias makes claim
+  non-evidential"*.
+
+Action continuation is handed off to the companion downgrade PR that
+ships `docs/CLAIM_BOUNDARY_CNS_AI.md`, patches `README.md`, and
+patches `substrates/cns_ai_loop/__init__.py` to reflect the
+exploratory (non-evidential) status.
 
 ## 3. What the engine already locked down
 
