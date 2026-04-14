@@ -139,11 +139,25 @@ def test_knob_level_controls_raise_on_post_output_call():
 # ---------------------------------------------------------------------------
 
 
-def test_plan_size_matches_protocol():
-    """N(substrates=3) × 3 regimes × 5 control families = 45 cells."""
+def test_plan_size_matches_adapter_scope():
+    """N(in-scope substrates) × 3 regimes × 5 control families.
+
+    The in-scope substrate set is canonised in
+    ``evidence/levin_bridge/horizon_knobs.md §4`` (LLM scoped out) and
+    reconciled with ``docs/protocols/levin_bridge_protocol.md §Step 2``.
+    Current operational minimum is N=3; aspirational minimum remains
+    N≥4 and any LEVIN_BRIDGE_VERDICT.md written at N=3 MUST name this
+    as a limitation. Changing ADAPTERS here without updating both
+    canonical docs is a contract-code drift and will be rejected at
+    review.
+    """
 
     plan = build_plan()
     assert len(plan) == len(ADAPTERS) * 3 * len(ControlFamily)
+    assert len(ADAPTERS) == 3, (
+        "in-scope substrate count drifted from horizon_knobs.md §4; "
+        "update both docs or revert ADAPTERS"
+    )
     assert len(plan) == 45
 
 
