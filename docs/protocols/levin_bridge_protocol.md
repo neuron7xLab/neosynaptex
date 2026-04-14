@@ -29,15 +29,17 @@ For every substrate, measure four quantities:
 
 ## Step 2 — Substrates
 
-Use only substrates already legible inside Neosynaptex:
+Use only substrates already legible inside Neosynaptex. The **in-scope** set for the current iteration of the bridge is three classes, each with three controllable regimes:
 
-- **BN-Syn** (or another spiking substrate)
-- **MFN+** / reaction-diffusion / morphogenetic substrate
-- **Kuramoto** / market-synchronisation substrate
-- **LLM multi-agent system**
-- *(optional)* biological datasets already in the stack (EEG, Fantasia, etc.)
+- **MFN+** / reaction-diffusion / morphogenetic substrate — in scope.
+- **Kuramoto** / market-synchronisation substrate — in scope, operationalised as the **TradePulse Δr proxy** (not a classical oscillator; see `evidence/levin_bridge/horizon_knobs.md §2` — this caveat MUST be restated in every manuscript citing Kuramoto-substrate results).
+- **BN-Syn** (or another spiking substrate) — in scope.
+- **LLM multi-agent system** — **scoped out** at this iteration. Stateless API-level inference does not instantiate a measurable integration horizon; re-entry conditions are canonised in `evidence/levin_bridge/horizon_knobs.md §4`. Until a closed-loop multi-agent harness with persistent cross-step state, a measurable communication graph, and a memory-depth knob lands, the LLM arm is null and MUST NOT be counted toward substrate heterogeneity.
+- *(optional, future)* biological datasets already in the stack (EEG, Fantasia, etc.) — not in scope for the current plan matrix; adding them is a substrate-owner PR.
 
-Minimum standard: **≥ 4 substrate classes**, each with **3 controllable regimes**.
+**Operational minimum (current iteration):** **3 in-scope substrate classes**, each with 3 controllable regimes. This reconciles `§Step 2` with `horizon_knobs.md §4` (PR #66) and with the adapter tuple enforced in `substrates/bridge/levin_runner.py::ADAPTERS`. An amendment that lifts the minimum back to 4 requires (a) landing the LLM re-entry harness per `horizon_knobs.md §4`, or (b) promoting a biological dataset to in-scope via a substrate-owner PR, and (c) updating `test_plan_size_matches_adapter_scope` in `tests/levin_bridge/test_levin_runner.py` accordingly.
+
+**Protocol-design minimum (aspirational):** ≥ 4 substrate classes remain the target for a fully published bridge verdict. Any `LEVIN_BRIDGE_VERDICT.md` written at N = 3 MUST explicitly name this as a limitation.
 
 ## Step 3 — Three regimes per substrate
 
