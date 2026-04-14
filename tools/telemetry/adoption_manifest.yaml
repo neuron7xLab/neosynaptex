@@ -1,0 +1,28 @@
+# Telemetry spine adoption manifest — canonical list of wired emit sites.
+#
+# Every production call site of ``tools.telemetry.emit.emit_event`` or
+# ``tools.telemetry.emit.span`` outside the test tree MUST appear here.
+# The scanner in ``tools/audit/telemetry_adoption.py`` compares the
+# current repo's AST against this list and fails CI on any drift.
+#
+# How to add an emit site:
+#   1. Land the wiring in its module (call ``emit_event`` or ``span``).
+#   2. Append an entry to ``emit_sites`` with the exact ``path`` and
+#      ``symbol`` (``emit_event`` or ``span``).
+#   3. Run ``python -m tools.audit.telemetry_adoption`` locally to
+#      confirm the pair matches before opening a PR.
+#
+# Scope rules:
+#   * Only ``.py`` files under the repo root.
+#   * ``tests/`` tree is excluded; tests exercise the primitives but
+#     are not production producers.
+#   * Re-exports that do not themselves call the primitives are not
+#     listed.
+#
+# Today: empty. The first production emit site lands in a follow-up
+# PR (see the stacked PRs #84 → #85 → #86 on the emission API).
+
+schema_version: 1
+spec: docs/protocols/telemetry_spine_spec.md
+checker: tools/audit/telemetry_adoption.py
+emit_sites: []
