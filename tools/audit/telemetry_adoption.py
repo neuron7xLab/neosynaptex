@@ -261,9 +261,14 @@ def load_manifest(path: pathlib.Path = _MANIFEST_PATH) -> list[dict]:
             raise IntegrityError(
                 f"manifest entry[{i}] missing keys {sorted(required - entry.keys())}"
             )
-        if entry["symbol"] not in TRACKED_SYMBOLS:
+        # Symbol may be an alias (``from tools.telemetry.emit import
+        # emit_event as X`` → scanner reports ``X``). Require only a
+        # non-empty string; the scanner side enforces that the alias
+        # actually binds one of TRACKED_SYMBOLS.
+        symbol = entry["symbol"]
+        if not isinstance(symbol, str) or not symbol.strip():
             raise IntegrityError(
-                f"manifest entry[{i}] symbol {entry['symbol']!r} not in {sorted(TRACKED_SYMBOLS)}"
+                f"manifest entry[{i}] symbol must be a non-empty string; got {symbol!r}"
             )
         try:
             line_int = int(entry["line"])

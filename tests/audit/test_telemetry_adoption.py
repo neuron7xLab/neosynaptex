@@ -218,19 +218,39 @@ def test_load_manifest_with_entries(tmp_path):
     assert entries[0]["symbol"] == "emit_event"
 
 
-def test_load_manifest_rejects_bad_symbol(tmp_path):
+def test_load_manifest_rejects_empty_symbol(tmp_path):
+    # Empty/whitespace symbol is invalid. Arbitrary non-empty
+    # strings ARE accepted because the scanner emits aliased names
+    # (e.g., ``_emit_event``) which the manifest must mirror.
     body = textwrap.dedent(
         """\
         schema_version: 1
         emit_sites:
           - path: x.py
             line: 1
-            symbol: not_tracked
+            symbol: ""
         """
     )
     path = _write_manifest(tmp_path, body)
     with pytest.raises(IntegrityError, match="symbol"):
         load_manifest(path)
+
+
+def test_load_manifest_accepts_aliased_symbol(tmp_path):
+    # Scanner may emit aliased names (from X import Y as Z → Z).
+    # Manifest loader accepts any non-empty string.
+    body = textwrap.dedent(
+        """\
+        schema_version: 1
+        emit_sites:
+          - path: x.py
+            line: 1
+            symbol: _emit_event
+        """
+    )
+    path = _write_manifest(tmp_path, body)
+    entries = load_manifest(path)
+    assert entries[0]["symbol"] == "_emit_event"
 
 
 def test_load_manifest_rejects_missing_key(tmp_path):
@@ -354,17 +374,20 @@ def test_repo_canonical_state_passes_adoption_gate():
     assert code == 0, msg
 
 
-def test_manifest_ends_with_empty_emit_sites_today():
-    """Sanity: the committed manifest declares no production producers.
+def test_manifest_tracks_current_emit_sites():
+    """The committed manifest must track the current production producers.
 
-    This test will need to be updated in the same PR that adds the
-    first emit site to main. That coupling is intentional — it makes
-    the manifest update visible in the same diff as the wiring.
+    As of 2026-04-14, main has 7 emit sites across bridge +
+    adversarial + audit tools (landed by #84→#85→#86→#93→#94).
+    Adding/removing an emit site requires a paired manifest update
+    in the same PR — that coupling is what makes the drift gate
+    meaningful.
     """
 
     entries = load_manifest()
-    # NOTE: bump this assertion as emit sites land.
-    assert entries == []
+    # Bump this assertion (and the manifest) as emit sites are
+    # added or removed.
+    assert len(entries) == 7, f"expected 7 emit sites, got {len(entries)}"
 
 
 def _ignored(s):
