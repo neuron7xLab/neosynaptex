@@ -40,3 +40,12 @@ replications:
     commit_sha: TO_BE_STAMPED_AT_MERGE
     claim_tested: "γ on BTCUSDT hourly log-returns from Binance is separable from shuffled, IAAFT, and AR(1) null families AND r² >= 0.5."
     interpretation_boundary: "Result: γ ≈ 0, r² ≈ 0.001, all nulls indistinguishable — substrate exhibits white-noise spectrum at this resolution. Does NOT license any cross-substrate γ ≈ 1 claim. Hourly resolution too coarse for true microstructure burst dynamics; LOBSTER substrate (BLOCKED_BY_ACQUISITION) remains the path for that. Honest substrate-level narrowing of the universal-γ-near-1 framing at this resolution."
+  - id: physionet_nsr2db_nsr001_pilot_2026_04_14
+    date: 2026-04-14
+    substrate_class: physiological_cardiac
+    lab: internal
+    prereg_path: evidence/replications/physionet_nsr2db/prereg.yaml
+    verdict: pending
+    commit_sha: TO_BE_STAMPED_AT_MERGE
+    claim_tested: "γ on PhysioNet NSR2DB nsr001 RR-interval VLF-band PSD is separable from shuffled, IAAFT, and AR(1) null families per NULL_MODEL_HIERARCHY.md §4."
+    interpretation_boundary: "PILOT n=1 subject. γ=1.0855 (CI [0.918, 1.240], r²=0.97). 2/3 nulls separable: shuffled z=+12.4 ✓, AR(1) z=-4.26 ✓, IAAFT z=-1.58 ✗. IAAFT non-separability means γ is a LINEAR self-similarity signature (captured by amplitude spectrum + marginal distribution), NOT a proof of nonlinear criticality. Does NOT license cardiac criticality, pathological rhythm, or cross-substrate γ ≈ 1 universal claim. Single subject is insufficient statistical power; multi-subject + latent-variable null is the next step. First non-market substrate in registry."
