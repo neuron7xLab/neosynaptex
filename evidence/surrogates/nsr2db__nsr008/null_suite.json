@@ -1,0 +1,83 @@
+{
+  "cohort": "nsr2db",
+  "config": {
+    "dfa_scales": [
+      16,
+      22,
+      30,
+      40,
+      54,
+      64
+    ],
+    "families": [
+      "shuffled",
+      "iaaft",
+      "ar1",
+      "poisson",
+      "latent_gmm"
+    ],
+    "n_beats_cap": 10000,
+    "n_surrogates_per_layer": 200,
+    "required_separable_layers": 3,
+    "statistic": "DFA_alpha_16_64_beats",
+    "z_borderline_low": 2.0,
+    "z_separable": 3.0
+  },
+  "n_beats_used": 10000,
+  "overall_verdict": "SEPARABLE",
+  "per_layer": [
+    {
+      "family": "shuffled",
+      "statistic_null_mean": 0.5051838320986577,
+      "statistic_null_p05": 0.4761084619560145,
+      "statistic_null_p50": 0.5049143514898382,
+      "statistic_null_p95": 0.5284742311238001,
+      "statistic_null_std": 0.016138677378624466,
+      "verdict": "SEPARABLE",
+      "z_score": 31.570796298221516
+    },
+    {
+      "family": "iaaft",
+      "statistic_null_mean": 1.0685635890608507,
+      "statistic_null_p05": 1.0292289049757573,
+      "statistic_null_p50": 1.0685346072132786,
+      "statistic_null_p95": 1.1025026792794437,
+      "statistic_null_std": 0.02106785736484414,
+      "verdict": "BORDERLINE",
+      "z_score": -2.556921664412594
+    },
+    {
+      "family": "ar1",
+      "statistic_null_mean": 1.3904579225850437,
+      "statistic_null_p05": 1.3381293450731515,
+      "statistic_null_p50": 1.391170629605048,
+      "statistic_null_p95": 1.4363883126806278,
+      "statistic_null_std": 0.02977135406305344,
+      "verdict": "SEPARABLE",
+      "z_score": -12.62163600779729
+    },
+    {
+      "family": "poisson",
+      "statistic_null_mean": 0.5044419751685555,
+      "statistic_null_p05": 0.4726206594020967,
+      "statistic_null_p50": 0.5051658046368508,
+      "statistic_null_p95": 0.532242242853879,
+      "statistic_null_std": 0.017198824105012445,
+      "verdict": "SEPARABLE",
+      "z_score": 29.66788600533813
+    },
+    {
+      "family": "latent_gmm",
+      "statistic_null_mean": 0.9654342299410901,
+      "statistic_null_p05": 0.928697925614838,
+      "statistic_null_p50": 0.9659689027267613,
+      "statistic_null_p95": 1.001022948839372,
+      "statistic_null_std": 0.0221374865555804,
+      "verdict": "BORDERLINE",
+      "z_score": 2.2252073683775397
+    }
+  ],
+  "rr_sha256": "4e5e44e4e3a1dc68b0da40d0ebbdfe0b37aa26a9dba54abb3fcd53c6554f6cfd",
+  "statistic_real": 1.0146947281419263,
+  "subject_record": "nsr008"
+}
