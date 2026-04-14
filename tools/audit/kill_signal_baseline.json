@@ -1,0 +1,6 @@
+{
+  "min_instrumented_count": 1,
+  "rationale": "PR #76 instrumented 'taxonomy_disuse' end-to-end. Other three kill-signals (wrong_bottlenecks, structure_without_signal, poor_task_type) remain prose-only. Bump this number only in the same PR that transitions another kill-signal to measurement_status=instrumented; regression requires explicit rationale in the PR body.",
+  "last_bumped": "2026-04-14",
+  "canonical_source": "docs/SYSTEM_PROTOCOL.md::kill_criteria"
+}
