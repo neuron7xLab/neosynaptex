@@ -102,9 +102,9 @@ renamed.
 | `payload` | `object` | no | Event-specific structured data. See §7 for redaction rules. |
 | `links` | `array[object]` | no | Cross-trace references, each `{trace_id, span_id, relation}`. |
 
-Type conformance is checked by a to-be-written validator in
-`tools/telemetry/schema.py` (not part of this spec; a conformance PR
-lands it).
+Type conformance is checked by the validator in
+`tools/telemetry/schema.py` (landed in PR #79; not part of this
+spec).
 
 ## 6. Event categories
 
@@ -208,8 +208,7 @@ A substrate or tool joins the spine via a PR that:
 3. Updates its substrate `README.md` (or equivalent) with a section
    "Telemetry events emitted" listing the canonical event types it
    produces.
-4. Passes a to-be-written `tools/telemetry/validate_events.py` on
-   a sample of its own output.
+4. Passes `tools/telemetry/schema.py` on a sample of its own output.
 
 Conformance PRs are small, per-substrate, and SHOULD NOT mix telemetry
 work with substrate-domain changes.
@@ -221,7 +220,7 @@ plan transitions to T3 promotion:
 
 - `tools/telemetry/schema.py` committed; validates arbitrary JSONL
   against §5.
-- `tools/telemetry/validate_events.py` committed; at least one
+- `tools/telemetry/schema.py` committed; at least one
   golden-fixture test pinning §5 semantics.
 - ≥ 3 substrates or tools have landed conformance PRs, producing
   events under at least three distinct canonical namespaces from §6.
