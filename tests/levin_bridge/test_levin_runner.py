@@ -336,6 +336,81 @@ def test_append_rows_rejects_unknown_header(tmp_path: pathlib.Path):
 
 
 # ---------------------------------------------------------------------------
+# Telemetry emission (spec §6 / §11 conformance)
+# ---------------------------------------------------------------------------
+
+
+def test_append_rows_emits_one_telemetry_event_per_row(tmp_path: pathlib.Path):
+    """append_rows wires the bridge into the T2 telemetry spine.
+
+    Per spec §11 the substrate joins the spine by emitting its
+    evidence-append events via the canonical API. The autouse
+    conftest fixture redirects the sink into tmp_path.
+    """
+
+    import json
+    import os
+
+    sink = pathlib.Path(os.environ["NEOSYNAPTEX_TELEMETRY_SINK"])
+    out = tmp_path / "metrics.csv"
+    append_rows([_defined_row(), _not_defined_row(regime="expanded")], out)
+
+    assert sink.exists(), "expected telemetry sink to be created"
+    events = [json.loads(line) for line in sink.read_text().splitlines() if line.strip()]
+    assert len(events) == 2, f"expected 2 emit events, got {len(events)}"
+    for event in events:
+        assert event["event_type"] == "evidence.cross_substrate_horizon_metrics.append"
+        assert event["substrate"] == "bridge"
+        assert event["outcome"] == "ok"
+        assert event["payload"]["schema_version"] == SCHEMA_VERSION
+        assert event["payload"]["P_status"] in {
+            "defined",
+            "not_defined",
+            "preregistered_pending",
+        }
+
+
+def test_append_rows_telemetry_events_pass_schema_validator(tmp_path: pathlib.Path):
+    import json
+    import os
+
+    from tools.telemetry.schema import validate_events
+
+    sink = pathlib.Path(os.environ["NEOSYNAPTEX_TELEMETRY_SINK"])
+    out = tmp_path / "metrics.csv"
+    append_rows([_defined_row()], out)
+    events = [json.loads(line) for line in sink.read_text().splitlines() if line.strip()]
+    report = validate_events(events)
+    assert report.ok, report.errors_by_index
+
+
+def test_append_rows_csv_still_written_when_telemetry_sink_unwritable(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+):
+    """CSV write must succeed even if the telemetry sink is broken.
+
+    Spec §8: silent degradation is the correct failure mode for the
+    observability plane. Bridge evidence is in the behavior plane
+    and must not be affected by a telemetry outage.
+    """
+
+    # Point the sink at a file path whose parent is itself a file,
+    # so the emit's mkdir() raises. The JSONL write path fails
+    # silently, but the CSV append must still complete.
+    broken_parent = tmp_path / "not_a_dir"
+    broken_parent.write_text("stub\n")
+    monkeypatch.setenv("NEOSYNAPTEX_TELEMETRY_SINK", str(broken_parent / "events.jsonl"))
+
+    out = tmp_path / "metrics.csv"
+    n = append_rows([_defined_row()], out)
+    assert n == 1
+    assert out.exists()
+    with out.open() as fh:
+        lines = fh.read().strip().splitlines()
+    assert len(lines) == 2  # header + 1 row
+
+
+# ---------------------------------------------------------------------------
 # v1 → v2 migration
 # ---------------------------------------------------------------------------
 
