@@ -1,0 +1,32 @@
+{
+  "marker": {
+    "feature_names": [
+      "h_at_q2",
+      "delta_h"
+    ],
+    "healthy_label": 1,
+    "pathology_label": 0,
+    "threshold": -4.244147,
+    "train_n_healthy": 36,
+    "train_n_pathology": 22,
+    "train_projection_mean_healthy": -4.068538,
+    "train_projection_mean_pathology": -4.419757,
+    "w": [
+      -3.432189,
+      -2.877505
+    ]
+  },
+  "mfdfa_dir": "results/hrv_mfdfa",
+  "n_train": 58,
+  "split_public_sha256": "1af77d5a2e351281e173bbda522114036b1da365dd6310a53aad26af6c578be1",
+  "train_metrics": {
+    "accuracy": 0.6552,
+    "auc": 0.6566,
+    "cohen_d_projection": 0.5926,
+    "n": 58,
+    "n_healthy": 36,
+    "n_pathology": 22,
+    "sensitivity": 0.6667,
+    "specificity": 0.6364
+  }
+}

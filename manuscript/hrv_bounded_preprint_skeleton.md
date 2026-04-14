@@ -1,10 +1,15 @@
 # A Two-Branch Honest Report on γ-Scaling and Multifractal Width in Human Heart-Rate Variability — Skeleton
 
-> **Status.** Preprint **skeleton**. Version 0.2, filed 2026-04-14.
-> Contains section structure, the bounded-claim framing, the blind-
-> validation protocol, and the n=116 panel-level Branch A contrast
-> (§4.2). MFDFA full-cohort marker (§4.3) and Branch B full-cohort γ
-> (§5.3) remain reserved. Not yet a submission.
+> **Status.** Preprint **skeleton**. Version 0.3, filed 2026-04-14.
+> All Branch A full-cohort numbers now landed:
+> - §4.2 panel-level contrast (n=72 vs n=44): strong separation on
+>   DFA α₁ and SDNN (Cohen d > 1.5).
+> - §4.3 MFDFA `(h(q=2), Δh)` marker + blind validation (7 seeds):
+>   **Branch A NOT PROMOTED** — 0/7 seeds reach the pre-registered
+>   AUC ≥ 0.80 / acc ≥ 0.70 promotion threshold; 2/7 seeds falsify.
+>   The pilot §4.1 effect sizes are partly a pipeline artefact
+>   (§4.3.1). Branch B full-cohort γ (§5.3) remains reserved.
+> Not yet a submission.
 >
 > **Intended venue.** arXiv (q-bio.NC cross-listed to stat.AP).
 > Targeted as a **bounded-claim pilot report**, not a discovery paper.
@@ -14,33 +19,38 @@
 > to a locked manifest in `docs/EXTERNAL_REPLICATION_INVITATION.md`
 > or its successor.
 >
-> **Principle.** Branch A reports a positive within-substrate finding
-> with an explicit non-licence. Branch B reports a negative cross-
-> subject finding that falsifies a universal-γ framing at the cardiac
-> substrate. Neither branch licenses the other. Both are reported
-> with equal weight.
+> **Principle.** Branch A splits into a panel-level positive (§4.2:
+> classical HRV metrics separate NSR from CHF at the cohort level)
+> and an MFDFA-marker negative (§4.3: the 2-D `(h(q=2), Δh)` marker
+> does not pass its pre-registered promotion gate at n=116). Branch
+> B reports a negative cross-subject γ finding at pilot scale
+> (full-cohort still pending). Each finding is reported with
+> explicit non-licence; none licenses the others.
 
 ---
 
-## Abstract (placeholder — locked once n=116 data lands)
+## Abstract
 
-We report two results from PhysioNet cardiac HRV recordings.
-**Branch A (positive, within-substrate):** a 2-dimensional
-fingerprint combining the classical Hurst exponent `h(q=2)` and
-the multifractal width `Δh` separates healthy NSR from CHF
-pathology at pilot scale (n=5 vs n=5, Welch t = −4.05 / Cohen d =
-−2.56 on `h(q=2)`; t = +2.92 / d = +1.85 on `Δh`). The direction
-is consistent with the Goldberger 2002 HRV-loses-complexity
-literature. **Branch B (honest negative, cross-subject):** at the
-VLF band, cross-subject γ fitted via Welch PSD + Theil-Sen
-regression is **not** consistent with γ ≈ 1 (n=5 mean 0.50 ± 0.44,
-range [0.07, 1.09]). A universal cross-substrate γ framing is not
-supported by the cardiac substrate at the pilot scale. The two
-branches are reported jointly to prevent selective framing;
-neither licenses the other. Full-cohort reanalysis (n=72 healthy +
-n=44 CHF = n=116 across NSR2DB/NSRDB/CHF2DB/CHFDB) and one
-external-lab SHA-locked replication
-gate promotion of either claim.
+We report three results from PhysioNet cardiac HRV recordings
+(n=116: NSR2DB + NSRDB + CHF2DB + CHFDB). **Branch A — panel level
+(positive, within-substrate):** the classical HRV panel separates
+healthy (n=72) from CHF (n=44); DFA α₁ Cohen d = +1.52, SDNN
+d = +2.04, Poincaré SD2 d = +2.06 (§4.2). Direction matches
+Goldberger 2002 loss-of-complexity. **Branch A — MFDFA 2-D marker
+(does not promote at scale):** the pilot §4.1 reported a
+`(h(q=2), Δh)` marker separating NSR from CHF at n=5 with
+Cohen d = −2.56 on `h(q=2)`. At full cohort n=116 under the §3.5
+blind-validation protocol the marker does **not** promote —
+0/7 seeds meet the pre-registered AUC ≥ 0.80 ∧ acc ≥ 0.70 gate;
+2/7 falsify (§4.3). Part of the pilot's apparent effect is a
+pipeline artefact (§4.3.1); under the canonical cohort pipeline
+the pilot-scale effect shrinks to |d| ≈ 0.4. **Branch B (honest
+negative, cross-subject):** at the VLF band, cross-subject γ
+fitted via Welch PSD + Theil-Sen regression is **not** consistent
+with γ ≈ 1 at pilot scale (n=5 mean 0.50 ± 0.44). Full-cohort γ
+still pending (§5.3). The branches are reported jointly to prevent
+selective framing; none licenses the other. External-lab SHA-locked
+replication is open (`docs/EXTERNAL_REPLICATION_INVITATION.md` §9).
 
 ---
 
@@ -182,10 +192,84 @@ Moorman definition; this is not new (e.g. Costa-Goldberger 2002
 multiscale entropy re-interprets that single-scale rise), but it is
 worth flagging here rather than silently smoothing it out.
 
-### 4.3 Full cohort — MFDFA `(h(q=2), Δh)` marker (reserved)
+> **§4.1 caveat.** The pilot numbers were computed through the
+> `substrates/physionet_hrv/*_client.py` RR pipeline, which differs
+> from the canonical cache pipeline in how it handles ectopic beats
+> — see §4.3.1. Under the canonical pipeline the pilot-scale
+> contrast shrinks from |d| = 2.56 on `h(q=2)` to |d| ≈ 0.4. The
+> pilot remains in the record as historical context, not as an
+> independently replicated finding.
 
-- Full-cohort MFDFA run and the blind-validation step of §3.5 land
-  here. This is the promotion gate for Branch A.
+### 4.3 Full cohort — MFDFA `(h(q=2), Δh)` marker
+
+MFDFA applied to all 116 cached RR arrays (`results/hrv_mfdfa/
+cohort_summary.json`). Welch / Cohen d on the two features, then the
+§3.5 blind-validation protocol run across 7 seeds.
+
+**Per-group MFDFA aggregates (n=116):**
+
+| Group               | h(q=2) mean ± sd | Δh mean ± sd   |
+|---------------------|------------------|----------------|
+| Healthy (n=72)      | 1.112 ± 0.108    | 0.107 ± 0.086  |
+| Pathology (n=44)    | 1.160 ± 0.145    | 0.185 ± 0.305  |
+| Welch t             | −1.88            | −1.66          |
+| Cohen d             | −0.39            | −0.39          |
+
+**Blind-validation (§3.5 protocol), 7 seeds, 50/50 stratified split:**
+
+| Seed | Train n | Test n | Acc   | AUC   | d(proj) | Verdict       |
+|------|---------|--------|-------|-------|---------|---------------|
+| 1    | 58      | 58     | 0.586 | 0.596 | 0.26    | FALSIFIED     |
+| 7    | 58      | 58     | 0.603 | 0.609 | 0.40    | INCONCLUSIVE  |
+| 17   | 58      | 58     | 0.690 | 0.619 | 0.44    | INCONCLUSIVE  |
+| 42   | 58      | 58     | 0.586 | 0.640 | 0.60    | INCONCLUSIVE  |
+| 123  | 58      | 58     | 0.638 | 0.663 | 0.66    | INCONCLUSIVE  |
+| 2024 | 58      | 58     | 0.569 | 0.576 | 0.19    | FALSIFIED     |
+| 2026 | 58      | 58     | 0.638 | 0.620 | 0.62    | INCONCLUSIVE  |
+
+**Verdict distribution:** 0 PROMOTED, 5 INCONCLUSIVE, 2 FALSIFIED
+across 7 seeds. Median AUC 0.620, median accuracy 0.603. No seed
+meets the pre-registered promotion threshold (AUC ≥ 0.80 AND
+accuracy ≥ 0.70).
+
+**Direction check.** The pilot §4.1 reported `h(q=2)` *decreasing*
+under CHF (NSR 1.096 vs CHF 0.736; Cohen d = −2.56). At full cohort
+`h(q=2)` *increases* slightly under CHF (Cohen d = −0.39 with mean
+signs flipped: healthy 1.112 < pathology 1.160). The Δh direction
+is preserved (wider in CHF) but at |d| = 0.39 rather than pilot
+|d| = 1.85. The pilot effect was **not** replicated at scale.
+
+**Branch A MFDFA marker: NOT PROMOTED**. Outcome is consistent with
+borderline failure — sometimes INCONCLUSIVE, sometimes FALSIFIED
+depending on the random split — but never promotes. Per §3.5 this
+closes the Branch A promotion gate negatively: the `(h(q=2), Δh)`
+fingerprint is not a pathology-discriminative marker at the cardiac
+substrate and the pilot scale.
+
+#### 4.3.1 RR-extraction pipeline note
+
+The §4.1 pilot numbers and the §4.3 full-cohort numbers were
+computed from the **same PhysioNet records** but through two
+different RR-derivation pipelines that differ at ectopic beats:
+
+- **§4.1 pilot pipeline** (`substrates/physionet_hrv/nsr2db_client.py`,
+  `chf2db_client.py`). Masks annotations to `symbol == "N"`, then
+  `np.diff()` across the surviving beat stream. This produces an RR
+  *that spans ectopic beats* whenever the ectopic sits between two
+  normal beats. Historical behaviour; used in the pilot ledger.
+- **§4.3 full-cohort pipeline** (`tools/data/physionet_cohort.py`).
+  Takes `np.diff(samples)` only where *both* endpoints are `"N"`.
+  This is the Task Force 1996 §3.1 convention: RR is defined only
+  between consecutive normal beats. This is the pipeline committed
+  into `data/raw/{cohort}/{record}.rr.npy`.
+
+Applying the full-cohort pipeline to the same 5 NSR + 5 CHF pilot
+subjects changes `h(q=2)` means to 1.169 (NSR) vs 1.102 (CHF) — a
+1/7 of the pilot-reported |d|. The pilot's strong separation is in
+part an artefact of the across-ectopic RR spans in the pilot
+pipeline. Going forward the `tools/data/physionet_cohort.py`
+pipeline is the canonical one; §4.1 is retained as the historical
+pilot, not as a promoted claim.
 
 ### 4.3 Interpretation boundary for Branch A
 
@@ -275,7 +359,8 @@ Full citations to land with v1.0.
 |---------|------------|-------------------------------------------------------------|
 | 0.1     | 2026-04-14 | Skeleton filed. Section structure + pilot numbers + blind-validation protocol. Full-cohort numbers reserved. |
 | 0.2     | 2026-04-14 | n=116 panel-level Branch A contrast landed (§4.2). MFDFA full-cohort marker (§4.3) + Branch B cross-subject γ (§5.3) still reserved. |
-| 0.3     | TBD        | Full-cohort MFDFA + blind-validation executed.              |
+| 0.3     | 2026-04-14 | n=116 MFDFA marker + 7-seed blind-validation executed (§4.3). Branch A MFDFA **NOT PROMOTED**. Pilot pipeline discrepancy documented in §4.3.1. Branch B full-cohort γ (§5.3) still pending. |
+| 0.4     | TBD        | Full-cohort Branch B γ (§5.3).                              |
 | 1.0     | TBD        | External-replication gate passed; preprint submitted.       |
 
 ## 11. Authors and contributions

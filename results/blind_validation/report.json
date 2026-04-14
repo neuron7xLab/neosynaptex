@@ -1,0 +1,17 @@
+{
+  "ground_truth_sha256": "e62b84ad3b041cbb44f93b0f6a648808dd388943fb802cabf7b084d4188daec9",
+  "lock_sha256": "404ab8d746e36bdde236f7fb13e166c3f6670c14b8a1898bd2f231938d783a30",
+  "n_test": 58,
+  "predictions_sha256": "82c86910c2596f3f97cdf8cdd16f53691bc7f24d30638aaffe584975feccceca",
+  "test_metrics": {
+    "accuracy": 0.5862,
+    "auc": 0.6402,
+    "cohen_d_projection": 0.5968,
+    "n": 58,
+    "n_healthy": 36,
+    "n_pathology": 22,
+    "sensitivity": 0.5833,
+    "specificity": 0.5909
+  },
+  "verdict": "INCONCLUSIVE"
+}
