@@ -1,0 +1,316 @@
+# Substrate measurement table — canonical K/C/γ definitions per substrate.
+# Canonical authority: CNS-AI Validation Protocol v1 §Step 2+4, γ-program Phase I §Step 2.
+# Pair documents:
+#   - docs/CLAIM_BOUNDARY.md §4 (scope qualifiers that every γ-claim must cite)
+#   - docs/MEASUREMENT_METHOD_HIERARCHY.md
+#   - docs/NULL_MODEL_HIERARCHY.md
+#   - evidence/gamma_ledger.json
+#
+# Invariants enforced by tools/audit/ if a workflow is added for this file:
+#   - Every substrate has K_definition, C_definition, signal, measurement_method,
+#     fit_window, controls, allowed_claim populated.
+#   - allowed_claim is one of {evidential, exploratory, falsified}.
+#   - claim_status is one of the five canonical labels.
+#   - No substrate can be allowed_claim=evidential unless CLAIM_BOUNDARY.md §5.1
+#     six gates are closed.
+#
+# This YAML is the canonical source of truth for per-substrate semantics.
+# Any measurement code that disagrees with this file is wrong by definition.
+
+schema_version: 1
+effective: 2026-04-14
+pair: docs/CLAIM_BOUNDARY.md
+
+substrates:
+
+  # ---------------------------------------------------------------------
+  # Neural substrates — evidential candidates
+  # ---------------------------------------------------------------------
+
+  - id: zebrafish_wt
+    substrate_class: neural_calcium_imaging
+    K_definition: "topological complexity proxy — per-frame nearest-neighbour coefficient of variation derived from calcium trace density"
+    C_definition: "thermodynamic cost proxy — cumulative calcium spike energy per frame window"
+    signal: "whole-brain calcium fluorescence time series, wild-type zebrafish, light-sheet microscopy"
+    measurement_method: "Theil-Sen log-log slope on (K, C) pairs; McGuirl 2020 derivation"
+    fit_window: "per-frame over full recording; exclude first 10% transient"
+    controls: "exclude frames where density or cost is zero; bootstrap CI95 over frames"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "evidence/gamma_ledger.json entry zebrafish_wt; raw data cite Out_WT_default_1.mat"
+    current_gamma: 1.055
+    ci_low: 0.89
+    ci_high: 1.21
+    r2: 0.76
+    method_tier: T2
+    status: VALIDATED
+    notes: "Internal derivation from McGuirl 2020-style extraction. Not yet externally replicated; public raw-data bundle not yet posted. Evidential promotion requires CLAIM_BOUNDARY.md §5.1 six-gate closure."
+
+  - id: gray_scott
+    substrate_class: reaction_diffusion
+    K_definition: "morphogenetic topological complexity — spatial gradient variance of chemical field"
+    C_definition: "simulation cost proxy — time-integrated reaction-diffusion energy"
+    signal: "PDE simulation output, Gray-Scott parameters, 20-F sweep equilibria"
+    measurement_method: "Theil-Sen on 20 equilibria, log-log slope"
+    fit_window: "20 equilibrium points across F-parameter sweep"
+    controls: "parameter-sweep robustness; seed-variance check"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "evidence/gamma_ledger.json entry gray_scott; config cite data/gray_scott/params.json"
+    current_gamma: 0.979
+    ci_low: 0.88
+    ci_high: 1.01
+    r2: 0.995
+    method_tier: T3
+    status: VALIDATED
+    notes: "Synthetic substrate; PDE simulation is deterministic. External rerun trivial from seed+params but not yet in evidence/replications/."
+
+  - id: kuramoto_market
+    substrate_class: synchronisation
+    K_definition: "oscillator coupling topology — 128-node phase coherence"
+    C_definition: "Kc simulation cost — steady-state phase variance"
+    signal: "128-oscillator Kuramoto simulation with volatility driver; vol-to-1/|ret| mapping"
+    measurement_method: "Theil-Sen on Kc sweep"
+    fit_window: "coupling-strength sweep"
+    controls: "N-scaling check, frequency-distribution robustness"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "evidence/gamma_ledger.json entry kuramoto"
+    current_gamma: 0.963
+    ci_low: 0.93
+    ci_high: 1.00
+    r2: 0.9
+    method_tier: T3
+    status: VALIDATED
+    notes: "This is Kuramoto-as-market-proxy (NOT classical oscillator network). Proxy caveat MUST appear in every manuscript. See evidence/levin_bridge/horizon_knobs.md §2."
+
+  - id: bnsyn
+    substrate_class: spiking_network
+    K_definition: "recurrent network topology — branching-ratio-linked criticality exponent"
+    C_definition: "spike-rate-adjusted network energy"
+    signal: "BN-Syn spiking network simulation, 1/f spectral regime"
+    measurement_method: "Theil-Sen on rate-vs-CV pairs"
+    fit_window: "stationary regime after warmup"
+    controls: "seed variance; burn-in exclusion"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "evidence/gamma_ledger.json entry bnsyn"
+    current_gamma: 0.946
+    ci_low: 0.81
+    ci_high: 1.08
+    r2: 0.28
+    method_tier: T3
+    status: VALIDATED
+    notes: "Low r² (0.28) indicates high unexplained variance. Method_tier T3 but r² gate is borderline. Exception framework per γ-program Phase V §Step 22 applies."
+
+  - id: eeg_physionet
+    substrate_class: eeg_human_imagery
+    K_definition: "aperiodic exponent — FOOOF/specparam offset"
+    C_definition: "spectral-power-weighted task accuracy proxy"
+    signal: "PhysioNet EEGBCI motor-imagery EEG, 20 subjects, runs 4/8/12"
+    measurement_method: "specparam aperiodic exponent, log-log slope"
+    fit_window: "2-40 Hz aperiodic range"
+    controls: "across subjects, across runs"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "PhysioNet EEGBCI — publicly downloadable; evidence/gamma_ledger.json entry eeg_physionet"
+    current_gamma: 1.068
+    ci_low: 0.877
+    ci_high: 1.246
+    p_permutation: 0.020
+    n_pairs: 20
+    method_tier: T1
+    status: VALIDATED
+    notes: "Closest to evidential among neural substrates: public data exists. Still requires prereg + surrogate suite + external rerun for CLAIM_BOUNDARY.md §5.1 promotion."
+
+  - id: eeg_resting
+    substrate_class: eeg_human_resting
+    K_definition: "aperiodic exponent — Theil-Sen on Welch PSD log-log, alpha band excluded"
+    C_definition: "1/f cost proxy — high-frequency spectral power"
+    signal: "PhysioNet EEGBCI resting-state run 1, 10 subjects, eyes-open"
+    measurement_method: "Welch PSD (2-40 Hz) + Theil-Sen slope, alpha (7-13 Hz) excluded"
+    fit_window: "2-40 Hz excluding 7-13 Hz"
+    controls: "bootstrap CI95 n=2000; permutation p"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "PhysioNet EEGBCI resting-state"
+    current_gamma: 1.255
+    ci_low: 1.0323
+    ci_high: 1.4515
+    p_permutation: 0.048
+    n_pairs: 10
+    method_tier: T1
+    status: VALIDATED
+    verdict: WARNING
+    notes: "γ>1.0 with r²=0.34; verdict WARNING flags high unexplained variance. Independent cross-validation of eeg_physionet; not a separate datum for cross-substrate count."
+
+  - id: serotonergic_kuramoto
+    substrate_class: neuromodulatory_synchronisation
+    K_definition: "topological coherence — Kuramoto r in cross-concentration sweep"
+    C_definition: "cost — topology-cost trajectory near critical point"
+    signal: "5-HT2A modulated Kuramoto, N=64, mean-field, 4 phase ICs"
+    measurement_method: "Theil-Sen on 20 concentration points, bootstrap"
+    fit_window: "cross-concentration sweep"
+    controls: "calibration basin σ_op ∈ [0.058, 0.068] Hz; bootstrap_n=500"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "substrates/serotonergic_kuramoto/adapter.py (deterministic)"
+    current_gamma: 1.0677
+    ci_low: 0.1453
+    ci_high: 1.506
+    r2: 0.5826
+    p_permutation: 1.0
+    n_pairs: 20
+    method_tier: T5
+    status: VALIDATED
+    verdict: METASTABLE
+    notes: "Wide CI reflects finite-N folding near Kuramoto critical point. p=1.0 means NO separability from null — this is an honest METASTABLE call, not evidential support. Treat as orientation only."
+
+  - id: hrv_physionet
+    substrate_class: physiological_cardiac
+    K_definition: "VLF spectral exponent — PSD slope in 0.003-0.04 Hz band"
+    C_definition: "cost proxy — VLF power-integrated energy"
+    signal: "PhysioNet NSR2DB, VLF PSD of RR intervals, 10 subjects"
+    measurement_method: "Welch PSD + log-log slope; DFA α cross-validation"
+    fit_window: "0.003-0.04 Hz"
+    controls: "DFA alpha cross-check (alpha=1.107±0.047)"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "PhysioNet NSR2DB"
+    current_gamma: 0.885
+    ci_low: 0.834
+    ci_high: 1.08
+    r2: 0.93
+    n_pairs: 10
+    method_tier: T1
+    status: VALIDATED
+    notes: "Cross-validated by DFA. Public data path via PhysioNet. Requires prereg + surrogate + external rerun for evidential promotion."
+
+  - id: hrv_fantasia
+    substrate_class: physiological_cardiac_crossvalid
+    K_definition: "DFA α₂ long-scale exponent (16-64 beats)"
+    C_definition: "cost proxy — scale-dependent fluctuation"
+    signal: "PhysioNet Fantasia, 10 young subjects, DFA on RR intervals"
+    measurement_method: "Detrended Fluctuation Analysis α₂, scales 16-64 beats"
+    fit_window: "16-64 beats"
+    controls: "α₁ cross-check (short-scale), bootstrap_n=500"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "PhysioNet Fantasia"
+    current_gamma: 1.0032
+    ci_low: 0.9352
+    ci_high: 1.0593
+    r2: 0.00108
+    p_permutation: 0.946
+    n_pairs: 10
+    method_tier: T1
+    status: VALIDATED
+    verdict: METASTABLE
+    notes: "Explicit cross-validation of hrv_physionet on different dataset. p=0.946 indicates NO separability from null — consistent with quasicritical regime. Honest reporting per ADVERSARIAL_CONTROLS.md."
+
+# ---------------------------------------------------------------------
+# Market substrates — Phase VI lane
+# ---------------------------------------------------------------------
+
+  - id: fred_indpro
+    substrate_class: market_macro
+    K_definition: "macro signal topology — rolling-window spectral exponent on log-returns"
+    C_definition: "economic cycle cost — volatility envelope"
+    signal: "FRED INDPRO (Industrial Production Index), monthly, 1919-present"
+    measurement_method: "specparam aperiodic slope on log-return PSD; DFA α cross-check"
+    fit_window: "rolling 240-month window (20-year)"
+    controls: "shuffle surrogate; IAAFT; AR(1) OU analogue"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "FRED public domain; URL https://fred.stlouisfed.org/series/INDPRO"
+    method_tier: T1
+    status: PENDING
+    notes: "Not yet measured in evidence/gamma_ledger.json. Acquisition trivial via https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO (no API key). Pre-registered in PREREG_TEMPLATE_GAMMA.md workflow."
+
+  - id: fred_t10y2y
+    substrate_class: market_macro_rate
+    K_definition: "yield-spread signal topology — spectral exponent of term premium"
+    C_definition: "macro stress cost — recession-adjacent volatility"
+    signal: "FRED T10Y2Y (10Y-2Y Treasury spread), daily, 1976-present"
+    measurement_method: "specparam aperiodic slope, zero-crossing-detrended"
+    fit_window: "rolling 252-day window"
+    controls: "shuffle; IAAFT; OU baseline"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "FRED public domain; URL https://fred.stlouisfed.org/series/T10Y2Y"
+    method_tier: T1
+    status: PENDING
+    notes: "Inversion dynamics near yield-curve flipping provide natural critical transition. Pair with INDPRO for macro-substrate class."
+
+  - id: lobster_lob
+    substrate_class: market_microstructure
+    K_definition: "limit-order book topology — order-flow intensity per price level"
+    C_definition: "spread-adjusted liquidity cost"
+    signal: "LOBSTER NASDAQ LOB data, nanosecond-timestamped, up to 200 levels"
+    measurement_method: "specparam on log-return PSD; avalanche analysis on order-flow bursts"
+    fit_window: "intraday, per ticker, per regime"
+    controls: "matched-variance null; shuffled inter-arrival times"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "LOBSTER (paid subscription required); URL https://lobsterdata.com"
+    method_tier: T1
+    status: BLOCKED_BY_ACQUISITION
+    notes: "Access requires institutional subscription + NASDAQ OMX Global Subscriber Agreement. See docs/LOBSTER_ACQUISITION_PLAN.md for procurement route."
+
+# ---------------------------------------------------------------------
+# Morphogenetic substrates — Phase V lane
+# ---------------------------------------------------------------------
+
+  - id: eerad475_zebrafish
+    substrate_class: developmental_transcriptome
+    K_definition: "developmental topological complexity — gene-expression variance per stage"
+    C_definition: "transcriptional cost — total expression magnitude per stage"
+    signal: "E-ERAD-475 bulk RNA-seq, 23642 genes, 18 stages, up to 29 replicates"
+    measurement_method: "Theil-Sen on stage-wise (K, C) pairs; CSN power-law on per-gene distributions"
+    fit_window: "18 developmental stages (1-cell to 5 dpf)"
+    controls: "gene-shuffle; stage-permutation; matched-variance null"
+    allowed_claim: exploratory
+    claim_status: hypothesized
+    public_bundle: "E-ERAD-475 public; URL https://www.ebi.ac.uk/gxa/experiments/E-ERAD-475; DOI 10.7554/eLife.30860"
+    method_tier: T1
+    status: PENDING
+    notes: "Highest developmental-substrate power: 18 stages × 29 replicates. Downloadable FPKM/TPM pre-computed. Phase V §Step 20 primary target."
+
+# ---------------------------------------------------------------------
+# Exploratory / downgraded
+# ---------------------------------------------------------------------
+
+  - id: cns_ai_loop
+    substrate_class: human_ai_loop
+    K_definition: "NOT APPLICABLE — historical claim measured file-system entries by extension, not cognitive units"
+    C_definition: "NOT APPLICABLE"
+    signal: "NON-EXISTENT. Historical scan of local workspace at point in time; not preserved."
+    measurement_method: "historical: xform_full_archive_gamma_report.json; NOW INVALID"
+    fit_window: "historical: n=8271 files; NOW INVALID"
+    controls: "NONE"
+    allowed_claim: falsified
+    claim_status: falsified
+    public_bundle: "NONE; per docs/CLAIM_BOUNDARY_CNS_AI.md"
+    historical_gamma: 1.059
+    method_tier: none
+    status: FALSIFIED_DOWNGRADED
+    downgrade_date: 2026-04-14
+    downgrade_authority: owner-verdict-via-session-handoff
+    downgrade_reasons:
+      - corpus_non_existent
+      - category_error_unit_of_analysis
+    canon_reference: docs/CLAIM_BOUNDARY_CNS_AI.md
+    notes: "DOWNGRADED. Retained in this table with explicit falsified status so the claim cannot quietly resurface. Reactivation conditions in CLAIM_BOUNDARY_CNS_AI.md §6."
+
+# ---------------------------------------------------------------------
+# Substrates deliberately NOT in this table
+# ---------------------------------------------------------------------
+# The following are named in repo context but are NOT current γ-claim
+# substrates; listing them here is premature:
+#   - hippocampal_ca1: stub code only, no measurements
+#   - geosync_market: exploratory; K/C not formalised
+#   - mlsdm: machine-learning substrate divergence module, not γ substrate
+#   - lotka_volterra: theoretical example, no data
+#   - cfp_diy: constructed substrate, exploratory per CLAIM_BOUNDARY §5.2
+# Inclusion requires landing a PR that populates all nine required
+# fields above AND satisfies CLAIM_BOUNDARY.md §4.
