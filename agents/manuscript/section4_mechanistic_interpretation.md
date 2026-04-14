@@ -96,7 +96,7 @@ Across all experimental conditions, the prediction error field γ_PE shows remar
 
 Mean γ_PE = 0.757 (SD = 0.128). The PE field γ always falls within or near the bio-morphogenetic range [0.865, 1.081], regardless of competition strength or spatial structure. This suggests:
 
-**The prediction error dynamics carry the substrate-independent invariant, while the NMO activity dynamics carry the architectural signature.**
+**The prediction error dynamics carry a substrate-specific candidate marker, while the NMO activity dynamics carry the architectural signature.**
 
 This is consistent with the computational structure: prediction errors are the interface between the system and its environment (sensory - predicted), while NMO activities are the internal competitive dynamics. The environmental interface imposes constraints that converge across substrates; the internal dynamics reflect architectural choices.
 
