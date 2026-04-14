@@ -1,0 +1,77 @@
+{
+  "substrate": "physionet_hrv_nsr2db",
+  "record": "nsr001",
+  "claim_status": "hypothesized",
+  "verdict": "separable_from_2_of_3_nulls",
+  "gamma": {
+    "value": 1.0855,
+    "ci_low": 0.918,
+    "ci_high": 1.2404,
+    "r2": 0.9726,
+    "n_frequencies_fit": 10,
+    "fit_band_hz": [
+      0.003,
+      0.04
+    ],
+    "method": "welch_psd_theilsen_vlf"
+  },
+  "nulls": [
+    {
+      "family": "shuffled",
+      "n_surrogates": 50,
+      "mu": -0.0339,
+      "sigma": 0.0903,
+      "z_score": 12.403,
+      "null_ci_low": -0.1628,
+      "null_ci_high": 0.1337,
+      "real_outside_null_ci": true,
+      "separable_at_z3": true
+    },
+    {
+      "family": "ar1",
+      "n_surrogates": 50,
+      "mu": 1.5115,
+      "sigma": 0.1001,
+      "z_score": -4.255,
+      "null_ci_low": 1.3036,
+      "null_ci_high": 1.6817,
+      "real_outside_null_ci": true,
+      "separable_at_z3": true
+    },
+    {
+      "family": "iaaft",
+      "n_surrogates": 50,
+      "mu": 1.114,
+      "sigma": 0.018,
+      "z_score": -1.585,
+      "null_ci_low": 1.0887,
+      "null_ci_high": 1.1512,
+      "real_outside_null_ci": true,
+      "separable_at_z3": false
+    }
+  ],
+  "provenance": {
+    "record_name": "nsr001",
+    "n_normal_beats": 106379,
+    "n_rr_intervals": 106378,
+    "fs_hz": 128.0,
+    "mean_rr_s": 0.7611,
+    "std_rr_s": 0.1718,
+    "rr_sha256": "461bdc30e26a8a7dc8ad1e848acf6e751cb09630d2152840c6bdb9c2a843ea99",
+    "fetched_utc": "2026-04-14T11:09:19Z",
+    "rr_truncated_to": 20000,
+    "rr_truncated_duration_hours": 3.54,
+    "n_uniform_samples": 50998
+  },
+  "config": {
+    "n_surrogates_per_null": 50,
+    "iaaft_iter": 10,
+    "fs_uniform_hz": 4.0,
+    "nperseg": 1024
+  },
+  "method_hierarchy_cite": "docs/MEASUREMENT_METHOD_HIERARCHY.md \u00a72.3 (bounded secondary)",
+  "null_hierarchy_cite": "docs/NULL_MODEL_HIERARCHY.md \u00a72.1\u20132.3",
+  "interpretation_boundary": "PILOT n=1 subject from PhysioNet NSR2DB. RR truncated to 20000 beats (~4h) for compute tractability. Measures VLF (0.003-0.04 Hz) aperiodic slope on uniform-4Hz-interpolated RR. Does NOT license claims about cardiac criticality, pathological rhythms, or cross-substrate \u03b3. Single subject is INSUFFICIENT statistical power; multi-subject + full-record run is the next step. Per docs/CLAIM_BOUNDARY.md \u00a73.1.",
+  "claim_boundary_pointer": "docs/CLAIM_BOUNDARY.md",
+  "fetched_utc": "2026-04-14T11:09:30Z"
+}

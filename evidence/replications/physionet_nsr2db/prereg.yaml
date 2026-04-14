@@ -1,0 +1,161 @@
+# Prereg — PhysioNet NSR2DB nsr001 HRV γ-replication (pilot)
+# Per docs/PREREG_TEMPLATE_GAMMA.md.
+#
+# RETROSPECTIVELY FILED. Pilot run first; this prereg documents
+# the exact configuration. Per CLAIM_BOUNDARY.md §6, retrospective
+# prereg caps claim_status at hypothesized regardless of outcome.
+
+prereg_version: 1
+prereg_filed_date: 2026-04-14
+osf_doi: null
+commit_sha_at_filing: TO_BE_STAMPED_AT_MERGE
+substrate_id: physionet_hrv_nsr2db
+
+hypothesis:
+  primary: >-
+    γ on RR-interval VLF-band PSD of healthy normal-sinus-rhythm
+    subjects from PhysioNet NSR2DB falls near 1.0, consistent with
+    the cardiac criticality literature (Peng 1995; Goldberger 2002).
+  claim_regime: candidate_marker
+  claim_scope: >-
+    Single subject (nsr001), VLF band 0.003-0.04 Hz, 20000-RR
+    truncation. PILOT scope. No cross-subject / cross-band /
+    cross-database inference licensed.
+  relation_to_cross_substrate_claim: >-
+    If γ separable from all required nulls, this would be the FIRST
+    non-market substrate supporting CLAIM_BOUNDARY.md §3.2
+    cross-substrate convergence. Outcome below shows partial
+    support (2/3 nulls reject; IAAFT does not).
+
+data:
+  source_type: public_bundle
+  source_url: https://physionet.org/content/nsr2db/1.0.0/
+  source_sha256: see result.json provenance.rr_sha256
+  unit_of_analysis: rr_interval
+  independence_structure: >-
+    Single subject — beats highly autocorrelated within subject.
+    Pilot does not support population claims; multi-subject is
+    the next prereg.
+  sample_size: 20000
+  sample_size_justification: >-
+    First 20000 normal beats (~3.5h) of nsr001's full record.
+    Truncation chosen for compute tractability. Welch with
+    nperseg=1024 on 50998 uniform-resampled samples gives 10
+    bins in VLF band — minimum-acceptable resolution.
+  inclusion_criteria:
+    - normal beat (annotation symbol "N")
+    - first 20000 such beats
+  exclusion_criteria:
+    - non-normal beats (V, S, etc.) excluded by annotation filter
+  known_biases:
+    - healthy adult resting-state subject; no pathology, no exercise
+    - 4-hour window may not capture full circadian variability
+
+preprocessing:
+  pipeline_steps:
+    - parse PhysioNet annotation file via wfdb.rdann
+    - filter to normal beats (symbol == "N")
+    - first 20000 RR intervals
+    - cumsum(RR) → beat times in seconds
+    - cubic-spline interpolate onto uniform 4 Hz grid (Task Force ESC/NASPE 1996)
+  alternate_pipeline:
+    - linear interpolation (not run; cubic-spline standard)
+  stationarity_check: not_run_in_pilot
+  artefact_rejection: annotation-based only
+
+measurement:
+  primary_aperiodic:
+    tool: theil_sen_loglog_psd_vlf_band
+    note: BOUNDED SECONDARY per MEASUREMENT_METHOD_HIERARCHY.md §2.3
+    fit_range_hz: [0.003, 0.04]
+  secondary_crosscheck:
+    dfa_enabled: false
+    reason: deferred to multi-subject follow-up
+  uncertainty:
+    bootstrap_n: 0  # CI from Theil-Sen direct slopes only
+    seed: 42
+
+null_models:
+  shuffled:
+    enabled: true
+    n_surrogates: 50
+  iaaft:
+    enabled: true
+    n_surrogates: 50
+    n_iter: 10
+  ar1:
+    enabled: true
+    n_surrogates: 50
+  poisson:
+    enabled: false
+    reason: continuous_signal_after_resampling
+  latent_variable:
+    enabled: false
+    reason: DEFERRED — primary threat model needs cardiac-specific latent model
+  significance_threshold:
+    z_score_cutoff: 3.0
+    ci_level: 0.95
+
+predictions:
+  H1_primary: γ in [0.5, 1.5] AND separable from all required nulls
+  H0_null: γ reproducible by AR(1) → claim hypothesized
+  H2_alternative: >-
+    γ reproducible by IAAFT but NOT by AR(1) → linear-spectrum
+    explanation (the actual outcome)
+  exit_on_falsification: any null pass → hypothesized
+
+controls:
+  surrogate_families: [shuffled, iaaft, ar1]
+  perturbation_set: []
+  topology_control:
+    required: false
+    reason: single-series
+
+replication_plan:
+  within_lab: 1
+  cross_lab: not_planned_with_reason
+  external_rerun_committed: true
+  external_rerun_target_labs:
+    - any researcher with wfdb + scipy can reproduce
+
+interpretation_boundary: >-
+  PILOT n=1 result. Single subject, single band, single database,
+  truncated RR, bounded-secondary method. Does NOT license cardiac
+  criticality, pathological-rhythm, exercise/stress, or universal
+  γ ≈ 1 claims. IAAFT non-separability indicates γ value is
+  captured by linear amplitude spectrum + marginal distribution,
+  not specifically nonlinear/critical structure. Per
+  CLAIM_BOUNDARY.md §3.1.
+
+p_status: not_defined
+
+revision_rules:
+  narrowing_to_bounded_regime: >-
+    If multi-subject confirms IAAFT non-separability, narrow HRV
+    γ-framing to "linear-spectrum descriptor at VLF band"; do NOT
+    cite as criticality evidence.
+  falsification: >-
+    If latent-variable null reproduces γ, substrate's evidential
+    candidacy is falsified.
+  theory_retention: >-
+    Only if multi-subject γ ≈ 1 survives latent-variable null +
+    DFA cross-check + spectral-coherence test does substrate
+    enter evidential lane.
+
+provenance:
+  adapter_code_sha: TO_BE_STAMPED_AT_MERGE
+  data_sha256: see result.json provenance.rr_sha256
+  pipeline_runner: run_nsr2db_hrv_replication.py
+  results_table: evidence/replications/physionet_nsr2db/result.json
+  author: TO_BE_STAMPED_AT_MERGE
+  author_affiliation: neuron7xLab
+
+exit_criteria:
+  success_conditions:
+    - γ in [0.5, 1.5] AND r² >= 0.5
+    - all 3 nulls separable at |z|>=3
+  failure_conditions:
+    - any null reproduces γ → claim hypothesized (actual outcome)
+    - r² < 0.1 → no scaling regime
+  theory_revision_conditions:
+    - latent-variable surrogate reproduces γ → narrow scope

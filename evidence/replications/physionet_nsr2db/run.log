@@ -1,0 +1,15 @@
+[2026-04-14 14:09:16,436] === fetch nsr001 ===
+[2026-04-14 14:09:17,865] GET https://physionet.org/content/nsr2db/1.0.0/: 200 0-None/None
+[2026-04-14 14:09:18,131] GET https://physionet.org/files/nsr2db/1.0.0/nsr001.ecg: 200 0-213678/213678
+[2026-04-14 14:09:19,698] GET https://physionet.org/files/nsr2db/1.0.0/nsr001.hea: 200 0-33/33
+[2026-04-14 14:09:19,704]   raw n_rr=106378 mean=0.761s std=0.172s
+[2026-04-14 14:09:19,704]   truncated to 20000 RR (~3.5h)
+[2026-04-14 14:09:19,706]   uniform 4Hz: n=50998
+[2026-04-14 14:09:19,709]   REAL: γ=1.0855 CI=[0.9180,1.2404] r²=0.9726 nfreq=10
+[2026-04-14 14:09:19,709]   null shuffled: running 50 surrogates...
+[2026-04-14 14:09:19,835]     μ=-0.0339 σ=0.0903 z=12.403 sep=True
+[2026-04-14 14:09:19,835]   null ar1: running 50 surrogates...
+[2026-04-14 14:09:22,816]     μ=1.5115 σ=0.1001 z=-4.255 sep=True
+[2026-04-14 14:09:22,816]   null iaaft: running 50 surrogates...
+[2026-04-14 14:09:30,182]     μ=1.1140 σ=0.0180 z=-1.585 sep=False
+[2026-04-14 14:09:30,183] wrote evidence/replications/physionet_nsr2db/result.json
