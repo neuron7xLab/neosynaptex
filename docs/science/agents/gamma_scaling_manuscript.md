@@ -12,7 +12,7 @@ We measure the topological scaling exponent γ — the log-log slope between cha
 
 Seven falsification tests establish that: (i) γ is not a standard critical exponent, (ii) γ is not an artifact of the measurement pipeline on native multi-dimensional fields, (iii) γ ≈ 1.0 occurs in systems with moderate topological variability regardless of substrate, and (iv) the measurement is restricted to multi-dimensional density fields (not low-dimensional ODE trajectories). The theoretical mechanism underlying the specific value γ ≈ 1.0 remains an open question. We report the empirical pattern without overclaiming its interpretation, following the precedent of Kuramoto (1975), whose synchronization model preceded its theoretical explanation by two decades.
 
-**Keywords:** topological data analysis, persistent homology, substrate-independent invariant, γ-scaling, metastability, self-organization
+**Keywords:** topological data analysis, persistent homology, substrate-specific candidate marker, γ-scaling, metastability, self-organization
 
 ---
 

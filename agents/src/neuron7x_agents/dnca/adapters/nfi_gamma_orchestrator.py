@@ -10,7 +10,8 @@ Returns a single NFIGammaOutput with per-layer γ, divergence, and verdict.
 
 Invariant: γ is DERIVED in every layer. Never stored as parameter.
 
-Vasylenko 2026 — substrate-independent γ-scaling law.
+Vasylenko 2026 — γ-scaling as a substrate-specific candidate marker
+(see docs/CLAIM_BOUNDARY.md §2; no universal-law framing is licensed).
 """
 
 from __future__ import annotations
