@@ -52,6 +52,15 @@ kill_criteria:
         Three consecutive 30-day windows each with zero labeled blocks
         while total_commits > 0 → verdict "stopped" → mandates a
         framework-revision PR per the governance rule above.
+      interpretation_boundary: >-
+        Measures label application discipline, not label correctness.
+        A repo that correctly labels most commits passes this gate; a
+        repo that pastes labels ritually without semantic match can
+        also pass unless the fake-alternative diversity guard catches
+        it. Does NOT license any claim about claim quality, reviewer
+        discipline, downstream measurement fidelity, or the semantic
+        correctness of individual labels. Per
+        docs/protocols/MEASUREMENT_CONTRACT.md §1 field 8.
       test_suite: tests/audit/test_claim_status_applied.py
   - id: poor_task_type
     statement: a task type appears that this frame handles poorly

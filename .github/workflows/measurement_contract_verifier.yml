@@ -1,0 +1,38 @@
+name: measurement_contract_verifier
+
+# §IV.B Verifier role, enforcing §VII measurement-contract
+# completeness. Every kill-signal (and future metric) with
+# ``measurement_status: instrumented`` in a canonical source MUST
+# populate all eight fields per
+# ``docs/protocols/MEASUREMENT_CONTRACT.md §1``. A PR that lands
+# instrumentation with an incomplete or malformed contract fails
+# this gate; the claim cannot rise above "hypothesized".
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml
+
+      - name: Run Verifier
+        run: python -m tools.adversarial.verifier
