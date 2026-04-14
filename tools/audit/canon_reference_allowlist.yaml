@@ -1,0 +1,43 @@
+# Canon-reference allowlist — forward-references that the canon
+# explicitly declares as "not required at scaffold commit".
+#
+# Each entry MUST include:
+#   - path: the relative path that the canon references
+#   - docs: which canonical documents reference it
+#   - rationale: why the reference is allowed to point at a missing
+#     path (usually a quote from the canon that declares the
+#     artefact as "generated at run time" or "written after
+#     criterion X")
+#
+# Entries are removed from this file as the referenced artefacts
+# land. Leaving a stale entry after the artefact lands is itself a
+# drift; a future PR may add a cross-check.
+
+schema_version: 1
+spec: docs/protocols/levin_bridge_protocol.md §11
+checker: tools/audit/canon_reference_check.py
+
+allowed_missing:
+  - path: evidence/levin_bridge/LEVIN_BRIDGE_VERDICT.md
+    docs:
+      - docs/protocols/levin_bridge_protocol.md
+    rationale: >-
+      Levin-bridge protocol §11 declares this as "written only after
+      Step 9 evaluation; not required at scaffold commit". The
+      artefact appears when a bridge run reaches the verdict phase.
+  - path: evidence/levin_bridge/replications/
+    docs:
+      - docs/protocols/levin_bridge_protocol.md
+    rationale: >-
+      Referenced as the future home of independent replications per
+      Step 10 ("replicated independently and recorded in
+      evidence/levin_bridge/replications/"). Not yet populated
+      because no independent replication has been filed against the
+      Levin bridge specifically.
+  - path: notebooks/levin_bridge/gamma_vs_horizon_analysis.ipynb
+    docs:
+      - docs/protocols/levin_bridge_protocol.md
+    rationale: >-
+      Levin-bridge protocol §11 declares this as "generated at run
+      time; not required at scaffold commit". The notebook is an
+      artefact of a completed bridge run, not of the scaffold.
