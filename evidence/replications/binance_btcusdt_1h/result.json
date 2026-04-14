@@ -1,0 +1,69 @@
+{
+  "substrate": "market_crypto",
+  "asset": "BTCUSDT",
+  "exchange": "binance",
+  "interval": "1h",
+  "claim_status": "hypothesized",
+  "verdict": "non_separable_from_at_least_one_null",
+  "gamma": {
+    "gamma": 0.0045,
+    "ci_low": -0.0271,
+    "ci_high": 0.0393,
+    "r2": 0.0007,
+    "n_points": 8759,
+    "method_label": "welch_psd_theilsen",
+    "fit_freq_lo": 0.00390625,
+    "fit_freq_hi": 0.5,
+    "n_frequencies_fit": 128
+  },
+  "nulls": [
+    {
+      "null_family": "shuffled",
+      "n_surrogates": 500,
+      "mu": 0.0008,
+      "sigma": 0.0191,
+      "z_score": 0.191,
+      "null_ci_low": -0.0377,
+      "null_ci_high": 0.0363,
+      "real_outside_null_ci": false,
+      "separable_at_z3": false
+    },
+    {
+      "null_family": "ar1",
+      "n_surrogates": 500,
+      "mu": 0.0062,
+      "sigma": 0.0197,
+      "z_score": -0.088,
+      "null_ci_low": -0.0339,
+      "null_ci_high": 0.0448,
+      "real_outside_null_ci": false,
+      "separable_at_z3": false
+    },
+    {
+      "null_family": "iaaft",
+      "n_surrogates": 500,
+      "mu": 0.0036,
+      "sigma": 0.0058,
+      "z_score": 0.149,
+      "null_ci_low": -0.0068,
+      "null_ci_high": 0.0154,
+      "real_outside_null_ci": false,
+      "separable_at_z3": false
+    }
+  ],
+  "provenance": {
+    "source": "Binance public REST /api/v3/klines",
+    "url_template": "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&startTime=...&limit=1000",
+    "n_klines": 8760,
+    "interval": "1h",
+    "open_time_range_utc": "2025-04-14T11:00:00Z...2026-04-14T10:00:00Z",
+    "klines_sha256": "857b83e0720d976eed91f4b584e17184d520d1110f39fa8c454c3c821edaa5c5",
+    "klines_bytes": 1690409,
+    "fetched_utc": "2026-04-14T10:31:15Z",
+    "fetch_method": "curl-via-python-subprocess (urllib timed out in sandbox)"
+  },
+  "method_hierarchy_cite": "docs/MEASUREMENT_METHOD_HIERARCHY.md \u00a72.3 (bounded secondary)",
+  "null_hierarchy_cite": "docs/NULL_MODEL_HIERARCHY.md \u00a72.1\u20132.3",
+  "interpretation_boundary": "Measures the aperiodic slope of BTCUSDT hourly log-returns via Welch-PSD + Theil-Sen (bounded-secondary method). Does NOT license any claim about market criticality, crypto-equity equivalence, or cross-substrate convergence. Does NOT replace the primary specparam/IRASA measurement. Does NOT generalise to genuine tick-level microstructure (LOBSTER substrate remains BLOCKED_BY_ACQUISITION). Hourly resolution and crypto-specific market structure (24/7, no auctions, leverage reflexivity) make this substrate independent of FRED macro AND distinct from traditional equity microstructure. Per docs/CLAIM_BOUNDARY.md \u00a73.1.",
+  "claim_boundary_pointer": "docs/CLAIM_BOUNDARY.md"
+}

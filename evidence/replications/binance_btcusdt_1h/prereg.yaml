@@ -1,0 +1,200 @@
+# Prereg — Binance BTCUSDT 1h γ-replication (initial pilot)
+# Per docs/PREREG_TEMPLATE_GAMMA.md.
+#
+# RETROSPECTIVELY FILED. The pilot ran first; this prereg
+# documents the exact configuration for bit-reproducibility.
+# Per CLAIM_BOUNDARY.md §6, retrospective prereg caps claim_status
+# at hypothesized regardless of outcome.
+
+prereg_version: 1
+prereg_filed_date: 2026-04-14
+osf_doi: null                # NOT yet on OSF
+commit_sha_at_filing: TO_BE_STAMPED_AT_MERGE
+substrate_id: btcusdt_1h
+
+hypothesis:
+  primary: >-
+    γ on BTCUSDT hourly log-returns falls within the 0.5–1.5
+    market-class prior range, providing a SECOND independent
+    market substrate (microstructure-ish at hourly resolution)
+    distinct from FRED macro.
+  claim_regime: candidate_marker
+  claim_scope: >-
+    Single asset, single exchange, single resolution, single
+    1-year window. No cross-resolution / cross-asset / cross-exchange
+    inference licensed without independent runs.
+  relation_to_cross_substrate_claim: >-
+    If γ separable from all nulls, this would be a SECOND market
+    substrate supporting CLAIM_BOUNDARY.md §3.2 cross-substrate
+    convergence. Outcome below shows this is NOT the case.
+
+data:
+  source_type: public_bundle
+  source_url: https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h
+  source_sha256: see result.json provenance.klines_sha256
+  unit_of_analysis: hourly_kline
+  independence_structure: >-
+    Hourly closes of BTC/USDT on Binance. Strong serial dependence
+    expected; standard time-series caveats apply. Independence
+    assumed at the rolling-window level (full 1-year fit).
+  sample_size: 8759
+  sample_size_justification: >-
+    1 year of hourly data = 8760 candles, 8759 log-returns.
+    Sufficient n for Welch PSD with 128 frequency bins
+    (nperseg=256). For specparam upgrade, nperseg=512 is
+    achievable with this n (still ~17 windows for averaging).
+  inclusion_criteria:
+    - kline close > 0
+  exclusion_criteria:
+    - none (full year window)
+  known_biases:
+    - 24/7 market — no auction effects.
+    - Single exchange — does not capture fragmented liquidity.
+    - 2025-2026 may include atypical macro-driven volatility.
+
+preprocessing:
+  pipeline_steps:
+    - parse Binance JSON klines payload
+    - extract close column
+    - drop non-positive values (none expected)
+    - compute log-returns as diff(log(x))
+  alternate_pipeline:
+    - mid-quote-based returns (not run; close-only in pilot)
+  stationarity_check: not_run_in_pilot
+  artefact_rejection: none
+  windowing: full_series_single_window
+
+measurement:
+  primary_aperiodic:
+    tool: theil_sen_loglog_psd
+    note: >-
+      BOUNDED SECONDARY per MEASUREMENT_METHOD_HIERARCHY.md §2.3.
+      specparam/IRASA upgrade (nperseg>=512 per reviewer note)
+      is the follow-up PR.
+    fit_range_hz: [f > 0, none]
+    excluded_bands_hz: []
+  cross_check_aperiodic:
+    tool: not_run
+    reason: awaiting specparam upgrade
+  avalanche_fit:
+    enabled: false
+    reason: continuous price series; not event-based
+  robust_regression:
+    enabled: true
+    method: theil_sen
+    bootstrap_n: 500
+    ci_level: 0.95
+  uncertainty:
+    bootstrap_n: 500
+    seed: 42
+
+null_models:
+  shuffled:
+    enabled: true
+    n_surrogates: 500
+  iaaft:
+    enabled: true
+    n_surrogates: 500
+    n_iter: 100
+  ar1:
+    enabled: true
+    n_surrogates: 500
+  ornstein_uhlenbeck:
+    enabled: false
+    note: AR(1) substitutes per §2.3 bounded-secondary
+  poisson:
+    enabled: false
+    reason: not_applicable_continuous_series
+  latent_variable:
+    enabled: false
+    reason: DEFERRED — primary threat model needs substrate-specific latent model PR
+  significance_threshold:
+    z_score_cutoff: 3.0
+    ci_level: 0.95
+
+statistics:
+  primary_test: z_score_of_gamma_real_vs_null_family_mean
+  alpha_two_sided: 0.01
+  multiple_comparisons_control: none_justified
+
+predictions:
+  H1_primary: >-
+    γ in [0.5, 1.5] AND separable from all tested nulls at |z|>=3.
+  H0_null: >-
+    γ is reproducible by AR(1)/IAAFT (claim stays hypothesized).
+  H2_alternative: >-
+    γ ≈ 0 with r² ≈ 0: data is white-noise-like at this resolution
+    (efficient-market regime). Neither supports nor falsifies
+    γ-claim universally; narrows substrate scope.
+  exit_on_falsification: >-
+    All nulls non-separable AND r² < 0.1 → narrow substrate-class
+    scope; do NOT cite as cross-substrate evidence either way.
+
+controls:
+  surrogate_families: [shuffled, iaaft, ar1]
+  perturbation_set: []
+  counter_models:
+    - ar1_matched_autocorrelation
+    - white_noise_matched_variance
+  cross_level_checks:
+    - alternate_resolutions (1m, 1d) — DEFERRED
+  topology_control:
+    required: false
+    reason: single-series not graph
+
+replication_plan:
+  within_lab: 1
+  cross_lab: not_planned_with_reason
+  external_rerun_committed: true
+  external_rerun_target_labs:
+    - any researcher with curl + scipy can reproduce from this prereg
+
+interpretation_boundary: >-
+  Measures the aperiodic slope of BTCUSDT hourly log-returns via
+  bounded-secondary method. Does NOT license any criticality
+  claim. Does NOT generalise to traditional equity microstructure.
+  Does NOT replace genuine tick-level analysis (LOBSTER substrate
+  remains BLOCKED_BY_ACQUISITION). Hourly resolution is too coarse
+  for true microstructure burst dynamics.
+
+p_status: not_defined
+p_rationale: >-
+  No task-level productivity metric is defined for crypto market
+  substrate. Per evidence/levin_bridge/hypotheses.yaml P-optional
+  pattern, exploratory lane only.
+
+revision_rules:
+  narrowing_to_bounded_regime: >-
+    If γ ≈ 0 / no scaling is observed (the actual outcome), narrow
+    market-class γ-framing to "bounded resolution-dependent: γ ≈ 1
+    is a hypothesis at low frequencies / aggregate scales, not a
+    universal market property at all resolutions".
+  falsification: >-
+    If subsequent multi-asset / multi-resolution runs confirm white-
+    noise verdict on liquid pairs, the market_microstructure
+    substrate-class evidential candidacy is narrowed or falsified.
+  theory_retention: >-
+    Only positive separation under specparam-primary + latent-variable
+    null + minute-level (sub-hour) data would license retention of
+    market criticality framing.
+
+provenance:
+  adapter_code_sha: TO_BE_STAMPED_AT_MERGE
+  data_sha256: see result.json provenance.klines_sha256
+  pipeline_runner: run_btcusdt_replication.py
+  analysis_notebook: none
+  results_table: evidence/replications/binance_btcusdt_1h/result.json
+  author: TO_BE_STAMPED_AT_MERGE
+  author_affiliation: neuron7xLab
+
+exit_criteria:
+  success_conditions:
+    - γ in [0.5, 1.5] AND separable from all tested nulls at |z|>=3
+    - r² >= 0.5
+  failure_conditions:
+    - γ outside [0.5, 1.5] OR any null reproduces γ → claim hypothesized
+    - r² < 0.1 → spectrum is flat / no scaling regime → narrow scope
+  theory_revision_conditions:
+    - r² < 0.1 confirmed across multiple liquid crypto pairs at hourly
+      resolution → market γ ≈ 1 framing is resolution-dependent, not
+      universal
