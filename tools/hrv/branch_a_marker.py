@@ -26,7 +26,6 @@ Public API
 from __future__ import annotations
 
 import dataclasses
-import math
 import random
 from collections.abc import Sequence
 
@@ -247,41 +246,58 @@ def fit_marker(
 # ---------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
 class MarkerScore:
+    """Out-of-sample metrics with 95 % CIs.
+
+    Proportions (accuracy, sensitivity, specificity) carry a Wilson
+    score CI — robust at the 0/1 boundary and under small n.
+    AUC carries a Hanley-McNeil analytical CI. Cohen d on the
+    projection carries a Hedges-Olkin analytical CI.
+    """
+
     n: int
     n_healthy: int
     n_pathology: int
     accuracy: float
-    sensitivity: float  # healthy recall
-    specificity: float  # pathology recall
-    auc: float  # ranked by projection score
+    accuracy_ci_low: float
+    accuracy_ci_high: float
+    sensitivity: float
+    sensitivity_ci_low: float
+    sensitivity_ci_high: float
+    specificity: float
+    specificity_ci_low: float
+    specificity_ci_high: float
+    auc: float
+    auc_ci_low: float
+    auc_ci_high: float
     cohen_d_projection: float
+    cohen_d_projection_ci_low: float
+    cohen_d_projection_ci_high: float
 
-    def as_json(self) -> dict[str, float | int]:
+    def as_json(self) -> dict[str, float | int | list[float]]:
         return {
             "n": self.n,
             "n_healthy": self.n_healthy,
             "n_pathology": self.n_pathology,
             "accuracy": round(self.accuracy, 4),
+            "accuracy_ci95": [round(self.accuracy_ci_low, 4), round(self.accuracy_ci_high, 4)],
             "sensitivity": round(self.sensitivity, 4),
+            "sensitivity_ci95": [
+                round(self.sensitivity_ci_low, 4),
+                round(self.sensitivity_ci_high, 4),
+            ],
             "specificity": round(self.specificity, 4),
+            "specificity_ci95": [
+                round(self.specificity_ci_low, 4),
+                round(self.specificity_ci_high, 4),
+            ],
             "auc": round(self.auc, 4),
+            "auc_ci95": [round(self.auc_ci_low, 4), round(self.auc_ci_high, 4)],
             "cohen_d_projection": round(self.cohen_d_projection, 4),
+            "cohen_d_projection_ci95": [
+                round(self.cohen_d_projection_ci_low, 4),
+                round(self.cohen_d_projection_ci_high, 4),
+            ],
         }
-
-
-def _auc(scores_healthy: Sequence[float], scores_path: Sequence[float]) -> float:
-    """Mann–Whitney U / (n_h · n_p) — probability of correct rank."""
-
-    if not scores_healthy or not scores_path:
-        return float("nan")
-    wins = 0.0
-    for sh in scores_healthy:
-        for sp in scores_path:
-            if sh > sp:
-                wins += 1.0
-            elif sh == sp:
-                wins += 0.5
-    return wins / (len(scores_healthy) * len(scores_path))
 
 
 def score(
@@ -289,6 +305,12 @@ def score(
     X: Sequence[Sequence[float]],
     y_true: Sequence[int],
 ) -> MarkerScore:
+    from tools.stats.classifier_metrics import (
+        auc_with_hanley_mcneil_ci,
+        wilson_interval,
+    )
+    from tools.stats.effect_size import cohen_d as _cohen_d_ci
+
     if len(X) != len(y_true):
         raise ValueError("X and y_true must be parallel")
 
@@ -321,30 +343,45 @@ def score(
     n = len(y_true)
     n_h = tp + fn
     n_p = tn + fp
-    accuracy = (tp + tn) / n if n else float("nan")
-    sensitivity = tp / n_h if n_h else float("nan")
-    specificity = tn / n_p if n_p else float("nan")
+
+    acc_p, acc_lo, acc_hi = wilson_interval(tp + tn, n)
+    sens_p, sens_lo, sens_hi = (
+        wilson_interval(tp, n_h) if n_h >= 1 else (float("nan"), float("nan"), float("nan"))
+    )
+    spec_p, spec_lo, spec_hi = (
+        wilson_interval(tn, n_p) if n_p >= 1 else (float("nan"), float("nan"), float("nan"))
+    )
 
     scores_h = [s for s, t in zip(scores, y_true, strict=True) if t == marker.healthy_label]
     scores_p = [s for s, t in zip(scores, y_true, strict=True) if t == marker.pathology_label]
-    auc = _auc(scores_h, scores_p)
+    if len(scores_h) >= 1 and len(scores_p) >= 1:
+        auc, auc_lo, auc_hi = auc_with_hanley_mcneil_ci(scores_h, scores_p)
+    else:
+        auc = auc_lo = auc_hi = float("nan")
 
     if len(scores_h) >= 2 and len(scores_p) >= 2:
-        mh, mp = _mean(scores_h), _mean(scores_p)
-        var_h = sum((s - mh) ** 2 for s in scores_h) / (len(scores_h) - 1)
-        var_p = sum((s - mp) ** 2 for s in scores_p) / (len(scores_p) - 1)
-        sp2 = ((len(scores_h) - 1) * var_h + (len(scores_p) - 1) * var_p) / (n - 2)
-        cohen = (mh - mp) / math.sqrt(sp2) if sp2 > 0.0 else float("nan")
+        d_est = _cohen_d_ci(scores_h, scores_p)
+        cohen, cohen_lo, cohen_hi = d_est.point, d_est.ci_low, d_est.ci_high
     else:
-        cohen = float("nan")
+        cohen = cohen_lo = cohen_hi = float("nan")
 
     return MarkerScore(
         n=n,
         n_healthy=n_h,
         n_pathology=n_p,
-        accuracy=accuracy,
-        sensitivity=sensitivity,
-        specificity=specificity,
+        accuracy=acc_p,
+        accuracy_ci_low=acc_lo,
+        accuracy_ci_high=acc_hi,
+        sensitivity=sens_p,
+        sensitivity_ci_low=sens_lo,
+        sensitivity_ci_high=sens_hi,
+        specificity=spec_p,
+        specificity_ci_low=spec_lo,
+        specificity_ci_high=spec_hi,
         auc=auc,
+        auc_ci_low=auc_lo,
+        auc_ci_high=auc_hi,
         cohen_d_projection=cohen,
+        cohen_d_projection_ci_low=cohen_lo,
+        cohen_d_projection_ci_high=cohen_hi,
     )

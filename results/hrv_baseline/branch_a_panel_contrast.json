@@ -1,6 +1,5 @@
 {
-  "effect_size": "cohen_d_pooled_sd",
-  "interpretation_boundary": "Panel-level within-substrate contrast. Classical HRV features only \u2014 no MFDFA, no \u03b3. Does NOT license a clinical diagnostic claim. Promotion of Branch A to a per-subject marker requires the MFDFA (h(q=2), \u0394h) blind-validation protocol in manuscript/hrv_bounded_preprint_skeleton.md \u00a73.5.",
+  "interpretation_boundary": "Panel-level within-substrate contrast with per-metric p (Welch + Mann-Whitney U), BH-FDR q across the panel, and 95 % CIs on Cohen d and Cliff's \u03b4. Does NOT license a clinical diagnostic claim. Promotion of Branch A to a per-subject marker requires the MFDFA (h(q=2), \u0394h) blind-validation protocol in manuscript/hrv_bounded_preprint_skeleton.md \u00a73.5.",
   "labels": {
     "healthy": {
       "cohorts": [
@@ -19,78 +18,198 @@
   },
   "metrics": {
     "dfa_alpha1": {
+      "cliffs_delta": 0.669,
+      "cliffs_delta_ci95": [
+        0.524,
+        0.814
+      ],
       "cohen_d": 1.519,
+      "cohen_d_ci95": [
+        1.096,
+        1.942
+      ],
       "healthy_mean": 1.2435,
       "healthy_std": 0.167,
+      "mann_whitney_p": 1.66e-09,
+      "mann_whitney_q_bh": 3.55e-09,
+      "mann_whitney_u": 2644.0,
       "pathology_mean": 0.9255,
       "pathology_std": 0.2649,
       "welch_df": 64.1,
+      "welch_p": 1.03e-09,
+      "welch_q_bh": 2.05e-09,
       "welch_t": 7.145
     },
     "dfa_alpha2": {
+      "cliffs_delta": -0.589,
+      "cliffs_delta_ci95": [
+        -0.757,
+        -0.421
+      ],
       "cohen_d": -0.921,
+      "cohen_d_ci95": [
+        -1.315,
+        -0.528
+      ],
       "healthy_mean": 1.0432,
       "healthy_std": 0.1132,
+      "mann_whitney_p": 1.12e-07,
+      "mann_whitney_q_bh": 1.79e-07,
+      "mann_whitney_u": 651.0,
       "pathology_mean": 1.1812,
       "pathology_std": 0.1958,
       "welch_df": 60.8,
+      "welch_p": 7.16e-05,
+      "welch_q_bh": 0.0001,
       "welch_t": -4.262
     },
     "lf_hf_ratio": {
+      "cliffs_delta": 0.668,
+      "cliffs_delta_ci95": [
+        0.516,
+        0.82
+      ],
       "cohen_d": 1.089,
+      "cohen_d_ci95": [
+        0.688,
+        1.489
+      ],
       "healthy_mean": 4.1664,
       "healthy_std": 2.737,
+      "mann_whitney_p": 1.78e-09,
+      "mann_whitney_q_bh": 3.55e-09,
+      "mann_whitney_u": 2642.0,
       "pathology_mean": 1.7094,
       "pathology_std": 1.0636,
       "welch_df": 100.3,
+      "welch_p": 6.94e-10,
+      "welch_q_bh": 1.85e-09,
       "welch_t": 6.821
     },
     "poincare_sd1_ms": {
+      "cliffs_delta": 0.513,
+      "cliffs_delta_ci95": [
+        0.34,
+        0.686
+      ],
       "cohen_d": 0.576,
+      "cohen_d_ci95": [
+        0.193,
+        0.958
+      ],
       "healthy_mean": 21.8447,
       "healthy_std": 10.5485,
+      "mann_whitney_p": 3.89e-06,
+      "mann_whitney_q_bh": 4.44e-06,
+      "mann_whitney_u": 2396.0,
       "pathology_mean": 15.4191,
       "pathology_std": 12.1016,
       "welch_df": 81.6,
+      "welch_p": 0.0046,
+      "welch_q_bh": 0.0046,
       "welch_t": 2.911
     },
     "poincare_sd2_ms": {
+      "cliffs_delta": 0.847,
+      "cliffs_delta_ci95": [
+        0.743,
+        0.95
+      ],
       "cohen_d": 2.057,
+      "cohen_d_ci95": [
+        1.598,
+        2.516
+      ],
       "healthy_mean": 191.8637,
       "healthy_std": 43.6023,
+      "mann_whitney_p": 2.4e-14,
+      "mann_whitney_q_bh": 9.59e-14,
+      "mann_whitney_u": 2925.0,
       "pathology_mean": 94.5921,
       "pathology_std": 52.8126,
       "welch_df": 78.1,
+      "welch_p": 3.87e-16,
+      "welch_q_bh": 1.96e-15,
       "welch_t": 10.265
     },
     "rmssd_ms": {
+      "cliffs_delta": 0.513,
+      "cliffs_delta_ci95": [
+        0.34,
+        0.686
+      ],
       "cohen_d": 0.576,
+      "cohen_d_ci95": [
+        0.193,
+        0.958
+      ],
       "healthy_mean": 30.8929,
       "healthy_std": 14.9177,
+      "mann_whitney_p": 3.89e-06,
+      "mann_whitney_q_bh": 4.44e-06,
+      "mann_whitney_u": 2396.0,
       "pathology_mean": 21.8058,
       "pathology_std": 17.1141,
       "welch_df": 81.6,
+      "welch_p": 0.0046,
+      "welch_q_bh": 0.0046,
       "welch_t": 2.911
     },
     "sample_entropy": {
+      "cliffs_delta": -0.39,
+      "cliffs_delta_ci95": [
+        -0.582,
+        -0.198
+      ],
       "cohen_d": -0.771,
+      "cohen_d_ci95": [
+        -1.159,
+        -0.383
+      ],
       "healthy_mean": 0.7606,
       "healthy_std": 0.2929,
+      "mann_whitney_p": 0.0004,
+      "mann_whitney_q_bh": 0.0004,
+      "mann_whitney_u": 966.0,
       "pathology_mean": 1.0139,
       "pathology_std": 0.3797,
       "welch_df": 74.0,
+      "welch_p": 0.0003,
+      "welch_q_bh": 0.0004,
       "welch_t": -3.788
     },
     "sdnn_ms": {
+      "cliffs_delta": 0.848,
+      "cliffs_delta_ci95": [
+        0.746,
+        0.951
+      ],
       "cohen_d": 2.044,
+      "cohen_d_ci95": [
+        1.585,
+        2.502
+      ],
       "healthy_mean": 136.7256,
       "healthy_std": 30.9202,
+      "mann_whitney_p": 2.1e-14,
+      "mann_whitney_q_bh": 9.59e-14,
+      "mann_whitney_u": 2928.0,
       "pathology_mean": 68.3008,
       "pathology_std": 37.334,
       "welch_df": 78.3,
+      "welch_p": 4.9e-16,
+      "welch_q_bh": 1.96e-15,
       "welch_t": 10.205
     }
   },
-  "schema_version": 1,
-  "test": "welch_t_two_sided_unpaired"
+  "schema_version": 2,
+  "tests": {
+    "effect_sizes": [
+      "cohen_d_pooled_sd_hedges_olkin_ci",
+      "cliffs_delta_wald_ci"
+    ],
+    "multiple_testing": "benjamini_hochberg_fdr",
+    "non_parametric": "mann_whitney_u_two_sided",
+    "parametric": "welch_t_two_sided_unpaired"
+  }
 }

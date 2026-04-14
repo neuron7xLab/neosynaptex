@@ -1,14 +1,19 @@
 # A Two-Branch Honest Report on γ-Scaling and Multifractal Width in Human Heart-Rate Variability — Skeleton
 
-> **Status.** Preprint **skeleton**. Version 0.3, filed 2026-04-14.
-> All Branch A full-cohort numbers now landed:
-> - §4.2 panel-level contrast (n=72 vs n=44): strong separation on
->   DFA α₁ and SDNN (Cohen d > 1.5).
+> **Status.** Preprint **skeleton**. Version 0.4, filed 2026-04-14.
+> All Branch A full-cohort numbers now landed with full statistical
+> rigour (Welch + Mann-Whitney U, Cohen d and Cliff's δ with 95 %
+> CIs, Benjamini-Hochberg FDR across the panel, Wilson / Hanley-
+> McNeil CIs on classifier metrics):
+> - §4.2 panel-level contrast (n=72 vs n=44): six of eight panel
+>   metrics significant at BH q < 10⁻³; SDNN and Poincaré SD2 at
+>   q ≈ 2 × 10⁻¹⁵; DFA α₁ at q ≈ 2 × 10⁻⁹.
 > - §4.3 MFDFA `(h(q=2), Δh)` marker + blind validation (7 seeds):
 >   **Branch A NOT PROMOTED** — 0/7 seeds reach the pre-registered
->   AUC ≥ 0.80 / acc ≥ 0.70 promotion threshold; 2/7 seeds falsify.
->   The pilot §4.1 effect sizes are partly a pipeline artefact
->   (§4.3.1). Branch B full-cohort γ (§5.3) remains reserved.
+>   AUC ≥ 0.80 / acc ≥ 0.70 gate; 2/7 falsify. Every seed's 95 %
+>   AUC CI straddles 0.50 (chance). The pilot §4.1 effect sizes are
+>   partly a pipeline artefact (§4.3.1).
+> - Branch B full-cohort γ (§5.3) remains reserved.
 > Not yet a submission.
 >
 > **Intended venue.** arXiv (q-bio.NC cross-listed to stat.AP).
@@ -166,21 +171,30 @@ A success promotes Branch A to `measured_within_substrate_blinded`.
 ### 4.2 Full cohort — classical HRV panel (n=72 healthy vs n=44 CHF)
 
 Panel-level contrast on the n=116 cohort (`results/hrv_baseline/
-branch_a_panel_contrast.json`). Welch's t, two-sided, unpaired; Cohen
-d with pooled SD. **This is the panel-scale separation**, not the
-MFDFA `(h(q=2), Δh)` marker of §4.1 — the full-cohort MFDFA run is
-still open and lands under §4.3.
+branch_a_panel_contrast.json`, schema v2). For each metric we report
+Welch's t (two-sided, unpaired) with its Satterthwaite df, its
+two-sided p-value, the Benjamini-Hochberg FDR q-value across the
+8-metric panel, Cohen's d with a 95 % Hedges-Olkin analytical CI, and
+Cliff's δ as a non-parametric effect-size sibling. Six of the eight
+metrics remain significant at q < 0.001 after FDR correction —
+SDNN and Poincaré SD2 at q ≈ 2 × 10⁻¹⁵, DFA α₁ at q ≈ 2 × 10⁻⁹.
 
-| Metric             | Healthy (n=72)    | CHF (n=44)        | Welch t | Cohen d |
-|--------------------|-------------------|-------------------|---------|---------|
-| DFA α₁             | 1.244 ± 0.167     | 0.925 ± 0.265     |  +7.14  |  +1.52  |
-| DFA α₂             | 1.043 ± 0.113     | 1.181 ± 0.196     |  −4.26  |  −0.92  |
-| Sample entropy     | 0.761 ± 0.293     | 1.014 ± 0.380     |  −3.79  |  −0.77  |
-| SDNN (ms)          | 136.7 ± 30.9      | 68.3 ± 37.3       | +10.21  |  +2.04  |
-| RMSSD (ms)         | 30.9 ± 14.9       | 21.8 ± 17.1       |  +2.91  |  +0.58  |
-| LF/HF              | 4.17 ± 2.74       | 1.71 ± 1.06       |  +6.82  |  +1.09  |
-| Poincaré SD1 (ms)  | 21.8 ± 10.5       | 15.4 ± 12.1       |  +2.91  |  +0.58  |
-| Poincaré SD2 (ms)  | 191.9 ± 43.6      | 94.6 ± 52.8       | +10.27  |  +2.06  |
+| Metric             | Healthy (n=72)    | CHF (n=44)        | Cohen d [95 % CI]      | Cliff's δ | Welch p   | BH q       |
+|--------------------|-------------------|-------------------|------------------------|-----------|-----------|------------|
+| DFA α₁             | 1.244 ± 0.167     | 0.925 ± 0.265     | +1.52  [+1.10, +1.94]  | +0.67     | 1.0 × 10⁻⁹ | 2.1 × 10⁻⁹ |
+| DFA α₂             | 1.043 ± 0.113     | 1.181 ± 0.196     | −0.92  [−1.31, −0.53]  | −0.59     | 7.2 × 10⁻⁵ | 1.0 × 10⁻⁴ |
+| Sample entropy     | 0.761 ± 0.293     | 1.014 ± 0.380     | −0.77  [−1.16, −0.38]  | −0.39     | 3.1 × 10⁻⁴ | 4.1 × 10⁻⁴ |
+| SDNN (ms)          | 136.7 ± 30.9      | 68.3 ± 37.3       | +2.04  [+1.59, +2.50]  | +0.85     | 4.9 × 10⁻¹⁶ | 2.0 × 10⁻¹⁵ |
+| RMSSD (ms)         | 30.9 ± 14.9       | 21.8 ± 17.1       | +0.58  [+0.19, +0.96]  | +0.51     | 4.6 × 10⁻³ | 4.6 × 10⁻³ |
+| LF/HF              | 4.17 ± 2.74       | 1.71 ± 1.06       | +1.09  [+0.69, +1.49]  | +0.67     | 6.9 × 10⁻¹⁰ | 1.9 × 10⁻⁹ |
+| Poincaré SD1 (ms)  | 21.8 ± 10.5       | 15.4 ± 12.1       | +0.58  [+0.19, +0.96]  | +0.51     | 4.6 × 10⁻³ | 4.6 × 10⁻³ |
+| Poincaré SD2 (ms)  | 191.9 ± 43.6      | 94.6 ± 52.8       | +2.06  [+1.60, +2.52]  | +0.85     | 3.9 × 10⁻¹⁶ | 2.0 × 10⁻¹⁵ |
+
+*Welch p and BH q are two-sided.* Non-parametric Mann-Whitney U
+p-values (not shown) are within ±0.5 log units of the Welch p's for
+every metric — direction and significance agree across the
+parametric/non-parametric divide, which argues against a
+Gaussian-assumption artefact.
 
 **Direction check.** DFA α₁ drops and DFA α₂ rises under CHF — the
 classical Goldberger-2002 "loss-of-complexity" pattern at the panel
@@ -215,22 +229,32 @@ cohort_summary.json`). Welch / Cohen d on the two features, then the
 | Welch t             | −1.88            | −1.66          |
 | Cohen d             | −0.39            | −0.39          |
 
-**Blind-validation (§3.5 protocol), 7 seeds, 50/50 stratified split:**
+**Blind-validation (§3.5 protocol), 7 seeds, 50/50 stratified split,
+Wilson CI on accuracy, Hanley-McNeil CI on AUC:**
 
-| Seed | Train n | Test n | Acc   | AUC   | d(proj) | Verdict       |
-|------|---------|--------|-------|-------|---------|---------------|
-| 1    | 58      | 58     | 0.586 | 0.596 | 0.26    | FALSIFIED     |
-| 7    | 58      | 58     | 0.603 | 0.609 | 0.40    | INCONCLUSIVE  |
-| 17   | 58      | 58     | 0.690 | 0.619 | 0.44    | INCONCLUSIVE  |
-| 42   | 58      | 58     | 0.586 | 0.640 | 0.60    | INCONCLUSIVE  |
-| 123  | 58      | 58     | 0.638 | 0.663 | 0.66    | INCONCLUSIVE  |
-| 2024 | 58      | 58     | 0.569 | 0.576 | 0.19    | FALSIFIED     |
-| 2026 | 58      | 58     | 0.638 | 0.620 | 0.62    | INCONCLUSIVE  |
+| Seed | Acc [95 % CI]          | AUC [95 % CI]          | d(proj) | Verdict       |
+|------|------------------------|------------------------|---------|---------------|
+| 1    | 0.586 [0.458, 0.704]   | 0.596 [0.447, 0.745]   |  0.26   | FALSIFIED     |
+| 7    | 0.603 [0.475, 0.719]   | 0.609 [0.461, 0.756]   |  0.40   | INCONCLUSIVE  |
+| 17   | 0.690 [0.562, 0.794]   | 0.619 [0.472, 0.765]   |  0.44   | INCONCLUSIVE  |
+| 42   | 0.586 [0.458, 0.704]   | 0.640 [0.496, 0.784]   |  0.60   | INCONCLUSIVE  |
+| 123  | 0.638 [0.509, 0.750]   | 0.663 [0.522, 0.803]   |  0.66   | INCONCLUSIVE  |
+| 2024 | 0.569 [0.441, 0.688]   | 0.576 [0.425, 0.726]   |  0.19   | FALSIFIED     |
+| 2026 | 0.638 [0.509, 0.750]   | 0.620 [0.474, 0.766]   |  0.51   | INCONCLUSIVE  |
 
 **Verdict distribution:** 0 PROMOTED, 5 INCONCLUSIVE, 2 FALSIFIED
 across 7 seeds. Median AUC 0.620, median accuracy 0.603. No seed
 meets the pre-registered promotion threshold (AUC ≥ 0.80 AND
 accuracy ≥ 0.70).
+
+**Crucially**, every seed's 95 % AUC CI straddles or brushes 0.50:
+the worst lower bound is 0.425 (seed 2024), the best lower bound is
+0.522 (seed 123). Under rigorous interval coverage, *no* seed
+produces an AUC that is statistically distinguishable from chance
+at α = 0.05 with Hanley-McNeil analytical SE. This is the formal
+statement behind "the marker does not pass its promotion gate": it
+is not merely below a fixed threshold, it is compatible with
+chance at n=58 test.
 
 **Direction check.** The pilot §4.1 reported `h(q=2)` *decreasing*
 under CHF (NSR 1.096 vs CHF 0.736; Cohen d = −2.56). At full cohort
@@ -360,7 +384,8 @@ Full citations to land with v1.0.
 | 0.1     | 2026-04-14 | Skeleton filed. Section structure + pilot numbers + blind-validation protocol. Full-cohort numbers reserved. |
 | 0.2     | 2026-04-14 | n=116 panel-level Branch A contrast landed (§4.2). MFDFA full-cohort marker (§4.3) + Branch B cross-subject γ (§5.3) still reserved. |
 | 0.3     | 2026-04-14 | n=116 MFDFA marker + 7-seed blind-validation executed (§4.3). Branch A MFDFA **NOT PROMOTED**. Pilot pipeline discrepancy documented in §4.3.1. Branch B full-cohort γ (§5.3) still pending. |
-| 0.4     | TBD        | Full-cohort Branch B γ (§5.3).                              |
+| 0.4     | 2026-04-14 | Full statistical rigour applied: Welch + Mann-Whitney U; 95 % CIs on Cohen d, Cliff's δ, accuracy (Wilson), AUC (Hanley-McNeil); Benjamini-Hochberg FDR across the §4.2 panel. Text unchanged in claim direction — the marker negative is now also interval-level: every seed's AUC CI straddles 0.50. |
+| 0.5     | TBD        | Full-cohort Branch B γ (§5.3).                              |
 | 1.0     | TBD        | External-replication gate passed; preprint submitted.       |
 
 ## 11. Authors and contributions

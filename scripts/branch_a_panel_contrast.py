@@ -1,10 +1,20 @@
 """CLI — Branch A panel-level contrast: healthy (NSR) vs CHF on n=116.
 
 Reads the 116 per-subject baseline JSONs produced by
-``scripts.run_hrv_baseline_panel`` and emits a Welch t / Cohen d table
-across the classical HRV panel. Healthy = {nsr2db, nsrdb}; pathology =
-{chf2db, chfdb}. No MFDFA, no γ — those live in
-``scripts.run_mfdfa_full_cohort`` / ``scripts.run_branch_a_blind_validation``.
+``scripts.run_hrv_baseline_panel`` and emits a contrast table that
+now carries, per metric:
+
+- Welch's t with Satterthwaite df and two-sided p-value.
+- Mann-Whitney U with its own two-sided p-value (non-parametric check).
+- Cohen's d with a 95 % Hedges-Olkin analytical CI.
+- Cliff's δ with a 95 % CI (non-parametric effect size).
+- Benjamini-Hochberg FDR q-values across the panel for both Welch
+  and Mann-Whitney U, so a reader sees at a glance which effects
+  survive multiple-testing correction.
+
+Healthy = {nsr2db, nsrdb}; pathology = {chf2db, chfdb}. No MFDFA,
+no γ — those live in ``scripts.run_mfdfa_full_cohort`` /
+``scripts.run_branch_a_blind_validation``.
 
 Usage
 -----
@@ -12,15 +22,13 @@ Usage
 
 Outputs
 -------
-  results/hrv_baseline/branch_a_panel_contrast.json
+  results/hrv_baseline/branch_a_panel_contrast.json  (schema v2)
 
 Claim discipline
 ----------------
 Panel-level contrast only. Does NOT license a clinical marker; does NOT
 license Branch A promotion (which requires MFDFA + blind validation per
-``manuscript/hrv_bounded_preprint_skeleton.md`` §3.5). This is the
-within-substrate, panel-scale separation that the preprint's §4.2
-reserves.
+``manuscript/hrv_bounded_preprint_skeleton.md`` §3.5).
 """
 
 from __future__ import annotations
@@ -33,7 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from tools.hrv.contrast import contrast_panel  # noqa: E402 — sys.path shim above
+from tools.hrv.contrast import panel_with_fdr  # noqa: E402 — sys.path shim
 
 HEALTHY = frozenset({"nsr2db", "nsrdb"})
 PATHOLOGY = frozenset({"chf2db", "chfdb"})
@@ -47,6 +55,14 @@ METRICS = (
     "poincare_sd1_ms",
     "poincare_sd2_ms",
 )
+
+
+def _round_p(p: float) -> float:
+    if p != p:
+        return p
+    if p < 1e-4:
+        return float(f"{p:.2e}")
+    return round(p, 4)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -77,23 +93,52 @@ def main(argv: list[str] | None = None) -> int:
             if v is not None and math.isfinite(v):
                 groups[label][m].append(v)
 
-    panel = contrast_panel(groups["healthy"], groups["pathology"])
+    panel = panel_with_fdr(groups["healthy"], groups["pathology"])
 
     n_healthy = len({s["record"] for s in subjects if s["cohort"] in HEALTHY})
     n_path = len({s["record"] for s in subjects if s["cohort"] in PATHOLOGY})
 
+    metrics_block: dict[str, dict[str, object]] = {}
+    for row in panel:
+        r = row.contrast
+        metrics_block[row.metric] = {
+            "healthy_mean": round(r.mean_a, 4),
+            "healthy_std": round(r.std_a, 4),
+            "pathology_mean": round(r.mean_b, 4),
+            "pathology_std": round(r.std_b, 4),
+            "welch_t": round(r.welch_t, 3),
+            "welch_df": round(r.welch_df, 1),
+            "welch_p": _round_p(r.welch_p),
+            "welch_q_bh": _round_p(row.welch_q_bh),
+            "mann_whitney_u": round(r.mwu_u, 2),
+            "mann_whitney_p": _round_p(r.mwu_p),
+            "mann_whitney_q_bh": _round_p(row.mwu_q_bh),
+            "cohen_d": round(r.cohen_d, 3),
+            "cohen_d_ci95": [round(r.cohen_d_ci_low, 3), round(r.cohen_d_ci_high, 3)],
+            "cliffs_delta": round(r.cliffs_delta, 3),
+            "cliffs_delta_ci95": [
+                round(r.cliffs_delta_ci_low, 3),
+                round(r.cliffs_delta_ci_high, 3),
+            ],
+        }
+
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
         "labels": {
             "healthy": {"cohorts": sorted(HEALTHY), "n_subjects": n_healthy},
             "pathology": {"cohorts": sorted(PATHOLOGY), "n_subjects": n_path},
         },
-        "test": "welch_t_two_sided_unpaired",
-        "effect_size": "cohen_d_pooled_sd",
-        "metrics": {m: _legacy_shape(r.as_json()) for m, r in panel.items()},
+        "tests": {
+            "parametric": "welch_t_two_sided_unpaired",
+            "non_parametric": "mann_whitney_u_two_sided",
+            "effect_sizes": ["cohen_d_pooled_sd_hedges_olkin_ci", "cliffs_delta_wald_ci"],
+            "multiple_testing": "benjamini_hochberg_fdr",
+        },
+        "metrics": metrics_block,
         "interpretation_boundary": (
-            "Panel-level within-substrate contrast. Classical HRV "
-            "features only — no MFDFA, no γ. Does NOT license a "
+            "Panel-level within-substrate contrast with per-metric p "
+            "(Welch + Mann-Whitney U), BH-FDR q across the panel, and "
+            "95 % CIs on Cohen d and Cliff's δ. Does NOT license a "
             "clinical diagnostic claim. Promotion of Branch A to a "
             "per-subject marker requires the MFDFA (h(q=2), Δh) "
             "blind-validation protocol in manuscript/"
@@ -104,28 +149,21 @@ def main(argv: list[str] | None = None) -> int:
     out_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     print(f"Branch A panel contrast — healthy n={n_healthy} vs pathology n={n_path}")
-    print(f"{'metric':<18} {'healthy':>20} {'pathology':>20} {'t':>8} {'d':>8}")
-    for m, r in panel.items():
+    header = (
+        f"{'metric':<18} {'healthy':>18} {'pathology':>18} "
+        f"{'d [95% CI]':>20} {'p(Welch)':>10} {'q(BH)':>10}"
+    )
+    print(header)
+    for row in panel:
+        r = row.contrast
+        d_ci = f"{r.cohen_d:+.2f} [{r.cohen_d_ci_low:+.2f},{r.cohen_d_ci_high:+.2f}]"
         print(
-            f"{m:<18} {r.mean_a:>10.3f}±{r.std_a:<8.3f} {r.mean_b:>10.3f}±{r.std_b:<8.3f} "
-            f"{r.welch_t:>+8.2f} {r.cohen_d:>+8.2f}"
+            f"{row.metric:<18} {r.mean_a:>8.2f}±{r.std_a:<8.2f} "
+            f"{r.mean_b:>8.2f}±{r.std_b:<8.2f} {d_ci:>20} "
+            f"{r.welch_p:>10.1e} {row.welch_q_bh:>10.1e}"
         )
     print(f"→ {out_path}")
     return 0
-
-
-def _legacy_shape(contrast_json: dict[str, float | int]) -> dict[str, float | int]:
-    """Keep the v0.1 JSON keys stable across the refactor (downstream scripts/tables)."""
-
-    return {
-        "healthy_mean": contrast_json["mean_a"],
-        "healthy_std": contrast_json["std_a"],
-        "pathology_mean": contrast_json["mean_b"],
-        "pathology_std": contrast_json["std_b"],
-        "welch_t": contrast_json["welch_t"],
-        "welch_df": contrast_json["welch_df"],
-        "cohen_d": contrast_json["cohen_d"],
-    }
 
 
 if __name__ == "__main__":

@@ -122,3 +122,62 @@ def test_score_random_projection_auc_near_half() -> None:
         pytest.skip("degenerate eval draw")
     s = score(m, X_eval, y_eval)
     assert 0.35 < s.auc < 0.65
+
+
+# ---------------------------------------------------------------------------
+# Score confidence intervals
+# ---------------------------------------------------------------------------
+def _noisy_mixture(rng_seed: int, n: int):
+    """Partially overlapping classes so point estimates sit away from 0/1."""
+
+    import random
+
+    rng = random.Random(rng_seed)
+    h = [(rng.gauss(0.3, 0.6), rng.gauss(0.0, 0.6)) for _ in range(n)]
+    p = [(rng.gauss(-0.3, 0.6), rng.gauss(0.0, 0.6)) for _ in range(n)]
+    return h, p
+
+
+def test_score_ci_brackets_point_estimates() -> None:
+    h, p = _noisy_mixture(rng_seed=4, n=40)
+    X, y = h + p, [1] * 40 + [0] * 40
+    m = fit_marker(X, y)
+    s = score(m, X, y)
+    # Point must lie between the bounds (with a tiny float-tolerance).
+    eps = 1e-9
+    assert s.accuracy_ci_low - eps <= s.accuracy <= s.accuracy_ci_high + eps
+    assert s.sensitivity_ci_low - eps <= s.sensitivity <= s.sensitivity_ci_high + eps
+    assert s.specificity_ci_low - eps <= s.specificity <= s.specificity_ci_high + eps
+    assert s.auc_ci_low - eps <= s.auc <= s.auc_ci_high + eps
+    assert (
+        s.cohen_d_projection_ci_low - eps
+        <= s.cohen_d_projection
+        <= s.cohen_d_projection_ci_high + eps
+    )
+    # Intervals are non-degenerate when point is away from {0, 1}:
+    if 0.05 < s.accuracy < 0.95:
+        assert s.accuracy_ci_high > s.accuracy_ci_low
+
+
+def test_score_ci_widths_narrow_with_larger_n() -> None:
+    h_s, p_s = _noisy_mixture(rng_seed=5, n=25)
+    h_l, p_l = _noisy_mixture(rng_seed=5, n=200)
+    m_s = fit_marker(h_s + p_s, [1] * 25 + [0] * 25)
+    m_l = fit_marker(h_l + p_l, [1] * 200 + [0] * 200)
+    s_s = score(m_s, h_s + p_s, [1] * 25 + [0] * 25)
+    s_l = score(m_l, h_l + p_l, [1] * 200 + [0] * 200)
+    assert (s_l.auc_ci_high - s_l.auc_ci_low) < (s_s.auc_ci_high - s_s.auc_ci_low)
+    assert (s_l.accuracy_ci_high - s_l.accuracy_ci_low) < (
+        s_s.accuracy_ci_high - s_s.accuracy_ci_low
+    )
+
+
+def test_score_json_keys_are_stable_and_include_cis() -> None:
+    h, p = _mixture(rng_seed=6, n=20, mean_h=(1.0, 0.0), mean_p=(-1.0, 0.0))
+    X, y = h + p, [1] * 20 + [0] * 20
+    s = score(fit_marker(X, y), X, y)
+    j = s.as_json()
+    for k in ("accuracy", "sensitivity", "specificity", "auc", "cohen_d_projection"):
+        assert k in j
+        assert f"{k}_ci95" in j
+        assert isinstance(j[f"{k}_ci95"], list) and len(j[f"{k}_ci95"]) == 2
