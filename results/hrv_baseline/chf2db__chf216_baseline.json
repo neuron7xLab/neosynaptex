@@ -1,0 +1,20 @@
+{
+  "cohort": "chf2db",
+  "panel": {
+    "dfa_alpha1": 1.2102218897914687,
+    "dfa_alpha2": 1.2448963791883565,
+    "hf_power_ms2": 69.9045533688031,
+    "lf_hf_ratio": 1.3791286613400802,
+    "lf_power_ms2": 96.40737310909363,
+    "n_rr": 101358,
+    "n_rr_clipped": 0,
+    "poincare_sd1_ms": 13.741734429052947,
+    "poincare_sd2_ms": 93.93665527774563,
+    "rmssd_ms": 19.43365146962189,
+    "rr_duration_s": 78257.875,
+    "sample_entropy": 1.467133531639796,
+    "sdnn_ms": 67.13021104498567,
+    "total_power_ms2": 1039.2771530887214
+  },
+  "record": "chf216"
+}
