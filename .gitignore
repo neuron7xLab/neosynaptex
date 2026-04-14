@@ -20,7 +20,8 @@ migration_manifest.json
 
 # Telemetry spine runtime output (docs/protocols/telemetry_spine_spec.md §9).
 # Append-only JSONL events produced at run time; not committed to the repo.
-telemetry/
+# Root-anchored pattern so tools/telemetry/ source tree is NOT ignored.
+/telemetry/
 
 
 # Data files — stay in source repos
