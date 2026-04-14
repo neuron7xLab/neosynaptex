@@ -1,0 +1,381 @@
+{
+  "actual_n_subjects": 18,
+  "annotation_extension": "atr",
+  "citation": "The MIT-BIH Normal Sinus Rhythm Database. PhysioNet. Recorded at Beth Israel Hospital.",
+  "dataset_name": "nsrdb",
+  "expected_n_subjects": 18,
+  "generated_utc": "2026-04-14T13:26:52Z",
+  "license": "ODC-By 1.0",
+  "nominal_fs_hz": 128.0,
+  "pn_dir": "nsrdb",
+  "role": "external_healthy",
+  "source_url": "https://physionet.org/content/nsrdb/1.0.0/",
+  "subjects": [
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.546875,
+      "mean_rr_s": 0.797909,
+      "min_rr_s": 0.421875,
+      "n_annotations": 100955,
+      "n_normal_beats": 100216,
+      "n_rr_intervals": 99765,
+      "record": "16265",
+      "recording_duration_s": 80061.992,
+      "rr_sha256": "11260e60e6e0c4a707d424f47ef0b949aa400b2dfd00108767d18326dbf2e873",
+      "status": "ok",
+      "std_rr_s": 0.170749,
+      "symbols_observed": [
+        "F",
+        "N",
+        "S",
+        "V",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.820312,
+      "mean_rr_s": 0.921424,
+      "min_rr_s": 0.429688,
+      "n_annotations": 97146,
+      "n_normal_beats": 87757,
+      "n_rr_intervals": 85414,
+      "record": "16272",
+      "recording_duration_s": 84396.688,
+      "rr_sha256": "89a537ff2ad18d1a63024ac8aaf7c18460ad66ffcd290990e573b067f78b251c",
+      "status": "ok",
+      "std_rr_s": 0.134971,
+      "symbols_observed": [
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.453125,
+      "mean_rr_s": 0.827999,
+      "min_rr_s": 0.421875,
+      "n_annotations": 90097,
+      "n_normal_beats": 89840,
+      "n_rr_intervals": 89595,
+      "record": "16273",
+      "recording_duration_s": 74349.141,
+      "rr_sha256": "c126e0ea0a6f0ca876474a3075aad4f0019ec61954f3409c02f533ddbd192025",
+      "status": "ok",
+      "std_rr_s": 0.145803,
+      "symbols_observed": [
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.15625,
+      "mean_rr_s": 0.76217,
+      "min_rr_s": 0.390625,
+      "n_annotations": 102436,
+      "n_normal_beats": 102061,
+      "n_rr_intervals": 101726,
+      "record": "16420",
+      "recording_duration_s": 77761.266,
+      "rr_sha256": "c5e0c47e8066da3e2fb39059fcb04280940d7e5e2615485ee4c75771d71849cd",
+      "status": "ok",
+      "std_rr_s": 0.100865,
+      "symbols_observed": [
+        "N",
+        "S",
+        "V",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.125,
+      "mean_rr_s": 0.729476,
+      "min_rr_s": 0.453125,
+      "n_annotations": 104561,
+      "n_normal_beats": 104330,
+      "n_rr_intervals": 104112,
+      "record": "16483",
+      "recording_duration_s": 76099.227,
+      "rr_sha256": "d6a3d680450c6c27019a75c6b724340226124a155430a4d3fc1aa9e1ad8909a4",
+      "status": "ok",
+      "std_rr_s": 0.088731,
+      "symbols_observed": [
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.460938,
+      "mean_rr_s": 0.782375,
+      "min_rr_s": 0.398438,
+      "n_annotations": 108674,
+      "n_normal_beats": 108265,
+      "n_rr_intervals": 107872,
+      "record": "16539",
+      "recording_duration_s": 84669.469,
+      "rr_sha256": "d071ebea2ccc4394e12832b0d83cabb706077cf9eee802c5aa82b0ed31138c6f",
+      "status": "ok",
+      "std_rr_s": 0.150641,
+      "symbols_observed": [
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.679688,
+      "mean_rr_s": 0.828122,
+      "min_rr_s": 0.5,
+      "n_annotations": 112897,
+      "n_normal_beats": 81962,
+      "n_rr_intervals": 51095,
+      "record": "16773",
+      "recording_duration_s": 78142.188,
+      "rr_sha256": "b16d0456daf30cdc69b4b95bf540335d85be55f384c5079873e02b66ea2b9bcb",
+      "status": "ok",
+      "std_rr_s": 0.147651,
+      "symbols_observed": [
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.375,
+      "mean_rr_s": 0.827133,
+      "min_rr_s": 0.539062,
+      "n_annotations": 101739,
+      "n_normal_beats": 101605,
+      "n_rr_intervals": 101498,
+      "record": "16786",
+      "recording_duration_s": 84051.742,
+      "rr_sha256": "437d5241f83fb46fd7ba7b061e0ec2afb7bd3b725cd7fde3ec4c890e50e67915",
+      "status": "ok",
+      "std_rr_s": 0.115878,
+      "symbols_observed": [
+        "F",
+        "N",
+        "S",
+        "V",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.648438,
+      "mean_rr_s": 0.859119,
+      "min_rr_s": 0.367188,
+      "n_annotations": 87678,
+      "n_normal_beats": 86872,
+      "n_rr_intervals": 86114,
+      "record": "16795",
+      "recording_duration_s": 74747.188,
+      "rr_sha256": "8c37b0c1c4bc689350b17e47934c4063d1b302e0a851a843b8403b5d70d56b13",
+      "status": "ok",
+      "std_rr_s": 0.211328,
+      "symbols_observed": [
+        "N",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.539062,
+      "mean_rr_s": 0.873647,
+      "min_rr_s": 0.5,
+      "n_annotations": 88002,
+      "n_normal_beats": 87354,
+      "n_rr_intervals": 86965,
+      "record": "17052",
+      "recording_duration_s": 76400.266,
+      "rr_sha256": "77b260d38b7851cd0734bf85f932e562544b718ba4664c1b2201de8c4adf2117",
+      "status": "ok",
+      "std_rr_s": 0.158502,
+      "symbols_observed": [
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.421875,
+      "mean_rr_s": 0.740256,
+      "min_rr_s": 0.46875,
+      "n_annotations": 101173,
+      "n_normal_beats": 100655,
+      "n_rr_intervals": 100169,
+      "record": "17453",
+      "recording_duration_s": 74482.75,
+      "rr_sha256": "ffe707fece42761d039683fbdc19e04db45c1629938e992b8bac9c08857f758a",
+      "status": "ok",
+      "std_rr_s": 0.10323,
+      "symbols_observed": [
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.234375,
+      "mean_rr_s": 0.697296,
+      "min_rr_s": 0.429688,
+      "n_annotations": 117004,
+      "n_normal_beats": 115908,
+      "n_rr_intervals": 115177,
+      "record": "18177",
+      "recording_duration_s": 87329.797,
+      "rr_sha256": "33e32f41235aa73523a807c52a291795d7caf4216359b21dc2e92a5a3d449533",
+      "status": "ok",
+      "std_rr_s": 0.116824,
+      "symbols_observed": [
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.390625,
+      "mean_rr_s": 0.735298,
+      "min_rr_s": 0.421875,
+      "n_annotations": 102672,
+      "n_normal_beats": 102313,
+      "n_rr_intervals": 102053,
+      "record": "18184",
+      "recording_duration_s": 75308.492,
+      "rr_sha256": "70542b1bc78119c5d964806b60fa11551d90ff0706d59195db593f83bac1fa31",
+      "status": "ok",
+      "std_rr_s": 0.097989,
+      "symbols_observed": [
+        "N",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.21875,
+      "mean_rr_s": 0.704125,
+      "min_rr_s": 0.40625,
+      "n_annotations": 117880,
+      "n_normal_beats": 97957,
+      "n_rr_intervals": 80084,
+      "record": "19088",
+      "recording_duration_s": 72613.523,
+      "rr_sha256": "69ace7802de2c7666f780ee3a5a56c418d618a0892baa3e195dfeddfd934caec",
+      "status": "ok",
+      "std_rr_s": 0.103809,
+      "symbols_observed": [
+        "N",
+        "S",
+        "V",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.234375,
+      "mean_rr_s": 0.849242,
+      "min_rr_s": 0.515625,
+      "n_annotations": 81953,
+      "n_normal_beats": 81382,
+      "n_rr_intervals": 81103,
+      "record": "19090",
+      "recording_duration_s": 69234.5,
+      "rr_sha256": "20ef28c0b51789213faafb8a7db18bf974d4f656a6e91a971d6f81041e758b22",
+      "status": "ok",
+      "std_rr_s": 0.099792,
+      "symbols_observed": [
+        "J",
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.492188,
+      "mean_rr_s": 0.94795,
+      "min_rr_s": 0.570312,
+      "n_annotations": 83670,
+      "n_normal_beats": 75100,
+      "n_rr_intervals": 66765,
+      "record": "19093",
+      "recording_duration_s": 72236.758,
+      "rr_sha256": "850f3bedfab426a2083054cc6bae0ade1dcf7fd6f2bd24fb4b5037d09cfa6c16",
+      "status": "ok",
+      "std_rr_s": 0.128627,
+      "symbols_observed": [
+        "N",
+        "S",
+        "V",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.335938,
+      "mean_rr_s": 0.744598,
+      "min_rr_s": 0.460938,
+      "n_annotations": 96992,
+      "n_normal_beats": 96596,
+      "n_rr_intervals": 96454,
+      "record": "19140",
+      "recording_duration_s": 72038.805,
+      "rr_sha256": "d774fc47b9a3fbd443045874d12e0f38c9bebe576cc20fc752a9446d53cc9697",
+      "status": "ok",
+      "std_rr_s": 0.100907,
+      "symbols_observed": [
+        "N",
+        "|",
+        "~"
+      ]
+    },
+    {
+      "fs_hz": 128.0,
+      "max_rr_s": 1.421875,
+      "mean_rr_s": 0.689646,
+      "min_rr_s": 0.34375,
+      "n_annotations": 111263,
+      "n_normal_beats": 109329,
+      "n_rr_intervals": 108665,
+      "record": "19830",
+      "recording_duration_s": 75965.016,
+      "rr_sha256": "a0da0399d7deb1199ce722cf0916a4fde9a93873768501609525be22d6e955ce",
+      "status": "ok",
+      "std_rr_s": 0.131324,
+      "symbols_observed": [
+        "N",
+        "S",
+        "|",
+        "~"
+      ]
+    }
+  ],
+  "wfdb_version": "4.3.1"
+}
