@@ -27,13 +27,14 @@ import sys
 from typing import Any
 
 import numpy as np
+import wfdb
 
 from run_eegbci_dh_replication import (  # INV-CAL-01: verbatim import
     iaaft_surrogate,
 )
 from substrates.physionet_hrv.hrv_gamma_fit import rr_to_uniform_4hz
 from substrates.physionet_hrv.mfdfa import mfdfa
-from substrates.physionet_hrv.nsr2db_client import fetch_rr_intervals
+from substrates.physionet_hrv.nsr2db_client import PN_DIR, fetch_rr_intervals
 
 # ---------------------------------------------------------------------------
 # Immutable configuration
@@ -42,10 +43,14 @@ OUTPUT_DIR = pathlib.Path("evidence/replications/hrv_iaaft_calibration")
 LOG_PATH = OUTPUT_DIR / "run.log"
 RESULTS_PATH = OUTPUT_DIR / "results.json"
 
-# Same 5 records as PR #102, imported not hard-coded.
-# (The authoritative list lives in substrates/physionet_hrv/nsr2db_client.ALL_RECORDS;
-#  run_nsr2db_hrv_multifractal.main picks ["nsr001".."nsr005"].)
-NSR_RECORDS: tuple[str, ...] = ("nsr001", "nsr002", "nsr003", "nsr004", "nsr005")
+# Record selection — dynamically discovered from PhysioNet, not hard-coded.
+# Patch per Grok review: if the NSR2DB snapshot changes and a record is
+# missing, the static list would crash on first fetch. Discovery via
+# wfdb.get_record_list is the authoritative source.
+_ALL_PHYSIONET_RECORDS = wfdb.get_record_list(PN_DIR)
+NSR_RECORDS: tuple[str, ...] = tuple(
+    sorted(r for r in _ALL_PHYSIONET_RECORDS if r.startswith("nsr"))[:5]
+)
 RR_TRUNCATE: int = 20000  # match PR #102
 
 # 4 Hz uniform × [8 s, 256 s] → [32, 1024] samples
