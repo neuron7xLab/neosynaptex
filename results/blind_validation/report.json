@@ -1,0 +1,37 @@
+{
+  "ground_truth_sha256": "e62b84ad3b041cbb44f93b0f6a648808dd388943fb802cabf7b084d4188daec9",
+  "lock_sha256": "44e70b5055deccaf9bd4fe0020922fcc1a44c90bb766d2471c159efd65080007",
+  "n_test": 58,
+  "predictions_sha256": "00b033822317bbac0b065fc3075021f6cb74c2e5dbc851d474ec901cc3879879",
+  "test_metrics": {
+    "accuracy": 0.5862,
+    "accuracy_ci95": [
+      0.458,
+      0.7037
+    ],
+    "auc": 0.6402,
+    "auc_ci95": [
+      0.4965,
+      0.7838
+    ],
+    "cohen_d_projection": 0.5968,
+    "cohen_d_projection_ci95": [
+      0.0554,
+      1.1382
+    ],
+    "n": 58,
+    "n_healthy": 36,
+    "n_pathology": 22,
+    "sensitivity": 0.5833,
+    "sensitivity_ci95": [
+      0.422,
+      0.7286
+    ],
+    "specificity": 0.5909,
+    "specificity_ci95": [
+      0.3873,
+      0.7674
+    ]
+  },
+  "verdict": "INCONCLUSIVE"
+}
