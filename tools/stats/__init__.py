@@ -43,6 +43,7 @@ from tools.stats.multiple_testing import (
 from tools.stats.tests import (
     TestResult,
     mann_whitney_u,
+    one_sample_t_test,
     permutation_test,
     welch_t_test,
 )
@@ -60,6 +61,7 @@ __all__ = [
     "hedges_g",
     "holm_bonferroni",
     "mann_whitney_u",
+    "one_sample_t_test",
     "permutation_test",
     "welch_t_test",
     "wilson_interval",

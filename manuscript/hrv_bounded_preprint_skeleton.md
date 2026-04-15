@@ -1,19 +1,24 @@
 # A Two-Branch Honest Report on γ-Scaling and Multifractal Width in Human Heart-Rate Variability — Skeleton
 
-> **Status.** Preprint **skeleton**. Version 0.4, filed 2026-04-14.
-> All Branch A full-cohort numbers now landed with full statistical
-> rigour (Welch + Mann-Whitney U, Cohen d and Cliff's δ with 95 %
-> CIs, Benjamini-Hochberg FDR across the panel, Wilson / Hanley-
-> McNeil CIs on classifier metrics):
+> **Status.** Preprint **skeleton**. Version 0.5, filed 2026-04-15.
+> All pre-registered branches of the pilot now have full-cohort
+> numbers with olympic-grade statistics (Welch + Mann-Whitney U,
+> Cohen d / Cliff's δ with 95 % CIs, BH-FDR across panels, Wilson /
+> Hanley-McNeil CIs, one-sample t, percentile bootstrap):
 > - §4.2 panel-level contrast (n=72 vs n=44): six of eight panel
 >   metrics significant at BH q < 10⁻³; SDNN and Poincaré SD2 at
 >   q ≈ 2 × 10⁻¹⁵; DFA α₁ at q ≈ 2 × 10⁻⁹.
 > - §4.3 MFDFA `(h(q=2), Δh)` marker + blind validation (7 seeds):
 >   **Branch A NOT PROMOTED** — 0/7 seeds reach the pre-registered
 >   AUC ≥ 0.80 / acc ≥ 0.70 gate; 2/7 falsify. Every seed's 95 %
->   AUC CI straddles 0.50 (chance). The pilot §4.1 effect sizes are
->   partly a pipeline artefact (§4.3.1).
-> - Branch B full-cohort γ (§5.3) remains reserved.
+>   AUC CI straddles 0.50 (chance).
+> - §5.3 cross-subject γ on n=116: **Branch B FALSIFIED** under
+>   both a parametric one-sample t-test (t = +3.42, df = 71,
+>   p = 0.001) and a bootstrap CI (healthy mean γ CI95 =
+>   [1.067, 1.237], excludes 1.0). Universal γ ≈ 1 at the cardiac
+>   substrate is rejected at n=116.
+> Pilot §4.1 / §5.1 effect magnitudes are partly pipeline-dependent
+> — §4.3.1 and §5.3.1 document the canonical-pipeline correction.
 > Not yet a submission.
 >
 > **Intended venue.** arXiv (q-bio.NC cross-listed to stat.AP).
@@ -49,11 +54,15 @@ blind-validation protocol the marker does **not** promote —
 0/7 seeds meet the pre-registered AUC ≥ 0.80 ∧ acc ≥ 0.70 gate;
 2/7 falsify (§4.3). Part of the pilot's apparent effect is a
 pipeline artefact (§4.3.1); under the canonical cohort pipeline
-the pilot-scale effect shrinks to |d| ≈ 0.4. **Branch B (honest
-negative, cross-subject):** at the VLF band, cross-subject γ
-fitted via Welch PSD + Theil-Sen regression is **not** consistent
-with γ ≈ 1 at pilot scale (n=5 mean 0.50 ± 0.44). Full-cohort γ
-still pending (§5.3). The branches are reported jointly to prevent
+the pilot-scale effect shrinks to |d| ≈ 0.4. **Branch B (falsified
+at scale, cross-subject γ):** at the VLF band [0.003, 0.04] Hz,
+healthy-cohort γ at n=72 has mean 1.143 with a 95 % bootstrap CI
+[1.067, 1.237] that excludes 1.0; a one-sample t-test rejects
+H₀: γ = 1 at p = 10⁻³ (§5.3). Pathology γ is shifted further upward
+(mean 1.425). Under both pipeline variants examined (pilot vs
+canonical, §5.3.1) the universal γ ≈ 1 framing at the cardiac
+substrate is rejected — they just disagree on whether γ is biased
+below or above 1. The branches are reported jointly to prevent
 selective framing; none licenses the other. External-lab SHA-locked
 replication is open (`docs/EXTERNAL_REPLICATION_INVITATION.md` §9).
 
@@ -304,7 +313,7 @@ pilot, not as a promoted claim.
 - Mechanism (why `h(q=2)` drops and `Δh` widens under CHF) is
   outside scope.
 
-## 5. Results — Branch B (honest negative, cross-subject γ)
+## 5. Results — Branch B (falsified at n=116, cross-subject γ)
 
 ### 5.1 Pilot (n=5 NSR)
 
@@ -327,12 +336,70 @@ pilot, not as a promoted claim.
   `docs/REPLICATION_PROTOCOL.md` §3) against the universal-γ
   framing.
 
-### 5.3 Full cohort (placeholder, n=72 healthy)
+### 5.3 Full cohort — cross-subject γ at n=116
 
-- Per-subject γ distribution, reserved.
-- Stratification by age / sex (as available in PhysioNet metadata),
+Per-subject γ from Welch PSD (nperseg = 1024, fs = 4 Hz) with Theil-
+Sen slope on the VLF band [0.003, 0.04] Hz, produced by
+``scripts.run_gamma_full_cohort`` and analysed by
+``scripts.run_branch_b_analysis`` (output:
+`results/hrv_gamma/branch_b_analysis.json`).
+
+**Per-group γ distribution (n=116):**
+
+| Group               | n  | γ mean ± sd     | 95 % bootstrap CI on mean | Range             |
+|---------------------|----|-----------------|---------------------------|-------------------|
+| Healthy (NSR2DB + NSRDB)     | 72 | 1.143 ± 0.355   | [1.067, 1.237]            | [0.332, 2.913]    |
+| Pathology (CHF2DB + CHFDB)   | 44 | 1.425 ± 0.673   | [1.249, 1.644]            | [0.194, 4.618]    |
+
+**H₀: E[γ] = 1 on the healthy cohort** (two-sided one-sample
+t-test):
+
+- t = +3.423, df = 71, p = 1.0 × 10⁻³.
+- 95 % bootstrap CI on healthy mean γ = [1.067, 1.237] — **excludes
+  1.0 on the low end**.
+
+**Verdict: FALSIFIED.** Both the parametric H₀ test (rejects at
+α = 0.01) and the non-parametric interval test (CI excludes 1)
+converge on the same conclusion: a universal cross-subject γ ≈ 1 at
+the cardiac substrate is not supported at n=116.
+
+**Healthy vs pathology γ contrast:**
+
+| Statistic          | Value                          |
+|--------------------|--------------------------------|
+| Welch t            | −2.57 (df 57.9)                |
+| Welch p            | 0.013                          |
+| Mann-Whitney U p   | 8 × 10⁻⁴                       |
+| Cohen d            | −0.56  [−0.95, −0.18]          |
+| Cliff's δ          | −0.37  [−0.57, −0.18]          |
+
+Pathology γ is shifted **upwards** relative to healthy (pathology
+mean 1.425 > healthy 1.143). The direction is the opposite of the
+MFDFA `h(q=2)` pilot direction — healthy shows more "random-walk-
+like" (γ closer to 1, shorter memory) spectral scaling than CHF.
+
+#### 5.3.1 Pipeline caveat
+
+The §5.1 pilot numbers were computed via
+`substrates/physionet_hrv/*_client.py` (the "includes across-ectopic
+RR" pipeline documented in §4.3.1). §5.3 uses the canonical
+`tools/data/physionet_cohort.py` cache pipeline. Running the same 5
+NSR pilot records through the canonical pipeline gives mean γ ≈
+1.15 (not the pilot's 0.50). **Both pipelines falsify the universal
+γ ≈ 1 framing, but in opposite directions** — the pilot showed
+γ < 1 on average; the canonical pipeline at scale shows γ > 1.
+Reporting both honestly is the only way to not silently select for
+whichever direction reads as "more interesting". The canonical
+pipeline is the authoritative one going forward.
+
+#### 5.3.2 Within-subject stability and stratification (reserved)
+
+- Per-subject test/retest on the first vs second half of each
+  record — reserved for a follow-up.
+- Stratification by age / sex (where PhysioNet metadata permits) —
   reserved.
-- Within-subject temporal stability of γ (test/retest), reserved.
+- Direct comparison with the beat-interval null on all 116 subjects
+  — see existing coverage in `evidence/surrogates/`.
 
 ## 6. Joint discussion
 
@@ -385,7 +452,7 @@ Full citations to land with v1.0.
 | 0.2     | 2026-04-14 | n=116 panel-level Branch A contrast landed (§4.2). MFDFA full-cohort marker (§4.3) + Branch B cross-subject γ (§5.3) still reserved. |
 | 0.3     | 2026-04-14 | n=116 MFDFA marker + 7-seed blind-validation executed (§4.3). Branch A MFDFA **NOT PROMOTED**. Pilot pipeline discrepancy documented in §4.3.1. Branch B full-cohort γ (§5.3) still pending. |
 | 0.4     | 2026-04-14 | Full statistical rigour applied: Welch + Mann-Whitney U; 95 % CIs on Cohen d, Cliff's δ, accuracy (Wilson), AUC (Hanley-McNeil); Benjamini-Hochberg FDR across the §4.2 panel. Text unchanged in claim direction — the marker negative is now also interval-level: every seed's AUC CI straddles 0.50. |
-| 0.5     | TBD        | Full-cohort Branch B γ (§5.3).                              |
+| 0.5     | 2026-04-15 | Branch B full-cohort γ landed (§5.3). Healthy mean γ = 1.143, 95 % bootstrap CI [1.067, 1.237] excludes 1.0; one-sample t-test rejects H₀: γ = 1 at p = 0.001. **Universal γ ≈ 1 at the cardiac substrate is FALSIFIED at n=116.** Pipeline caveat in §5.3.1 notes that both pipelines falsify γ ≈ 1 but in opposite directions. |
 | 1.0     | TBD        | External-replication gate passed; preprint submitted.       |
 
 ## 11. Authors and contributions

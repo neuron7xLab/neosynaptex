@@ -1,0 +1,14 @@
+{
+  "cohort": "chf2db",
+  "error": null,
+  "gamma": 1.4344,
+  "gamma_ci95": [
+    1.266,
+    1.5232
+  ],
+  "n_frequencies_fit": 10,
+  "n_rr": 20000,
+  "r2": 0.9823,
+  "record": "chf223",
+  "status": "ok"
+}

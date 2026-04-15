@@ -23,7 +23,13 @@ from collections.abc import Callable, Sequence
 from scipy.stats import mannwhitneyu
 from scipy.stats import t as _t_dist
 
-__all__ = ["TestResult", "mann_whitney_u", "permutation_test", "welch_t_test"]
+__all__ = [
+    "TestResult",
+    "mann_whitney_u",
+    "one_sample_t_test",
+    "permutation_test",
+    "welch_t_test",
+]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -63,6 +69,42 @@ def _round_pval(p: float) -> float:
     if p < 1e-4:
         return float(f"{p:.2e}")
     return round(p, 4)
+
+
+# ---------------------------------------------------------------------------
+# One-sample t-test
+# ---------------------------------------------------------------------------
+def one_sample_t_test(data: Sequence[float], mu_0: float) -> TestResult:
+    """Two-sided one-sample t-test for H₀: mean(data) = ``mu_0``.
+
+        t  = (x̄ − μ₀) / (s / √n)
+        df = n − 1
+
+    The two-sided p-value uses ``scipy.stats.t.sf``. Returns a
+    :class:`TestResult` with ``n_b = 0`` as a marker for one-sample
+    (the second-group slot is unused).
+    """
+
+    xs = list(data)
+    n = len(xs)
+    if n < 2:
+        raise ValueError(f"one-sample t needs ≥2 observations; got {n}")
+    m = sum(xs) / n
+    s2 = sum((x - m) ** 2 for x in xs) / (n - 1)
+    if s2 <= 0.0:
+        raise ValueError("zero variance — one-sample t is undefined")
+    t = (m - mu_0) / math.sqrt(s2 / n)
+    df = n - 1
+    p = 2.0 * float(_t_dist.sf(abs(t), df))
+    return TestResult(
+        test="one_sample_t",
+        statistic=t,
+        df=float(df),
+        p_value=p,
+        n_a=n,
+        n_b=0,
+        extra={"mu_0": mu_0, "mean_observed": m},
+    )
 
 
 # ---------------------------------------------------------------------------
