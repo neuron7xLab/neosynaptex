@@ -53,3 +53,6 @@ data/eeg_physionet/MNE-eegbci-data/
 data/fantasia/
 core/rust/geosync-accel/Cargo.lock
 core/rust/geosync-accel/target/
+
+# Semantic drift gate dry-run artefacts — ephemeral, regenerated per run.
+reports/semantic_drift/
