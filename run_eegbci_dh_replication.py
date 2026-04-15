@@ -76,9 +76,7 @@ logger = logging.getLogger("eegbci_dh")
 # ---------------------------------------------------------------------------
 # IAAFT surrogate (Schreiber & Schmitz 1996, PRL 77, 635)
 # ---------------------------------------------------------------------------
-def iaaft_surrogate(
-    signal: np.ndarray, seed: int, n_iter: int = IAAFT_ITERS
-) -> np.ndarray:
+def iaaft_surrogate(signal: np.ndarray, seed: int, n_iter: int = IAAFT_ITERS) -> np.ndarray:
     """Iterative Amplitude Adjusted Fourier Transform surrogate.
 
     Preserves both the linear power spectrum AND the amplitude
@@ -170,9 +168,7 @@ def process_subject(subj: int) -> dict[str, Any]:
             try:
                 m = extract_dh_metrics(ep[ch_idx])
             except Exception as exc:  # noqa: BLE001 — diagnostic
-                logger.warning(
-                    "    MFDFA failed on ep=%d ch=%s: %s", ep_idx, ch_name, exc
-                )
+                logger.warning("    MFDFA failed on ep=%d ch=%s: %s", ep_idx, ch_name, exc)
                 continue
             m["epoch"] = ep_idx
             m["channel"] = ch_name
@@ -250,9 +246,7 @@ def main() -> int:
         logger.error("pre-reg missing: %s", PREREG_PATH)
         return 2
     prereg = yaml.safe_load(PREREG_PATH.read_text())
-    logger.info(
-        "Loaded prereg: %s (version %s)", PREREG_PATH, prereg.get("prereg_version")
-    )
+    logger.info("Loaded prereg: %s (version %s)", PREREG_PATH, prereg.get("prereg_version"))
 
     logger.info(
         "Config: n_subjects=%d  scale_range=%s  q=%s..%s (%d)  IAAFT=%d×%d iter",
@@ -271,9 +265,7 @@ def main() -> int:
             subjects_results.append(process_subject(subj))
         except Exception as exc:  # noqa: BLE001
             logger.exception("S%03d failed: %s", subj, exc)
-            subjects_results.append(
-                {"subject": f"S{subj:03d}", "error": str(exc), "PASS": False}
-            )
+            subjects_results.append({"subject": f"S{subj:03d}", "error": str(exc), "PASS": False})
 
     # --- Aggregate ---
     completed = [r for r in subjects_results if "error" not in r]

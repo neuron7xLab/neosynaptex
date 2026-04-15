@@ -30,15 +30,9 @@ import json
 import pathlib
 import sys
 
-HRV_CONTRAST_PATH = pathlib.Path(
-    "evidence/replications/physionet_chf2db_contrast/result.json"
-)
-EEG_RESULT_PATH = pathlib.Path(
-    "evidence/replications/eegbci_dh_replication/results.json"
-)
-CONVERGENCE_OUT = pathlib.Path(
-    "evidence/replications/eegbci_dh_replication/convergence.json"
-)
+HRV_CONTRAST_PATH = pathlib.Path("evidence/replications/physionet_chf2db_contrast/result.json")
+EEG_RESULT_PATH = pathlib.Path("evidence/replications/eegbci_dh_replication/results.json")
+CONVERGENCE_OUT = pathlib.Path("evidence/replications/eegbci_dh_replication/convergence.json")
 
 # Fallback HRV figures from the REPLICATION_REPORT_HRV_PATHOLOGY_CONTRAST.md
 # if the raw result.json is not machine-parseable.
