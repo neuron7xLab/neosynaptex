@@ -38,7 +38,6 @@ import pytest
 
 from substrates.physionet_hrv.mfdfa import mfdfa
 
-
 # ---------------------------------------------------------------------------
 # Monofractal signal generation
 # ---------------------------------------------------------------------------
@@ -82,9 +81,9 @@ def fgn_spectral(n: int, H: float, seed: int) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 SCALE_WINDOWS = [
-    (8, 128),     # HRV-like (short scales)
-    (16, 512),    # EEG-like (medium)
-    (32, 1024),   # Market-like (long)
+    (8, 128),  # HRV-like (short scales)
+    (16, 512),  # EEG-like (medium)
+    (32, 1024),  # Market-like (long)
 ]
 
 Q_VALUES = np.arange(-5.0, 5.5, 0.5)
@@ -146,7 +145,9 @@ def test_delta_h_scale_invariance_on_monofractal_fgn(H_true: float) -> None:
 
 
 @pytest.mark.parametrize("H_true", [0.3, 0.5, 0.7, 0.9])
-def test_hq2_recovers_H_on_monofractal_fgn(H_true: float) -> None:
+def test_hq2_recovers_h_on_monofractal_fgn(
+    H_true: float,
+) -> None:  # noqa: N802 — H_true kwarg comes from parametrize
     """h(q=2) on fGn should be close to H_true (classical Hurst recovery).
 
     This is *not* part of the invariance gate — it simply documents that

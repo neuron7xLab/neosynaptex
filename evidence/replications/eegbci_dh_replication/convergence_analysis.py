@@ -106,7 +106,10 @@ def main() -> int:
 
     out = {
         "protocol_version": "v3_delta_h_invariant",
-        "substrates_compared": ["physionet_hrv_nsr2db_vs_chf2db", "eegbci_resting_vs_iaaft"],
+        "substrates_compared": [
+            "physionet_hrv_nsr2db_vs_chf2db",
+            "eegbci_resting_vs_iaaft",
+        ],
         "hrv_axis": {
             "dh_healthy_mean": dh_healthy_hrv,
             "dh_pathology_mean": dh_chf_hrv,
@@ -137,10 +140,14 @@ def main() -> int:
 
     print("=" * 60)
     print(f"[convergence] {out['verdict']}")
-    print(f"  HRV axis  : {dh_healthy_hrv:.3f} (NSR)  <  {dh_chf_hrv:.3f} (CHF)  "
-          f"→ structure={structure_hrv}")
-    print(f"  EEG axis  : {dh_healthy_eeg:.3f} (real) <  {dh_iaaft_eeg:.3f} (IAAFT) "
-          f"→ structure={structure_eeg}")
+    print(
+        f"  HRV axis  : {dh_healthy_hrv:.3f} (NSR)  <  {dh_chf_hrv:.3f} (CHF)  "
+        f"→ structure={structure_hrv}"
+    )
+    print(
+        f"  EEG axis  : {dh_healthy_eeg:.3f} (real) <  {dh_iaaft_eeg:.3f} (IAAFT) "
+        f"→ structure={structure_eeg}"
+    )
     if cohen_d_eeg is not None:
         print(f"  EEG sep d : {cohen_d_eeg:.2f}")
     print(f"  Out       : {CONVERGENCE_OUT}")

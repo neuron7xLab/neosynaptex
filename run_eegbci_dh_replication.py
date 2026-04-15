@@ -76,7 +76,9 @@ logger = logging.getLogger("eegbci_dh")
 # ---------------------------------------------------------------------------
 # IAAFT surrogate (Schreiber & Schmitz 1996, PRL 77, 635)
 # ---------------------------------------------------------------------------
-def iaaft_surrogate(signal: np.ndarray, seed: int, n_iter: int = IAAFT_ITERS) -> np.ndarray:
+def iaaft_surrogate(
+    signal: np.ndarray, seed: int, n_iter: int = IAAFT_ITERS
+) -> np.ndarray:
     """Iterative Amplitude Adjusted Fourier Transform surrogate.
 
     Preserves both the linear power spectrum AND the amplitude
@@ -155,7 +157,10 @@ def process_subject(subj: int) -> dict[str, Any]:
     n_epochs, n_ch, n_times = data.shape
     logger.info(
         "  loaded: %d epochs × %d ch × %d samples  (fs=%.1f)",
-        n_epochs, n_ch, n_times, raw.info["sfreq"],
+        n_epochs,
+        n_ch,
+        n_times,
+        raw.info["sfreq"],
     )
 
     # --- MFDFA on all real epoch × channel pairs ---
@@ -201,7 +206,12 @@ def process_subject(subj: int) -> dict[str, Any]:
 
     logger.info(
         "  S%03d: h(q=2)=%.3f  Δh=%.3f  Δh_IAAFT=%.3f  sep=%+.3f  PASS=%s",
-        subj, hq2_real_med, dh_real_med, dh_iaaft_med, iaaft_sep, subj_pass,
+        subj,
+        hq2_real_med,
+        dh_real_med,
+        dh_iaaft_med,
+        iaaft_sep,
+        subj_pass,
     )
 
     return {
@@ -240,12 +250,19 @@ def main() -> int:
         logger.error("pre-reg missing: %s", PREREG_PATH)
         return 2
     prereg = yaml.safe_load(PREREG_PATH.read_text())
-    logger.info("Loaded prereg: %s (version %s)", PREREG_PATH, prereg.get("prereg_version"))
+    logger.info(
+        "Loaded prereg: %s (version %s)", PREREG_PATH, prereg.get("prereg_version")
+    )
 
     logger.info(
         "Config: n_subjects=%d  scale_range=%s  q=%s..%s (%d)  IAAFT=%d×%d iter",
-        len(SUBJECTS), SCALE_RANGE, Q_VALUES[0], Q_VALUES[-1], len(Q_VALUES),
-        N_IAAFT, IAAFT_ITERS,
+        len(SUBJECTS),
+        SCALE_RANGE,
+        Q_VALUES[0],
+        Q_VALUES[-1],
+        len(Q_VALUES),
+        N_IAAFT,
+        IAAFT_ITERS,
     )
 
     subjects_results: list[dict[str, Any]] = []
@@ -359,15 +376,22 @@ def main() -> int:
     if len(dh_arr):
         logger.info(
             "  Δh = %.3f ± %.3f (band %s)",
-            dh_arr.mean(), dh_arr.std(), DH_BAND,
+            dh_arr.mean(),
+            dh_arr.std(),
+            DH_BAND,
         )
         logger.info(
             "  Δh_IAAFT = %.3f ± %.3f  | separation = %+.3f",
-            iaaft_arr.mean(), iaaft_arr.std(), sep_arr.mean(),
+            iaaft_arr.mean(),
+            iaaft_arr.std(),
+            sep_arr.mean(),
         )
     logger.info(
         "  pass_rate = %d/%d = %.1f%% (threshold %.0f%%)",
-        n_pass, len(subjects_results), pass_rate * 100, PASS_RATE_THR * 100,
+        n_pass,
+        len(subjects_results),
+        pass_rate * 100,
+        PASS_RATE_THR * 100,
     )
     logger.info("  %s", interpretation)
     logger.info("  Results: %s", RESULTS_PATH)
