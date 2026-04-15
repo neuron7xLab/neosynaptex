@@ -204,9 +204,8 @@ def iaaft_surrogate(series: np.ndarray, rng: np.random.Generator) -> np.ndarray:
 
     # Legacy rng-passed signature returns a 3-tuple; take the array.
     result = _canonical(series, rng=rng, n_iter=200)
-    if isinstance(result, tuple):
-        return result[0]
-    return result
+    arr = result[0] if isinstance(result, tuple) else result
+    return np.asarray(arr)
 
 
 def surrogate_test(

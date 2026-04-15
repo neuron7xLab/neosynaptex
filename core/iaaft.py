@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import dataclasses
 import time
-from typing import overload
+from typing import Any
 
 import numpy as np
 from scipy import signal as _sig
@@ -108,35 +108,26 @@ def stable_rank_remap(target_sorted: np.ndarray, carrier: np.ndarray) -> np.ndar
 # ---------------------------------------------------------------------------
 # Canonical scalar IAAFT
 # ---------------------------------------------------------------------------
-@overload
+# Return type is intentionally ``Any`` — the function picks between a
+# bare array (new API, ``seed=`` without ``rng=``), the legacy 3-tuple
+# ``(array, int, float)``, and the new ``(array, IAAFTDiagnostics)``
+# tuple based on the call shape. A ``@overload``-annotated version
+# would require four distinct overloads to cover each combination;
+# for mypy-strict we keep a single Any-typed signature and document
+# the branches in the docstring + tests.
 def iaaft_surrogate(
     signal: np.ndarray,
+    n_iter: int = 200,
+    tol: float | None = None,
+    rng: np.random.Generator | None = None,
+    max_time_seconds: float | None = None,
     *,
-    seed: int | None = ...,
-    n_iter: int = ...,
-    tol_psd: float = ...,
-    stagnation_window: int = ...,
-    timeout_s: float | None = ...,
-    return_diagnostics: bool = ...,
-    rng: np.random.Generator | None = ...,
-    tol: float | None = ...,
-    max_time_seconds: float | None = ...,
-) -> np.ndarray: ...
-
-
-def iaaft_surrogate(
-    signal,
-    n_iter=200,
-    tol=None,
-    rng=None,
-    max_time_seconds=None,
-    *,
-    seed=None,
-    tol_psd=1e-3,
-    stagnation_window=5,
-    timeout_s=None,
-    return_diagnostics=False,
-):
+    seed: int | None = None,
+    tol_psd: float = 1e-3,
+    stagnation_window: int = 5,
+    timeout_s: float | None = None,
+    return_diagnostics: bool = False,
+) -> Any:
     """Canonical scalar IAAFT — Schreiber & Schmitz (1996) alternating projection.
 
     Positional parameters are kept for backward compatibility with the

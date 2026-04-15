@@ -63,7 +63,10 @@ def _iaaft_surrogate(x: np.ndarray, rng: np.random.Generator, n_iter: int = 200)
 
     from core.iaaft import iaaft_surrogate as _canonical
 
-    return _canonical(x, rng=rng, n_iter=n_iter, return_diagnostics=False)[0]
+    result = _canonical(x, rng=rng, n_iter=n_iter, return_diagnostics=False)
+    # Legacy (rng=) path returns a 3-tuple; take the array head.
+    arr = result[0] if isinstance(result, tuple) else result
+    return np.asarray(arr)
 
 
 def transfer_entropy_gamma(
