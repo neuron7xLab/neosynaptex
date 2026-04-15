@@ -1,6 +1,6 @@
 # NULL-SCREEN-v1.1 Report
 
-> **Date.** 2026-04-15T16:44:50.030914+00:00
+> **Date.** 2026-04-15T17:02:14.888340+00:00
 > **VERDICT.** `NO_ADMISSIBLE_NULL_FOUND`
 > **Chosen family.** `—`
 > **Next action.** Freeze the Δh + surrogate line and continue only on the non-null-dependent HRV pathology branch (PR #102).

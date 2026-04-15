@@ -15,7 +15,7 @@ Protocol: NULL-SCREEN-v1.1 (2026-04-15).
 from __future__ import annotations
 
 import dataclasses
-from typing import Protocol
+from typing import Any, Protocol
 
 import numpy as np
 
@@ -46,7 +46,7 @@ class NullDiagnostics:
     notes: tuple[str, ...] = ()
     extras: tuple[tuple[str, object], ...] = ()
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         d = dataclasses.asdict(self)
         d["notes"] = list(self.notes)
         d["extras"] = dict(self.extras)

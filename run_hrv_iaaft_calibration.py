@@ -91,9 +91,16 @@ def per_record(record_name: str) -> dict[str, Any]:
     dh_real, hq2_real = _mfdfa_delta_h(rr_uniform)
 
     dh_iaaft: list[float] = []
+    # Deterministic seed derivation: Python's built-in ``hash`` is
+    # randomised per process on strings (PYTHONHASHSEED), so using
+    # ``hash(record_name)`` would make re-runs non-reproducible. Use
+    # a stable digest of the ASCII record name instead.
+    import hashlib
+
+    digest = hashlib.sha256(record_name.encode("ascii")).digest()
+    record_key = int.from_bytes(digest[:4], "little")
     for k in range(N_IAAFT):
-        # Deterministic seed per (record, surrogate) so re-runs match.
-        seed = (abs(hash(record_name)) % 10_000_000) * 1000 + k
+        seed = (record_key % 10_000_000) * 1000 + k
         surr = iaaft_surrogate(rr_uniform, seed=seed)
         dh_k, _ = _mfdfa_delta_h(surr)
         dh_iaaft.append(dh_k)

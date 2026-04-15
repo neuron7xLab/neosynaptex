@@ -275,21 +275,24 @@ def run_family_on_fixture(
     for seed in SEEDS:
         try:
             _, diag = family_fn(fixture, seed=seed, timeout_s=PER_FIXTURE_TIMEOUT_S)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 — per-seed failure is captured
             seed_runs.append({"seed": seed, "error": str(exc)})
-            any_timeout = any_timeout  # unchanged
             continue
         assert isinstance(diag, NullDiagnostics)
         if diag.terminated_by_timeout:
             any_timeout = True
-        psd_errs.append(float(diag.psd_error or float("nan")))
-        acf_errs.append(float(diag.acf_error or float("nan")))
-        dh_surr.append(float(diag.delta_h_surrogate or float("nan")))
-        dist_errs.append(
-            float(diag.extras and dict(diag.extras).get("distribution_error", 0.0))
-            if not diag.preserves_distribution_exactly
-            else 0.0
+        # Explicit ``is not None`` guard — ``x or nan`` would wrongly
+        # replace a valid 0.0 with nan.
+        psd_errs.append(float(diag.psd_error) if diag.psd_error is not None else float("nan"))
+        acf_errs.append(float(diag.acf_error) if diag.acf_error is not None else float("nan"))
+        dh_surr.append(
+            float(diag.delta_h_surrogate) if diag.delta_h_surrogate is not None else float("nan")
         )
+        if diag.preserves_distribution_exactly:
+            dist_errs.append(0.0)
+        else:
+            extras_map = dict(diag.extras) if diag.extras else {}
+            dist_errs.append(float(extras_map.get("distribution_error", 0.0)))
         seed_runs.append(
             {
                 "seed": seed,
@@ -323,8 +326,22 @@ def run_family_on_fixture(
     arr_acf = np.asarray(acf_errs)
     arr_dh = np.asarray(dh_surr)
     arr_dist = np.asarray(dist_errs)
-    med_dh = float(np.median(arr_dh))
-    sep = float(dh_real - med_dh)
+
+    # NaN-guard: if every seed produced nan for a given metric (e.g.
+    # numeric overflow collapsed both family output and the Δh call),
+    # we collapse the aggregate to +inf so downstream admissibility
+    # treats it as FAIL rather than silently passing the gate (``nan >
+    # 0.15`` evaluates to False in NumPy).
+    def _safe_stat(arr: np.ndarray, reducer) -> float:
+        if arr.size == 0:
+            return float("inf")
+        clean = arr[np.isfinite(arr)]
+        if clean.size == 0:
+            return float("inf")
+        return float(reducer(clean))
+
+    med_dh = _safe_stat(arr_dh, np.median)
+    sep = float(dh_real - med_dh) if np.isfinite(med_dh) else float("inf")
 
     return FixtureOutcome(
         fixture=fixture_name,
@@ -332,13 +349,13 @@ def run_family_on_fixture(
         delta_h_real=dh_real,
         seed_runs=seed_runs,
         median_delta_h_surrogate=med_dh,
-        median_psd_error=float(np.median(arr_psd)),
-        median_acf_error=float(np.median(arr_acf)),
-        max_dist_error=float(np.max(arr_dist)),
+        median_psd_error=_safe_stat(arr_psd, np.median),
+        median_acf_error=_safe_stat(arr_acf, np.median),
+        max_dist_error=_safe_stat(arr_dist, np.max),
         sep=sep,
-        std_psd_error=float(np.std(arr_psd)),
-        std_acf_error=float(np.std(arr_acf)),
-        std_dh_surrogate=float(np.std(arr_dh)),
+        std_psd_error=_safe_stat(arr_psd, np.std),
+        std_acf_error=_safe_stat(arr_acf, np.std),
+        std_dh_surrogate=_safe_stat(arr_dh, np.std),
         any_timeout=any_timeout,
     )
 

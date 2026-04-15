@@ -63,12 +63,12 @@ def generate_surrogate(
     terminated_by_timeout = False
 
     x_padded, _ = _pad_to_pow2(x)
-    max_levels = pywt.swt_max_level(len(x_padded))
-    n_levels = (
-        max(2, min(max_levels, 6)) if n_levels is None else min(n_levels, max_levels)
-    )
+    max_levels = pywt.swt_max_level(len(x_padded))  # type: ignore[attr-defined]
+    n_levels = max(2, min(max_levels, 6)) if n_levels is None else min(n_levels, max_levels)
 
-    coeffs = pywt.swt(x_padded, wavelet, level=n_levels, trim_approx=False, norm=True)
+    coeffs = pywt.swt(  # type: ignore[attr-defined]
+        x_padded, wavelet, level=n_levels, trim_approx=False, norm=True
+    )
     # ``coeffs`` is a list of (cA, cD) pairs, ordered coarse→fine (reversed of
     # typical SWT docs under ``trim_approx=False``). Shuffle the detail
     # coefficients within each band independently to scramble phase while
@@ -86,7 +86,7 @@ def generate_surrogate(
         # diagnostics so screening never treats this as a PASS.
         y = x_padded[:n_orig]
     else:
-        y_padded = pywt.iswt(shuffled, wavelet, norm=True)
+        y_padded = pywt.iswt(shuffled, wavelet, norm=True)  # type: ignore[attr-defined]
         y = np.asarray(y_padded[:n_orig], dtype=np.float64)
 
     dist_err = distribution_error(x, y)
