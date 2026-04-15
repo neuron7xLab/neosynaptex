@@ -74,37 +74,31 @@ logger = logging.getLogger("eegbci_dh")
 
 
 # ---------------------------------------------------------------------------
-# IAAFT surrogate (Schreiber & Schmitz 1996, PRL 77, 635)
+# IAAFT surrogate — thin wrapper around the canonical core path.
 # ---------------------------------------------------------------------------
-def iaaft_surrogate(signal: np.ndarray, seed: int, n_iter: int = IAAFT_ITERS) -> np.ndarray:
-    """Iterative Amplitude Adjusted Fourier Transform surrogate.
+# The original in-file implementation (pre-2026-04-15) closed its loop on
+# a spectrum-match step, so the returned surrogate had approximate
+# amplitudes and SIGN-FLIP-DIAG-v1 T4 failed with KS p < 1e-12 on 3/5
+# NSR records. The canonical core/iaaft.py path closes on amplitude
+# rank-remap (Schreiber & Schmitz 1996) and satisfies the T4 exact-sort
+# gate by construction. PR #124 (V3 EEG replication) was produced with
+# the old in-file version; that numerical result is preserved in the
+# evidence directory and is NOT retroactively re-computed by this
+# canonicalisation — any re-run under the repaired IAAFT must be filed
+# as a new artefact.
+from core.iaaft import iaaft_surrogate as _canonical_iaaft  # noqa: E402
 
-    Preserves both the linear power spectrum AND the amplitude
-    distribution of ``signal`` while randomising any nonlinear temporal
-    structure. If the real Δh is systematically LOWER than the IAAFT Δh,
-    the difference cannot be attributed to the linear spectrum or to the
-    marginal distribution; the only remaining source is nonlinear
-    temporal structure (INV-MF-02).
+
+def iaaft_surrogate(signal: np.ndarray, seed: int, n_iter: int = IAAFT_ITERS) -> np.ndarray:
+    """Backwards-compatible wrapper delegating to ``core.iaaft.iaaft_surrogate``.
+
+    Kept so existing callers in this module and in the diagnostic
+    scripts can continue to import ``iaaft_surrogate`` from here. The
+    signature (``seed=<int>`` keyword) is the new-API shape and returns
+    a bare surrogate array — no legacy 3-tuple.
     """
 
-    rng = np.random.default_rng(seed)
-    n = len(signal)
-    sorted_signal = np.sort(signal)
-    amp_spectrum = np.abs(np.fft.rfft(signal))
-
-    # Initial surrogate: random phase with matched spectrum.
-    phases = rng.uniform(0.0, 2.0 * np.pi, len(amp_spectrum))
-    surrogate = np.fft.irfft(amp_spectrum * np.exp(1j * phases), n=n)
-
-    for _ in range(n_iter):
-        # Rank-order to match amplitude distribution.
-        rank = np.argsort(np.argsort(surrogate))
-        surrogate = sorted_signal[rank]
-        # Re-impose spectrum while keeping current phases.
-        fft_now = np.fft.rfft(surrogate)
-        surrogate = np.fft.irfft(amp_spectrum * np.exp(1j * np.angle(fft_now)), n=n)
-
-    return surrogate
+    return _canonical_iaaft(signal, seed=seed, n_iter=n_iter)
 
 
 # ---------------------------------------------------------------------------

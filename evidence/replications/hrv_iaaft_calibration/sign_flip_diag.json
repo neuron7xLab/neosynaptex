@@ -2,23 +2,23 @@
   "protocol": "SIGN-FLIP-DIAG-v1",
   "mode": "fail-closed deterministic subject-level",
   "tests": {
-    "T1": "PASS",
+    "T1": "FAIL_IMPL_DIRECTION",
     "T2": "PASS",
     "T3": "FAIL_IAAFT_PSD",
-    "T4": "FAIL_IAAFT_AMP",
+    "T4": "PASS",
     "T5": "FAIL_IAAFT_CONVERGENCE",
     "T6": "PASS",
     "T7": "PASS",
-    "T8": "PASS",
+    "T8": "FAIL_PIPELINE_VALIDITY",
     "T9": "PASS",
     "T10": "PASS"
   },
   "details": {
     "T1": {
       "test": "T1_direction",
-      "verdict": "PASS",
-      "has_new_convention": true,
-      "has_old_convention": false,
+      "verdict": "FAIL_IMPL_DIRECTION",
+      "has_new_convention": false,
+      "has_old_convention": true,
       "scope": "run_hrv_iaaft_calibration.py (post-Patch-D1)"
     },
     "T2": {
@@ -33,26 +33,26 @@
       "test": "T3_psd",
       "verdict": "FAIL_IAAFT_PSD",
       "rmse_per_record": [
-        0.10526441150398386,
-        0.05748914762084896,
-        0.06978512466248903,
-        0.7701842535172647,
-        0.12023524790722619
+        0.9396151962910462,
+        2.0543201501803874,
+        1.7028166023168432,
+        1.6892694777657635,
+        1.8431273423729375
       ],
-      "rmse_mean": 0.22459163704236254,
+      "rmse_mean": 1.6458297537853954,
       "threshold": 0.01
     },
     "T4": {
       "test": "T4_amp",
-      "verdict": "FAIL_IAAFT_AMP",
+      "verdict": "PASS",
       "ks_p_per_record": [
-        0.9999993738336036,
-        2.8771519329181925e-12,
-        0.0,
-        0.9979467360878685,
-        3.7207180169782017e-56
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
       ],
-      "min_p": 0.0,
+      "min_p": 1.0,
       "threshold": 0.05,
       "correction_note": "GPT-spec threshold 0.95 replaced by standard KS H0 threshold 0.05 per user patch (v3.1.0). p > 0.95 over-rejects at n > 1000."
     },
@@ -63,50 +63,50 @@
         {
           "record": "nsr001",
           "dh_by_iter": {
-            "10": 0.2799,
-            "20": 0.2953,
-            "50": 0.3009
+            "10": 0.2604,
+            "20": 0.2668,
+            "50": 0.2692
           },
-          "sigma": 0.008878938875538886
+          "sigma": 0.003714236873915752
         },
         {
           "record": "nsr002",
           "dh_by_iter": {
-            "10": 0.6162,
-            "20": 0.626,
-            "50": 0.6286
+            "10": 0.63,
+            "20": 0.6069,
+            "50": 0.6452
           },
-          "sigma": 0.005339163480046942
+          "sigma": 0.015746392885003502
         },
         {
           "record": "nsr003",
           "dh_by_iter": {
-            "10": 0.5636,
-            "20": 0.5356,
-            "50": 0.5545
+            "10": 0.6307,
+            "20": 0.6016,
+            "50": 0.5395
           },
-          "sigma": 0.011661999066293158
+          "sigma": 0.038036035545256315
         },
         {
           "record": "nsr004",
           "dh_by_iter": {
-            "10": 0.4566,
-            "20": 0.4848,
-            "50": 0.4618
+            "10": 0.3828,
+            "20": 0.3827,
+            "50": 0.3721
           },
-          "sigma": 0.012253253536192839
+          "sigma": 0.005020624131187938
         },
         {
           "record": "nsr005",
           "dh_by_iter": {
-            "10": 0.634,
-            "20": 0.608,
-            "50": 0.5412
+            "10": 0.7517,
+            "20": 0.7576,
+            "50": 0.6007
           },
-          "sigma": 0.039086911705411904
+          "sigma": 0.07261268637243924
         }
       ],
-      "worst_sigma": 0.039086911705411904,
+      "worst_sigma": 0.07261268637243924,
       "threshold": 0.01,
       "semantic": "sigma across iter counts {10,20,50} at fixed seed"
     },
@@ -115,19 +115,19 @@
       "verdict": "PASS",
       "per_config": {
         "Q_narrow_SR_nom": {
-          "mean_sep": 0.30372000000000005,
+          "mean_sep": 0.25492,
           "sign": 1
         },
         "Q_wide_SR_nom": {
-          "mean_sep": 0.29682,
+          "mean_sep": 0.23795000000000002,
           "sign": 1
         },
         "Q_nom_SR_short": {
-          "mean_sep": 0.27684000000000003,
+          "mean_sep": 0.22224000000000005,
           "sign": 1
         },
         "Q_nom_SR_long": {
-          "mean_sep": 0.30505999999999994,
+          "mean_sep": 0.25922999999999996,
           "sign": 1
         }
       },
@@ -138,42 +138,42 @@
     "T7": {
       "test": "T7_preproc",
       "verdict": "PASS",
-      "mean_sep_normalised": 0.31779,
+      "mean_sep_normalised": 0.27091,
       "seps_per_record": [
-        0.14419999999999997,
-        0.4679,
-        0.23025000000000007,
-        0.25744999999999996,
-        0.48915
+        0.12029999999999996,
+        0.41895000000000004,
+        0.21375,
+        0.19735000000000003,
+        0.4041999999999999
       ]
     },
     "T8": {
       "test": "T8_synthetic",
-      "verdict": "PASS",
+      "verdict": "FAIL_PIPELINE_VALIDITY",
       "per_signal": {
         "white_noise": {
           "dh_real": 0.0313,
-          "dh_iaaft_median": 0.0229,
-          "sep": 0.008400000000000001
+          "dh_iaaft_median": 0.025750000000000002,
+          "sep": 0.005549999999999999
         },
         "fgn_H07": {
           "dh_real": 0.0374,
-          "dh_iaaft_median": 0.03815,
-          "sep": -0.0007500000000000007
+          "dh_iaaft_median": 0.0278,
+          "sep": 0.009600000000000004
         },
         "phase_rand_1f": {
           "dh_real": 0.0377,
-          "dh_iaaft_median": 0.07,
-          "sep": -0.03230000000000001
+          "dh_iaaft_median": 0.064,
+          "sep": -0.026300000000000004
         },
         "binomial_cascade_p03": {
           "dh_real": 0.3745,
-          "dh_iaaft_median": 0.2902,
-          "sep": 0.08429999999999999
+          "dh_iaaft_median": 0.4753,
+          "sep": -0.1008
         }
       },
       "linear_pass": true,
-      "cascade_pass": true,
+      "cascade_pass": false,
       "gate": {
         "linear_abs_sep_max": 0.05,
         "cascade_sep_min": 0.05
@@ -184,45 +184,46 @@
       "test": "T9_subject",
       "verdict": "PASS",
       "seps_per_record": [
-        0.2283,
-        0.4303999999999999,
-        0.19214999999999993,
-        0.24570000000000003,
-        0.38754999999999995
+        0.1754,
+        0.44299999999999995,
+        0.10209999999999997,
+        0.20025000000000004,
+        0.269
       ],
       "mean_sign": 1,
       "median_sign": 1,
       "trimmed_mean_sign_drop2": 1,
       "all_individual_same_sign": true,
-      "iqr": 0.15924999999999995
+      "iqr": 0.09360000000000002
     },
     "T10": {
       "test": "T10_seed",
       "verdict": "PASS",
       "seps_per_seed_base": [
-        0.2283,
-        0.21020000000000005,
-        0.1874,
-        0.17585,
-        0.22550000000000003,
-        0.21585000000000001,
-        0.21935000000000002,
-        0.18495000000000006,
-        0.2082,
-        0.21535000000000004
+        0.1754,
+        0.17855000000000004,
+        0.19585000000000002,
+        0.1674,
+        0.1632,
+        0.17560000000000003,
+        0.17270000000000002,
+        0.18145,
+        0.1935,
+        0.1542
       ],
-      "sigma": 0.01717201866409421,
+      "sigma": 0.012084971038442752,
       "all_positive": true,
       "threshold_user_spec": 0.02,
       "threshold_applied": 0.05
     }
   },
-  "sep_mean": 0.29682,
-  "sep_std": 0.09416963735727134,
+  "sep_mean": 0.23795000000000002,
+  "sep_std": 0.11558427228650098,
   "fails": {
+    "T1": "FAIL_IMPL_DIRECTION",
     "T3": "FAIL_IAAFT_PSD",
-    "T4": "FAIL_IAAFT_AMP",
-    "T5": "FAIL_IAAFT_CONVERGENCE"
+    "T5": "FAIL_IAAFT_CONVERGENCE",
+    "T8": "FAIL_PIPELINE_VALIDITY"
   },
   "verdict": "IMPLEMENTATION_ERROR"
 }

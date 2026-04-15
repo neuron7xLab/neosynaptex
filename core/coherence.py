@@ -47,31 +47,23 @@ def _conditional_entropy(target: np.ndarray, condition: np.ndarray, bins: int = 
     return _joint_entropy_hist(target, condition, bins) - _entropy_hist(condition, bins)
 
 
-def _iaaft_surrogate(x: np.ndarray, rng: np.random.Generator, n_iter: int = 10) -> np.ndarray:
-    """Iterative Amplitude Adjusted Fourier Transform surrogate.
+def _iaaft_surrogate(x: np.ndarray, rng: np.random.Generator, n_iter: int = 200) -> np.ndarray:
+    """Thin wrapper around the canonical scalar IAAFT.
 
-    Preserves power spectrum and amplitude distribution of x.
+    Kept as ``_iaaft_surrogate`` to preserve the tests in
+    ``tests/test_coherence.py`` that reach for this private helper by
+    name. Behaviour now delegates to ``core.iaaft.iaaft_surrogate`` so
+    coherence.py can never drift from the canonical alternating-
+    projection semantics (per the 2026-04-15 repair protocol).
+
+    The default ``n_iter`` has been lifted from 10 to 200 — the old
+    value was visibly insufficient and contributed to the T5
+    convergence failure that triggered the repair.
     """
-    n = len(x)
-    sorted_x = np.sort(x)
-    fft_orig = np.fft.rfft(x)
-    amplitudes = np.abs(fft_orig)
 
-    # Start from shuffled copy
-    surrogate = rng.permutation(x).copy()
+    from core.iaaft import iaaft_surrogate as _canonical
 
-    for _ in range(n_iter):
-        # Match spectrum
-        fft_surr = np.fft.rfft(surrogate)
-        phases = np.angle(fft_surr)
-        fft_new = amplitudes * np.exp(1j * phases)
-        surrogate = np.fft.irfft(fft_new, n=n)
-
-        # Match distribution
-        rank = np.argsort(np.argsort(surrogate))
-        surrogate = sorted_x[rank]
-
-    return np.asarray(surrogate)  # ensure ndarray return type
+    return _canonical(x, rng=rng, n_iter=n_iter, return_diagnostics=False)[0]
 
 
 def transfer_entropy_gamma(
