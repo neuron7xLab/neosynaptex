@@ -1,0 +1,14 @@
+{
+  "cohort": "nsr2db",
+  "error": null,
+  "gamma": 1.3656,
+  "gamma_ci95": [
+    1.2639,
+    1.6294
+  ],
+  "n_frequencies_fit": 10,
+  "n_rr": 20000,
+  "r2": 0.9814,
+  "record": "nsr033",
+  "status": "ok"
+}

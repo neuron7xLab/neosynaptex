@@ -1,4 +1,4 @@
-# 3. Results: γ-scaling as a Substrate-Independent Invariant of Organized Systems
+# 3. Results: γ-scaling as a Substrate-Specific Candidate Marker of Organized Systems
 
 ## 3.1 γ-scaling in zebrafish pigmentation (McGuirl et al. 2020)
 
@@ -121,11 +121,11 @@ The bootstrap CIs are wide (typical width ≈ 0.5), reflecting limited sample si
 
 ### Toward a universal statement
 
-Despite these caveats, the pattern is clear: **organized systems exhibit γ > 0, random systems exhibit γ ≈ 0, and the specific value γ ≈ 1.0 appears in biological, morphogenetic, and economic substrates with overlapping confidence intervals.** If confirmed with empirical data across additional substrates, this would establish γ as the first quantitative, substrate-independent invariant of organized systems — measurable through persistent homology alone, requiring no knowledge of the system's internal mechanism.
+Despite these caveats, the pattern is clear: **organized systems exhibit γ > 0, random systems exhibit γ ≈ 0, and the specific value γ ≈ 1.0 appears in biological, morphogenetic, and economic substrates with overlapping confidence intervals.** If confirmed with empirical data across additional substrates, this would establish γ as the first quantitative, substrate-specific candidate marker of organized systems — measurable through persistent homology alone, requiring no knowledge of the system's internal mechanism. (Substrate-independence is empirically contradicted by the 2026-04-14 HRV n=5 pilot: γ mean 0.50 ± 0.44. See `docs/CLAIM_BOUNDARY.md` §2.)
 
 The sentence this work aims to support:
 
-> *Three independent substrates converge on γ ∈ [0.865, 1.081] (divergence = 0.216, verdict: UNIFIED): zebrafish morphogenesis (γ = +1.043), MFN⁺ reaction-diffusion (γ = +0.865), and market synchronization (γ = +1.081). Neuromodulatory cognitive dynamics exhibit a related but architecturally distinct scaling regime (γ = +2.185), consistent with the stronger topological transitions of competitive winner-take-all dynamics. All organized substrates show γ > 0; all shuffled controls show γ ≈ 0. γ-scaling is a substrate-independent signature of organization, with the specific value γ ≈ 1.0 characterizing diffusive-oscillatory self-organization.*
+> *Three independent substrates converge on γ ∈ [0.865, 1.081] (divergence = 0.216, verdict: UNIFIED): zebrafish morphogenesis (γ = +1.043), MFN⁺ reaction-diffusion (γ = +0.865), and market synchronization (γ = +1.081). Neuromodulatory cognitive dynamics exhibit a related but architecturally distinct scaling regime (γ = +2.185), consistent with the stronger topological transitions of competitive winner-take-all dynamics. All organized substrates show γ > 0; all shuffled controls show γ ≈ 0. γ-scaling is a substrate-specific candidate signature of organization, with the specific value γ ≈ 1.0 characterizing diffusive-oscillatory self-organization.*
 
 ## References
 
@@ -145,4 +145,4 @@ Stoffers D. et al. (2007) Slowing of oscillatory brain activity is a stable char
 
 Ukhtomsky A.A. (1923) *The Dominant.* Leningrad University Press.
 
-Vasylenko Y. (2026) Distributed Neuromodulatory Cognitive Architecture: γ-scaling as substrate-independent invariant. neuron7xLab Technical Report.
+Vasylenko Y. (2026) Distributed Neuromodulatory Cognitive Architecture: γ-scaling as substrate-specific candidate marker. neuron7xLab Technical Report.

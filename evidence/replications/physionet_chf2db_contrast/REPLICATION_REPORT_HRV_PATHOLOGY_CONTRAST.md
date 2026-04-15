@@ -182,7 +182,7 @@ Total runtime ~3 min.
 
 | Version | Date | Change |
 |---|---|---|
-| v1.0 | 2026-04-14 | Initial NSR vs CHF pilot. h(q=2) and Δh both show very-large-effect-size differences (Cohen d > 1.8). 2D fingerprint marker confirmed at pilot level. |
+| v1.0 | 2026-04-14 | Initial NSR vs CHF pilot. h(q=2) and Δh both show very-large-effect-size differences (Cohen d > 1.8). 2D fingerprint showed pilot-level separation between healthy and pathological clusters; no generalisation or diagnostic claim is licensed. |
 
 ---
 

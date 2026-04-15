@@ -1,0 +1,38 @@
+{
+  "bootstrap_n": 500,
+  "fit_hi_hz": 0.04,
+  "fit_lo_hz": 0.003,
+  "n_subjects_attempted": 116,
+  "n_subjects_ok": 116,
+  "nperseg": 1024,
+  "per_cohort": {
+    "chf2db": {
+      "gamma_max": 2.6763,
+      "gamma_mean": 1.3997,
+      "gamma_min": 0.6811,
+      "n_ok": 29
+    },
+    "chfdb": {
+      "gamma_max": 4.6182,
+      "gamma_mean": 1.474,
+      "gamma_min": 0.1938,
+      "n_ok": 15
+    },
+    "nsr2db": {
+      "gamma_max": 2.9126,
+      "gamma_mean": 1.2102,
+      "gamma_min": 0.332,
+      "n_ok": 54
+    },
+    "nsrdb": {
+      "gamma_max": 1.4263,
+      "gamma_mean": 0.9427,
+      "gamma_min": 0.461,
+      "n_ok": 18
+    }
+  },
+  "rr_truncate": 20000,
+  "runtime_seconds": 1.8,
+  "schema_version": 1,
+  "seed": 42
+}

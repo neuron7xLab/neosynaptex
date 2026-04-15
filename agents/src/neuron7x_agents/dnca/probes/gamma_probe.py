@@ -2,7 +2,9 @@
 BNSynGammaProbe — measures γ-scaling on DNCA internal state trajectories.
 
 Hypothesis (Vasylenko-Levin-Tononi):
-  γ is a substrate-independent invariant of organized systems.
+  γ is a substrate-specific candidate marker of organized systems
+  (see docs/CLAIM_BOUNDARY.md §2; substrate-independence was
+  empirically contradicted by the HRV n=5 pilot, γ mean 0.50 ± 0.44).
   γ_WT = +1.043 was measured on McGuirl 2020 zebrafish pigmentation
   density fields using cubical persistent homology.
 
@@ -207,7 +209,7 @@ class BNSynGammaProbe:
     """
     Measures γ-scaling on DNCA internal trajectories.
 
-    Hypothesis: γ is a substrate-independent invariant of organized systems.
+    Hypothesis: γ is a substrate-specific candidate marker of organized systems.
     Reference: γ_WT = +1.043 (McGuirl et al. 2020 PNAS, zebrafish pigmentation)
     Method: TDA-calibrated space log(Δpe₀) vs log(Δβ₀), Theil-Sen regression
     """

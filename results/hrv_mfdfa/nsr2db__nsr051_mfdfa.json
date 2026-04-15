@@ -1,0 +1,10 @@
+{
+  "cohort": "nsr2db",
+  "delta_alpha": 0.4573,
+  "delta_h": 0.261,
+  "error": null,
+  "h_at_q2": 1.1044,
+  "n_rr": 20000,
+  "record": "nsr051",
+  "status": "ok"
+}

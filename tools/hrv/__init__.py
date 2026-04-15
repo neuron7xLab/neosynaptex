@@ -1,1 +1,1 @@
-"""HRV surrogate router (NULL-SCREEN-v1.1)."""
+"""HRV metric stack — pure numpy/scipy baseline panel (Task 3)."""

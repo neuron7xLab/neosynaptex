@@ -1,0 +1,105 @@
+{
+  "groups": {
+    "healthy": {
+      "max": 2.9126,
+      "mean": 1.1433,
+      "mean_ci95_bootstrap": [
+        1.067,
+        1.2368
+      ],
+      "min": 0.332,
+      "n": 72,
+      "std": 0.3553
+    },
+    "pathology": {
+      "max": 4.6182,
+      "mean": 1.425,
+      "mean_ci95_bootstrap": [
+        1.2492,
+        1.6442
+      ],
+      "min": 0.1938,
+      "n": 44,
+      "std": 0.6725
+    }
+  },
+  "h0_gamma_equals_one": {
+    "df": 71.0,
+    "extra": {
+      "mean_observed": 1.1433,
+      "mu_0": 1.0
+    },
+    "group": "healthy",
+    "mu_0": 1.0,
+    "n_a": 72,
+    "n_b": 0,
+    "p_value": 0.001,
+    "statistic": 3.4232,
+    "test": "one_sample_t"
+  },
+  "healthy_vs_pathology_contrast": {
+    "cliffs_delta": -0.372,
+    "cliffs_delta_ci95": [
+      -0.568,
+      -0.177
+    ],
+    "cohen_d": -0.564,
+    "cohen_d_ci95": [
+      -0.946,
+      -0.182
+    ],
+    "mwu_p": 0.0008,
+    "welch_df": 57.9,
+    "welch_p": 0.0128,
+    "welch_t": -2.568
+  },
+  "interpretation_boundary": "Branch B \u00a75.3: cross-subject \u03b3 distribution at the cardiac substrate. A ``falsified`` verdict rejects the universal-\u03b3 \u2248 1 framing at the cardiac substrate; a ``consistent`` verdict does NOT license the universal framing \u2014 it only means the cardiac substrate does not contradict it at n=116. The verdict is bounded to this substrate and the VLF band [0.003, 0.04] Hz; it does not transfer to other substrates or bands.",
+  "per_cohort": {
+    "chf2db": {
+      "max": 2.6763,
+      "mean": 1.3997,
+      "mean_ci95_bootstrap": [
+        1.2477,
+        1.5476
+      ],
+      "min": 0.6811,
+      "n": 29,
+      "std": 0.4204
+    },
+    "chfdb": {
+      "max": 4.6182,
+      "mean": 1.474,
+      "mean_ci95_bootstrap": [
+        1.0288,
+        2.0544
+      ],
+      "min": 0.1938,
+      "n": 15,
+      "std": 1.0157
+    },
+    "nsr2db": {
+      "max": 2.9126,
+      "mean": 1.2102,
+      "mean_ci95_bootstrap": [
+        1.1204,
+        1.3074
+      ],
+      "min": 0.332,
+      "n": 54,
+      "std": 0.3581
+    },
+    "nsrdb": {
+      "max": 1.4263,
+      "mean": 0.9427,
+      "mean_ci95_bootstrap": [
+        0.8257,
+        1.0627
+      ],
+      "min": 0.461,
+      "n": 18,
+      "std": 0.266
+    }
+  },
+  "schema_version": 1,
+  "verdict": "falsified"
+}

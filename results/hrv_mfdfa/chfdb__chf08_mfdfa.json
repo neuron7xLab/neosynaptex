@@ -1,0 +1,10 @@
+{
+  "cohort": "chfdb",
+  "delta_alpha": 0.0658,
+  "delta_h": 0.0413,
+  "error": null,
+  "h_at_q2": 1.027,
+  "n_rr": 20000,
+  "record": "chf08",
+  "status": "ok"
+}

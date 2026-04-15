@@ -7,6 +7,12 @@
 > sources (see §9). Pairs with `docs/ADVERSARIAL_CONTROLS.md`: that
 > document governs what counts as an admissible claim; this document
 > governs how an admissible claim is independently validated.
+>
+> **Practical entry point for external replicators:**
+> `docs/EXTERNAL_REPLICATION_INVITATION.md` locks every operational
+> parameter (SHA-pinned per-subject RR series, pipeline params,
+> acceptance tolerances, reporting format) for the currently-open
+> PhysioNet cardiac HRV pilot substrates.
 
 ## 1. Purpose
 

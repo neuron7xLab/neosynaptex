@@ -1,0 +1,62 @@
+{
+  "fit_order": 1,
+  "n_subjects_attempted": 116,
+  "n_subjects_failed": 0,
+  "n_subjects_ok": 116,
+  "per_cohort": {
+    "chf2db": {
+      "delta_h_max": 1.2287,
+      "delta_h_mean": 0.1874,
+      "delta_h_min": 0.011,
+      "h_at_q2_max": 1.3687,
+      "h_at_q2_mean": 1.1801,
+      "h_at_q2_min": 0.9604,
+      "n_ok": 29
+    },
+    "chfdb": {
+      "delta_h_max": 0.8798,
+      "delta_h_mean": 0.1801,
+      "delta_h_min": 0.0165,
+      "h_at_q2_max": 1.3165,
+      "h_at_q2_mean": 1.1211,
+      "h_at_q2_min": 0.5101,
+      "n_ok": 15
+    },
+    "nsr2db": {
+      "delta_h_max": 0.6688,
+      "delta_h_mean": 0.1087,
+      "delta_h_min": 0.0283,
+      "h_at_q2_max": 1.3375,
+      "h_at_q2_mean": 1.1365,
+      "h_at_q2_min": 0.8137,
+      "n_ok": 54
+    },
+    "nsrdb": {
+      "delta_h_max": 0.2486,
+      "delta_h_mean": 0.1006,
+      "delta_h_min": 0.0339,
+      "h_at_q2_max": 1.2045,
+      "h_at_q2_mean": 1.0403,
+      "h_at_q2_min": 0.8868,
+      "n_ok": 18
+    }
+  },
+  "q_values": [
+    -3.0,
+    -2.5,
+    -2.0,
+    -1.5,
+    -1.0,
+    -0.5,
+    0.0,
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    2.5,
+    3.0
+  ],
+  "rr_truncate": 20000,
+  "runtime_seconds": 24.5,
+  "schema_version": 1
+}

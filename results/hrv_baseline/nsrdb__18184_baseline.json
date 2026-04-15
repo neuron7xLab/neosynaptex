@@ -1,0 +1,20 @@
+{
+  "cohort": "nsrdb",
+  "panel": {
+    "dfa_alpha1": 1.2815091389698818,
+    "dfa_alpha2": 0.9129834554795032,
+    "hf_power_ms2": 270.3837545782497,
+    "lf_hf_ratio": 3.659336222223919,
+    "lf_power_ms2": 989.4250670290915,
+    "n_rr": 102053,
+    "n_rr_clipped": 0,
+    "poincare_sd1_ms": 20.04877513248218,
+    "poincare_sd2_ms": 137.12021292432976,
+    "rmssd_ms": 28.353110802752038,
+    "rr_duration_s": 75039.375,
+    "sample_entropy": 0.676239118448998,
+    "sdnn_ms": 97.98955601676734,
+    "total_power_ms2": 2552.942427345681
+  },
+  "record": "18184"
+}

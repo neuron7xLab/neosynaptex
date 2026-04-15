@@ -1,0 +1,68 @@
+name: semantic_drift_gate
+
+# Semantic drift enforcement. Companion to claim_status_check:
+#   * claim_status_check — structural presence of a claim_status block.
+#   * semantic_drift_gate — semantic consistency of prose vs ceiling.
+# See docs/SEMANTIC_DRIFT_GATE.md.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    paths:
+      - "README.md"
+      - "CANONICAL_POSITION.md"
+      - "PROTOCOL.md"
+      - "CONTRACT.md"
+      - "docs/SYSTEM_PROTOCOL.md"
+      - "docs/ADVERSARIAL_CONTROLS.md"
+      - "docs/REPLICATION_PROTOCOL.md"
+      - "manuscript/**"
+      - "contracts/claim_strength.py"
+      - "contracts/semantic_drift_config.yaml"
+      - "tools/audit/semantic_drift_gate.py"
+      - "tools/audit/claim_span_extractor.py"
+      - "tools/audit/evidence_ceiling.py"
+      - "tests/audit/test_semantic_drift_gate.py"
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  semantic-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]" --quiet
+
+      - name: Run semantic drift tests
+        run: pytest tests/audit/test_semantic_drift_gate.py
+
+      - name: Run semantic drift gate on the PR diff
+        env:
+          GH_PR_TITLE: ${{ github.event.pull_request.title }}
+          GH_PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          python -m tools.audit.semantic_drift_gate \
+            --repo-root . \
+            --base-ref origin/${{ github.base_ref }} \
+            --head-ref HEAD
+
+      - name: Upload gate reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-drift-reports
+          path: reports/semantic_drift/

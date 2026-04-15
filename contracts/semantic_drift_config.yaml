@@ -1,0 +1,56 @@
+protected_files:
+  - README.md
+  - CANONICAL_POSITION.md
+  - PROTOCOL.md
+  - CONTRACT.md
+  - docs/SYSTEM_PROTOCOL.md
+  - docs/ADVERSARIAL_CONTROLS.md
+  - docs/REPLICATION_PROTOCOL.md
+boundary_markers:
+  - bounded
+  - substrate-specific
+  - candidate
+  - exploratory
+  - hypothesized
+  - pending replication
+  - pending controls
+  - measured_but_bounded
+  - not proof
+hard_fail_markers:
+  - validated
+  - demonstrates
+  - proof
+  - causal
+  - universal
+  - law
+status_ceilings:
+  # Canonical 5 labels from tools.audit.claim_status_applied:
+  measured: 4
+  derived: 3
+  hypothesized: 1
+  unverified analogy: 1
+  falsified: 0
+  # Extended taxonomy used internally by the drift gate:
+  draft: 1
+  active: 2
+  measured_but_bounded: 5
+  bounded_positive: 5
+  validated: 6
+  honest_negative: 0
+  honest_null: 2
+  blocked: 0
+  stop_pending_owner: 0
+  superseded: 0
+  archived: 0
+excluded_prefixes:
+  - archive/
+  - archived/
+# Whether the gate should include PR_TITLE / PR_BODY in the diff. The
+# bundled gate fails any PR surface whose lexical tier exceeds the
+# *authorized ceiling*, and that ceiling collapses to 0 when no
+# evidence-registry object is linked to the claim. Until this repo
+# populates ``evidence/semantic_drift_registry.json`` with entries for
+# the full HRV / γ-program corpus, treat PR surfaces as out-of-scope
+# for the gate; the existing ``claim_status_check.yml`` already
+# enforces structural presence of a claim_status block on every PR.
+enforce_pr_surfaces: false

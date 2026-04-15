@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "split_sha256": "119c29c80a99553e36d2b6a8144a27831902ec08a7a706968d9ae553f508b103",
+  "splits": {
+    "development": {
+      "cohort_counts": {
+        "chfdb": 15,
+        "nsr2db": 54
+      },
+      "cohorts": [
+        "nsr2db",
+        "chfdb"
+      ],
+      "mean_rr_s": {
+        "max": 1.038987,
+        "mean": 0.761938,
+        "min": 0.488284,
+        "n": 69
+      },
+      "n_rr_intervals": {
+        "max": 146517.0,
+        "mean": 105188.884058,
+        "min": 67830.0,
+        "n": 69
+      },
+      "n_subjects": 69,
+      "recording_duration_s": {
+        "max": 86940.352,
+        "mean": 82194.085058,
+        "min": 71159.568,
+        "n": 69
+      },
+      "sampling_fs_hz": {
+        "max": 250.0,
+        "mean": 154.521739,
+        "min": 128.0,
+        "n": 69
+      }
+    },
+    "external": {
+      "cohort_counts": {
+        "chf2db": 29,
+        "nsrdb": 18
+      },
+      "cohorts": [
+        "chf2db",
+        "nsrdb"
+      ],
+      "mean_rr_s": {
+        "max": 0.94795,
+        "mean": 0.730452,
+        "min": 0.54972,
+        "n": 47
+      },
+      "n_rr_intervals": {
+        "max": 137394.0,
+        "mean": 101043.06383,
+        "min": 51095.0,
+        "n": 47
+      },
+      "n_subjects": 47,
+      "recording_duration_s": {
+        "max": 87329.797,
+        "mean": 78939.524702,
+        "min": 61256.406,
+        "n": 47
+      },
+      "sampling_fs_hz": {
+        "max": 128.0,
+        "mean": 128.0,
+        "min": 128.0,
+        "n": 47
+      }
+    }
+  }
+}
