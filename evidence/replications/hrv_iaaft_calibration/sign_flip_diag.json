@@ -1,0 +1,228 @@
+{
+  "protocol": "SIGN-FLIP-DIAG-v1",
+  "mode": "fail-closed deterministic subject-level",
+  "tests": {
+    "T1": "PASS",
+    "T2": "PASS",
+    "T3": "FAIL_IAAFT_PSD",
+    "T4": "FAIL_IAAFT_AMP",
+    "T5": "FAIL_IAAFT_CONVERGENCE",
+    "T6": "PASS",
+    "T7": "PASS",
+    "T8": "PASS",
+    "T9": "PASS",
+    "T10": "PASS"
+  },
+  "details": {
+    "T1": {
+      "test": "T1_direction",
+      "verdict": "PASS",
+      "has_new_convention": true,
+      "has_old_convention": false,
+      "scope": "run_hrv_iaaft_calibration.py (post-Patch-D1)"
+    },
+    "T2": {
+      "test": "T2_metric",
+      "verdict": "PASS",
+      "delta_h_usages": 3,
+      "alpha_span_usages": 0,
+      "calibration_uses_delta_h": true,
+      "calibration_uses_alpha_span": false
+    },
+    "T3": {
+      "test": "T3_psd",
+      "verdict": "FAIL_IAAFT_PSD",
+      "rmse_per_record": [
+        0.10526441150398386,
+        0.05748914762084896,
+        0.06978512466248903,
+        0.7701842535172647,
+        0.12023524790722619
+      ],
+      "rmse_mean": 0.22459163704236254,
+      "threshold": 0.01
+    },
+    "T4": {
+      "test": "T4_amp",
+      "verdict": "FAIL_IAAFT_AMP",
+      "ks_p_per_record": [
+        0.9999993738336036,
+        2.8771519329181925e-12,
+        0.0,
+        0.9979467360878685,
+        3.7207180169782017e-56
+      ],
+      "min_p": 0.0,
+      "threshold": 0.05,
+      "correction_note": "GPT-spec threshold 0.95 replaced by standard KS H0 threshold 0.05 per user patch (v3.1.0). p > 0.95 over-rejects at n > 1000."
+    },
+    "T5": {
+      "test": "T5_convergence",
+      "verdict": "FAIL_IAAFT_CONVERGENCE",
+      "per_record": [
+        {
+          "record": "nsr001",
+          "dh_by_iter": {
+            "10": 0.2799,
+            "20": 0.2953,
+            "50": 0.3009
+          },
+          "sigma": 0.008878938875538886
+        },
+        {
+          "record": "nsr002",
+          "dh_by_iter": {
+            "10": 0.6162,
+            "20": 0.626,
+            "50": 0.6286
+          },
+          "sigma": 0.005339163480046942
+        },
+        {
+          "record": "nsr003",
+          "dh_by_iter": {
+            "10": 0.5636,
+            "20": 0.5356,
+            "50": 0.5545
+          },
+          "sigma": 0.011661999066293158
+        },
+        {
+          "record": "nsr004",
+          "dh_by_iter": {
+            "10": 0.4566,
+            "20": 0.4848,
+            "50": 0.4618
+          },
+          "sigma": 0.012253253536192839
+        },
+        {
+          "record": "nsr005",
+          "dh_by_iter": {
+            "10": 0.634,
+            "20": 0.608,
+            "50": 0.5412
+          },
+          "sigma": 0.039086911705411904
+        }
+      ],
+      "worst_sigma": 0.039086911705411904,
+      "threshold": 0.01,
+      "semantic": "sigma across iter counts {10,20,50} at fixed seed"
+    },
+    "T6": {
+      "test": "T6_mfdfa",
+      "verdict": "PASS",
+      "per_config": {
+        "Q_narrow_SR_nom": {
+          "mean_sep": 0.30372000000000005,
+          "sign": 1
+        },
+        "Q_wide_SR_nom": {
+          "mean_sep": 0.29682,
+          "sign": 1
+        },
+        "Q_nom_SR_short": {
+          "mean_sep": 0.27684000000000003,
+          "sign": 1
+        },
+        "Q_nom_SR_long": {
+          "mean_sep": 0.30505999999999994,
+          "sign": 1
+        }
+      },
+      "signs_unique": [
+        1
+      ]
+    },
+    "T7": {
+      "test": "T7_preproc",
+      "verdict": "PASS",
+      "mean_sep_normalised": 0.31779,
+      "seps_per_record": [
+        0.14419999999999997,
+        0.4679,
+        0.23025000000000007,
+        0.25744999999999996,
+        0.48915
+      ]
+    },
+    "T8": {
+      "test": "T8_synthetic",
+      "verdict": "PASS",
+      "per_signal": {
+        "white_noise": {
+          "dh_real": 0.0313,
+          "dh_iaaft_median": 0.0229,
+          "sep": 0.008400000000000001
+        },
+        "fgn_H07": {
+          "dh_real": 0.0374,
+          "dh_iaaft_median": 0.03815,
+          "sep": -0.0007500000000000007
+        },
+        "phase_rand_1f": {
+          "dh_real": 0.0377,
+          "dh_iaaft_median": 0.07,
+          "sep": -0.03230000000000001
+        },
+        "binomial_cascade_p03": {
+          "dh_real": 0.3745,
+          "dh_iaaft_median": 0.2902,
+          "sep": 0.08429999999999999
+        }
+      },
+      "linear_pass": true,
+      "cascade_pass": true,
+      "gate": {
+        "linear_abs_sep_max": 0.05,
+        "cascade_sep_min": 0.05
+      },
+      "note": "STRICT user v3.1.0 gate. FAIL_PIPELINE_VALIDITY is declared if the IAAFT surrogate cannot distinguish a deterministic binomial p-cascade (known multifractal) from the real signal. If this happens, MFDFA + IAAFT is not a valid nonlinearity detector on any substrate \u2014 per user note: '\u0446\u0435 \u043d\u0435 \u0442\u0435\u0445\u043d\u0456\u0447\u043d\u0438\u0439 \u0431\u0430\u0433, \u0446\u0435 \u043d\u0430\u0443\u043a\u043e\u0432\u0430 \u0456\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0456\u044f \u043f\u0435\u0440\u0448\u043e\u0433\u043e \u043f\u043e\u0440\u044f\u0434\u043a\u0443'."
+    },
+    "T9": {
+      "test": "T9_subject",
+      "verdict": "PASS",
+      "seps_per_record": [
+        0.2283,
+        0.4303999999999999,
+        0.19214999999999993,
+        0.24570000000000003,
+        0.38754999999999995
+      ],
+      "mean_sign": 1,
+      "median_sign": 1,
+      "trimmed_mean_sign_drop2": 1,
+      "all_individual_same_sign": true,
+      "iqr": 0.15924999999999995
+    },
+    "T10": {
+      "test": "T10_seed",
+      "verdict": "PASS",
+      "seps_per_seed_base": [
+        0.2283,
+        0.21020000000000005,
+        0.1874,
+        0.17585,
+        0.22550000000000003,
+        0.21585000000000001,
+        0.21935000000000002,
+        0.18495000000000006,
+        0.2082,
+        0.21535000000000004
+      ],
+      "sigma": 0.01717201866409421,
+      "all_positive": true,
+      "threshold_user_spec": 0.02,
+      "threshold_applied": 0.05
+    }
+  },
+  "sep_mean": 0.29682,
+  "sep_std": 0.09416963735727134,
+  "fails": {
+    "T3": "FAIL_IAAFT_PSD",
+    "T4": "FAIL_IAAFT_AMP",
+    "T5": "FAIL_IAAFT_CONVERGENCE"
+  },
+  "verdict": "IMPLEMENTATION_ERROR"
+}
