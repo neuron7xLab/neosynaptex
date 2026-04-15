@@ -112,3 +112,13 @@ ignore = [
     "B905",  # zip strict= is noisy for scientific code
     "B007",  # loop variable naming is fine in scientific context
 ]
+
+[tool.ruff.lint.isort]
+# pywt (PyWavelets) is explicitly marked third-party so ruff's heuristic
+# classifier cannot confuse it with a first-party module on environments
+# where a local ``pywt/`` directory happens to exist alongside the repo
+# (observed on development machines where the upstream PyWavelets source
+# is cloned for reference). Without this, the same source file is
+# accepted locally but rejected by ``ruff check`` on CI due to import-
+# group disagreement (or vice versa).
+known-third-party = ["pywt"]
