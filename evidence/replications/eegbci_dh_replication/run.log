@@ -1,0 +1,70 @@
+2026-04-15 15:54:08,014 INFO Loaded prereg: evidence/priors/eeg_resting_literature_prior.yaml (version 1)
+2026-04-15 15:54:08,014 INFO Config: n_subjects=20  scale_range=(16, 512)  q=-5.0..5.0 (21)  IAAFT=20×20 iter
+2026-04-15 15:54:08,014 INFO === Subject S001 ===
+2026-04-15 15:54:08,355 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:54:10,578 INFO   S001: h(q=2)=0.986  Δh=0.095  Δh_IAAFT=0.143  sep=+0.048  PASS=False
+2026-04-15 15:54:10,578 INFO === Subject S002 ===
+2026-04-15 15:54:31,700 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:54:33,935 INFO   S002: h(q=2)=0.824  Δh=0.083  Δh_IAAFT=0.267  sep=+0.184  PASS=False
+2026-04-15 15:54:33,935 INFO === Subject S003 ===
+2026-04-15 15:54:46,868 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:54:49,058 INFO   S003: h(q=2)=0.983  Δh=0.224  Δh_IAAFT=0.198  sep=-0.026  PASS=False
+2026-04-15 15:54:49,058 INFO === Subject S004 ===
+2026-04-15 15:54:58,023 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:55:00,256 INFO   S004: h(q=2)=1.100  Δh=0.189  Δh_IAAFT=0.146  sep=-0.043  PASS=False
+2026-04-15 15:55:00,256 INFO === Subject S005 ===
+2026-04-15 15:55:10,836 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:55:13,039 INFO   S005: h(q=2)=0.759  Δh=0.265  Δh_IAAFT=0.246  sep=-0.019  PASS=False
+2026-04-15 15:55:13,039 INFO === Subject S006 ===
+2026-04-15 15:55:25,964 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:55:28,206 INFO   S006: h(q=2)=0.847  Δh=0.300  Δh_IAAFT=0.277  sep=-0.023  PASS=False
+2026-04-15 15:55:28,206 INFO === Subject S007 ===
+2026-04-15 15:55:40,142 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:55:42,419 INFO   S007: h(q=2)=0.635  Δh=0.335  Δh_IAAFT=0.253  sep=-0.081  PASS=False
+2026-04-15 15:55:42,419 INFO === Subject S008 ===
+2026-04-15 15:55:52,613 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:55:54,864 INFO   S008: h(q=2)=0.984  Δh=0.197  Δh_IAAFT=0.245  sep=+0.048  PASS=False
+2026-04-15 15:55:54,864 INFO === Subject S009 ===
+2026-04-15 15:56:05,540 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:56:07,816 INFO   S009: h(q=2)=1.014  Δh=0.147  Δh_IAAFT=0.253  sep=+0.107  PASS=True
+2026-04-15 15:56:07,816 INFO === Subject S010 ===
+2026-04-15 15:56:17,988 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:56:20,245 INFO   S010: h(q=2)=1.087  Δh=0.169  Δh_IAAFT=0.174  sep=+0.005  PASS=False
+2026-04-15 15:56:20,245 INFO === Subject S011 ===
+2026-04-15 15:56:30,774 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:56:33,020 INFO   S011: h(q=2)=1.092  Δh=0.177  Δh_IAAFT=0.318  sep=+0.141  PASS=True
+2026-04-15 15:56:33,020 INFO === Subject S012 ===
+2026-04-15 15:56:43,720 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:56:45,996 INFO   S012: h(q=2)=0.884  Δh=0.249  Δh_IAAFT=0.310  sep=+0.061  PASS=True
+2026-04-15 15:56:45,996 INFO === Subject S013 ===
+2026-04-15 15:56:55,889 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:56:58,140 INFO   S013: h(q=2)=0.739  Δh=0.281  Δh_IAAFT=0.287  sep=+0.006  PASS=False
+2026-04-15 15:56:58,141 INFO === Subject S014 ===
+2026-04-15 15:57:20,140 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:57:22,427 INFO   S014: h(q=2)=0.744  Δh=0.318  Δh_IAAFT=0.237  sep=-0.082  PASS=False
+2026-04-15 15:57:22,427 INFO === Subject S015 ===
+2026-04-15 15:57:30,321 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:57:32,580 INFO   S015: h(q=2)=0.622  Δh=0.244  Δh_IAAFT=0.169  sep=-0.075  PASS=False
+2026-04-15 15:57:32,580 INFO === Subject S016 ===
+2026-04-15 15:57:43,181 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:57:45,430 INFO   S016: h(q=2)=0.925  Δh=0.256  Δh_IAAFT=0.320  sep=+0.064  PASS=True
+2026-04-15 15:57:45,430 INFO === Subject S017 ===
+2026-04-15 15:57:56,767 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:57:59,007 INFO   S017: h(q=2)=1.038  Δh=0.120  Δh_IAAFT=0.170  sep=+0.050  PASS=False
+2026-04-15 15:57:59,007 INFO === Subject S018 ===
+2026-04-15 15:58:12,267 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:58:14,512 INFO   S018: h(q=2)=1.084  Δh=0.382  Δh_IAAFT=0.405  sep=+0.023  PASS=False
+2026-04-15 15:58:14,512 INFO === Subject S019 ===
+2026-04-15 15:58:26,858 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:58:29,088 INFO   S019: h(q=2)=0.711  Δh=0.232  Δh_IAAFT=0.328  sep=+0.096  PASS=True
+2026-04-15 15:58:29,088 INFO === Subject S020 ===
+2026-04-15 15:58:41,862 INFO   loaded: 2 epochs × 3 ch × 4800 samples  (fs=160.0)
+2026-04-15 15:58:44,082 INFO   S020: h(q=2)=0.967  Δh=0.131  Δh_IAAFT=0.059  sep=-0.072  PASS=False
+2026-04-15 15:58:44,083 INFO ============================================================
+2026-04-15 15:58:44,084 INFO [VERDICT] FAIL_LINEAR
+2026-04-15 15:58:44,084 INFO   Δh = 0.220 ± 0.080 (band (0.11, 0.59))
+2026-04-15 15:58:44,084 INFO   Δh_IAAFT = 0.240 ± 0.079  | separation = +0.020
+2026-04-15 15:58:44,084 INFO   pass_rate = 5/20 = 25.0% (threshold 70%)
+2026-04-15 15:58:44,084 INFO   IAAFT surrogates indistinguishable from real (mean sep=0.020 < 0.05). No multifractal nonlinearity beyond linear spectrum + marginal.
+2026-04-15 15:58:44,084 INFO   Results: evidence/replications/eegbci_dh_replication/results.json
+2026-04-15 15:58:44,084 INFO ============================================================

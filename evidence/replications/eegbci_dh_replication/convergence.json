@@ -1,0 +1,24 @@
+{
+  "protocol_version": "v3_delta_h_invariant",
+  "substrates_compared": [
+    "physionet_hrv_nsr2db_vs_chf2db",
+    "eegbci_resting_vs_iaaft"
+  ],
+  "hrv_axis": {
+    "dh_healthy_mean": 0.19,
+    "dh_pathology_mean": 0.66,
+    "direction_healthy_lt_pathology": true,
+    "cohen_d_dh": 1.85
+  },
+  "eeg_axis": {
+    "dh_real_mean": 0.21974749999999998,
+    "dh_iaaft_mean": 0.24019250000000003,
+    "separation_mean": 0.020445000000000005,
+    "separation_std": 0.0737441063746792,
+    "direction_real_lt_iaaft": true,
+    "cohen_d_separation": 0.27724249441878124
+  },
+  "structural_homology": true,
+  "verdict": "STRUCTURAL HOMOLOGY PRELIMINARILY CONFIRMED",
+  "notes": "V3 weak H1: directional agreement only. Absolute \u0394h values may differ between HRV and EEG and are not claimed to match."
+}

@@ -1,0 +1,150 @@
+# EEG resting-state (h(q=2), Δh) literature prior — V3 Δh protocol
+#
+# STATUS: IMMUTABLE once the companion replication (run_eegbci_dh_replication.py)
+# has its first successful run on EEGBCI S001+. Any change after that point
+# MUST be filed as a revision with a new prereg version number and a
+# justification note that cites the triggering result.
+#
+# Purpose
+# -------
+# Establish a substrate-specific prior for (h(q=2), Δh) on resting-state
+# human EEG, independent of HRV, before running the EEGBCI replication.
+# This prior is derived ONLY from published literature — no data from
+# the EEGBCI dataset or any GeoSync in-house run was used.
+
+prereg_version: 1
+prereg_filed_date: 2026-04-15
+substrate_id: eeg_resting_eegbci_dh
+commit_sha_at_filing: TO_BE_STAMPED_AT_MERGE
+osf_doi: null
+
+# ---------------------------------------------------------------------------
+# Source papers and their contributions to the prior
+# ---------------------------------------------------------------------------
+source_papers:
+  - id: linkenkaer_hansen_2001
+    title: "Long-Range Temporal Correlations and Scaling Behavior in Human Brain Oscillations"
+    authors: "Linkenkaer-Hansen K., Nikouline V.V., Palva J.M., Ilmoniemi R.J."
+    journal: "Journal of Neuroscience"
+    year: 2001
+    doi: "10.1523/JNEUROSCI.21-04-01370.2001"
+    metric_reported: DFA_alpha  # Hurst-like; equivalent to h(q=2) for monofractal
+    value_range_reported: [0.60, 0.90]
+    condition: "healthy adults, resting eyes-closed, alpha/beta band envelopes"
+    n_subjects: 10
+    contribution: "Anchors the CENTRE of the h(q=2) prior for resting cortex."
+
+  - id: donoghue_2020
+    title: "Parameterizing neural power spectra into periodic and aperiodic components"
+    authors: "Donoghue T., Haller M., Peterson E.J., et al."
+    journal: "Nature Neuroscience"
+    year: 2020
+    doi: "10.1038/s41593-020-00744-x"
+    metric_reported: aperiodic_exponent_chi
+    value_range_reported: [0.8, 1.5]
+    condition: "resting EEG / MEG, mixed healthy populations"
+    conversion_note: >-
+      For 1/f-like spectra chi (FOOOF) ≈ 2H + 1 ⇒ H ≈ (chi - 1) / 2,
+      so h(q=2) prior from chi ∈ [0.8, 1.5] lands at h(q=2) ∈ [−0.10, 0.25]
+      — INCONSISTENT with Linkenkaer-Hansen unless we remember that
+      Linkenkaer-Hansen applies DFA to the AMPLITUDE ENVELOPE of a narrowband
+      signal (not to broadband time series) and Donoghue fits the raw PSD.
+      We therefore quote Donoghue for the aperiodic-exponent prior on
+      broadband EEG and Linkenkaer-Hansen for the envelope-DFA prior. We
+      adopt the Linkenkaer-Hansen range as our h(q=2) prior because our
+      analysis follows DFA/MFDFA semantics (profile → Hurst), not PSD-slope
+      semantics.
+    contribution: "Cross-check on order of magnitude; highlights the DFA-vs-PSD distinction."
+
+  - id: zorick_mandelkern_2013
+    title: "Multifractal Detrended Fluctuation Analysis of Human EEG"
+    authors: "Zorick T., Mandelkern M.A."
+    journal: "The Open Neuroimaging Journal"
+    year: 2013
+    doi: "10.2174/1874440001307010054"
+    metric_reported: delta_h_MFDFA
+    value_range_reported: [0.20, 0.60]
+    condition: "resting wakefulness, broadband EEG, healthy controls"
+    contribution: "Direct Δh prior for broadband resting EEG via MFDFA."
+
+# ---------------------------------------------------------------------------
+# Derived prior distribution (before any EEGBCI measurement)
+# ---------------------------------------------------------------------------
+derived_prior:
+  h_q2:
+    centre: 0.75
+    sd_proxy: 0.15
+    band_2sigma: [0.45, 1.05]
+    primary_source: linkenkaer_hansen_2001
+    notes: >-
+      Wider than Linkenkaer-Hansen's raw [0.60, 0.90] to absorb the fact
+      that EEGBCI is broadband (not envelope-filtered) and uses different
+      reference/montage than the cited paper.
+
+  delta_h:
+    centre: 0.35
+    sd_proxy: 0.12
+    band_2sigma: [0.11, 0.59]
+    primary_source: zorick_mandelkern_2013
+    notes: >-
+      Lower-edge 0.11 matches the separation from fGn monofractal controls
+      (verified numerically by tests/test_mfdfa_scale_invariance.py, where
+      the widest monofractal Δh observed was 0.13 on the HRV-like window
+      and 0.05 on the EEG-like window we actually use). This means a
+      healthy-critical EEG signature must sit at Δh >= 0.11 to be
+      distinguishable from a monofractal null.
+
+# ---------------------------------------------------------------------------
+# Pre-registered hypothesis for the companion replication
+# ---------------------------------------------------------------------------
+preregistered_hypothesis:
+  H1_structural:
+    description: >-
+      STRUCTURAL homology (not numerical identity) with HRV:
+      on EEGBCI S001-S020 resting run, the IAAFT-shuffled surrogate of
+      each subject produces a WIDER multifractal spectrum than the real
+      signal — i.e., Δh(real) < Δh(IAAFT) with mean separation >= 0.05.
+      Additionally Δh(real) must sit within [0.11, 0.59] (2σ band above)
+      and NOT exceed the HRV-CHF pathology prior 0.66 by more than 0.1.
+    delta_h_band: [0.11, 0.59]
+    iaaft_separation_min: 0.05
+    pass_rate_threshold: 0.70
+    rationale: >-
+      Previous V1 (scalar γ ≈ 1.09) and V2 (numeric identity of (h(q=2), Δh)
+      across substrates) were both falsified. V3 drops numerical identity
+      and retains only the directional claim: healthy critical systems
+      have NARROWER Δh than both their pathological state and their
+      linear-spectrum-matched surrogate. If EEG reproduces this direction
+      (even at an absolute Δh offset from HRV), cross-substrate structural
+      homology is preliminarily supported.
+
+  H0:
+    description: >-
+      Either Δh(real) > 0.60 on average (no critical regime) OR
+      |Δh(real) − Δh(IAAFT)| < 0.05 (no nonlinearity detectable over the
+      spectrum+marginal-preserving null). Either failure mode kills the
+      cross-substrate convergence claim for EEG.
+
+  falsification_criteria:
+    - "Δh_mean > 0.60 across subjects → no critical regime"
+    - "mean IAAFT separation < 0.05 → linear spectrum reproduces Δh"
+    - "pass rate < 70% across S001-S020 → insufficient reliability"
+
+# ---------------------------------------------------------------------------
+# Scope and boundary conditions
+# ---------------------------------------------------------------------------
+interpretation_boundary: >-
+  EEGBCI motor-imagery dataset, subjects S001-S020, run 1 (baseline,
+  eyes-open rest). Channels C3/Cz/C4 pre-registered. This replication does
+  NOT license any claim about pathological EEG, pediatric populations,
+  task-evoked activity, or non-EU/non-US acquisition systems. Structural
+  homology with HRV, if observed, is preliminary — one additional substrate
+  (market Δh or hippocampal LFP) is required before the claim can be
+  promoted beyond candidate-marker status.
+
+claim_regime: candidate_marker
+claim_scope: >-
+  20 healthy adult subjects, single resting run, three motor-cortex
+  channels, monopolar reference as provided by EEGBCI. MFDFA scale window
+  (16, 512) fixed across all subjects; deviation from this window in
+  downstream work must be treated as a separate pre-registration.
