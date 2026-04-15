@@ -1,0 +1,94 @@
+{
+  "protocol_version": "v3.0.0",
+  "date": "2026-04-15",
+  "diag_1_2": {
+    "diag": "DIAG-1+2",
+    "sep_original_mean": -0.28575999999999996,
+    "sep_original_std": 0.09547384668064861,
+    "sep_corrected_mean": 0.28575999999999996,
+    "sep_corrected_std": 0.09547384668064861,
+    "cohens_d_real_vs_iaaft": 1.381853648638421,
+    "n_records": 5,
+    "diagnosis": "D1_SIGN_FLIP",
+    "action": "sep formula has the wrong sign for a nonlinearly-multifractal substrate. Apply Patch D1 (`sep = dh_real - dh_iaaft`) to both runners, re-run STEP-1, unlock STEP-2 scaffold on CALIBRATION_PASS."
+  },
+  "diag_3": {
+    "diag": "DIAG-3",
+    "fbm_H": 0.7,
+    "fbm_dh_real": 0.0313,
+    "fbm_dh_iaaft_median": 0.03605,
+    "fbm_sep_original": 0.004749999999999997,
+    "fbm_sep_corrected": -0.004749999999999997,
+    "binom_p": 0.3,
+    "binom_dh_real": 0.3634,
+    "binom_dh_iaaft_median": 0.35,
+    "binom_sep_original": -0.013400000000000023,
+    "binom_sep_corrected": 0.013400000000000023,
+    "diagnosis": "IAAFT_INSUFFICIENT",
+    "note": "Pipeline detects \u0394h on a known multifractal, but IAAFT sep is \u2248 0 in either sign. Surrogate is too close to the real cascade. Increase N_IAAFT or iterate count."
+  },
+  "diag_4_5": {
+    "diag": "DIAG-4+5",
+    "record": "nsr001",
+    "configs": {
+      "Q_narrow_SR_HRV": {
+        "q_range": [
+          -5.0,
+          5.0
+        ],
+        "scale_range": [
+          32,
+          1024
+        ],
+        "dh_real": 0.4605,
+        "dh_iaaft_median": 0.23220000000000002,
+        "sep_original": -0.2283,
+        "sep_corrected": 0.2283
+      },
+      "Q_wide_SR_HRV": {
+        "q_range": [
+          -10.0,
+          10.0
+        ],
+        "scale_range": [
+          32,
+          1024
+        ],
+        "dh_real": 0.596,
+        "dh_iaaft_median": 0.34140000000000004,
+        "sep_original": -0.25459999999999994,
+        "sep_corrected": 0.25459999999999994
+      },
+      "Q_narrow_SR_short": {
+        "q_range": [
+          -5.0,
+          5.0
+        ],
+        "scale_range": [
+          16,
+          512
+        ],
+        "dh_real": 0.6446,
+        "dh_iaaft_median": 0.3196,
+        "sep_original": -0.32499999999999996,
+        "sep_corrected": 0.32499999999999996
+      },
+      "Q_narrow_SR_long": {
+        "q_range": [
+          -5.0,
+          5.0
+        ],
+        "scale_range": [
+          64,
+          2048
+        ],
+        "dh_real": 0.2347,
+        "dh_iaaft_median": 0.2465,
+        "sep_original": 0.011800000000000005,
+        "sep_corrected": -0.011800000000000005
+      }
+    }
+  },
+  "VERDICT": "SIGN_FLIP_LIKELY_SYNTH_AMBIGUOUS",
+  "next_action": "HRV sign suggests D1 but synthetic benchmark is ambiguous. Apply Patch D1 as working hypothesis with note in provenance."
+}

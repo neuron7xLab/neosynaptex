@@ -48,6 +48,11 @@ dev = [
     "ruff>=0.15.10",
     "import-linter>=2.11",
     "pyyaml>=6.0",
+    # Required by core/nulls/wavelet_phase.py (N2 null family, NULL-SCREEN-v1.1).
+    "PyWavelets>=1.8",
+    # Chained via run_null_family_screening.py → substrates/physionet_hrv/nsr2db_client.py
+    # (module-level ``import wfdb``); needed for tests/test_null_screening.py collection.
+    "wfdb>=4.2",
 ]
 security = [
     "pip-audit>=2.10.0",
@@ -112,3 +117,13 @@ ignore = [
     "B905",  # zip strict= is noisy for scientific code
     "B007",  # loop variable naming is fine in scientific context
 ]
+
+[tool.ruff.lint.isort]
+# pywt (PyWavelets) is explicitly marked third-party so ruff's heuristic
+# classifier cannot confuse it with a first-party module on environments
+# where a local ``pywt/`` directory happens to exist alongside the repo
+# (observed on development machines where the upstream PyWavelets source
+# is cloned for reference). Without this, the same source file is
+# accepted locally but rejected by ``ruff check`` on CI due to import-
+# group disagreement (or vice versa).
+known-third-party = ["pywt"]

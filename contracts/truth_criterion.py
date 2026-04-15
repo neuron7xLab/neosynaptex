@@ -187,30 +187,25 @@ def wavelet_coherence_window(
 
 
 # ---------------------------------------------------------------------------
-# IAAFT surrogate test for significance
+# IAAFT surrogate — delegated to the canonical core path.
 # ---------------------------------------------------------------------------
+# The former in-file implementation duplicated ``core.iaaft.iaaft_surrogate``
+# with a non-canonical stopping rule. Redirected 2026-04-15 to eliminate
+# drift between the two paths (falsification-protocol repair).
 def iaaft_surrogate(series: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """Generate one IAAFT surrogate (preserves power spectrum + amplitude distribution)."""
-    n = len(series)
-    sorted_vals = np.sort(series)
-    fft_orig = np.fft.rfft(series)
-    amplitudes = np.abs(fft_orig)
+    """Thin wrapper delegating to ``core.iaaft.iaaft_surrogate``.
 
-    # Start with random shuffle
-    surrogate = rng.permutation(series).copy()
+    Kept for the ``surrogate_test`` caller below so its call shape does
+    not change. The canonical path closes on amplitude rank-remap and
+    satisfies the T4 exact-sort gate.
+    """
 
-    for _ in range(50):  # iterate to convergence
-        # Match power spectrum
-        fft_surr = np.fft.rfft(surrogate)
-        phases = np.angle(fft_surr)
-        fft_new = amplitudes * np.exp(1j * phases)
-        surrogate = np.fft.irfft(fft_new, n=n)
+    from core.iaaft import iaaft_surrogate as _canonical
 
-        # Match amplitude distribution
-        ranks = np.argsort(np.argsort(surrogate))
-        surrogate = sorted_vals[ranks]
-
-    return np.asarray(surrogate)  # ensure ndarray return type
+    # Legacy rng-passed signature returns a 3-tuple; take the array.
+    result = _canonical(series, rng=rng, n_iter=200)
+    arr = result[0] if isinstance(result, tuple) else result
+    return np.asarray(arr)
 
 
 def surrogate_test(
