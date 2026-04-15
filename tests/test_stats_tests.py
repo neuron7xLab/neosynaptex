@@ -1,4 +1,4 @@
-"""Tests for :mod:`tools.stats.tests` — welch_t / Mann-Whitney / permutation."""
+"""Tests for :mod:`tools.stats.tests` — welch_t / Mann-Whitney / permutation / one-sample t."""
 
 from __future__ import annotations
 
@@ -7,9 +7,15 @@ import random
 
 import pytest
 from scipy.stats import mannwhitneyu as _sp_mwu
+from scipy.stats import ttest_1samp as _sp_ttest_1samp
 from scipy.stats import ttest_ind as _sp_welch
 
-from tools.stats.tests import mann_whitney_u, permutation_test, welch_t_test
+from tools.stats.tests import (
+    mann_whitney_u,
+    one_sample_t_test,
+    permutation_test,
+    welch_t_test,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -104,3 +110,38 @@ def test_permutation_is_deterministic_under_same_seed() -> None:
 def test_permutation_rejects_small_perm_count() -> None:
     with pytest.raises(ValueError):
         permutation_test([1, 2, 3], [4, 5, 6], _mean_diff, n_permutations=10, seed=0)
+
+
+# ---------------------------------------------------------------------------
+# one_sample_t_test: agree with scipy.stats.ttest_1samp
+# ---------------------------------------------------------------------------
+def test_one_sample_t_matches_scipy() -> None:
+    rng = random.Random(3)
+    xs = [rng.gauss(0.7, 1.2) for _ in range(40)]
+    r = one_sample_t_test(xs, mu_0=1.0)
+    ref = _sp_ttest_1samp(xs, 1.0)
+    assert math.isclose(r.statistic, float(ref.statistic), rel_tol=1e-9)
+    assert math.isclose(r.p_value, float(ref.pvalue), rel_tol=1e-6)
+    assert r.df == len(xs) - 1
+    assert r.n_a == len(xs) and r.n_b == 0
+
+
+def test_one_sample_t_at_true_mu_gives_large_p() -> None:
+    rng = random.Random(4)
+    xs = [rng.gauss(1.0, 0.5) for _ in range(50)]
+    r = one_sample_t_test(xs, mu_0=1.0)
+    assert r.p_value > 0.05
+
+
+def test_one_sample_t_far_from_mu_gives_small_p() -> None:
+    rng = random.Random(5)
+    xs = [rng.gauss(5.0, 0.5) for _ in range(50)]
+    r = one_sample_t_test(xs, mu_0=1.0)
+    assert r.p_value < 1e-10
+
+
+def test_one_sample_t_rejects_degenerate() -> None:
+    with pytest.raises(ValueError):
+        one_sample_t_test([1.0], 1.0)
+    with pytest.raises(ValueError):
+        one_sample_t_test([1.0, 1.0, 1.0], 1.0)
