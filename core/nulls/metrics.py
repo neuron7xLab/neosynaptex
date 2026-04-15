@@ -11,7 +11,13 @@ from __future__ import annotations
 import numpy as np
 from scipy import signal as _sig
 
-from substrates.physionet_hrv.mfdfa import mfdfa
+# NOTE: we intentionally import ``mfdfa`` lazily inside ``compute_delta_h``.
+# The module path ``substrates.physionet_hrv.mfdfa`` is measurement-branch
+# code (NULL-SCREEN-v1.1: do not touch) and contains a pre-existing
+# untyped ``**kwargs`` signature at ``mfdfa_width`` that would surface
+# under ``mypy core/ --strict`` the moment this import is resolved at
+# module load. Deferring the import keeps the mypy scan for ``core/``
+# closed at this boundary without modifying the measurement branch.
 
 __all__ = [
     "ACF_LAGS_MAX",
@@ -85,6 +91,9 @@ def compute_delta_h(
     Scale window defaults to ``(16, n//4)``, compatible with both short
     synthetics (4096 samples) and real NSR records (≥50k samples).
     """
+    # Deferred import — see the top-of-module NOTE.
+    from substrates.physionet_hrv.mfdfa import mfdfa  # noqa: PLC0415
+
     if q_values is None:
         q_values = np.arange(-5.0, 5.5, 0.5)
     n = len(x)

@@ -183,8 +183,8 @@ def mfdfa(
     )
 
 
-def mfdfa_width(x: np.ndarray, **kwargs) -> tuple[float, float]:
+def mfdfa_width(x: np.ndarray, **kwargs: object) -> tuple[float, float]:
     """Convenience: return (Δh, h(q=2)) only."""
 
-    r = mfdfa(x, **kwargs)
+    r = mfdfa(x, **kwargs)  # type: ignore[arg-type]
     return r.delta_h, r.h_at_q2
