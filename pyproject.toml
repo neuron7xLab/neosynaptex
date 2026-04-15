@@ -48,6 +48,11 @@ dev = [
     "ruff>=0.15.10",
     "import-linter>=2.11",
     "pyyaml>=6.0",
+    # Required by core/nulls/wavelet_phase.py (N2 null family, NULL-SCREEN-v1.1).
+    "PyWavelets>=1.8",
+    # Chained via run_null_family_screening.py → substrates/physionet_hrv/nsr2db_client.py
+    # (module-level ``import wfdb``); needed for tests/test_null_screening.py collection.
+    "wfdb>=4.2",
 ]
 security = [
     "pip-audit>=2.10.0",
