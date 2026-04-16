@@ -1,21 +1,29 @@
 #!/usr/bin/env python3
-"""neosynaptex demo -- REAL substrates only (mode="real").
+"""neosynaptex demo -- all admissible substrates (mode="demo").
 
-Honest label: this demo registers *only* adapters whose
-``provenance_class == REAL`` and ``claim_status == ADMISSIBLE``. The
-engine is constructed with ``mode="real"`` so any synthetic / mock /
-downgraded adapter would be rejected by
-``contracts.provenance.ensure_admissible`` at registration time.
+Sibling to ``demo_real.py``. Where ``demo_real`` enforces
+``mode="real"`` (only REAL + ADMISSIBLE substrates pass the
+registration gate), this demo uses the permissive ``mode="demo"`` so
+that synthetic simulations can be exercised alongside real data for
+cross-substrate diagnostics and smoke tests.
 
-Of the first-party adapters currently annotated, Zebrafish (McGuirl
-2020 reproducible .mat corpus) is the only one that qualifies. The
-remaining synthetic / mock adapters (GrayScott, Kuramoto, BnSyn,
-CNS-AI, Mock*) live in ``demo_multi.py`` under ``mode="demo"``.
+Registered here:
+
+* Zebrafish (real, admissible)
+* Gray-Scott (synthetic, admissible)
+* Kuramoto (synthetic, admissible)
+* BN-Syn (synthetic, admissible)
+
+The CNS-AI substrate is deliberately absent; its claim_status is
+``downgraded`` and it has no place in either demo.
 """
 
 import numpy as np
 
 from neosynaptex import Neosynaptex
+from substrates.bn_syn.adapter import BnSynAdapter
+from substrates.gray_scott.adapter import GrayScottAdapter
+from substrates.kuramoto.adapter import KuramotoAdapter
 from substrates.zebrafish.adapter import ZebrafishAdapter
 
 
@@ -24,12 +32,13 @@ def _f(v: float, w: int = 6) -> str:
 
 
 def main() -> None:
-    nx = Neosynaptex(window=16, mode="real")
+    nx = Neosynaptex(window=16, mode="demo")
 
-    # Only REAL + ADMISSIBLE adapters. The ``mode="real"`` gate rejects
-    # anything else at registration, so the invariant is enforced by the
-    # engine, not by convention.
+    # Admissible substrates across real + synthetic provenance.
     nx.register(ZebrafishAdapter("WT"))
+    nx.register(GrayScottAdapter())
+    nx.register(KuramotoAdapter())
+    nx.register(BnSynAdapter())
 
     s = nx.observe()
     for _ in range(49):
@@ -46,7 +55,7 @@ def main() -> None:
 
     print()
     print("=" * 72)
-    print("  NEOSYNAPTEX -- REAL SUBSTRATES (mode=real)")
+    print("  NEOSYNAPTEX -- MULTI-SUBSTRATE DEMO (mode=demo)")
     print("=" * 72)
     print(f"  gamma_mean       = {_f(s.gamma_mean)}")
     print(f"  gamma_std        = {_f(s.gamma_std)}")
