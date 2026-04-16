@@ -53,6 +53,9 @@ dev = [
     # Chained via run_null_family_screening.py → substrates/physionet_hrv/nsr2db_client.py
     # (module-level ``import wfdb``); needed for tests/test_null_screening.py collection.
     "wfdb>=4.2",
+    # Required by run_nsr_chf_deployment_validation.py (Point 5 scaffold)
+    # and tests/test_deployment_validation.py (8 unit tests).
+    "scikit-learn>=1.5",
 ]
 security = [
     "pip-audit>=2.10.0",
