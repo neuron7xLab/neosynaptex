@@ -26,11 +26,29 @@ wall clock and subprocess probe.
 from __future__ import annotations
 
 import json
-import subprocess  # nosec B404 — used only for hardcoded git command
+import os
+import subprocess  # nosec B404 — only behind NEOSYNAPTEX_ALLOW_SUBPROCESS_GIT gate
 import time
 from collections.abc import Callable, Generator
 from dataclasses import dataclass, field
 from typing import Any, Protocol
+
+# Environment gates for the git-SHA provider. The audited export path
+# MUST NOT shell out to ``git rev-parse``; it reads ``build_git_sha``
+# out of the injected ``RuntimeContext``. The default path (when no
+# RuntimeContext is supplied) resolves the SHA in this order:
+#
+#   1. ``NEOSYNAPTEX_BUILD_GIT_SHA`` env var — canonical injection point
+#      for CI / containerised runs (set at build time, never at runtime).
+#   2. ``NEOSYNAPTEX_ALLOW_SUBPROCESS_GIT=1`` — explicit opt-in for
+#      interactive developer use. Only this flag authorises a subprocess
+#      call to ``git``; every other path returns ``"unknown"``.
+#
+# The opt-in flag is deliberately non-default: production / evidentiary
+# pipelines must either pre-populate the env var at build time or inject
+# a RuntimeContext, never rely on runtime subprocess discovery.
+BUILD_SHA_ENV = "NEOSYNAPTEX_BUILD_GIT_SHA"
+ALLOW_SUBPROCESS_GIT_ENV = "NEOSYNAPTEX_ALLOW_SUBPROCESS_GIT"
 
 import numpy as np
 
@@ -60,13 +78,20 @@ class GitMetadataProvider(Protocol):
 
 
 def _subprocess_git_sha() -> str:
-    """Default GitMetadataProvider: shell out to ``git rev-parse``.
+    """DEV_ONLY helper: shell out to ``git rev-parse`` for the build SHA.
 
-    This remains available for interactive development so the legacy
-    behaviour is preserved, but the ``export_bundle`` path no longer
-    calls it directly -- callers must supply a deterministic provider
-    via ``RuntimeContext`` to get byte-stable exports.
+    Guarded by the ``NEOSYNAPTEX_ALLOW_SUBPROCESS_GIT`` environment flag.
+    Without the flag this function returns ``"unknown"`` rather than
+    invoking a subprocess, so audited / evidentiary paths cannot reach a
+    ``subprocess.run`` call even if they accidentally construct a default
+    RuntimeContext.
+
+    Production and CI callers should instead set ``NEOSYNAPTEX_BUILD_GIT_SHA``
+    at build time (see ``RuntimeContext.default``) or inject an explicit
+    ``RuntimeContext`` into ``CoherenceBridge``.
     """
+    if os.environ.get(ALLOW_SUBPROCESS_GIT_ENV) != "1":
+        return "unknown"
     try:
         result = subprocess.run(  # nosec B603 B607 — hardcoded git command, no user input
             ["git", "rev-parse", "--short", "HEAD"],
@@ -93,11 +118,23 @@ class RuntimeContext:
 
     @classmethod
     def default(cls) -> RuntimeContext:
-        """Live runtime context -- uses wall clock and subprocess git.
+        """Live runtime context.
 
-        Preserves the legacy behaviour for interactive use. Tests and
-        audited export paths MUST pass an explicit ``RuntimeContext``.
+        Resolution order for ``build_git_sha`` (subprocess never by default):
+
+        1. ``NEOSYNAPTEX_BUILD_GIT_SHA`` env var -- canonical build-time
+           injection point. Always preferred when set.
+        2. ``NEOSYNAPTEX_ALLOW_SUBPROCESS_GIT=1`` + ``git`` available ->
+           interactive developer fallback via ``_subprocess_git_sha``.
+        3. Otherwise ``"unknown"`` -- no subprocess, no wall-clock SHA.
+
+        Tests and audited export paths should pass an explicit
+        ``RuntimeContext`` (e.g. ``RuntimeContext.fixed(...)``) rather
+        than relying on this default.
         """
+        env_sha = os.environ.get(BUILD_SHA_ENV)
+        if env_sha:
+            return cls(build_git_sha=env_sha, clock=time.time)
         return cls(build_git_sha=_subprocess_git_sha(), clock=time.time)
 
     @classmethod

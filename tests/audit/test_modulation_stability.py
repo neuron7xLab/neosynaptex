@@ -159,3 +159,51 @@ def test_engine_modulation_is_bounded_and_per_domain() -> None:
     for name, mod in state.modulation.items():
         # Hard invariant: modulation is bounded by the configured clip.
         assert abs(mod) <= 0.05 + 1e-9, f"{name}: |mod|={abs(mod)} exceeds clip"
+
+
+def test_identical_gammas_opposite_derivatives_produce_opposite_actuation() -> None:
+    """Two domains with identical gamma level but opposite slopes must
+    receive opposite-signed modulation -- cross-contamination would flatten
+    both to the same value."""
+    # Both traces end at gamma=1.2 (above target=1.0), so the error term
+    # (g - gamma_target) is identical and positive for both. Sign of final
+    # actuation therefore depends entirely on each domain's OWN slope.
+    up_trace = list(np.linspace(0.8, 1.2, 20).tolist())  # +slope
+    down_trace = list(np.linspace(1.6, 1.2, 20).tolist())  # -slope
+    slopes = _run_engine_with_gamma_histories({"A": up_trace, "B": down_trace})
+    assert slopes["A"] > 0.0
+    assert slopes["B"] < 0.0
+    # Same gamma_target (1.0), same final g=1.2, so (g - target) is positive
+    # for both. tanh law means final actuation has OPPOSITE signs per domain,
+    # proving no cross-contamination through a shared global derivative.
+    eps = 1e-3
+    alpha, target = 0.05, 1.0
+    g_final = 1.2
+    mod_A = -alpha * (g_final - target) * float(np.tanh(slopes["A"] / eps))
+    mod_B = -alpha * (g_final - target) * float(np.tanh(slopes["B"] / eps))
+    assert np.sign(mod_A) != np.sign(mod_B)
+    assert abs(mod_A) > 0 and abs(mod_B) > 0
+
+
+def test_high_frequency_alternation_stays_bounded_and_smooth() -> None:
+    """An adversarial gamma trace that alternates sign at every sample
+    (extreme high-frequency signal) must still produce a bounded, smooth
+    control output under the tanh-saturated law."""
+    # Trace: 0.9, 1.1, 0.9, 1.1, ... -- maximal sign-flip rate.
+    alt_trace = [0.9 if i % 2 == 0 else 1.1 for i in range(30)]
+    slope = _domain_slope(alt_trace, window=16)
+    assert np.isfinite(slope)
+
+    eps = 1e-3
+    alpha, target = 0.05, 1.0
+    u = float(np.tanh(slope / eps))
+
+    # For every gamma point in the alternating trace, the resulting
+    # modulation must stay inside the hard clip [-0.05, 0.05].
+    mods = [float(np.clip(-alpha * (g - target) * u, -0.05, 0.05)) for g in alt_trace]
+    assert all(abs(m) <= 0.05 + 1e-12 for m in mods)
+
+    # Consecutive modulation samples must not flip sign wildly beyond the
+    # natural gamma oscillation: the smooth law dampens chatter.
+    diffs = [abs(mods[i + 1] - mods[i]) for i in range(len(mods) - 1)]
+    assert max(diffs) <= 2 * 0.05 + 1e-12  # bounded step

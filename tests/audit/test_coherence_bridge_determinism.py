@@ -119,3 +119,107 @@ def test_two_engines_same_state_same_context_produce_same_bytes() -> None:
     a = _bridge(rt).export_bundle()
     b = _bridge(rt).export_bundle()
     assert a == b
+
+
+# --------------------------------------------------------------------------
+# W6: subprocess must be gated behind an explicit DEV_ONLY flag.
+# --------------------------------------------------------------------------
+
+
+def test_subprocess_git_sha_returns_unknown_without_devonly_flag(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Audited paths MUST NOT shell out to git. Without the explicit
+    ``NEOSYNAPTEX_ALLOW_SUBPROCESS_GIT=1`` flag, the helper returns a
+    sentinel instead of invoking subprocess.
+    """
+    import core.coherence_bridge as module
+
+    monkeypatch.delenv(module.ALLOW_SUBPROCESS_GIT_ENV, raising=False)
+
+    def _fail(*_a: object, **_kw: object) -> None:
+        raise AssertionError("subprocess.run must not be called without DEV_ONLY flag")
+
+    monkeypatch.setattr(module.subprocess, "run", _fail)
+    sha = module._subprocess_git_sha()
+    assert sha == "unknown"
+
+
+def test_runtime_context_default_prefers_env_var_over_subprocess(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """``RuntimeContext.default()`` must pick the canonical env var
+    (``NEOSYNAPTEX_BUILD_GIT_SHA``) over any subprocess path."""
+    import core.coherence_bridge as module
+
+    monkeypatch.setenv(module.BUILD_SHA_ENV, "env_provided_sha")
+
+    def _fail(*_a: object, **_kw: object) -> None:
+        raise AssertionError("subprocess.run must not be called when env var is set")
+
+    monkeypatch.setattr(module.subprocess, "run", _fail)
+    ctx = RuntimeContext.default()
+    assert ctx.build_git_sha == "env_provided_sha"
+
+
+def test_runtime_context_default_skips_subprocess_without_flag(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Without ``NEOSYNAPTEX_ALLOW_SUBPROCESS_GIT=1`` or the build-SHA
+    env var, ``default()`` resolves to the sentinel without ever
+    touching subprocess."""
+    import core.coherence_bridge as module
+
+    monkeypatch.delenv(module.BUILD_SHA_ENV, raising=False)
+    monkeypatch.delenv(module.ALLOW_SUBPROCESS_GIT_ENV, raising=False)
+
+    def _fail(*_a: object, **_kw: object) -> None:
+        raise AssertionError("subprocess.run must not be called")
+
+    monkeypatch.setattr(module.subprocess, "run", _fail)
+    ctx = RuntimeContext.default()
+    assert ctx.build_git_sha == "unknown"
+
+
+def test_export_bundle_is_subprocess_free_under_all_default_paths(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """End-to-end: construct a bridge WITHOUT an explicit RuntimeContext
+    (worst case: caller forgot to inject) and verify that export_bundle
+    still never touches subprocess. This is the audited-export guarantee
+    against an accidental default."""
+    import core.coherence_bridge as module
+
+    monkeypatch.delenv(module.BUILD_SHA_ENV, raising=False)
+    monkeypatch.delenv(module.ALLOW_SUBPROCESS_GIT_ENV, raising=False)
+
+    def _fail(*_a: object, **_kw: object) -> None:
+        raise AssertionError("subprocess.run reached during default-construct export")
+
+    monkeypatch.setattr(module.subprocess, "run", _fail)
+    # No runtime= kwarg; exercises RuntimeContext.default().
+    bridge = module.CoherenceBridge(engine=_StubEngine())
+    blob = bridge.export_bundle()
+    assert b"unknown" in blob  # sentinel SHA, not a real git hash
+
+
+def test_devonly_flag_unlocks_subprocess_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """With the opt-in flag set, ``_subprocess_git_sha`` behaves as a
+    thin shell-out. Kept as a regression test so the gate cannot rot
+    into a hard removal without deliberate review."""
+    import core.coherence_bridge as module
+
+    monkeypatch.setenv(module.ALLOW_SUBPROCESS_GIT_ENV, "1")
+    calls: list[list[str]] = []
+
+    class _Result:
+        stdout = "cafef00d\n"
+
+    def _capture(cmd: list[str], **_kw: object) -> _Result:
+        calls.append(cmd)
+        return _Result()
+
+    monkeypatch.setattr(module.subprocess, "run", _capture)
+    sha = module._subprocess_git_sha()
+    assert sha == "cafef00d"
+    assert calls, "DEV_ONLY flag must unlock the subprocess path"
