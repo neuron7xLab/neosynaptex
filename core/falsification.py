@@ -27,7 +27,7 @@ import logging
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.stats import theilslopes
+from scipy.stats import theilslopes  # type: ignore[import-untyped]
 
 from core.iaaft import iaaft_surrogate, surrogate_p_value
 

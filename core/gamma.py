@@ -18,7 +18,7 @@ import warnings
 from dataclasses import dataclass, field
 
 import numpy as np
-from scipy.stats import theilslopes
+from scipy.stats import theilslopes  # type: ignore[import-untyped]
 
 __all__ = ["compute_gamma", "GammaResult"]
 

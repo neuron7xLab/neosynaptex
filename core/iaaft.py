@@ -33,7 +33,7 @@ import time
 from typing import Any
 
 import numpy as np
-from scipy import signal as _sig
+from scipy import signal as _sig  # type: ignore[import-untyped]
 
 __all__ = [
     "IAAFTDiagnostics",

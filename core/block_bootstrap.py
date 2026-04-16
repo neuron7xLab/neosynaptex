@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any, NamedTuple
 
 import numpy as np
-from scipy.stats import theilslopes
+from scipy.stats import theilslopes  # type: ignore[import-untyped]
 
 __all__ = [
     "BootstrapResult",
