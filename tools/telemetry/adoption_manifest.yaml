@@ -32,10 +32,10 @@ emit_sites:
     line: 370
     symbol: _emit_event
   - path: tools/adversarial/auditor.py
-    line: 266
+    line: 304
     symbol: emit_event
   - path: tools/adversarial/auditor.py
-    line: 287
+    line: 326
     symbol: emit_event
   - path: tools/audit/claim_status_applied.py
     line: 393

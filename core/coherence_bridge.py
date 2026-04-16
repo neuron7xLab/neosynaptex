@@ -1,6 +1,26 @@
 """CoherenceBridge — production-ready external API surface for NeoSynaptex.
 
 JSON-RPC style, no HTTP dependencies. SSI external enforced.
+
+Determinism contract
+--------------------
+
+The bridge emits two kinds of timestamps:
+
+* ``timestamp`` -- the wall-clock moment at which the
+  snapshot was served. Useful for live monitoring, *not* part of the
+  evidentiary surface.
+* ``evidentiary_timestamp`` -- a caller-injected deterministic clock
+  reading. ``export_bundle`` deliberately uses only this one so that
+  the bytes it emits are stable under a fixed ``RuntimeContext``.
+
+The legacy implementation called ``time.time()`` and
+``subprocess.run(["git", ...])`` at export time, making the evidence
+bundle non-reproducible and host-dependent. The ``RuntimeContext``
+dependency injection below lets callers (tests, CI) supply a fixed
+clock and git SHA; the default still works standalone on a developer
+workstation because ``RuntimeContext.default()`` delegates to the real
+wall clock and subprocess probe.
 """
 
 from __future__ import annotations
@@ -8,9 +28,9 @@ from __future__ import annotations
 import json
 import subprocess  # nosec B404 — used only for hardcoded git command
 import time
-from collections.abc import Generator
-from dataclasses import dataclass
-from typing import Any
+from collections.abc import Callable, Generator
+from dataclasses import dataclass, field
+from typing import Any, Protocol
 
 import numpy as np
 
@@ -21,7 +41,69 @@ __all__ = [
     "CoherenceBridge",
     "DomainDiagnostics",
     "InterventionSuggestion",
+    "ClockProtocol",
+    "GitMetadataProvider",
+    "RuntimeContext",
 ]
+
+
+class ClockProtocol(Protocol):
+    """Callable returning a monotonic-ish epoch-seconds timestamp."""
+
+    def __call__(self) -> float: ...
+
+
+class GitMetadataProvider(Protocol):
+    """Returns an immutable identifier for the current build."""
+
+    def __call__(self) -> str: ...
+
+
+def _subprocess_git_sha() -> str:
+    """Default GitMetadataProvider: shell out to ``git rev-parse``.
+
+    This remains available for interactive development so the legacy
+    behaviour is preserved, but the ``export_bundle`` path no longer
+    calls it directly -- callers must supply a deterministic provider
+    via ``RuntimeContext`` to get byte-stable exports.
+    """
+    try:
+        result = subprocess.run(  # nosec B603 B607 — hardcoded git command, no user input
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        return result.stdout.strip() or "unknown"
+    except Exception:
+        return "unknown"
+
+
+@dataclass(frozen=True)
+class RuntimeContext:
+    """Injected providers for time and build metadata.
+
+    ``build_git_sha`` is captured once at construction (it never changes
+    over the lifetime of a process), but ``clock`` is called at use time
+    so that callers supplying a fixed clock get a deterministic surface.
+    """
+
+    build_git_sha: str
+    clock: ClockProtocol = field(default_factory=lambda: time.time)
+
+    @classmethod
+    def default(cls) -> RuntimeContext:
+        """Live runtime context -- uses wall clock and subprocess git.
+
+        Preserves the legacy behaviour for interactive use. Tests and
+        audited export paths MUST pass an explicit ``RuntimeContext``.
+        """
+        return cls(build_git_sha=_subprocess_git_sha(), clock=time.time)
+
+    @classmethod
+    def fixed(cls, git_sha: str = "fixed", timestamp: float = 0.0) -> RuntimeContext:
+        """Deterministic runtime context for tests and byte-stable exports."""
+        return cls(build_git_sha=git_sha, clock=lambda: timestamp)
 
 
 @dataclass(frozen=True)
@@ -50,18 +132,39 @@ class CoherenceBridge:
     All modulation suggestions are SSI.EXTERNAL enforced.
     """
 
-    def __init__(self, engine: Any, event_bus: EventBus | None = None) -> None:
+    def __init__(
+        self,
+        engine: Any,
+        event_bus: EventBus | None = None,
+        *,
+        runtime: RuntimeContext | None = None,
+        sleep: Callable[[float], None] | None = None,
+    ) -> None:
         self._engine = engine
         self._bus = event_bus or EventBus()
+        self._runtime = runtime if runtime is not None else RuntimeContext.default()
+        # ``subscribe`` sleeps between polls; allow callers to inject a
+        # no-op sleep so the loop can be exercised deterministically in
+        # tests without real wall-clock dependence.
+        self._sleep: Callable[[float], None] = sleep if sleep is not None else time.sleep
 
     def snapshot(self) -> dict[str, Any]:
-        """Current state of all substrates + global gamma + phase."""
+        """Current state of all substrates + global gamma + phase.
+
+        The operational timestamp comes from the injected clock; the
+        git SHA comes from the injected runtime context. Both are
+        deterministic under a fixed ``RuntimeContext``.
+        """
         history = self._engine.history()
         if not history:
-            return {"error": "no observations", "timestamp": time.time()}
+            return {
+                "error": "no observations",
+                "timestamp": self._runtime.clock(),
+                "git_sha": self._runtime.build_git_sha,
+            }
 
         state = history[-1]
-        git_sha = self._get_git_sha()
+        git_sha = self._runtime.build_git_sha
 
         per_domain = {}
         for domain, gamma in state.gamma_per_domain.items():
@@ -82,7 +185,7 @@ class CoherenceBridge:
             }
 
         return {
-            "timestamp": time.time(),
+            "timestamp": self._runtime.clock(),
             "git_sha": git_sha,
             "tick": state.t,
             "gamma_global": float(state.gamma_mean) if np.isfinite(state.gamma_mean) else None,
@@ -104,7 +207,7 @@ class CoherenceBridge:
         while True:
             while queue:
                 yield queue.pop(0)
-            time.sleep(0.01)
+            self._sleep(0.01)
 
     def query(self, domain: str) -> DomainDiagnostics | None:
         """Detailed diagnostics for a specific domain."""
@@ -176,21 +279,36 @@ class CoherenceBridge:
         )
 
     def export_bundle(self, fmt: str = "json") -> bytes:
-        """Export evidence bundle for external audit."""
+        """Export deterministic evidence bundle for external audit.
+
+        Bytes are stable under a fixed ``RuntimeContext``: no wall-clock
+        readings, no subprocess ``git rev-parse`` invocation at export
+        time, and the JSON is emitted with ``sort_keys=True`` so dict
+        insertion order cannot affect the hash.
+
+        Layout: the proof dict is emitted at the top level (legacy
+        consumers keep seeing ``gamma``, ``chain``, etc. directly), with
+        deterministic metadata fields (``build_git_sha``,
+        ``evidentiary_timestamp``) merged in alongside.
+        """
+        if fmt != "json":
+            raise ValueError(f"Unsupported format: {fmt}")
+
         proof = self._engine.export_proof()
-        if fmt == "json":
-            return json.dumps(proof, indent=2, default=str, ensure_ascii=False).encode("utf-8")
-        raise ValueError(f"Unsupported format: {fmt}")
+        bundle: dict[str, Any] = dict(proof)
+        # Deterministic metadata from the injected RuntimeContext only;
+        # no subprocess / no wall clock at export time.
+        bundle["build_git_sha"] = self._runtime.build_git_sha
+        bundle["evidentiary_timestamp"] = self._runtime.clock()
+        return json.dumps(
+            bundle,
+            indent=2,
+            default=str,
+            ensure_ascii=False,
+            sort_keys=True,
+        ).encode("utf-8")
 
     @staticmethod
     def _get_git_sha() -> str:
-        try:
-            result = subprocess.run(  # nosec B603 B607 — hardcoded git command, no user input
-                ["git", "rev-parse", "--short", "HEAD"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            return result.stdout.strip() or "unknown"
-        except Exception:
-            return "unknown"
+        """Preserved for backwards compatibility; prefer ``RuntimeContext``."""
+        return _subprocess_git_sha()
