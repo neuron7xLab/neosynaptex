@@ -7,7 +7,7 @@ selection via Bayesian Information Criterion (BIC).
 from __future__ import annotations
 
 import numpy as np
-from scipy.linalg import lstsq as scipy_lstsq  # type: ignore[import-untyped]
+from scipy.linalg import lstsq as scipy_lstsq
 
 __all__ = [
     "granger_multilag",

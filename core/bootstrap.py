@@ -170,7 +170,7 @@ def permutation_p_value(
     (gray_scott, kuramoto_market, serotonergic_kuramoto, …) rather than
     from a per-unit γ population.
     """
-    from scipy.stats import theilslopes  # type: ignore[import-untyped]
+    from scipy.stats import theilslopes
 
     t = np.asarray(topo, dtype=np.float64)
     c = np.asarray(cost, dtype=np.float64)

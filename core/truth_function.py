@@ -23,7 +23,7 @@ import warnings
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.stats import theilslopes  # type: ignore[import-untyped]
+from scipy.stats import theilslopes
 
 from core.iaaft import surrogate_p_value
 from core.rqa import recurrence_quantification

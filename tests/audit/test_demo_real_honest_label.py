@@ -147,8 +147,21 @@ def test_demo_multi_does_not_import_cns_ai() -> None:
 # --------------------------------------------------------------------------
 
 
+def _zebrafish_data_available() -> bool:
+    """Zebrafish .mat corpus is required to actually run either demo.
+
+    CI runners ship without the corpus; tests skip cleanly there. Local
+    dev machines with the corpus staged exercise the full pipeline.
+    """
+    from substrates.zebrafish.adapter import _find_data_dir
+
+    return _find_data_dir() is not None
+
+
 @pytest.mark.parametrize("script", ["demo_real.py", "demo_multi.py"])
 def test_demo_scripts_run_clean(script: str, capsys: pytest.CaptureFixture[str]) -> None:
+    if not _zebrafish_data_available():
+        pytest.skip("zebrafish .mat corpus not staged (CI runner / bare checkout)")
     runpy.run_path(str(REPO_ROOT / script), run_name="__main__")
     captured = capsys.readouterr()
     # Script must have produced the canonical banner; absence means early exit.

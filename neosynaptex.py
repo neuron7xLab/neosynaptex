@@ -20,9 +20,9 @@ from pathlib import Path
 from typing import Any, Protocol, cast
 
 import numpy as np
-from scipy.linalg import lstsq as scipy_lstsq  # type: ignore[import-untyped]
-from scipy.spatial import ConvexHull  # type: ignore[import-untyped]
-from scipy.stats import theilslopes  # type: ignore[import-untyped]
+from scipy.linalg import lstsq as scipy_lstsq
+from scipy.spatial import ConvexHull
+from scipy.stats import theilslopes
 
 from contracts.provenance import (
     ClaimStatus as _ClaimStatus,

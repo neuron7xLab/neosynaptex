@@ -9,7 +9,7 @@ Protocol: NULL-SCREEN-v1.1.
 from __future__ import annotations
 
 import numpy as np
-from scipy import signal as _sig  # type: ignore[import-untyped]
+from scipy import signal as _sig
 
 # NOTE: we intentionally import ``mfdfa`` lazily inside ``compute_delta_h``.
 # The module path ``substrates.physionet_hrv.mfdfa`` is measurement-branch

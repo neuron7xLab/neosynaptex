@@ -32,7 +32,7 @@ __all__ = [
 # ═══════════════════════════════════════════════════════════════════
 
 try:
-    import geosync_accel as _rust  # type: ignore[import-not-found]
+    import geosync_accel as _rust
 
     ACCEL_BACKEND: str = "rust+simd"
 except ImportError:

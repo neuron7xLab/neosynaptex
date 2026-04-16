@@ -6,7 +6,7 @@ Identifies exact noise x window boundaries where estimation breaks.
 from __future__ import annotations
 
 import numpy as np
-from scipy.stats import theilslopes  # type: ignore[import-untyped]
+from scipy.stats import theilslopes
 
 __all__ = [
     "scan_failure_regimes",
