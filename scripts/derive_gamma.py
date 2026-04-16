@@ -19,13 +19,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from neosynaptex import (
-    MockBnSynAdapter,
-    MockMarketAdapter,
-    MockMfnAdapter,
-    MockPsycheCoreAdapter,
-    _per_domain_gamma,
-)
+from neosynaptex import _per_domain_gamma
 
 LEDGER_PATH = Path(__file__).resolve().parent.parent / "evidence" / "gamma_ledger.json"
 N_TICKS = 100

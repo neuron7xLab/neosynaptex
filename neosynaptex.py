@@ -17,7 +17,7 @@ import logging
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol, cast
 
 import numpy as np
 from scipy.linalg import lstsq as scipy_lstsq
@@ -161,7 +161,7 @@ class NeosynaptexState:
     modulation: dict[str, float]
 
     # --- Full diagnostic ---
-    diagnostic: dict
+    diagnostic: dict[str, Any]
 
     # --- Cross-domain Jacobian (T3) ---
     cross_jacobian: dict[str, dict[str, float]] | None = None
@@ -234,7 +234,7 @@ class _DomainBuffer:
         n = self.length
         if self._full:
             return np.concatenate([buf[self._idx :], buf[: self._idx]])
-        return buf[:n].copy()
+        return cast(np.ndarray, buf[:n].copy())
 
     def states_array(self) -> np.ndarray:
         return self._ordered(self._state_buf)
@@ -731,7 +731,7 @@ class Neosynaptex:
 
         return new_w
 
-    def _compute_proof_hash(self, proof_dict: dict) -> str:
+    def _compute_proof_hash(self, proof_dict: dict[str, Any]) -> str:
         """SHA-256 of canonical JSON excluding chain.self_hash."""
         import hashlib
 
@@ -1018,9 +1018,9 @@ class Neosynaptex:
             from contracts.invariants import enforce_gradient_ontology
 
             # Build a trajectory from recent phi vectors
-            recent = self._history[-(self._window) :]
-            if len(recent) >= 2:
-                traj = np.array([s.phi for s in recent], dtype=np.float64)
+            recent_states = self._history[-(self._window) :]
+            if len(recent_states) >= 2:
+                traj = np.array([s.phi for s in recent_states], dtype=np.float64)
                 if traj.ndim == 2 and traj.shape[0] >= 2:
                     eq = np.mean(traj, axis=0)
                     dv = np.linalg.norm(traj - eq, axis=1)
@@ -1148,7 +1148,7 @@ class Neosynaptex:
         self._last_proof_hash = None
         self._proof_count = 0
 
-    def truth_function(self) -> dict:
+    def truth_function(self) -> dict[str, Any]:
         """Unified truth function -- answers: is gamma REAL or ARTIFACT?
 
         Runs 5 independent verification axes per domain:
@@ -1173,7 +1173,7 @@ class Neosynaptex:
             return {"error": "no observations", "global_verdict": Verdict.INCONCLUSIVE.value}
 
         domain_order = sorted(self._adapters.keys())
-        assessments: dict[str, dict] = {}
+        assessments: dict[str, dict[str, Any]] = {}
         per_domain_status: dict[str, Verdict] = {}
 
         for name in domain_order:
@@ -1233,7 +1233,7 @@ class Neosynaptex:
             "n_domains_total": len(domain_order),
         }
 
-    def export_proof(self, path: str | None = None) -> dict:
+    def export_proof(self, path: str | None = None) -> dict[str, Any]:
         """Export proof bundle as JSON-serializable dict.
 
         Contains all evidence: gamma values, CIs, R^2, spectral radii,
@@ -1340,14 +1340,15 @@ class Neosynaptex:
 
         # Proof chain (T4)
         self._proof_count += 1
-        proof["chain"] = {
+        chain: dict[str, Any] = {
             "t": self._proof_count,
             "prev_hash": self._last_proof_hash or "GENESIS",
             "chain_root": self._chain_root,
             "self_hash": "PENDING",
         }
+        proof["chain"] = chain
         self_hash = self._compute_proof_hash(proof)
-        proof["chain"]["self_hash"] = self_hash
+        chain["self_hash"] = self_hash
         self._last_proof_hash = self_hash
 
         if path:
@@ -1401,7 +1402,7 @@ class MockBnSynAdapter:
 
     def thermo_cost(self) -> float:
         t = getattr(self, "_topo", 5.0)
-        return max(_TOPO_FLOOR, 8.0 * t ** (-0.95) + self._rng.normal(0, 0.03))
+        return float(max(_TOPO_FLOOR, 8.0 * t ** (-0.95) + self._rng.normal(0, 0.03)))
 
 
 class MockMfnAdapter:
@@ -1445,10 +1446,10 @@ class MockMfnAdapter:
         }
 
     def topo(self) -> float:
-        return max(_TOPO_FLOOR, self._topo_base)
+        return float(max(_TOPO_FLOOR, self._topo_base))
 
     def thermo_cost(self) -> float:
-        return self._delta_h
+        return float(self._delta_h)
 
 
 class MockPsycheCoreAdapter:
@@ -1492,7 +1493,7 @@ class MockPsycheCoreAdapter:
 
     def thermo_cost(self) -> float:
         t = getattr(self, "_topo", 25.0)
-        return max(_TOPO_FLOOR, 20.0 * t ** (-1.05) + self._rng.normal(0, 0.02))
+        return float(max(_TOPO_FLOOR, 20.0 * t ** (-1.05) + self._rng.normal(0, 0.02)))
 
 
 class MockMarketAdapter:
@@ -1537,4 +1538,4 @@ class MockMarketAdapter:
 
     def thermo_cost(self) -> float:
         t = getattr(self, "_topo", 4.0)
-        return max(_TOPO_FLOOR, 5.0 * t ** (-1.08) + self._rng.normal(0, 0.02))
+        return float(max(_TOPO_FLOOR, 5.0 * t ** (-1.08) + self._rng.normal(0, 0.02)))
