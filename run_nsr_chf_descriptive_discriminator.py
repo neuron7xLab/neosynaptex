@@ -42,6 +42,12 @@ PROTOCOL_VER = "1.3.0"
 
 NSR_DB = "nsrdb"
 CHF_DB = "chfdb"
+# Annotation file extension — PhysioNet uses different conventions per DB.
+# Probed directly: nsrdb records have ".atr", chfdb records have ".ecg".
+ANNOTATION_EXT: dict[str, str] = {
+    NSR_DB: "atr",
+    CHF_DB: "ecg",
+}
 
 RESAMPLE_HZ = 4.0
 RR_MIN_MS = 300.0
@@ -86,6 +92,7 @@ def immutable_config() -> dict:
         "min_duration_s": MIN_DURATION_S,
         "min_uniform_samples": MIN_UNIFORM_SAMPLES,
         "rr_truncate": RR_TRUNCATE,
+        "annotation_ext": ANNOTATION_EXT,
         "q_range": Q_RANGE.tolist(),
         "scale_range": list(SCALE_RANGE),
         "n_bootstrap": N_BOOTSTRAP,
@@ -120,10 +127,14 @@ def preprocess_hrv(record_id: str, db: str) -> np.ndarray | None:
     All validity checks applied AFTER uniform-series construction.
     Returns None if record does not meet protocol criteria.
     """
-    record = wfdb.rdrecord(record_id, pn_dir=db)
-    ann = wfdb.rdann(record_id, "atr", pn_dir=db)
+    # Use rdheader (fetches only the ~1 KB header) instead of rdrecord
+    # (which fetches the full multi-hour ECG — ~100 MB per PhysioNet
+    # record). We only need ``fs`` here; fetching the signal was the
+    # reason a first v1.3 run spent 28 min/record in network I/O.
+    header = wfdb.rdheader(record_id, pn_dir=db)
+    ann = wfdb.rdann(record_id, ANNOTATION_EXT[db], pn_dir=db)
 
-    rr_ms = np.diff(ann.sample) / record.fs * 1000.0
+    rr_ms = np.diff(ann.sample) / header.fs * 1000.0
     rr_ms = rr_ms[(rr_ms >= RR_MIN_MS) & (rr_ms <= RR_MAX_MS)]
 
     if rr_ms.size < 2:
