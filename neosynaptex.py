@@ -1302,6 +1302,30 @@ class Neosynaptex:
             },
         }
 
+        # Per-domain provenance (REPLICATION_GATE_v1.0 Phase 4 requirement).
+        # Every exported bundle must carry ``provenance_class`` and
+        # ``claim_status`` for every registered adapter, so downstream
+        # consumers can reject inadmissible substrates without having to
+        # import the original adapter. Adapters without a ``provenance``
+        # attribute emit the explicit ``"unknown"`` sentinel -- never a
+        # silent skip.
+        per_domain_provenance: dict[str, dict[str, str]] = {}
+        for name, adapter in self._adapters.items():
+            prov = getattr(adapter, "provenance", None)
+            if prov is None:
+                per_domain_provenance[name] = {
+                    "provenance_class": "unknown",
+                    "claim_status": "unknown",
+                }
+                continue
+            cls = getattr(prov.provenance_class, "value", str(prov.provenance_class))
+            cst = getattr(prov.claim_status, "value", str(prov.claim_status))
+            per_domain_provenance[name] = {
+                "provenance_class": cls,
+                "claim_status": cst,
+            }
+        proof["per_domain"] = per_domain_provenance
+
         # Proof chain (T4)
         self._proof_count += 1
         proof["chain"] = {
