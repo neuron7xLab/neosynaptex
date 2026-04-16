@@ -24,7 +24,19 @@ from scipy.linalg import lstsq as scipy_lstsq
 from scipy.spatial import ConvexHull
 from scipy.stats import theilslopes
 
-from contracts.provenance import EngineMode, ensure_admissible
+from contracts.provenance import (
+    ClaimStatus as _ClaimStatus,
+)
+from contracts.provenance import (
+    EngineMode,
+    ensure_admissible,
+)
+from contracts.provenance import (
+    Provenance as _Provenance,
+)
+from contracts.provenance import (
+    ProvenanceClass as _ProvenanceClass,
+)
 from core.value_function import ValueEstimate, estimate_value
 
 __all__ = [
@@ -1302,6 +1314,30 @@ class Neosynaptex:
             },
         }
 
+        # Per-domain provenance (REPLICATION_GATE_v1.0 Phase 4 requirement).
+        # Every exported bundle must carry ``provenance_class`` and
+        # ``claim_status`` for every registered adapter, so downstream
+        # consumers can reject inadmissible substrates without having to
+        # import the original adapter. Adapters without a ``provenance``
+        # attribute emit the explicit ``"unknown"`` sentinel -- never a
+        # silent skip.
+        per_domain_provenance: dict[str, dict[str, str]] = {}
+        for name, adapter in self._adapters.items():
+            prov = getattr(adapter, "provenance", None)
+            if prov is None:
+                per_domain_provenance[name] = {
+                    "provenance_class": "unknown",
+                    "claim_status": "unknown",
+                }
+                continue
+            cls = getattr(prov.provenance_class, "value", str(prov.provenance_class))
+            cst = getattr(prov.claim_status, "value", str(prov.claim_status))
+            per_domain_provenance[name] = {
+                "provenance_class": cls,
+                "claim_status": cst,
+            }
+        proof["per_domain"] = per_domain_provenance
+
         # Proof chain (T4)
         self._proof_count += 1
         proof["chain"] = {
@@ -1329,6 +1365,14 @@ class MockBnSynAdapter:
     topo = 1.0 + 8.0 * |sin(0.2t)|
     cost = 8.0 * topo^(-0.95) + noise   (gamma=0.95 by construction)
     """
+
+    #: Provenance — MOCK/DOWNGRADED: for smoke tests only, rejected in REAL modes.
+    provenance = _Provenance(
+        provenance_class=_ProvenanceClass.MOCK,
+        claim_status=_ClaimStatus.DOWNGRADED,
+        corpus_ref="neosynaptex.MockBnSynAdapter (analytic oscillator with noise)",
+        notes="Deterministic gamma~0.95 fixture for CI smoke tests.",
+    )
 
     def __init__(self, seed: int = 42) -> None:
         self._rng = np.random.default_rng(seed)
@@ -1366,6 +1410,14 @@ class MockMfnAdapter:
     topo_base = 1.0 + 10.0 * |sin(0.2t)|
     cost = 10.0 * topo^(-1.0) + noise   (gamma=1.0 by construction)
     """
+
+    #: Provenance — MOCK/DOWNGRADED: for smoke tests only, rejected in REAL modes.
+    provenance = _Provenance(
+        provenance_class=_ProvenanceClass.MOCK,
+        claim_status=_ClaimStatus.DOWNGRADED,
+        corpus_ref="neosynaptex.MockMfnAdapter (analytic oscillator with noise)",
+        notes="Deterministic gamma~1.0 fixture for CI smoke tests.",
+    )
 
     def __init__(self, seed: int = 43) -> None:
         self._rng = np.random.default_rng(seed)
@@ -1406,6 +1458,14 @@ class MockPsycheCoreAdapter:
     cost = 20.0 * topo^(-1.05) + noise
     """
 
+    #: Provenance — MOCK/DOWNGRADED: for smoke tests only, rejected in REAL modes.
+    provenance = _Provenance(
+        provenance_class=_ProvenanceClass.MOCK,
+        claim_status=_ClaimStatus.DOWNGRADED,
+        corpus_ref="neosynaptex.MockPsycheCoreAdapter (analytic oscillator with noise)",
+        notes="Deterministic gamma~1.05 fixture for CI smoke tests.",
+    )
+
     def __init__(self, seed: int = 44) -> None:
         self._rng = np.random.default_rng(seed)
         self._t = 0
@@ -1441,6 +1501,14 @@ class MockMarketAdapter:
     topo = 1.0 + 7.0 * |sin(0.2t)|
     cost = 5.0 * topo^(-1.08) + noise
     """
+
+    #: Provenance — MOCK/DOWNGRADED: for smoke tests only, rejected in REAL modes.
+    provenance = _Provenance(
+        provenance_class=_ProvenanceClass.MOCK,
+        claim_status=_ClaimStatus.DOWNGRADED,
+        corpus_ref="neosynaptex.MockMarketAdapter (analytic oscillator with noise)",
+        notes="Deterministic gamma~1.08 fixture for CI smoke tests.",
+    )
 
     def __init__(self, seed: int = 45) -> None:
         self._rng = np.random.default_rng(seed)

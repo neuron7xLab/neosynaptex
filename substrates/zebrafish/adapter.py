@@ -19,11 +19,11 @@ Result: WT γ ≈ 1.22 (WARNING zone), R² = 0.83, n = 45
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import numpy as np
+
+from contracts.provenance import ClaimStatus, Provenance, ProvenanceClass
 
 # ---------------------------------------------------------------------------
 # Data paths
@@ -34,9 +34,9 @@ _DATA_CANDIDATES = [
 ]
 
 _PHENOTYPE_FILES = {
-    "WT":    "Out_WT_default_1.mat",
+    "WT": "Out_WT_default_1.mat",
     "nacre": "Out_nacre_default_1.mat",
-    "pfef":  "Out_pfef_default_1.mat",
+    "pfef": "Out_pfef_default_1.mat",
     "shady": "Out_shady_default_1.mat",
 }
 
@@ -45,7 +45,7 @@ _NN_SAMPLE = 200
 _TOPO_FLOOR = 1e-6
 
 
-def _find_data_dir() -> Optional[Path]:
+def _find_data_dir() -> Path | None:
     for d in _DATA_CANDIDATES:
         if d.exists() and any(d.glob("Out_*default*.mat")):
             return d
@@ -65,7 +65,7 @@ def _mel_nn_cv(positions: np.ndarray, rng: np.random.Generator) -> float:
         idx = rng.choice(len(pos), _NN_SAMPLE, replace=False)
         pos = pos[idx]
     diff = pos[:, None, :] - pos[None, :, :]
-    dists = np.sqrt((diff ** 2).sum(axis=-1))
+    dists = np.sqrt((diff**2).sum(axis=-1))
     np.fill_diagonal(dists, np.inf)
     nn1 = dists.min(axis=1)
     mean_nn = np.mean(nn1)
@@ -84,22 +84,29 @@ class ZebrafishAdapter:
     Each call to state()/topo()/thermo_cost() advances one day.
     """
 
+    #: Provenance — published reproducible corpus (McGuirl 2020 .mat data).
+    provenance: Provenance = Provenance(
+        provenance_class=ProvenanceClass.REAL,
+        claim_status=ClaimStatus.ADMISSIBLE,
+        corpus_ref="McGuirl et al. 2020 — zebrafish melanocyte pattern .mat",
+        notes="Agent-based simulation output published with paper; admissible as real data.",
+    )
+
     def __init__(self, phenotype: str = "WT", seed: int = 42) -> None:
         if phenotype not in _PHENOTYPE_FILES:
             raise ValueError(
-                f"Unknown phenotype: {phenotype}. "
-                f"Choose from {list(_PHENOTYPE_FILES.keys())}"
+                f"Unknown phenotype: {phenotype}. Choose from {list(_PHENOTYPE_FILES.keys())}"
             )
         self._phenotype = phenotype
         self._rng = np.random.default_rng(seed)
         self._t = 0
-        self._mat: Optional[dict] = None
+        self._mat: dict | None = None
         self._n_days = 0
         self._loaded = False
         # Pre-computed arrays (filled on load)
-        self._densities: Optional[np.ndarray] = None
-        self._nn_cvs: Optional[np.ndarray] = None
-        self._populations: Optional[np.ndarray] = None
+        self._densities: np.ndarray | None = None
+        self._nn_cvs: np.ndarray | None = None
+        self._populations: np.ndarray | None = None
 
     def _load(self) -> bool:
         data_dir = _find_data_dir()
@@ -110,6 +117,7 @@ class ZebrafishAdapter:
             return False
         try:
             from scipy.io import loadmat
+
             self._mat = loadmat(str(fpath))
             self._n_days = self._mat["numMel"].shape[0]
             self._precompute()
@@ -141,12 +149,10 @@ class ZebrafishAdapter:
         self._populations = pops
 
     def _ensure_loaded(self) -> None:
-        if not self._loaded:
-            if not self._load():
-                raise RuntimeError(
-                    f"Cannot load zebrafish data for {self._phenotype}. "
-                    f"Searched: {_DATA_CANDIDATES}"
-                )
+        if not self._loaded and not self._load():
+            raise RuntimeError(
+                f"Cannot load zebrafish data for {self._phenotype}. Searched: {_DATA_CANDIDATES}"
+            )
 
     def _day(self) -> int:
         """Ping-pong indexing: 0→45→44→...→0→1→...
@@ -167,10 +173,10 @@ class ZebrafishAdapter:
         return "zebrafish"
 
     @property
-    def state_keys(self) -> List[str]:
+    def state_keys(self) -> list[str]:
         return ["mel_frac", "xan_frac", "iri_frac", "density"]
 
-    def state(self) -> Dict[str, float]:
+    def state(self) -> dict[str, float]:
         """Advance one day. Return cell population stats."""
         self._ensure_loaded()
         self._t += 1
@@ -226,7 +232,7 @@ def validate_standalone() -> dict:
         try:
             adapter = ZebrafishAdapter(phenotype)
             adapter._ensure_loaded()
-        except RuntimeError as e:
+        except RuntimeError:
             results[phenotype] = {"status": "DATA_MISSING"}
             print(f"  {phenotype:8s} DATA MISSING")
             continue
@@ -251,10 +257,13 @@ def validate_standalone() -> dict:
 
         dist = abs(gamma - 1.0)
         regime = (
-            "METASTABLE" if dist < 0.15 else
-            "WARNING" if dist < 0.30 else
-            "CRITICAL" if dist < 0.50 else
-            "COLLAPSE"
+            "METASTABLE"
+            if dist < 0.15
+            else "WARNING"
+            if dist < 0.30
+            else "CRITICAL"
+            if dist < 0.50
+            else "COLLAPSE"
         )
 
         results[phenotype] = {
@@ -279,9 +288,9 @@ def validate_standalone() -> dict:
     if wt_g is not None and mut_gs:
         sep = wt_g - sum(mut_gs) / len(mut_gs)
         print(f"\n  WT vs mutant mean: Δγ = {sep:+.4f}")
-        print(f"  WT |γ-1| = {abs(wt_g-1):.4f}")
+        print(f"  WT |γ-1| = {abs(wt_g - 1):.4f}")
         if mut_gs:
-            print(f"  Mut |γ-1| mean = {sum(abs(g-1) for g in mut_gs)/len(mut_gs):.4f}")
+            print(f"  Mut |γ-1| mean = {sum(abs(g - 1) for g in mut_gs) / len(mut_gs):.4f}")
         results["_separation"] = round(sep, 4)
 
     return results

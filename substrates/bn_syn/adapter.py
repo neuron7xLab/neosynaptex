@@ -26,6 +26,8 @@ from typing import Dict, List
 
 import numpy as np
 
+from contracts.provenance import ClaimStatus, Provenance, ProvenanceClass
+
 _N_NEURONS = 200
 _K_CONNECTIONS = 10
 _TOPO_FLOOR = 1e-6
@@ -40,6 +42,14 @@ class BnSynAdapter:
     transmission probability p = 1/k → branching ratio σ = 1.
     Population firing rate and rate CV are computed in sliding windows.
     """
+
+    #: Provenance — live branching-process simulation, no external corpus.
+    provenance: Provenance = Provenance(
+        provenance_class=ProvenanceClass.SYNTHETIC,
+        claim_status=ClaimStatus.ADMISSIBLE,
+        corpus_ref="Beggs & Plenz 2003 — neuronal avalanche branching",
+        notes="Critical branching σ=1 simulation. Admissible in demo/test; not real neural data.",
+    )
 
     def __init__(self, seed: int = 42, N: int = _N_NEURONS, k: int = _K_CONNECTIONS) -> None:
         self._rng = np.random.default_rng(seed)
@@ -102,7 +112,7 @@ class BnSynAdapter:
     def _window_stats(self) -> tuple[float, float]:
         """Compute mean rate and CV for current window."""
         t = self._t % (len(self._pop_rates) - self._window)
-        window = self._pop_rates[t:t + self._window]
+        window = self._pop_rates[t : t + self._window]
         mean_rate = float(np.mean(window))
         if mean_rate < 1e-10:
             return 1e-6, 1.0
@@ -145,7 +155,7 @@ class BnSynAdapter:
         step = 10
         topos, costs = [], []
         for start in range(0, len(self._pop_rates) - self._window, step):
-            window = self._pop_rates[start:start + self._window]
+            window = self._pop_rates[start : start + self._window]
             mean_rate = float(np.mean(window))
             if mean_rate > _TOPO_FLOOR:
                 cv = float(np.std(window) / mean_rate)
@@ -172,9 +182,13 @@ def validate_standalone() -> dict:
 
     dist = abs(gamma - 1.0)
     regime = (
-        "METASTABLE" if dist < 0.15 else
-        "WARNING" if dist < 0.30 else
-        "CRITICAL" if dist < 0.50 else "COLLAPSE"
+        "METASTABLE"
+        if dist < 0.15
+        else "WARNING"
+        if dist < 0.30
+        else "CRITICAL"
+        if dist < 0.50
+        else "COLLAPSE"
     )
 
     print(f"  Windows: {len(topos)}")
@@ -182,9 +196,13 @@ def validate_standalone() -> dict:
     print(f"  γ = {gamma:.4f}  R² = {r2:.4f}  CI = [{-hi:.3f}, {-lo:.3f}]")
     print(f"  Regime = {regime}")
 
-    return {"gamma": round(float(gamma), 4), "r2": round(float(r2), 4),
-            "ci": [round(float(-hi), 4), round(float(-lo), 4)],
-            "n": len(topos), "regime": regime}
+    return {
+        "gamma": round(float(gamma), 4),
+        "r2": round(float(r2), 4),
+        "ci": [round(float(-hi), 4), round(float(-lo), 4)],
+        "n": len(topos),
+        "regime": regime,
+    }
 
 
 if __name__ == "__main__":

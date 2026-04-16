@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import Dict, List
 
 import numpy as np
+from contracts.provenance import ClaimStatus, Provenance, ProvenanceClass
 
 _N_OSC = 128
 _DT = 0.02
@@ -37,6 +38,14 @@ class KuramotoAdapter:
     Live simulation: oscillators generate price signal,
     rolling windows extract topo/cost from market dynamics.
     """
+
+    #: Provenance — live Kuramoto oscillator simulation, no external corpus.
+    provenance: Provenance = Provenance(
+        provenance_class=ProvenanceClass.SYNTHETIC,
+        claim_status=ClaimStatus.ADMISSIBLE,
+        corpus_ref="Kuramoto 1975 — mean-field phase oscillators",
+        notes="128 coupled oscillators at K=Kc=1.0. Admissible in demo/test; not real market data.",
+    )
 
     def __init__(self, seed: int = 42, K: float = 1.0) -> None:
         # Kc = 2·γ_freq = 2·0.5 = 1.0 for Lorentzian with scale 0.5
@@ -68,24 +77,20 @@ class KuramotoAdapter:
         psi = np.angle(z)
 
         # Price dynamics driven by oscillator coherence
-        mean_vel = np.mean(
-            self._omega + self._K * R * np.sin(psi - self._theta)
-        )
+        mean_vel = np.mean(self._omega + self._K * R * np.sin(psi - self._theta))
         noise = self._rng.normal(0, 1) * (1 - R + 0.1)
         self._price += 0.01 * mean_vel + 0.05 * noise
         self._price = max(self._price, 1.0)  # floor
         self._prices.append(self._price)
 
         # Advance oscillators
-        self._theta += _DT * (
-            self._omega + self._K * R * np.sin(psi - self._theta)
-        )
+        self._theta += _DT * (self._omega + self._K * R * np.sin(psi - self._theta))
         self._theta %= 2 * np.pi
         self._t += 1
 
         # Keep bounded history
         if len(self._prices) > _WINDOW * 10:
-            self._prices = self._prices[-_WINDOW * 5:]
+            self._prices = self._prices[-_WINDOW * 5 :]
 
     def _window_stats(self) -> tuple[float, float, float]:
         """Compute volatility and return stats from recent window."""
@@ -166,17 +171,25 @@ def validate_standalone() -> dict:
 
     dist = abs(gamma - 1.0)
     regime = (
-        "METASTABLE" if dist < 0.15 else
-        "WARNING" if dist < 0.30 else
-        "CRITICAL" if dist < 0.50 else "COLLAPSE"
+        "METASTABLE"
+        if dist < 0.15
+        else "WARNING"
+        if dist < 0.30
+        else "CRITICAL"
+        if dist < 0.50
+        else "COLLAPSE"
     )
 
     print(f"  γ = {gamma:.4f}  R² = {r2:.4f}  CI = [{-hi:.3f}, {-lo:.3f}]")
     print(f"  n = {len(t_v)}  regime = {regime}")
 
-    return {"gamma": round(float(gamma), 4), "r2": round(float(r2), 4),
-            "ci": [round(float(-hi), 4), round(float(-lo), 4)],
-            "n": len(t_v), "regime": regime}
+    return {
+        "gamma": round(float(gamma), 4),
+        "r2": round(float(r2), 4),
+        "ci": [round(float(-hi), 4), round(float(-lo), 4)],
+        "n": len(t_v),
+        "regime": regime,
+    }
 
 
 if __name__ == "__main__":
