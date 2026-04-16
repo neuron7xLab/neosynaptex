@@ -61,12 +61,19 @@ logger = logging.getLogger(__name__)
 
 @dataclasses.dataclass(frozen=True)
 class AuditorTool:
-    """One tool slot in the orchestrator."""
+    """One tool slot in the orchestrator.
+
+    ``mandatory`` tools cannot be silently skipped: missing modules,
+    import failures, and runtime exceptions all convert to a FAIL
+    verdict (see ``ToolVerdict.ok``). Optional tools (e.g. the PR-body
+    checker, which requires an explicit ``--pr-body``) remain skippable.
+    """
 
     name: str
     module_path: str  # e.g. "tools.adversarial.verifier"
     entry: str = "run_check"  # function that returns (int, ...) where int is exit code
     requires_pr_body: bool = False
+    mandatory: bool = False
 
     def load(self) -> Callable | None:
         try:
@@ -86,12 +93,15 @@ class ToolVerdict:
     duration_ms: float
     message: str
     skipped: bool = False
+    mandatory: bool = False
 
     @property
     def ok(self) -> bool:
-        # A skipped tool does not block the aggregate verdict; the
-        # skip reason is surfaced in the text report.
-        return self.skipped or self.exit_code == 0
+        # Mandatory tools cannot pass by being skipped; a missing
+        # evidentiary gate is a blocking failure, not a soft skip.
+        if self.skipped:
+            return not self.mandatory
+        return self.exit_code == 0
 
 
 @dataclasses.dataclass(frozen=True)
@@ -119,10 +129,22 @@ class AuditorReport:
 
 
 # Canonical execution order. Verifier first per §IV.B.
+#
+# ``mandatory`` gates MUST produce an explicit pass; a missing module,
+# an unimportable entry point, or a runtime exception all count as a
+# blocking failure. Optional gates (e.g. ``pr_body_check``, which runs
+# only when a PR body is supplied) remain skippable without failing.
 TOOLS: tuple[AuditorTool, ...] = (
     AuditorTool(
         name="measurement_contract_verifier",
         module_path="tools.adversarial.verifier",
+        mandatory=True,
+    ),
+    AuditorTool(
+        name="null_family_gate",
+        module_path="tools.audit.null_family_gate",
+        entry="run_check",
+        mandatory=True,
     ),
     AuditorTool(
         name="claim_status_applied",
@@ -235,20 +257,36 @@ def run_all(
                         duration_ms=0.0,
                         message="skipped (no --pr-body supplied)",
                         skipped=True,
+                        mandatory=tool.mandatory,
                     )
                 )
                 continue
             fn = tool.load()
             if fn is None:
-                verdicts.append(
-                    ToolVerdict(
-                        name=tool.name,
-                        exit_code=0,
-                        duration_ms=0.0,
-                        message=f"skipped (module {tool.module_path} not importable)",
-                        skipped=True,
+                # Mandatory tools cannot be silently skipped: emit a
+                # non-zero exit code so the aggregate verdict fails.
+                if tool.mandatory:
+                    verdicts.append(
+                        ToolVerdict(
+                            name=tool.name,
+                            exit_code=2,
+                            duration_ms=0.0,
+                            message=(f"mandatory tool {tool.module_path} not importable -- FAIL"),
+                            skipped=False,
+                            mandatory=True,
+                        )
                     )
-                )
+                else:
+                    verdicts.append(
+                        ToolVerdict(
+                            name=tool.name,
+                            exit_code=0,
+                            duration_ms=0.0,
+                            message=f"skipped (module {tool.module_path} not importable)",
+                            skipped=True,
+                            mandatory=False,
+                        )
+                    )
                 continue
             per_tool_span = (
                 span_ctx(f"audit.{tool.name}.run", f"audit.{tool.name}")
@@ -278,6 +316,7 @@ def run_all(
                     exit_code=exit_code,
                     duration_ms=duration_ms,
                     message=message,
+                    mandatory=tool.mandatory,
                 )
             )
 

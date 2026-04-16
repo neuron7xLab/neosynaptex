@@ -24,6 +24,7 @@ from scipy.linalg import lstsq as scipy_lstsq
 from scipy.spatial import ConvexHull
 from scipy.stats import theilslopes
 
+from contracts.provenance import EngineMode, ensure_admissible
 from core.value_function import ValueEstimate, estimate_value
 
 __all__ = [
@@ -247,33 +248,44 @@ class _DomainBuffer:
 def _per_domain_jacobian(states: np.ndarray) -> tuple[float, float]:
     """Estimate spectral radius and condition number from per-domain state history.
 
-    Formula:
-        dPhi(t) = Phi(t+1) - Phi(t)
-        J_local = lstsq(Phi_prev, dPhi).T
+    Formula (temporally aligned):
+        dPhi(t)     = Phi(t+1) - Phi(t)
+        J_local^T   = lstsq(Phi(t),       dPhi(t))     # solves dPhi(t) ~ Phi(t) @ J^T
         A_transition = J_local + I
-        sr = max |eigenvalues(A_transition)|
-        cond = condition_number(Phi_prev)
+        sr          = max |eigenvalues(A_transition)|
+        cond        = condition_number(Phi(t))
+
+    The previous implementation paired ``dPhi(t+1)`` with ``Phi(t-1)``,
+    which silently biased the solve by one step and could misclassify
+    sign-flipping stable systems. The current code pairs ``dPhi(t)``
+    with ``Phi(t)`` directly via ``np.diff`` over ``clean``.
 
     Returns:
-        (spectral_radius, condition_number) or (NaN, NaN).
+        ``(spectral_radius, condition_number)``. Insufficient history,
+        NaN contamination, ill-conditioned state matrix, or a failed
+        solve all collapse to ``(NaN, NaN)``; callers must treat that
+        sentinel as fail-closed (see ``contracts.fail_closed``).
     """
     nan_pair = (float("nan"), float("nan"))
+    if states.ndim != 2 or states.size == 0:
+        return nan_pair
     mask = np.all(np.isfinite(states), axis=1)
     clean = states[mask]
     n = states.shape[1]
-    if clean.shape[0] < n + 3:
+    # Need at least n+2 clean states so the regression has n+1 rows
+    # with room to reject degenerate solves.
+    if clean.shape[0] < n + 2:
         return nan_pair
 
-    d_phi = np.diff(clean, axis=0)
-    phi_prev = clean[:-1]
-    x = phi_prev[:-1]
-    y = d_phi[1:]
+    # Synchronous pairing: y[i] = Phi(t_{i+1}) - Phi(t_i) depends on x[i] = Phi(t_i).
+    x = clean[:-1]
+    y = np.diff(clean, axis=0)
 
-    if x.shape[0] <= n + 1:
+    if x.shape[0] < n + 1:
         return nan_pair
 
     cond = float(np.linalg.cond(x))
-    if cond > _COND_GATE:
+    if not np.isfinite(cond) or cond > _COND_GATE:
         return nan_pair
 
     try:
@@ -281,9 +293,32 @@ def _per_domain_jacobian(states: np.ndarray) -> tuple[float, float]:
         a_transition = j_t.T + np.eye(n)
         eigvals = np.linalg.eigvals(a_transition)
         sr = float(np.max(np.abs(eigvals)))
+        if not np.isfinite(sr):
+            return nan_pair
         return (sr, cond)
     except Exception:
         return nan_pair
+
+
+# ---------------------------------------------------------------------------
+# Per-domain slope helper (used by the modulation loop)
+# ---------------------------------------------------------------------------
+def _domain_slope(trace: list[float], window: int) -> float:
+    """Theil-Sen slope on the last ``window`` finite entries of ``trace``.
+
+    Used by the reflexive modulation loop to compute a *per-domain*
+    derivative of gamma, so one domain's dynamics cannot steer another
+    domain's actuation. Returns NaN when there is not enough finite
+    history to fit a slope; callers interpret NaN as "no actuation".
+    """
+    if not trace:
+        return float("nan")
+    recent = [g for g in trace[-window:] if np.isfinite(g)]
+    if len(recent) < 5:
+        return float("nan")
+    x_t = np.arange(len(recent), dtype=np.float64)
+    slope, _, _, _ = theilslopes(recent, x_t)
+    return float(slope)
 
 
 # ---------------------------------------------------------------------------
@@ -541,9 +576,26 @@ class Neosynaptex:
         print(state.phase, state.gamma_mean, state.modulation)
     """
 
-    def __init__(self, window: int = 16) -> None:
+    def __init__(
+        self,
+        window: int = 16,
+        *,
+        mode: str | EngineMode = "test",
+    ) -> None:
         if window < 8:
             raise ValueError(f"window must be >= 8, got {window}")
+        # Resolve and store the operating mode. ``mode`` gates what
+        # ``register()`` will accept: REAL / CANONICAL / PROOF /
+        # REPLICATION require admissible, real-provenance adapters; the
+        # default TEST mode is permissive so existing unit tests and
+        # smoke paths keep working unchanged.
+        if isinstance(mode, EngineMode):
+            self._mode = mode
+        else:
+            try:
+                self._mode = EngineMode(str(mode).strip().lower())
+            except ValueError as exc:
+                raise ValueError(f"unknown engine mode: {mode!r}") from exc
         self._window = window
         self._adapters: dict[str, DomainAdapter] = {}
         self._buffers: dict[str, _DomainBuffer] = {}
@@ -678,8 +730,23 @@ class Neosynaptex:
         canonical = json.dumps(clean, sort_keys=True, ensure_ascii=True, default=str)
         return hashlib.sha256(canonical.encode()).hexdigest()
 
+    @property
+    def mode(self) -> EngineMode:
+        """Operating mode of this engine instance (affects registration)."""
+        return self._mode
+
     def register(self, adapter: DomainAdapter) -> None:
-        """Register a domain adapter. Max 4 state variables per adapter."""
+        """Register a domain adapter. Max 4 state variables per adapter.
+
+        In REAL / CANONICAL / PROOF / REPLICATION modes, the adapter
+        must carry a ``provenance`` attribute declaring
+        ``provenance_class == REAL`` and ``claim_status == ADMISSIBLE``.
+        Synthetic, mock, and downgraded adapters are rejected at
+        registration time via ``contracts.provenance.ensure_admissible``.
+        """
+        # Provenance gate runs BEFORE any state is mutated, so a
+        # rejected registration leaves the engine in its prior state.
+        ensure_admissible(adapter, self._mode)
         keys = adapter.state_keys
         if len(keys) > _MAX_STATE_KEYS:
             raise ValueError(
@@ -845,18 +912,32 @@ class Neosynaptex:
         else:
             resilience_score = float("nan")
 
-        # === Reflexive modulation signal ===
+        # === Reflexive modulation signal (per-domain, deadbanded, smooth) ===
+        #
+        # The previous version used a single *global* ``dgamma_dt`` and a
+        # hard ``sign(dg)`` switch, which (a) let one domain's slope steer
+        # another domain's actuation and (b) flipped sign on any jitter
+        # around zero. The current version computes a per-domain slope on
+        # that domain's own gamma trace, applies a tanh saturating law
+        # with a deadband, and bounds the output symmetrically.
         modulation: dict[str, float] = {}
         gamma_target = 1.0
         alpha_mod = 0.05
+        eps_dgamma = 1e-3  # deadband half-width; |dg| << eps_dgamma -> no actuation
+        modulation_clip = 0.05
         for name in domain_order:
             g = gamma_per_domain[name]
-            dg = dgamma_dt
-            if np.isfinite(g) and np.isfinite(dg):
-                raw_mod = (
-                    -alpha_mod * (g - gamma_target) * (1.0 if dg > 0 else -1.0 if dg < 0 else 0.0)
+            dg_i = _domain_slope(self._gamma_history[name], self._window)
+            if np.isfinite(g) and np.isfinite(dg_i):
+                # Smooth saturating control with deadband. tanh(x/eps) is
+                # ~linear for |x| << eps (deadband) and saturates to +/-1
+                # for |x| >> eps, so micro-slope jitter never produces a
+                # discontinuous sign flip.
+                u = float(np.tanh(dg_i / eps_dgamma))
+                raw_mod = -alpha_mod * (g - gamma_target) * u
+                modulation[name] = round(
+                    float(np.clip(raw_mod, -modulation_clip, modulation_clip)), 6
                 )
-                modulation[name] = round(float(np.clip(raw_mod, -0.05, 0.05)), 6)
             else:
                 modulation[name] = 0.0
 
@@ -1067,15 +1148,21 @@ class Neosynaptex:
 
         Returns dict with per-domain TruthAssessment and global verdict.
         Call periodically (not every tick) -- runs surrogate tests.
+
+        The global verdict is computed via ``contracts.fail_closed.aggregate_verdicts``:
+        every registered domain must contribute an explicit status (NaN
+        gamma -> ``MISSING``), and ``all([])`` can never upgrade to
+        VERIFIED. See ``contracts/fail_closed.py`` for the exact law.
         """
+        from contracts.fail_closed import Verdict, aggregate_verdicts, parse_verdict
         from core.truth_function import assess_truth
 
         if not self._history:
-            return {"error": "no observations", "global_verdict": "INCONCLUSIVE"}
+            return {"error": "no observations", "global_verdict": Verdict.INCONCLUSIVE.value}
 
         domain_order = sorted(self._adapters.keys())
-        assessments = {}
-        verdicts = []
+        assessments: dict[str, dict] = {}
+        per_domain_status: dict[str, Verdict] = {}
 
         for name in domain_order:
             buf = self._buffers[name]
@@ -1085,7 +1172,15 @@ class Neosynaptex:
             gamma_hist = self._gamma_history.get(name, [])
 
             if not np.isfinite(gamma):
-                assessments[name] = {"verdict": "INCONCLUSIVE", "reason": "gamma is NaN"}
+                # A NaN gamma is a registered-but-unverifiable domain; it
+                # must contribute MISSING to the aggregator, never be
+                # silently skipped (the old behaviour let ``all([])``
+                # upgrade an empty verdict set to VERIFIED).
+                assessments[name] = {
+                    "verdict": Verdict.MISSING.value,
+                    "reason": "gamma is NaN",
+                }
+                per_domain_status[name] = Verdict.MISSING
                 continue
 
             a = assess_truth(
@@ -1114,23 +1209,16 @@ class Neosynaptex:
                 "rqa_DET": round(a.rqa_det, 4) if np.isfinite(a.rqa_det) else None,
                 "has_structure": a.has_structure,
             }
-            verdicts.append(a.verdict)
+            per_domain_status[name] = parse_verdict(a.verdict)
 
-        # Global verdict: most conservative across domains
-        if all(v == "VERIFIED" for v in verdicts):
-            global_verdict = "VERIFIED"
-        elif any(v == "CONSTRUCTED" for v in verdicts):
-            global_verdict = "CONSTRUCTED"
-        elif any(v == "FRAGILE" for v in verdicts):
-            global_verdict = "FRAGILE"
-        else:
-            global_verdict = "INCONCLUSIVE"
+        global_verdict = aggregate_verdicts(domain_order, per_domain_status)
 
+        n_verified = sum(1 for v in per_domain_status.values() if v == Verdict.VERIFIED)
         return {
-            "global_verdict": global_verdict,
+            "global_verdict": global_verdict.value,
             "per_domain": assessments,
-            "n_domains_verified": sum(1 for v in verdicts if v == "VERIFIED"),
-            "n_domains_total": len(verdicts),
+            "n_domains_verified": n_verified,
+            "n_domains_total": len(domain_order),
         }
 
     def export_proof(self, path: str | None = None) -> dict:

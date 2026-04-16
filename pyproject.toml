@@ -56,6 +56,9 @@ dev = [
     # Required by run_nsr_chf_deployment_validation.py (Point 5 scaffold)
     # and tests/test_deployment_validation.py (8 unit tests).
     "scikit-learn>=1.5",
+    # Property-based adversarial tests under tests/audit/ (NEOSYNAPTEX_FORENSIC_HARDENING_v2.0):
+    # Jacobian alignment, modulation stability, truth aggregation.
+    "hypothesis>=6.0",
 ]
 security = [
     "pip-audit>=2.10.0",

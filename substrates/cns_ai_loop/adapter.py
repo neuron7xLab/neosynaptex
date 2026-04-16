@@ -1,25 +1,30 @@
-"""
-CNS-AI Loop — Real Substrate Adapter
-=====================================
-Cognitive decision loop simulation.
-Implements DomainAdapter Protocol.
+"""CNS-AI Loop — SYNTHETIC fixture (downgraded 2026-04-14).
 
-Models the human-AI interaction dynamics where:
-  - Decision quality fluctuates with 1/f temporal correlations
-  - Higher throughput → higher error rate (speed-accuracy tradeoff)
+This module previously presented itself as a *real* substrate adapter
+modelling human-AI cognitive loops. On 2026-04-14 the underlying claim
+was downgraded to ``falsified_downgraded`` (see
+``docs/CLAIM_BOUNDARY_CNS_AI.md`` and
+``substrates/cns_ai_loop/derive_real_gamma.py``). The corpus that
+backed the ``n=8271`` headline does not exist as a reproducible
+artefact, and the surviving report confuses file-system entries with
+cognitive-loop observations.
 
-Mapping:
-  topo = decision throughput (tasks per window)
-  cost = error rate (increases sub-linearly with throughput)
+The adapter survives here only as a deterministic *synthetic* fixture
+useful for smoke tests and demos. Its provenance metadata marks it
+``SYNTHETIC`` + ``DOWNGRADED``, and the engine's registration gate
+(``contracts.provenance.ensure_admissible``) will refuse it in REAL /
+CANONICAL / PROOF / REPLICATION modes.
 
-The speed-accuracy tradeoff at cognitive optimality produces γ ≈ 1.0.
+The generating process below simulates a speed-accuracy tradeoff with
+1/f-shaped arousal noise. Useful as a fixture -- not admissible as
+evidence.
 """
 
 from __future__ import annotations
 
-from typing import Dict, List
-
 import numpy as np
+
+from contracts.provenance import ClaimStatus, Provenance, ProvenanceClass
 
 _TOPO_FLOOR = 1e-6
 
@@ -36,12 +41,24 @@ def _generate_1f_noise(T: int, gamma: float = 1.0, seed: int = 42) -> np.ndarray
     return signal
 
 
-class CnsAiLoopAdapter:
-    """CNS-AI cognitive loop substrate adapter.
+class SyntheticCnsAiLoopAdapter:
+    """Deterministic synthetic fixture modelled on the speed-accuracy tradeoff.
 
-    Simulates decision throughput and error rate dynamics
-    following speed-accuracy tradeoff at cognitive optimality.
+    Carries ``provenance = SYNTHETIC / DOWNGRADED`` so that
+    ``contracts.provenance.ensure_admissible`` rejects it in any
+    evidentiary pipeline.
     """
+
+    #: Exposed for the registration gate.
+    provenance: Provenance = Provenance(
+        provenance_class=ProvenanceClass.SYNTHETIC,
+        claim_status=ClaimStatus.DOWNGRADED,
+        corpus_ref="docs/CLAIM_BOUNDARY_CNS_AI.md",
+        notes=(
+            "CNS-AI loop substrate claim downgraded 2026-04-14. "
+            "Synthetic 1/f-noise fixture only; not admissible as evidence."
+        ),
+    )
 
     def __init__(self, seed: int = 42, T: int = 10000) -> None:
         self._rng = np.random.default_rng(seed)
@@ -58,7 +75,7 @@ class CnsAiLoopAdapter:
         # α ≈ 0.8-1.2 for cognitive tasks
         alpha = 0.95  # near-linear tradeoff
         base_error = 0.01 + 0.3 * (self._throughput / 10.0) ** alpha
-        self._error_rate = base_error + 0.02 * _generate_1f_noise(T, gamma=0.5, seed=seed+1)
+        self._error_rate = base_error + 0.02 * _generate_1f_noise(T, gamma=0.5, seed=seed + 1)
         self._error_rate = np.clip(self._error_rate, 0.01, 0.5)
 
         self._throughput_ema = float(np.mean(self._throughput[:50]))
@@ -67,8 +84,8 @@ class CnsAiLoopAdapter:
     def _current_stats(self) -> tuple[float, float, float]:
         t = self._t % self._T
         start = max(0, t - self._window)
-        tp_window = self._throughput[start:t+1]
-        er_window = self._error_rate[start:t+1]
+        tp_window = self._throughput[start : t + 1]
+        er_window = self._error_rate[start : t + 1]
         tp = float(np.mean(tp_window)) if len(tp_window) > 0 else 5.0
         er = float(np.mean(er_window)) if len(er_window) > 0 else 0.1
         ar = float(self._arousal[t])
@@ -79,10 +96,10 @@ class CnsAiLoopAdapter:
         return "cns_ai"
 
     @property
-    def state_keys(self) -> List[str]:
+    def state_keys(self) -> list[str]:
         return ["throughput", "error_rate", "arousal", "quality"]
 
-    def state(self) -> Dict[str, float]:
+    def state(self) -> dict[str, float]:
         self._t += 10
         tp, er, ar = self._current_stats()
         self._throughput_ema = self._ema_alpha * tp + (1 - self._ema_alpha) * self._throughput_ema
@@ -114,12 +131,20 @@ class CnsAiLoopAdapter:
         return 1.0 / er
 
 
+# Backwards-compatible alias. Old call sites using ``CnsAiLoopAdapter``
+# still work, but they now receive the same synthetic+downgraded
+# provenance, so the registration gate still rejects them in real
+# modes. The alias is preserved only to avoid mass-breaking imports;
+# new code must use ``SyntheticCnsAiLoopAdapter`` explicitly.
+CnsAiLoopAdapter = SyntheticCnsAiLoopAdapter
+
+
 def validate_standalone() -> dict:
     from scipy.stats import theilslopes
 
     print("=== CNS-AI Loop — Cognitive Substrate Validation ===\n")
 
-    adapter = CnsAiLoopAdapter(seed=42)
+    adapter = SyntheticCnsAiLoopAdapter(seed=42)
     topos, costs = [], []
 
     for _ in range(500):
@@ -142,17 +167,25 @@ def validate_standalone() -> dict:
 
     dist = abs(gamma - 1.0)
     regime = (
-        "METASTABLE" if dist < 0.15 else
-        "WARNING" if dist < 0.30 else
-        "CRITICAL" if dist < 0.50 else "COLLAPSE"
+        "METASTABLE"
+        if dist < 0.15
+        else "WARNING"
+        if dist < 0.30
+        else "CRITICAL"
+        if dist < 0.50
+        else "COLLAPSE"
     )
 
     print(f"  γ = {gamma:.4f}  R² = {r2:.4f}  CI = [{-hi:.3f}, {-lo:.3f}]")
     print(f"  n = {len(t_v)}  regime = {regime}")
 
-    return {"gamma": round(float(gamma), 4), "r2": round(float(r2), 4),
-            "ci": [round(float(-hi), 4), round(float(-lo), 4)],
-            "n": len(t_v), "regime": regime}
+    return {
+        "gamma": round(float(gamma), 4),
+        "r2": round(float(r2), 4),
+        "ci": [round(float(-hi), 4), round(float(-lo), 4)],
+        "n": len(t_v),
+        "regime": regime,
+    }
 
 
 if __name__ == "__main__":
