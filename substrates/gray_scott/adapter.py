@@ -18,9 +18,9 @@ Result: γ = 0.948, R² = 0.994 — METASTABLE
 
 from __future__ import annotations
 
-from typing import Dict, List
-
 import numpy as np
+
+from contracts.provenance import ClaimStatus, Provenance, ProvenanceClass
 
 _DU = 0.16
 _DV = 0.08
@@ -33,10 +33,7 @@ _N_PARAMS = 20
 
 
 def _laplacian(f: np.ndarray) -> np.ndarray:
-    return (
-        np.roll(f, 1, 0) + np.roll(f, -1, 0) +
-        np.roll(f, 1, 1) + np.roll(f, -1, 1) - 4 * f
-    )
+    return np.roll(f, 1, 0) + np.roll(f, -1, 0) + np.roll(f, 1, 1) + np.roll(f, -1, 1) - 4 * f
 
 
 def _spatial_entropy(field: np.ndarray, bins: int = 32) -> float:
@@ -47,11 +44,19 @@ def _spatial_entropy(field: np.ndarray, bins: int = 32) -> float:
 
 
 class GrayScottAdapter:
-    """Real Gray-Scott substrate adapter with parameter sweep.
+    """Gray-Scott substrate adapter with parameter sweep.
 
     Pre-computes equilibrium patterns for 20 F values.
     Cycles through them, providing genuine cross-parameter scaling.
     """
+
+    #: Provenance — self-contained PDE simulation, generated fresh each run.
+    provenance: Provenance = Provenance(
+        provenance_class=ProvenanceClass.SYNTHETIC,
+        claim_status=ClaimStatus.ADMISSIBLE,
+        corpus_ref="Turing reaction-diffusion (Gray & Scott 1984)",
+        notes="Deterministic PDE simulation. Admissible in demo/test; not real data.",
+    )
 
     def __init__(self, seed: int = 42, grid: int = _GRID) -> None:
         self._rng = np.random.default_rng(seed)
@@ -77,8 +82,8 @@ class GrayScottAdapter:
         u = np.ones((g, g))
         v = np.zeros((g, g))
         c, r = g // 2, g // 8
-        v[c-r:c+r, c-r:c+r] = 0.25
-        u[c-r:c+r, c-r:c+r] = 0.50
+        v[c - r : c + r, c - r : c + r] = 0.25
+        u[c - r : c + r, c - r : c + r] = 0.50
         v += np.abs(rng.normal(0, 0.01, (g, g)))
 
         for _ in range(_EQUIL_STEPS):
@@ -109,10 +114,10 @@ class GrayScottAdapter:
         return "reaction_diffusion"
 
     @property
-    def state_keys(self) -> List[str]:
+    def state_keys(self) -> list[str]:
         return ["u_mean", "v_mean", "v_mass", "entropy"]
 
-    def state(self) -> Dict[str, float]:
+    def state(self) -> dict[str, float]:
         self._t += 1
         # Random sample from equilibria — avoids sequential wrap-around
         # that breaks engine Theil-Sen fit in rolling windows
@@ -183,10 +188,13 @@ def validate_standalone() -> dict:
 
     dist = abs(gamma - 1.0)
     regime = (
-        "METASTABLE" if dist < 0.15 else
-        "WARNING" if dist < 0.30 else
-        "CRITICAL" if dist < 0.50 else
-        "COLLAPSE"
+        "METASTABLE"
+        if dist < 0.15
+        else "WARNING"
+        if dist < 0.30
+        else "CRITICAL"
+        if dist < 0.50
+        else "COLLAPSE"
     )
 
     print(f"  γ = {gamma:.4f}  R² = {r2:.4f}  CI = [{-hi:.3f}, {-lo:.3f}]")
