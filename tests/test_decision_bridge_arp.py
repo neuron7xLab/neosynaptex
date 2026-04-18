@@ -90,8 +90,7 @@ class TestARPOrderSelection:
         (values, counts) = np.unique(np.asarray(tail), return_counts=True)
         winner = int(values[np.argmax(counts)])
         assert winner >= 2, (
-            f"expected AIC-winner ≥ 2, got distribution "
-            f"{dict(zip(values, counts, strict=True))}"
+            f"expected AIC-winner ≥ 2, got distribution {dict(zip(values, counts, strict=True))}"
         )
 
     def test_arp_beats_ar1_on_ar2_data(self) -> None:
