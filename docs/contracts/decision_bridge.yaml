@@ -1,0 +1,146 @@
+# Machine-parseable invariants contract for core.decision_bridge.
+#
+# Each entry carries:
+#   id        — stable identifier referenced from tests and code.
+#   kind      — safety | liveness | integrity | performance | governance
+#   statement — the guarantee the module must satisfy.
+#   enforced_by — list of (test_file :: test_symbol) that falsify the
+#                 contract if violated.
+#
+# Invariants here MUST be kept in sync with
+# tools/audit/decision_bridge_contracts.py (the programmatic validator).
+
+module: core.decision_bridge
+version: 1
+invariants:
+  - id: I-DB-1
+    kind: liveness
+    statement: "evaluate(valid input) never raises."
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-2
+    kind: safety
+    statement: "evaluate(non-finite input) always raises ValueError (fail-closed)."
+    enforced_by:
+      - tests/test_decision_bridge.py::TestBridgeIngress::test_evaluate_raises_on_non_finite_by_default
+      - tests/test_decision_bridge_properties.py::TestIngressFailsClosed::test_any_non_finite_raises
+
+  - id: I-DB-3
+    kind: safety
+    statement: "snapshot.critic_gain ∈ [0.01, 1.0] always."
+    enforced_by:
+      - tests/test_decision_bridge.py::TestPIController::test_gain_bounded_under_large_positive_error
+      - tests/test_decision_bridge.py::TestPIController::test_gain_bounded_under_large_negative_error
+      - tests/test_decision_bridge_properties.py::TestControllerProperty::test_gain_and_integral_always_bounded
+
+  - id: I-DB-4
+    kind: safety
+    statement: "snapshot.energy_remaining_frac ∈ [0.0, 1.0] always."
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-5
+    kind: safety
+    statement: "snapshot.controller_integral ∈ [-5.0, 5.0] always (anti-windup)."
+    enforced_by:
+      - tests/test_decision_bridge.py::TestPIController::test_integral_anti_windup
+      - tests/test_decision_bridge_properties.py::TestControllerProperty::test_gain_and_integral_always_bounded
+
+  - id: I-DB-6
+    kind: safety
+    statement: "snapshot.confidence ∈ [0.0, 1.0] always."
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-7
+    kind: safety
+    statement: "snapshot.alive_frac ∈ [0.0, 1.0]; snapshot.dynamic_frac ∈ [0.0, 1.0]."
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-8
+    kind: governance
+    statement: >-
+      snapshot.system_health ∈ {OPTIMAL, DEGRADED, CRITICAL, DEAD}.
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-9
+    kind: governance
+    statement: "snapshot.operating_regime ∈ {frozen, critical, chaotic}."
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-10
+    kind: governance
+    statement: >-
+      snapshot.gradient_diagnosis ∈ {living_gradient, static_capacitor,
+      dead_equilibrium, transient, unknown}.
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-11
+    kind: governance
+    statement: "snapshot.hallucination_risk ∈ {low, moderate, high}."
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-12
+    kind: integrity
+    statement: "evaluate(tick=t) twice returns the same object; state does not advance."
+    enforced_by:
+      - tests/test_decision_bridge.py::TestBridgeIdempotence::test_same_tick_returns_identical_snapshot
+      - tests/test_decision_bridge.py::TestBridgeIdempotence::test_same_tick_does_not_advance_controller
+      - tests/test_decision_bridge_properties.py::TestIdempotenceProperty::test_same_tick_is_memoised
+
+  - id: I-DB-13
+    kind: safety
+    statement: "If prediction_available, prediction_residual is finite."
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-14
+    kind: safety
+    statement: >-
+      If gamma_fdt_available, gamma_fdt_estimate and
+      gamma_fdt_uncertainty are both finite.
+    enforced_by:
+      - tests/test_decision_bridge_properties.py::TestEvaluateInvariants::test_evaluate_satisfies_all_range_invariants
+
+  - id: I-DB-15
+    kind: integrity
+    statement: "SensorGate.sanitize is idempotent (bit-identical output on repeat)."
+    enforced_by:
+      - tests/test_decision_bridge.py::TestSensorGateSanitize::test_sanitize_is_idempotent
+      - tests/test_decision_bridge_properties.py::TestSensorGateSanitizeIdempotenceProperty::test_phi_sanitize_is_idempotent
+      - tests/test_decision_bridge_properties.py::TestSensorGateSanitizeIdempotenceProperty::test_gamma_sanitize_is_idempotent
+
+  - id: I-DB-H1
+    kind: governance
+    statement: >-
+      Health classifier is monotone under dominance:
+      s' ≥ s on every axis ⇒ rank(health(s')) ≥ rank(health(s)).
+    enforced_by:
+      - tests/test_decision_bridge_health_monotonicity.py::TestHealthMonotonicityExhaustive::test_monotonicity_over_discrete_axes
+      - tests/test_decision_bridge_health_monotonicity.py::TestHealthContinuousAxis::test_gamma_closer_to_one_never_demotes
+
+  - id: I-DB-L1
+    kind: integrity
+    statement: >-
+      TelemetryLedger.verify detects any tamper: flipped byte, deleted
+      middle event, fabricated tail event. Honest appends always verify.
+    enforced_by:
+      - tests/test_decision_bridge_telemetry.py::TestLedgerTamperDetection::test_flipped_payload_byte_is_detected
+      - tests/test_decision_bridge_telemetry.py::TestLedgerTamperDetection::test_truncation_is_detected_only_if_prev_hash_exposed
+      - tests/test_decision_bridge_telemetry.py::TestLedgerTamperDetection::test_fabricated_tail_event_breaks_chain
+      - tests/test_decision_bridge_telemetry.py::TestLedgerAppendVerify::test_honest_append_verifies
+
+  - id: I-DB-P1
+    kind: performance
+    statement: >-
+      evaluate(history_n=20) p95 latency < 15 ms on CI hardware.
+      Memoised re-evaluation at least 5× faster than a cold call.
+    enforced_by:
+      - tests/test_decision_bridge_performance.py::TestDecisionBridgeLatency::test_evaluate_latency_within_budget
+      - tests/test_decision_bridge_performance.py::TestDecisionBridgeLatency::test_idempotent_calls_are_near_free

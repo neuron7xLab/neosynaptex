@@ -59,6 +59,7 @@ Contracts
 
 from __future__ import annotations
 
+import math
 from collections import deque
 from dataclasses import dataclass
 from typing import Final
@@ -79,6 +80,7 @@ from core.constants import (
     SENSOR_GAMMA_MAX_ABS,
     SENSOR_PHI_MAX_ABS,
 )
+from core.decision_bridge_telemetry import TelemetryLedger
 
 __all__ = [
     "DecisionBridge",
@@ -215,31 +217,113 @@ class SensorGate:
         return phi_clean, gamma_clean, report
 
 
+def _lag_correlation(centered: FloatArray, lag: int) -> float:
+    """Lag-k Yule–Walker numerator over a zero-mean window.
+
+    Returns ``φ₁`` for ``lag=1`` on a stationary AR(1) process; elsewhere
+    used only as a quick fallback when AIC selection cannot converge.
+    """
+    denom = float(np.dot(centered, centered))
+    if denom <= 1e-12:
+        return 0.0
+    num = float(np.dot(centered[:-lag], centered[lag:]))
+    return num / denom
+
+
+def _fit_yule_walker(
+    centered: FloatArray, gamma_0: float, order: int
+) -> tuple[FloatArray, float] | None:
+    """Fit AR(p) by solving the Yule–Walker normal equations.
+
+    Returns ``(coefficients, residual_variance)`` or ``None`` if the
+    Toeplitz system is singular / the buffer is too short to estimate
+    the requested order.
+    """
+    n = centered.shape[0]
+    if n < order + 1 or order < 1:
+        return None
+    max_lag = order
+    gamma = np.zeros(max_lag + 1, dtype=np.float64)
+    gamma[0] = gamma_0
+    for k in range(1, max_lag + 1):
+        gamma[k] = float(np.dot(centered[:-k], centered[k:])) / n
+    toeplitz = np.array(
+        [[gamma[abs(i - j)] for j in range(order)] for i in range(order)],
+        dtype=np.float64,
+    )
+    rhs = gamma[1 : order + 1]
+    try:
+        coeffs = np.linalg.solve(toeplitz, rhs).astype(np.float64, copy=False)
+    except np.linalg.LinAlgError:
+        return None
+    # One-step residual variance σ² = γ(0) − Σ φ_k · γ(k).
+    sigma2 = float(gamma_0 - np.dot(coeffs, gamma[1 : order + 1]))
+    if sigma2 < 0:
+        # Numerical negativity → reject this order.
+        return None
+    return coeffs, sigma2
+
+
 class OnlinePredictor:
-    """Rolling-window AR(1) predictor for the coherence signal S.
+    """Rolling-window AR(p) predictor for the coherence signal S.
 
     Emits a 1-step-ahead forecast; after the next observation arrives,
     the residual (observation − prior forecast) is a genuine *prediction
     error*. This is distinct from a first-difference ``S_t − S_{t−1}``:
-    first-difference ignores serial correlation, and converges to a
-    non-zero value on any autocorrelated process. The AR(1) residual
+    first-difference ignores serial correlation and converges to a
+    non-zero value on any autocorrelated process. The AR(p) residual
     goes to zero on a constant or perfectly-predictable input.
 
-    Fit is an online Yule–Walker estimate of the lag-1 autocorrelation
-    over the last ``window`` observations, with the coefficient
-    ``φ`` clamped to ``[-AR1_CLAMP, AR1_CLAMP]`` for strict stationarity.
+    Default
+    -------
+    ``auto_order=False, max_order=1`` → pure AR(1) via Yule–Walker;
+    this is the production-safe path and identical to the previous
+    behaviour.
+
+    Opt-in AR(p)
+    ------------
+    ``auto_order=True, max_order=p`` → for each candidate order
+    ``k ∈ {1, …, p}`` the fit computes its AIC
+    ``n·log(σ²_k) + 2·k`` and picks the minimiser. ``σ²_k`` is the
+    one-step-ahead residual variance implied by the Yule–Walker
+    solution. This turns the predictor into a rolling model-selection
+    step at each observation.
+
+    The AR(1) coefficient is still clamped to ``[-AR1_CLAMP, AR1_CLAMP]``
+    for the ``max_order=1`` path so that a legacy-sized buffer can never
+    produce a forecast outside ``[0, 1]``-ish territory. Higher-order
+    fits are not clamped per-coefficient; stationarity is handled by
+    the AIC itself — a non-stationary fit would inflate σ² and lose.
     """
 
-    def __init__(self, window: int = _PREDICTOR_WINDOW) -> None:
+    def __init__(
+        self,
+        window: int = _PREDICTOR_WINDOW,
+        *,
+        auto_order: bool = False,
+        max_order: int = 1,
+    ) -> None:
         if window < _PREDICTOR_MIN_SAMPLES:
             raise ValueError(f"window must be ≥ {_PREDICTOR_MIN_SAMPLES}")
+        if max_order < 1:
+            raise ValueError("max_order must be ≥ 1")
+        if max_order > window - 1:
+            raise ValueError("max_order must be ≤ window - 1")
         self._window: Final[int] = int(window)
+        self._auto_order: Final[bool] = bool(auto_order)
+        self._max_order: Final[int] = int(max_order)
         self._buffer: deque[float] = deque(maxlen=self._window)
         self._pending_forecast: float | None = None
+        self._last_fit_order: int = 0
 
     @property
     def pending_forecast(self) -> float | None:
         return self._pending_forecast
+
+    @property
+    def last_fit_order(self) -> int:
+        """Order chosen on the most recent fit. ``0`` while warming up."""
+        return self._last_fit_order
 
     def observe(self, s_observed: float) -> float:
         """Absorb one sample; return the residual vs the prior forecast.
@@ -250,10 +334,11 @@ class OnlinePredictor:
         if not np.isfinite(s_observed):
             raise ValueError("predictor cannot observe non-finite value")
 
-        if self._pending_forecast is None:
-            residual = float("nan")
-        else:
-            residual = float(s_observed - self._pending_forecast)
+        residual = (
+            float("nan")
+            if self._pending_forecast is None
+            else float(s_observed - self._pending_forecast)
+        )
 
         self._buffer.append(float(s_observed))
         self._pending_forecast = self._fit_next()
@@ -262,20 +347,49 @@ class OnlinePredictor:
     def reset(self) -> None:
         self._buffer.clear()
         self._pending_forecast = None
+        self._last_fit_order = 0
 
     def _fit_next(self) -> float | None:
         if len(self._buffer) < _PREDICTOR_MIN_SAMPLES:
             return None
         arr = np.asarray(self._buffer, dtype=np.float64)
+        n = arr.shape[0]
         mean = float(np.mean(arr))
         centered = arr - mean
-        denom = float(np.dot(centered, centered))
-        if denom <= 1e-12:
+        gamma_0 = float(np.dot(centered, centered)) / n
+        if gamma_0 <= 1e-12:
             # Degenerate: constant buffer → best forecast is the mean itself.
+            self._last_fit_order = 0
             return mean
-        num = float(np.dot(centered[:-1], centered[1:]))
-        phi = float(np.clip(num / denom, -_AR1_CLAMP, _AR1_CLAMP))
-        return float(mean + phi * (arr[-1] - mean))
+
+        if not self._auto_order:
+            # AR(1) fast path (legacy behaviour, bit-identical).
+            coeffs = np.array(
+                [float(np.clip(_lag_correlation(centered, 1), -_AR1_CLAMP, _AR1_CLAMP))]
+            )
+            self._last_fit_order = 1
+            return float(mean + coeffs[0] * (arr[-1] - mean))
+
+        # AR(p) with AIC model selection.
+        upper = min(self._max_order, n - 1)
+        best_forecast = mean + _lag_correlation(centered, 1) * (arr[-1] - mean)
+        best_aic = float("inf")
+        best_order = 1
+        for order in range(1, upper + 1):
+            fit = _fit_yule_walker(centered, gamma_0, order)
+            if fit is None:
+                continue
+            coeffs, sigma2 = fit
+            if sigma2 <= 1e-18:
+                continue
+            aic = n * math.log(sigma2) + 2 * order
+            if aic < best_aic:
+                best_aic = aic
+                best_order = order
+                tail = arr[-order:][::-1] - mean
+                best_forecast = float(mean + np.dot(coeffs, tail))
+        self._last_fit_order = best_order
+        return float(best_forecast)
 
 
 class PIController:
@@ -435,11 +549,13 @@ class DecisionBridge:
         sensor_gate: SensorGate | None = None,
         predictor: OnlinePredictor | None = None,
         controller: PIController | None = None,
+        telemetry: TelemetryLedger | None = None,
     ) -> None:
         self._model = CoherenceStateSpace(state_space_params)
         self._sensor_gate = sensor_gate if sensor_gate is not None else SensorGate()
         self._predictor = predictor if predictor is not None else OnlinePredictor()
         self._controller = controller if controller is not None else PIController()
+        self._telemetry = telemetry
         self._oeb_energy: float = 1.0
         self._prev_gamma: float = float("nan")
         self._last_evaluated_tick: int | None = None
@@ -638,6 +754,12 @@ class DecisionBridge:
         )
         self._last_evaluated_tick = tick
         self._last_snapshot = snapshot
+        if self._telemetry is not None:
+            self._telemetry.append(
+                tick=tick,
+                event_type="snapshot",
+                payload=_snapshot_to_payload(snapshot),
+            )
         return snapshot
 
     def reset(self) -> None:
@@ -663,6 +785,59 @@ class DecisionBridge:
         # the system is healthy (residual ≈ 0 and trend ≥ 0).
         baseline = -0.02
         return residual_term + trend_term + baseline
+
+
+def _snapshot_to_payload(snap: DecisionSnapshot) -> dict[str, object]:
+    """Canonical payload derived from a snapshot.
+
+    Float NaNs cannot be serialised to strict JSON; they are
+    represented as the literal string ``"NaN"`` so the audit trail
+    records the missing-data state without corrupting the line.
+    ``SanitizationReport`` is unfolded into primitive keys.
+    """
+
+    def _finite(x: float) -> float | str:
+        return float(x) if np.isfinite(x) else "NaN"
+
+    payload: dict[str, object] = {
+        "tick": snap.tick,
+        "gamma_mean": _finite(snap.gamma_mean),
+        "gamma_std": _finite(snap.gamma_std),
+        "spectral_radius": _finite(snap.spectral_radius),
+        "phase": snap.phase,
+        "projected_coherence": _finite(snap.projected_coherence),
+        "projected_gamma": _finite(snap.projected_gamma),
+        "projected_e_obj": _finite(snap.projected_e_obj),
+        "state_space_stable": bool(snap.state_space_stable),
+        "operating_regime": snap.operating_regime,
+        "near_bifurcation": bool(snap.near_bifurcation),
+        "time_to_diagnosis": int(snap.time_to_diagnosis),
+        "gamma_fdt_available": bool(snap.gamma_fdt_available),
+        "gamma_fdt_estimate": _finite(snap.gamma_fdt_estimate),
+        "gamma_fdt_uncertainty": _finite(snap.gamma_fdt_uncertainty),
+        "prediction_available": bool(snap.prediction_available),
+        "prediction_residual": _finite(snap.prediction_residual),
+        "delta_s_trend": _finite(snap.delta_s_trend),
+        "hallucination_risk": snap.hallucination_risk,
+        "critic_gain": _finite(snap.critic_gain),
+        "energy_remaining_frac": _finite(snap.energy_remaining_frac),
+        "controller_integral": _finite(snap.controller_integral),
+        "gradient_diagnosis": snap.gradient_diagnosis,
+        "alive_frac": _finite(snap.alive_frac),
+        "dynamic_frac": _finite(snap.dynamic_frac),
+        "system_health": snap.system_health,
+        "confidence": _finite(snap.confidence),
+    }
+    if snap.sanitization_report is not None:
+        payload["sanitization_phi_n_clipped"] = snap.sanitization_report.phi_n_clipped
+        payload["sanitization_gamma_n_clipped"] = snap.sanitization_report.gamma_n_clipped
+        payload["sanitization_phi_max_abs_deviation"] = _finite(
+            snap.sanitization_report.phi_max_abs_deviation
+        )
+        payload["sanitization_gamma_max_abs_deviation"] = _finite(
+            snap.sanitization_report.gamma_max_abs_deviation
+        )
+    return payload
 
 
 def _compute_health(
