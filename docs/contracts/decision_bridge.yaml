@@ -21,9 +21,12 @@ invariants:
 
   - id: I-DB-2
     kind: safety
-    statement: "evaluate(non-finite input) always raises ValueError (fail-closed)."
+    statement: >-
+      evaluate(non-finite input) always raises ValueError (fail-closed)
+      — including on the memoised same-tick path.
     enforced_by:
       - tests/test_decision_bridge.py::TestBridgeIngress::test_evaluate_raises_on_non_finite_by_default
+      - tests/test_decision_bridge.py::TestBridgeIdempotence::test_memoised_tick_still_validates_fresh_input
       - tests/test_decision_bridge_properties.py::TestIngressFailsClosed::test_any_non_finite_raises
 
   - id: I-DB-3

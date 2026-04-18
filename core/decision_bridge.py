@@ -583,15 +583,14 @@ class DecisionBridge:
         Idempotence: calling this method twice with the same ``tick``
         returns the previously computed snapshot without mutating
         controller, predictor, or energy accumulator.
-        """
-        if (
-            self._last_evaluated_tick is not None
-            and tick == self._last_evaluated_tick
-            and self._last_snapshot is not None
-        ):
-            return self._last_snapshot
 
-        # ── Ingress ────────────────────────────────────────────────
+        Fail-closed is preserved on the memoised path: ingress
+        validation runs BEFORE the cache lookup, so a second caller
+        that supplies malformed or non-finite inputs for the same tick
+        still raises instead of silently receiving the earlier
+        snapshot.
+        """
+        # ── Ingress (always runs, including on the memoised path) ─
         sanitization_report: SanitizationReport | None
         if sanitize_inputs:
             phi_history, gamma_history, sanitization_report = self._sensor_gate.sanitize(
@@ -600,6 +599,13 @@ class DecisionBridge:
         else:
             self._sensor_gate.validate(phi_history, gamma_history)
             sanitization_report = None
+
+        if (
+            self._last_evaluated_tick is not None
+            and tick == self._last_evaluated_tick
+            and self._last_snapshot is not None
+        ):
+            return self._last_snapshot
 
         n = phi_history.shape[0]
         confidence = min(1.0, n / 16.0)

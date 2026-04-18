@@ -591,6 +591,38 @@ class TestBridgeIdempotence:
         assert bridge._oeb_gain == gain_after_first
         assert bridge._oeb_energy == energy_after_first
 
+    def test_memoised_tick_still_validates_fresh_input(self) -> None:
+        """Fail-closed ingress must run even when the snapshot is cached.
+
+        Regression: the memoisation check originally short-circuited
+        before ``SensorGate.validate``, so a second caller could pass
+        non-finite input for an already-evaluated tick and silently
+        receive the cached good snapshot — masking real corruption.
+        """
+        bridge = DecisionBridge()
+        phi, gamma = _make_healthy_data(20)
+        bridge.evaluate(
+            tick=42,
+            gamma_mean=1.0,
+            gamma_std=0.03,
+            spectral_radius=0.9,
+            phase="METASTABLE",
+            phi_history=phi,
+            gamma_history=gamma,
+        )
+        corrupt = phi.copy()
+        corrupt[0, 0] = float("nan")
+        with pytest.raises(ValueError, match="non-finite"):
+            bridge.evaluate(
+                tick=42,
+                gamma_mean=1.0,
+                gamma_std=0.03,
+                spectral_radius=0.9,
+                phase="METASTABLE",
+                phi_history=corrupt,
+                gamma_history=gamma,
+            )
+
     def test_new_tick_advances_state(self) -> None:
         bridge = DecisionBridge()
         phi, gamma = _make_healthy_data(20)
