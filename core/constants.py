@@ -24,6 +24,8 @@ __all__ = [
     "PHASE_CHAOTIC_LOWER",
     "PHASE_FROZEN_UPPER",
     "R2_GATE",
+    "SENSOR_GAMMA_MAX_ABS",
+    "SENSOR_PHI_MAX_ABS",
 ]
 
 # ── Regime thresholds (gamma-scaling classification) ────────────────────
@@ -54,3 +56,18 @@ INV_YV1_D_DELTA_V_MIN: Final[float] = 1e-8
 
 # ── Resonance diagnostics ──────────────────────────────────────────────
 DIAGNOSIS_WINDOW: Final[int] = 3
+
+# ── Sensor ingress gate (decision_bridge) ──────────────────────────────
+# Physical sanity clamps for sensor inputs before the Decision Bridge.
+# These are ABSOLUTE LIMITS beyond which a reading is treated as a sensor
+# fault / upstream corruption, not a real state. They are deliberately wide —
+# the metastable regime lives near γ ≈ 1.0 ± GAMMA_THRESHOLD_CRITICAL=0.5,
+# so |γ| > 10 is an order of magnitude outside any physically admissible
+# excursion. φ is an engine phase vector expected to be unit-scale; |φ| > 5
+# indicates a numerical blow-up, not dynamics.
+#
+# These clamps are used ONLY by the opt-in ``SensorGate.sanitize()`` path
+# and are reported in ``SanitizationReport``. ``SensorGate.validate()``
+# never clips: it raises on non-finite / malformed input.
+SENSOR_GAMMA_MAX_ABS: Final[float] = 10.0
+SENSOR_PHI_MAX_ABS: Final[float] = 5.0
