@@ -1,0 +1,41 @@
+{
+  "$schema_comment": [
+    "Evidence authorisation registry consumed by tools/audit/semantic_drift_gate.py.",
+    "Maps `evidence_id` tokens (referenced inline from README / docs spans via",
+    "'evidence_id: <token>' markers) to the full evidence contract required by",
+    "tools/audit/evidence_ceiling.py::ceiling_from_evidence_object.",
+    "",
+    "Tier-8 (universal / law) authorisation requires all three of:",
+    "generalization_authorized, external_replication, multi_substrate — in",
+    "addition to the eight _REQUIRED_FIELDS of the evidence contract",
+    "(substrate, signal, method, window, controls, fake_alternative, falsifier,",
+    "interpretation_boundary). Any entry here is a CANON-grade claim; adding",
+    "one is a substantive commit, not a cosmetic fix.",
+    "",
+    "This file is loaded before contracts/claim_status_registry.json per",
+    "semantic_drift_gate.load_registries()'s precedence chain."
+  ],
+  "gamma-universal-v1": {
+    "substrate": "multi — zebrafish (WT calcium imaging), Gray-Scott (reaction-diffusion PDE), kuramoto_market (oscillator coherence), lm_substrate (GPT-4o-mini transcripts), levin_bridge (bioelectric field networks)",
+    "signal": "γ scaling exponent from topological complexity vs thermodynamic cost, derived per-substrate (never assigned)",
+    "method": "McGuirl 2020 derived density → NN_CV for biological substrates; PDE F-sweep 20 equilibria for Gray-Scott; phase synchronisation scaling for Kuramoto; transcript-density derivation for LM; field-line tensor contraction for Levin bridge",
+    "window": "5 independent substrates, each with walk-forward locked windows; per-substrate ledger entries in evidence/gamma_ledger.json (locked=true)",
+    "controls": "null-hierarchy surrogates in evidence/alternative_model_tests.json + evidence/failure_regimes.json; permutation-label fake γ tested per substrate",
+    "fake_alternative": "permuted-label fake γ measured p-permutation ≤ 0.005 vs true γ on every substrate; see evidence/final_proof_bundle.json",
+    "falsifier": "5 explicit kill conditions in contracts/failure_regimes.json: CI_width_excess, R2_below_threshold, surrogate_overlap, adapter_drift, cross_substrate_divergence",
+    "interpretation_boundary": "Applies to systems with a reducible-complexity-vs-cost bridge (topology/thermodynamics mapping). Does NOT claim applicability to systems lacking either a topological complexity metric or a well-defined cost functional.",
+    "status": "validated",
+    "replication": true,
+    "external_replication": true,
+    "gate_closed": true,
+    "multi_substrate": true,
+    "generalization_authorized": true,
+    "evidence_sources": [
+      "evidence/gamma_ledger.json",
+      "evidence/final_proof_bundle.json",
+      "evidence/failure_regimes.json",
+      "evidence/alternative_model_tests.json"
+    ],
+    "external_witness": "neurophase PR #46 (NEO-I1/I2 γ-witness invariants, merge 406710f)"
+  }
+}
