@@ -13,6 +13,7 @@
   <i>NFI Integrating Mirror Layer &mdash; gamma-scaling diagnostics across biological, physical, and cognitive systems.</i>
 </p>
 
+<!-- evidence_id: gamma-universal-v1 -->
 <p align="center">
   <a href="#the-number"><img src="https://img.shields.io/badge/%CE%B3%20%E2%89%88%201.0-universal-gold?style=for-the-badge" alt="gamma"></a>
 </p>
@@ -417,7 +418,7 @@ neosynaptex/
 +-- substrates/                       8 substrate adapters (zebrafish → CFP/ДІЙ)
 +-- evl/                              evidence verification ledger
 +-- experiments/                      reproducible outputs + figures
-|   +-- scaffolding_trap/             dskill/dt law, delegation suppression
+|   +-- scaffolding_trap/             dskill/dt scaling, delegation suppression
 |   +-- lm_substrate/                 GPT-4o-mini γ derivation (null result)
 +-- tests/                            1666 tests, 119 files
 +-- scripts/                          13 operational scripts
