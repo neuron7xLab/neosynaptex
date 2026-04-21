@@ -14,11 +14,11 @@
 </p>
 
 <p align="center">
-  <a href="#the-number"><img src="https://img.shields.io/badge/%CE%B3%20%E2%89%88%201.0-universal-gold?style=for-the-badge" alt="gamma"></a>
+  <a href="#the-number"><img src="https://img.shields.io/badge/%CE%B3%20%E2%89%88%201.0-C--001%20proved-gold?style=for-the-badge" alt="gamma C-001 proved"></a>
 </p>
 
 <p align="center">
-  <a href="#eight-substrates"><img src="https://img.shields.io/badge/substrates-8-blueviolet?style=for-the-badge" alt="8 substrates"></a>
+  <a href="#six-substrates"><img src="https://img.shields.io/badge/1%20proved%20%2F%205%20empirical-blueviolet?style=for-the-badge" alt="1 proved · 5 empirical · conjecture"></a>
   <a href="#tests"><img src="https://img.shields.io/badge/tests-1666-brightgreen?style=for-the-badge" alt="tests"></a>
   <a href="#the-signal"><img src="https://img.shields.io/badge/p--value-0.005-red?style=for-the-badge" alt="p-value"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge" alt="license"></a>
@@ -27,7 +27,7 @@
 <br>
 
 <p align="center">
-<code>One file. One import. Eight substrates. One law.</code>
+<code>One file. One import. Six substrates. One claim boundary.</code>
 </p>
 
 ---
@@ -65,7 +65,7 @@
 
 When a system computes at the edge of chaos, its thermodynamic cost scales inversely with topological complexity at **unit rate**.
 
-gamma = 1.0 is not a tuned parameter. It is a **measured invariant** across:
+gamma = 1.0 is not a tuned parameter. It is a **convergent empirical value** across:
 
 - Biological tissue
 - Chemical fields  
@@ -83,7 +83,9 @@ gamma = 0.991 +/- 0.052
 
 <br>
 
-## Eight Substrates
+## Six substrates
+
+<sub>Five validated + one historical-exploratory (CNS-AI loop, downgraded).</sub>
 
 <table>
 <tr>
@@ -351,7 +353,7 @@ print(f"verdict = {nx.export_proof()['verdict']}")  # COHERENT
 |---|-----------|---------|--------|
 | 1 | **Gamma scaling** | K ~ C^(-gamma) via Theil-Sen | per-domain gamma + 95% bootstrap CI |
 | 2 | **Gamma dynamics** | dg/dt = slope of gamma trace | convergence rate toward gamma = 1.0 |
-| 3 | **Universal scaling** | Permutation test, H0: all gamma equal | p-value |
+| 3 | **Cross-substrate scaling test** | Permutation test, H0: all gamma equal | p-value |
 | 4 | **Spectral radius** | rho = max\|eig(J + I)\| | stability per domain |
 | 5 | **Granger causality** | F-test: gamma_i(t-1) --> gamma_j(t) | directed influence graph |
 | 6 | **Anomaly isolation** | Leave-one-out coherence test | outlier score per domain |
@@ -521,7 +523,7 @@ they form one circuit. Not a metaphor. A measured fact.
     *         .    .    .         *
 ```
 
-<b>Built by one researcher. Under fire. Three years. Six substrates. One law.</b><br>
+<b>Built by one researcher. Under fire. Three years. Six substrates. One claim boundary.</b><br>
 <sub>Yaroslav O. Vasylenko -- <a href="https://github.com/neuron7xLab">neuron7xLab</a> -- Poltava region, Ukraine</sub><br>
 <sub>AGPL-3.0-or-later</sub>
 

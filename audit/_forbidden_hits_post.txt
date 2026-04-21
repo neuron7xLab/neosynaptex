@@ -1,0 +1,17 @@
+CANONICAL_POSITION.md:::3:> γ ≈ 1.0 is a **candidate cross-substrate regime marker** of metastable critical regimes in coupled, productive dynamical systems. The protocol treats it as a **falsifiable hypothesis under active test** — not a confirmed correlate, not a universal law, not a definition of intelligence. Current evidence is **substrate-dependent**: `evidence/replications/registry.yaml` records both supportive and falsifying verdicts.
+agents/manuscript/section5_why_gamma_one.md:::121:The seven experiments converge on a picture that is less dramatic than "universal law" but more honest and still significant:
+docs/ADVERSARIAL_CONTROLS.md:::55:universal law. Every γ-related claim in this repository MUST pass the
+docs/ADVERSARIAL_CONTROLS.md:::300:   mechanistic finding on one substrate to a universal law, without
+docs/CLAIM_BOUNDARY.md:::119:- "Substrate-independent law of metastable computation."
+docs/CLAIM_BOUNDARY.md:::123:- "proves universality."
+docs/CLAIM_BOUNDARY.md:::124:- "universal law."
+docs/CLAIM_BOUNDARY.md:::125:- "universal exponent."
+docs/CLAIM_BOUNDARY.md:::127:- "global theorem."
+docs/CLAIM_BOUNDARY.md:::128:- "γ=1 everywhere."
+docs/CLAIM_BOUNDARY_CNS_AI.md:::28:- any language that treats `γ=1.059 / n=8271` as evidence for metastability, criticality, cognition, a universal law, or a cross-substrate invariant.
+docs/SEMANTIC_DRIFT_GATE.md:::35:   - **Tier** 0–8 (descriptive → universal law) from lexical markers.
+docs/SYSTEM_PROTOCOL.md:::343:- "establishes universal law"
+substrates/bn_syn/.github/QUALITY_LEDGER.md:::700:Property-based testing exhaustively validates universal invariants across parameter spaces. Catches edge cases that unit tests miss.
+substrates/bn_syn/docs/QUALITY_INDEX.md:::96:- Tests universal invariants (determinism, finiteness, boundedness)
+substrates/bn_syn/docs/QUALITY_INFRASTRUCTURE.md:::13:3. **Property Testing** - Hypothesis-based testing for universal invariants
+substrates/bn_syn/docs/TESTING_MUTATION.md:::221:5. **Write property tests** for universal invariants (no `max_examples` overrides)
