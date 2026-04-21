@@ -1,0 +1,35 @@
+name: canon_closure_check
+
+# Enforces the canon closure invariant stack (Claims C-001..C-004 of
+# docs/CLAIM_BOUNDARY.md). Runs the 10-check master validator plus
+# the forbidden-phrase sub-validator. Any failure blocks the PR.
+#
+# Reference: docs/CLAIM_BOUNDARY.md · Canon Closure Protocol v1.0
+# (operator directive, 2026-04-21).
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  canon-closure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run forbidden-phrase validator
+        run: python scripts/validate_claims.py
+
+      - name: Run canon-closure master check
+        run: python scripts/canon_closure_check.py

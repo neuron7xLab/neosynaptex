@@ -1,6 +1,6 @@
 {
-  "title": "NeoSynaptex: γ ≈ 1.0 as Universal Scaling Signature of Intelligence",
-  "description": "Reference implementation and evidence bundle for the NFI hypothesis: intelligence is a regime property characterized by gamma-scaling exponent near 1.0, observed independently across 8+ substrates spanning biology, chemistry, computation, and markets.",
+  "title": "γ-scaling at the edge of metastability: analytical anchor for Kuramoto and empirical cross-substrate program",
+  "description": "Reference implementation and evidence bundle for the γ-program: a cost-complexity scaling law K(C) ~ C^(-gamma) with K = critical coupling, C = lambda_1(A). Analytical proof (Lemma 1) for the Kuramoto model on dense symmetric graphs with numerical verification gamma-hat = 0.9923 (95% CI [0.9811, 1.0032]). Cross-substrate empirical measurements across six substrates (zebrafish, HRV, EEG, Gray-Scott, Kuramoto simulation, BN-Syn) at the Empirical layer (Claim C-003). The cross-substrate γ-invariance conjecture is Conjectural (Claim C-004). See docs/CLAIM_BOUNDARY.md for the canonical claim boundary.",
   "upload_type": "software",
   "creators": [
     {
