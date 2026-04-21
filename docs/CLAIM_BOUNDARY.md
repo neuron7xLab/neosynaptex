@@ -1,5 +1,13 @@
 # γ-Claim Boundary — v2.0 (canon closure)
 
+> **Contribution framing.** The three pillars this boundary defends
+> are stated in `docs/CONTRIBUTION_STATEMENT.md`: (i) operational
+> cost–complexity reframing, (ii) Kuramoto dense-graph analytical
+> anchor, (iii) empirical cross-substrate program. Every claim row
+> below maps to one of the three pillars; C-001..C-002 serve pillar
+> (ii), C-003..C-004 serve pillar (iii), and the overall layering
+> schema serves pillar (i).
+>
 > **Authority.** NeoSynaptex γ-program, `CNS-AI Validation Protocol v1` §Step 1
 > and §Step 8, jointly. **Canon closure protocol v1.0 (2026-04-21)** layered on
 > top via §CLAIM ROWS (prepended).

@@ -30,6 +30,11 @@
 <code>One file. One import. Six substrates. One claim boundary.</code>
 </p>
 
+<p align="center">
+<sub>Contribution: (i) operational cost–complexity reframing · (ii) Kuramoto dense-graph analytical anchor (Lemma 1, γ̂ = 0.9923) · (iii) empirical cross-substrate program.<br>
+Full statement: <a href="docs/CONTRIBUTION_STATEMENT.md"><code>docs/CONTRIBUTION_STATEMENT.md</code></a> · Claim boundary: <a href="docs/CLAIM_BOUNDARY.md"><code>docs/CLAIM_BOUNDARY.md</code></a>.</sub>
+</p>
+
 ---
 
 <br>
