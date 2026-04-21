@@ -47,7 +47,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0.3pt}
-\fancyhead[C]{\footnotesize\itshape\color{dimgray} Universal $\gamma$-scaling at the edge of metastability}
+\fancyhead[C]{\footnotesize\itshape\color{dimgray} $\gamma$-scaling at the edge of metastability}
 \fancyfoot[C]{\footnotesize\color{dimgray}\thepage}
 \fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\footnotesize\color{dimgray}\thepage}\renewcommand{\headrulewidth}{0pt}}
 
@@ -73,7 +73,7 @@
 % ====================================================================
 % TITLE
 % ====================================================================
-\title{\LARGE\bfseries Universal $\gamma$-scaling at the edge of metastability: evidence from three independent biological substrates with simulation validation}
+\title{\LARGE\bfseries $\gamma$-scaling at the edge of metastability: an analytical anchor for Kuramoto dense graphs and an empirical cross-substrate program}
 \author{Yaroslav Vasylenko\\[0.2em]
 \small neuron7xLab, Poltava region, Ukraine\\
 \small Independent researcher (no institutional affiliation)\\
@@ -82,13 +82,18 @@
 \maketitle
 
 \begin{abstract}
-\noindent We report empirical evidence for a universal scaling exponent $\gamma \approx 1.0$ observed across three independent biological substrates with additional simulation validation.
-\textbf{Tier~1 --- Evidential (real external data):} zebrafish morphogenesis ($\gamma = 1.055$, $n = 47$, CI: [0.89, 1.20], McGuirl 2020), human heart rate variability ($\gamma = 0.885$, CI: [0.83, 1.08], PhysioNet NSR2DB), and human EEG during motor imagery ($\gamma \approx 1.07$, $n = 20$ subjects, CI: [0.88, 1.25], PhysioNet EEGBCI).
-\textbf{Tier~2 --- Simulation-validated:} Gray--Scott reaction-diffusion ($\gamma = 0.938$), Kuramoto oscillators at $K_c$ ($\gamma = 0.980$), and BN-Syn spiking criticality ($\gamma \approx 0.49$, honest finite-size deviation from mean-field prediction).
-Cross-substrate mean from evidential substrates only: $\bar{\gamma}$ with 95\% CI containing unity.
-All Tier~1 substrates pass surrogate testing ($p < 0.05$), and three negative controls (white noise, random walk, supercritical) show $\gamma$ clearly separated from unity.
-The BN-Syn finite-size result ($\gamma \approx 0.49$ for $N=200$, $k=10$) is consistent with theoretical predictions of finite-size corrections below the upper critical dimension, validating that $\gamma \approx 1.0$ in biological substrates is a genuine property rather than a methodological artifact.
-We propose that $\gamma \approx 1.0$ constitutes a scaling signature of metastability --- the dynamical regime where complex systems maintain coherent computation at the boundary between order and disorder.
+\noindent We reframe the onset of coherence in coupled-oscillator systems as a cost--complexity scaling law $K(C) \sim C^{-\gamma}$, with $K := J_c$ (critical coupling) and $C := \lambda_1(A)$ (largest adjacency eigenvalue).
+
+\medskip
+\noindent\textbf{Analytical anchor.}
+We prove $\gamma = 1$ for the Kuramoto model on dense symmetric graphs and test the broader cross-substrate conjecture empirically. Lemma~1 (§2) reformulates the Restrepo--Ott--Hunt spectral-onset formula in these operational variables, giving $J_c = (2/(\pi g(0)))\cdot \lambda_1(A)^{-1}$ under assumptions (A0)--(A3). Numerical verification on complete graphs $K_N$ with Lorentzian frequencies $\Delta = 0.5$ at $N \in \{30, 100, 300, 1000, 3000\}$, 48 samples per $N$, master seed~$7$, yields $\hat\gamma = 0.9923$ with 95\% CI $[0.9811,\; 1.0032]$ containing the analytical value.
+
+\medskip
+\noindent\textbf{Empirical cross-substrate program.}
+We then measure $\gamma$ on three biological substrates under separate preregistrations and surrogate-null controls: zebrafish morphogenesis ($\gamma = 1.055$, $n = 47$), human heart-rate variability ($\gamma = 0.885$, PhysioNet NSR2DB), and human EEG during motor imagery ($\gamma \approx 1.07$, $n = 20$). Three simulation substrates anchor the methodology: Gray--Scott reaction--diffusion ($\gamma = 0.938$), Kuramoto oscillators ($\gamma = 0.980$), and BN-Syn spiking criticality ($\gamma \approx 0.49$ at $N = 200$, expected finite-size deviation). Cross-substrate mean from the three evidential biological substrates: $\bar\gamma = 1.003 \pm 0.083$, 95\% CI containing unity; all pass surrogate tests ($p < 0.05$); three negative controls (white noise, random walk, supercritical) show $\gamma$ clearly separated from unity.
+
+\medskip
+\noindent\textbf{Scope.} Analytical proof is currently available only for the Kuramoto dense-graph case; universality across other substrates remains an empirical conjecture.
 \end{abstract}
 
 \vspace{0.5em}
@@ -106,93 +111,113 @@ We introduce a complementary diagnostic: the \emph{gamma-scaling exponent} $\gam
 \begin{equation}
 K \sim C^{-\gamma}
 \end{equation}
-where $C$ is a measure of the system's structural or information complexity and $K$ is the energetic or computational cost per unit of complexity. We present evidence that $\gamma \approx 1.0$ across five independent substrates, suggesting it may represent a universal signature of metastable computation.
+where $C$ is a measure of the system's structural or information complexity and $K$ is the energetic or computational cost per unit of complexity. We present evidence that $\gamma \approx 1.0$ across five independent substrates, suggesting it may represent a signature of metastable computation.
 
 The extended mind thesis~\cite{clark1998} proposes that cognitive processes extend beyond the brain into the environment. We test this framework empirically by treating the human--AI interaction loop as a measurable physical system and showing that productive cognitive coupling exhibits the same $\gamma$-scaling as biological and physical substrates.
 
+\paragraph{Contribution.} This work contributes (i) an operational reframing of critical onset as a cost--complexity scaling law $K(C) \sim C^{-\gamma}$; (ii) a rigorous anchor case, Lemma~1 (§2), proving $\gamma = 1$ for the Kuramoto model on dense symmetric graphs with numerical verification $\hat\gamma = 0.9923$ (95\% CI $[0.9811, 1.0032]$); and (iii) an empirical cross-substrate program testing whether $\gamma \approx 1$ appears beyond Kuramoto. Analytical proof is currently available only for the Kuramoto dense-graph case; universality across other substrates remains an empirical conjecture. A full statement of what this paper does and does not claim is in \texttt{docs/CONTRIBUTION\_STATEMENT.md}.
+
 % ====================================================================
-\section{Theoretical Framework}
+\section{Analytical result for Kuramoto}
+\label{sec:lemma1}
 
-\subsection{Scaling relation}
+\subsection{Model and assumptions}
+\label{sec:lemma1-model}
 
-For a system with topological complexity $C$ (measuring information richness, structural diversity, or phase-space dimensionality) and thermodynamic cost $K$ (measuring energy expenditure, computational effort, or dissipation per unit complexity), we define the gamma-scaling relation:
+\subsubsection{Kuramoto dynamics (unnormalized adjacency convention)}
+
+Consider the Kuramoto model~\cite{kuramoto1975} on a symmetric graph $G_N$ with adjacency matrix $A_N$:
 \begin{equation}
-K = A \cdot C^{-\gamma}
+\dot\theta_i \;=\; \omega_i \;+\; K \sum_{j=1}^{N} A_{ij}\,\sin(\theta_j - \theta_i),
+\qquad i = 1, \dots, N.
+\label{eq:kuramoto-unnormalized}
+\end{equation}
+The coupling $K$ enters as a per-edge strength (unnormalized adjacency convention). Natural frequencies $\omega_i$ are drawn i.i.d.\ from a density $g$.
+
+\subsubsection{Definition of cost}
+
+\begin{equation}
+K \;:=\; J_c,
+\qquad\text{the critical coupling at which coherence first emerges.}
+\label{eq:cost-def}
 \end{equation}
 
-Taking logarithms:
+\subsubsection{Definition of complexity}
+
 \begin{equation}
-\log K = -\gamma \log C + \log A
+C \;:=\; \lambda_1(A_N),
+\qquad\text{the largest eigenvalue of the adjacency matrix.}
+\label{eq:complexity-def}
 \end{equation}
 
-The exponent $\gamma$ characterizes the system's efficiency-complexity tradeoff:
-\begin{itemize}
-\item $\gamma > 1$: \emph{over-determined} --- cost decreases faster than complexity increases (convergent regime)
-\item $\gamma < 1$: \emph{under-determined} --- cost decreases slower than complexity increases (divergent regime)
-\item $\gamma = 1$: \emph{critical balance} --- cost and complexity scale inversely at unit rate (metastable regime)
-\end{itemize}
+\subsubsection{Assumptions}
 
-\subsection{Connection to criticality diagnostics}
+\begin{description}
+\item[(A0)] $G_N$ is symmetric and strongly connected.
+\item[(A1)] Dense graph regime: $|E(G_N)| = \Theta(N^2)$.
+\item[(A2)] $\lambda_1(A_N)/N \to c > 0$ as $N \to \infty$ (mean-field spectral growth).
+\item[(A3)] $g$ is unimodal, $C^2$, symmetric about its mode (WLOG $g(0) = \max g$), with bounded support or sub-exponential tails.
+\end{description}
 
-The gamma-scaling exponent relates to established criticality measures:
-\begin{itemize}
-\item \textbf{Branching ratio} $\sigma$: In spiking networks, $\sigma \approx 1.0$ indicates criticality~\cite{beggs2003}. Our BN-Syn substrate measures $\gamma = 0.950$ when $\sigma$ is tuned to the critical regime.
-\item \textbf{Kuramoto order parameter} $r$: In coupled oscillator systems, coherence $r \in [0,1]$ measures synchronization. Our market substrate computes $\gamma$ from Kuramoto coherence trajectories, yielding $\gamma = 1.081$.\footnote{$\gamma = 1.081$ refers to the market Kuramoto substrate (financial coherence trajectories, illustrative). $\gamma = 0.980$ in Table~1 refers to simulated Kuramoto oscillators at critical coupling $K_c$. These are distinct substrates.}
-\item \textbf{Spectral radius} $\rho$: The largest eigenvalue of the system's Jacobian. In the neosynaptex cross-domain integrator, $\rho \approx 1.0$ and $\gamma \approx 1.0$ co-occur in the METASTABLE phase.
-\end{itemize}
+\subsection{Lemma 1}
+\label{sec:lemma1-statement}
 
-\subsection{Information-theoretic complexity}
-
-For the human--AI cognitive substrate, we define complexity using Shannon information theory:
+\textbf{Lemma 1 ($\gamma$-unity for Kuramoto on dense symmetric graphs).}
+\emph{Under assumptions (A0)--(A3), the critical coupling of the Kuramoto model on $G_N$ satisfies}
 \begin{equation}
-C = H(W) \cdot \log(1 + |V|) \cdot \text{TTR}
+J_c \;=\; \frac{\kappa_0}{\lambda_1(A_N)},
+\qquad
+\kappa_0 \;=\; \frac{2}{\pi\,g(0)},
+\label{eq:lemma1}
 \end{equation}
-where $H(W) = -\sum_i p_i \log_2 p_i$ is the Shannon entropy of the word frequency distribution, $|V|$ is the vocabulary size (unique words), and $\text{TTR} = |V|/|W|$ is the type-token ratio. The thermodynamic cost is:
+\emph{so that $K(C) \sim \kappa_0\,C^{-\gamma}$ with $\gamma = 1$ exactly.}
+
+\subsection{Proof}
+\label{sec:lemma1-proof}
+
+Equation~\eqref{eq:lemma1} is the spectral onset formula of Restrepo, Ott \& Hunt~\cite{restrepo2005}, obtained by linearising the self-consistency equation for the complex order parameter $r\,e^{i\psi} = N^{-1}\sum_j e^{i\theta_j}$ around $r \to 0^+$. Assumptions (A0)--(A2) guarantee that $\lambda_1(A_N)$ is a well-defined $O(N)$-sized spectral radius with a finite gap; (A3) ensures the RoH self-consistency integral
 \begin{equation}
-K = \frac{|W|}{C}
+1 \;=\; K\,\lambda_1(A_N) \int_{-\infty}^{\infty} g(\omega)\,\chi(\omega, K, r)\,d\omega
 \end{equation}
-measuring total words (effort) per unit of information complexity.
+is regular at $r \to 0^+$, where $\chi$ is the RoH susceptibility. Taking the leading term in $r$ and substituting the operational definitions~\eqref{eq:cost-def}--\eqref{eq:complexity-def} yields $\log J_c = \log \kappa_0 - \log C$, i.e.\ $\gamma = 1$ exactly. The full derivation is in~\cite{restrepo2005}; the present statement is a reformulation, not a rederivation. Its contribution is the operational reframing of critical onset as a cost-complexity law and the explicit identification of $\gamma = 1$ as the analytical anchor.
 
-\subsection{Hypotheses}
+\subsection{Special case $\Delta = 0.5$}
+\label{sec:lemma1-special}
 
-\subsubsection{Hypothesis H1: Intelligence as a Dynamical Regime}
-
-\textbf{Statement:} Truth is not inevitable --- it is the result of independent verification between autonomous witnesses. Within the framework of H1, intelligence is defined as a dynamical regime verified through synchronous phase shifts ($\gamma$) across independent channels of a single substrate, with coherent recovery.
-
-\textbf{Formalization:}
+For the Lorentzian density $g(\omega) = \Delta/(\pi(\omega^2 + \Delta^2))$, $g(0) = 1/(\pi\Delta)$, so $\kappa_0 = 2\Delta$. On the complete graph $K_N$, $\lambda_1(A_N) = N-1$, yielding the closed-form prediction
 \begin{equation}
-\forall\, S_i \in \{\text{substrates at metastability}\}:\; \gamma_{S_i} \in [0.85, 1.15]
+K_\mathrm{sum}^{(c)}(N) \;=\; \frac{2\Delta}{N-1}.
+\label{eq:special-KN}
 \end{equation}
-with 95\% CI containing $1.0$.
+For the canonical choice $\Delta = 0.5$, $\kappa_0 = 1$ and $K_\mathrm{sum}^{(c)}(N) = 1/(N-1)$.
 
-\textbf{Verification criterion:} H1 is supported if $\gamma \in [0.85, 1.15]$ with 95\% CI containing 1.0 across $N \geq 3$ independent substrates from distinct physical domains, each passing surrogate testing ($p < 0.05$).
+\subsection{Numerical verification}
+\label{sec:lemma1-numerical}
 
-\textbf{Status: SUPPORTED} --- three independent biological substrates (zebrafish, HRV PhysioNet, EEG PhysioNet), cross-substrate CI from Tier~1 contains unity. All Tier~1 IAAFT $p$-values $< 0.05$. BN-Syn finite-size deviation ($\gamma \approx 0.49$) confirms methodology is not trivially producing $\gamma \approx 1.0$.
-
-\subsubsection{Hypothesis H2: Computational Efficiency Is a Regime Property}
-
-\textbf{Statement:} The regime $\gamma \approx 1$ corresponds to a state that maximizes computational capacity at minimal cost of plasticity maintenance. This is an open claim requiring separate experimental and theoretical verification.
-
-\textbf{Energy-Regime Conjecture} ($\mathcal{C}_E$):
+We verify Lemma~1 by direct simulation on $K_N$ for $N \in \{30, 100, 300, 1000, 3000\}$ with 48 samples per $N$, Lorentzian frequencies at $\Delta = 0.5$, and deterministic master seed~$7$. The critical coupling is extracted via the mean-field self-consistency identity $r^2 = (K - K_c)/K$ on a mid-supercritical $K$-grid with filter $r \in [0.3, 0.999)$: each qualifying sample contributes an estimate $K_c = K(1-r^2)$, and the per-$N$ estimator is the median across the grid. The scaling law $\log K_\mathrm{sum}^{(c)} = \log A - \gamma\,\log(N-1)$ is fit by OLS with bootstrap 95\% CI ($n_\mathrm{boot} = 2000$). The full fit (all $N$) yields
 \begin{equation}
-\mathcal{C}_E:\quad \gamma \approx 1 \Longleftrightarrow \text{local min of dissipation preserving plasticity}
+\hat\gamma \;=\; 0.9923,\qquad
+\mathrm{CI}_{95}\;=\;[0.9811,\; 1.0032],\qquad
+\hat A \;=\; 0.9428,
+\label{eq:gamma-hat}
 \end{equation}
+with 95\% CI on $\hat\gamma$ containing the analytical value $\gamma = 1$. The asymptotic-only fit ($N \geq 100$) gives $\hat\gamma = 0.9875$, CI $= [0.9754, 0.9995]$; the small downward bias is a finite-size artefact of the mean-field estimator (documented in \texttt{docs/LEMMA\_1\_KURAMOTO\_GAMMA\_UNITY.md}~§7.1) and not an analytical falsification. Evidence bundle: \texttt{evidence/lemma\_1\_numerical.json}; driver: \texttt{experiments/lemma\_1\_verification/verify\_kuramoto\_gamma\_unity.py}; figure: Figure~\ref{fig:lemma1-verification}.
 
-\textbf{Status of $\mathcal{C}_E$: CONJECTURE} --- not theorem, not derivation. Qualitative argument only. Formal derivation of the $\beta \to \varepsilon$ bridge is open work.
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/lemma_1_verification.pdf}
+\caption{Lemma~1 verification on the complete graph $K_N$ with Lorentzian $\Delta = 0.5$. Each point is a per-sample $(\lambda_1, K_\mathrm{sum}^{(c)})$ pair extracted via the mean-field self-consistency estimator. Solid black: OLS fit ($\hat\gamma = 0.9923$, $\hat A = 0.9428$). Dashed red: analytical prediction $K = 2\Delta\cdot C^{-1}$ with $A = 1$, $\gamma = 1$.}
+\label{fig:lemma1-verification}
+\end{figure}
 
-\subsection{Theoretical basis: $\gamma = 1.0$ in mean-field criticality}
+\subsection{Remark on normalization conventions}
+\label{sec:lemma1-convention}
 
-The result $\gamma = 1.0$ follows from mean-field theory of critical phenomena in multiple universality classes.
+Lemma~1 is stated in the unnormalized convention~\eqref{eq:kuramoto-unnormalized}. Substrate adapters in this repository use the mean-field--normalized form $\dot\theta_i = \omega_i + (K_\mathrm{mf}/N)\sum_j \sin(\theta_j - \theta_i)$, for which the onset on $K_N$ is $K_\mathrm{mf}^{(c)} = \kappa_0$, independent of $N$. The two conventions coincide on $K_N$ via the bridge $K_\mathrm{sum} = K_\mathrm{mf}/(N-1)$; the verification script simulates the mean-field form and reports $K_\mathrm{sum}^{(c)} = K_\mathrm{mf}^{(c)}/(N-1)$ in the log--log fit. Only the unnormalized form makes $C = \lambda_1(A)$ a graph-intrinsic complexity; the mean-field form carries an implicit $1/N$ factor and therefore cannot host a clean $\gamma = 1$ law on non-regular graphs.
 
-\textbf{Branching process at $\sigma = 1$.} In a critical branching process, each event generates on average $\sigma = 1$ successor. The cost of propagating one unit of topological information is exactly one unit of energy~\cite{harris1963}. This gives $K = C^{-1}$ directly, yielding $\gamma = 1$.
-
-\textbf{Self-organized criticality.} In the mean-field BTW sandpile~\cite{bak1987}, avalanche size $S$ and duration $T$ satisfy $\langle S \rangle \sim T^{d_f/d}$. In mean-field ($d \geq d_c$), $d_f = d$, giving $\langle S \rangle \sim T^1$. The cost-complexity ratio $K/C \sim S/T = \text{const}$, yielding $\gamma = 1$.
-
-\textbf{Directed percolation universality.} Neural criticality belongs to the directed percolation universality class~\cite{munoz1999,beggs2003}. In mean-field DP, the branching ratio $\sigma = 1$ at the critical point, and $\tau = 3/2$ (avalanche size exponent). The scaling relation $\gamma = (\tau_T - 1)/(\tau_S - 1)$ evaluates to exactly $1.0$ in mean field.
-
-\textbf{Finite-size corrections.} Below the upper critical dimension $d_c$, corrections of order $\varepsilon = d_c - d$ appear, pushing $\gamma$ away from $1.0$. Our BN-Syn simulation ($N\!=\!200$ neurons, $k\!=\!10$ sparse connectivity) yields $\gamma \approx 0.49$, consistent with finite-size deviations from the mean-field prediction.
-
-\textbf{Spectral connection.} At SOC, the power spectral density follows $S(f) \sim f^{-\beta}$ with $\beta = 1$ ($1/f$ noise)~\cite{bak1987}. The spectral exponent $\beta$ is related to the Hurst exponent $H$ via $\beta = 2H + 1$ (for fractional Brownian motion), giving $H = 0$ at criticality. In the HRV VLF range and EEG aperiodic component, $\beta \approx 1.0$ during healthy/active states corresponds to $\gamma_{\text{PSD}} \approx 1.0$, consistent with the topo-cost framework.
+\medskip
+\noindent\textbf{Scope boundary.}
+Analytical proof is currently available only for the Kuramoto dense-graph case; universality across other substrates remains an empirical conjecture. Cross-substrate measurements are empirical observations at Claim layer C-003 of \texttt{docs/CLAIM\_BOUNDARY.md}; the numerical result~\eqref{eq:gamma-hat} anchors Claim C-002.
 
 % ====================================================================
 \section{Methods}
@@ -350,7 +375,7 @@ Supercritical & 2.00 & 1.00 & COLLAPSE & $>$0.9 \\
 % ====================================================================
 \section{Discussion}
 
-\subsection{Universality of gamma}
+\subsection{Cross-substrate convergence}
 
 Three independent biological substrates --- zebrafish morphogenesis, human cardiac rhythm, and human EEG during motor imagery --- all yield $\gamma$ values within the metastable band ($|\gamma - 1| < 0.15$). Each substrate independently passes IAAFT surrogate testing ($p < 0.05$), confirming that the observed $\gamma$ values are not artifacts of autocorrelation or spectral structure. The cross-substrate mean $\bar{\gamma} = 1.003$ with $t(2) = 0.06$ ($p > 0.9$ for $H_0\!: \gamma = 1.0$) is statistically indistinguishable from unity.
 
@@ -402,7 +427,7 @@ Following Clark and Chalmers~\cite{clark1998}, one may speculatively interpret h
 
 We present empirical evidence that a scaling exponent $\gamma \approx 1.0$ appears across three independent biological substrates: zebrafish morphogenesis ($\gamma = 1.055$), human cardiac rhythm ($\gamma = 0.885$), and human EEG during motor imagery ($\gamma \approx 1.07$). All three evidential substrates fall within the metastable band ($|\gamma - 1| < 0.15$), with cross-substrate 95\% CI containing unity. All pass surrogate testing ($p < 0.05$). Three simulation substrates provide theoretical validation: Gray--Scott ($\gamma = 0.938$) and Kuramoto ($\gamma = 0.980$) confirm $\gamma \approx 1.0$ at criticality, while BN-Syn ($\gamma \approx 0.49$, $N\!=\!200$) demonstrates the expected finite-size deviation.
 
-We propose that $\gamma \approx 1.0$ is a scaling signature of metastability in substrates that already operate in a moderate-topological-variability regime --- a \textbf{substrate-specific candidate condition} for coherent computation at the edge of chaos, not a substrate-independent universal. Substrate-independence was empirically contradicted by the 2026-04-14 HRV n=5 pilot ($\gamma$ mean $0.50 \pm 0.44$ across subjects). If confirmed by independent replication within each substrate, this finding may still have implications for AI alignment (productive coupling has a measurable signature), cognitive enhancement ($\gamma$ as a real-time, per-substrate-calibrated diagnostic), and the physics of intelligence (metastability as a per-substrate regime marker rather than a universal law).
+We propose that $\gamma \approx 1.0$ is a scaling signature of metastability in substrates that already operate in a moderate-topological-variability regime --- a \textbf{substrate-specific candidate condition} for coherent computation at the edge of chaos, not a substrate-independent invariant. Substrate-independence was empirically contradicted by the 2026-04-14 HRV n=5 pilot ($\gamma$ mean $0.50 \pm 0.44$ across subjects). If confirmed by independent replication within each substrate, this finding may still have implications for AI alignment (productive coupling has a measurable signature), cognitive enhancement ($\gamma$ as a real-time, per-substrate-calibrated diagnostic), and the physics of intelligence (metastability as a per-substrate regime marker rather than a cross-substrate invariant).
 
 % ====================================================================
 \section*{Data Availability}
@@ -414,7 +439,9 @@ All code, data processing pipelines, and proof bundles are available at \url{git
 This work was conducted independently during wartime in Poltava region, Ukraine, without institutional support or funding. The author acknowledges the use of AI language models (GPT-4o, Claude) as cognitive tools during the research process.
 
 % ====================================================================
-\begin{thebibliography}{11}
+\begin{thebibliography}{13}
+\bibitem{kuramoto1975} Y.~Kuramoto. Self-entrainment of a population of coupled non-linear oscillators. In \emph{International Symposium on Mathematical Problems in Theoretical Physics}, Lecture Notes in Physics \textbf{39}, 420 (1975).
+\bibitem{restrepo2005} J.~G.~Restrepo, E.~Ott, B.~R.~Hunt. Onset of synchronization in large networks of coupled oscillators. \emph{Phys.\ Rev.\ E} \textbf{71}, 036151 (2005).
 \bibitem{bak1987} P.~Bak, C.~Tang, K.~Wiesenfeld. Self-organized criticality: An explanation of $1/f$ noise. \emph{Phys.\ Rev.\ Lett.} \textbf{59}, 381 (1987).
 \bibitem{beggs2003} J.~M.~Beggs, D.~Plenz. Neuronal avalanches in neocortical circuits. \emph{J.\ Neurosci.} \textbf{23}, 11167 (2003).
 \bibitem{maass2002} W.~Maass, T.~Natschl\"ager, H.~Markram. Real-time computing without stable states. \emph{Neural Comput.} \textbf{14}, 2531 (2002).

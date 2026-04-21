@@ -1,3 +1,16 @@
+---
+archived_at: 2026-04-21
+status: superseded
+superseded_by: manuscript/arxiv_submission.tex (canon-closure v1.0)
+archived_from: XFORM_MANUSCRIPT_DRAFT.md (repo root)
+archival_reason: |
+  Operator directive 2026-04-21 (gate 0B resolution, B1): canonical
+  manuscript = manuscript/arxiv_submission.tex (LaTeX, arXiv submission
+  form). Markdown drafts superseded; this file was a root-level pointer
+  to the manuscript markdown version, which is itself archived under
+  docs/archive/XFORM_MANUSCRIPT_DRAFT_manuscript_2026-04-21.md.
+---
+
 # XFORM Manuscript Draft — Root Pointer
 
 > **Canonical location:** [`manuscript/XFORM_MANUSCRIPT_DRAFT.md`](manuscript/XFORM_MANUSCRIPT_DRAFT.md)

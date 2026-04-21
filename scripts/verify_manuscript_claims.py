@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LEDGER_PATH = ROOT / "evidence" / "gamma_ledger.json"
-MANUSCRIPT_PATH = ROOT / "docs" / "science" / "manuscript" / "main.md"
+MANUSCRIPT_PATH = ROOT / "manuscript" / "arxiv_submission.tex"
 
 
 def main() -> int:
