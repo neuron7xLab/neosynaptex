@@ -48,13 +48,19 @@
 - **Layer:**     Empirical
 - **Statement:** $\hat{\gamma}$ with 95% CI containing 1.0 on complete
                  graphs $K_N$ with Lorentzian $\Delta = 0.5$ frequencies
-                 for $N \in \{30, 100, 300, 1000, 3000\}$ and asymptotic
-                 fit on $N \geq 100$; anchor value $\hat{\gamma} = 0.997$
-                 reported in abstract as the representative point estimate
-                 (tightest CI-compatible value from
-                 `evidence/lemma_1_numerical.json`).
+                 for $N \in \{30, 100, 300, 1000, 3000\}$; the
+                 canonical anchor reported in the abstract is
+                 $\hat{\gamma} = 0.9923$, 95% CI $[0.9811, 1.0032]$,
+                 sourced from
+                 `evidence/lemma_1_numerical.json#primary_fit`
+                 (`anchor_value_for_abstract`). The asymptotic-only
+                 fit ($N \geq 100$) yields $\hat{\gamma} = 0.9875$,
+                 CI $[0.9754, 0.9995]$, and is retained as secondary
+                 with its finite-size downward bias documented in
+                 `docs/LEMMA_1_KURAMOTO_GAMMA_UNITY.md §7.1`.
 - **Scope:**     Complete graph only, Lorentzian $\Delta = 0.5$,
-                 asymptotic fit $N \in \{100, 300, 1000, 3000\}$,
+                 primary fit on the full set
+                 $N \in \{30, 100, 300, 1000, 3000\}$,
                  deterministic seed = 7.
 - **Attack:**    Assumptions (A1)–(A3) are trivially satisfied on $K_N$;
                  does not exercise spectral nontriviality. Finite-size

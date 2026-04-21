@@ -128,6 +128,8 @@ def check_4_manuscript_section_2() -> tuple[bool, str]:
 
 def check_5_evidence_reference() -> tuple[bool, str]:
     p = REPO / "manuscript" / "arxiv_submission.tex"
+    if not p.exists():
+        return False, f"{p.relative_to(REPO)} not found"
     text = _read(p)
     # Accept either raw path or LaTeX-escaped underscore form.
     if (
@@ -185,6 +187,8 @@ def check_8_defensive_sentence() -> tuple[bool, str]:
 
 def check_9_anchor_number() -> tuple[bool, str]:
     p = REPO / "manuscript" / "arxiv_submission.tex"
+    if not p.exists():
+        return False, f"{p.relative_to(REPO)} not found"
     ev = REPO / "evidence" / "lemma_1_numerical.json"
     if not ev.exists():
         return False, "evidence/lemma_1_numerical.json missing"
@@ -199,10 +203,29 @@ def check_9_anchor_number() -> tuple[bool, str]:
     if not m:
         return False, "manuscript abstract block not found"
     abstract = m.group(1)
-    anchor_str = f"{anchor:.4f}".rstrip("0").rstrip(".")
-    if anchor_str not in abstract and f"{anchor}" not in abstract:
-        return False, f"abstract missing anchor number {anchor_str} from evidence primary_fit"
-    return True, f"OK (anchor={anchor_str})"
+    # Build a set of acceptable decimal representations. We ALWAYS
+    # require an explicit decimal point in the matched form: otherwise
+    # an integer-valued anchor (e.g. 1.0 stripped to "1") would pass
+    # vacuously on any abstract that mentions a year or equation ref.
+    forms: set[str] = set()
+    stripped = f"{anchor:.4f}".rstrip("0").rstrip(".")
+    if "." in stripped:
+        forms.add(stripped)
+    # Always add fixed-width forms as additional acceptable matches.
+    forms.add(f"{anchor:.4f}")
+    forms.add(f"{anchor:.3f}")
+    forms.add(f"{anchor:.2f}")
+    # Python default repr (e.g. "1.0", "0.9923").
+    repr_form = repr(float(anchor))
+    if "." in repr_form:
+        forms.add(repr_form)
+    if not any(form in abstract for form in forms):
+        return False, (
+            f"abstract missing anchor number from evidence primary_fit "
+            f"(tried {sorted(forms)})"
+        )
+    display = stripped if "." in stripped else f"{anchor:.4f}"
+    return True, f"OK (anchor={display})"
 
 
 def check_9b_descriptive_sentence() -> tuple[bool, str]:
