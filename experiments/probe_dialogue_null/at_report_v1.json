@@ -1,0 +1,112 @@
+[
+  {
+    "session_id": "28fde1cc-9c4d-4a0d-bf65-87f0320395ed",
+    "n_turns": 24,
+    "final_gamma": null,
+    "final_phase": "METASTABLE",
+    "anti_tautology": {
+      "gamma_original": null,
+      "shuffled_delta": null,
+      "surrogate_p": null,
+      "piecewise_delta": null,
+      "max_loto_sensitivity": null,
+      "tautology_flag": false,
+      "instability_flag": false,
+      "outlier_flag": false,
+      "surrogate_flag": false,
+      "passed": false,
+      "notes": [
+        "AT-1: NaN gamma encountered; shuffled delta undefined.",
+        "AT-2: could not estimate surrogate distribution (all NaN).",
+        "AT-4: LOTO produced only NaN gammas; sensitivity undefined.",
+        "gamma_original is NaN \u2014 battery result invalid."
+      ]
+    }
+  },
+  {
+    "session_id": "466f89b5-2f77-4b6f-b217-a00f7a52d65c",
+    "n_turns": 24,
+    "final_gamma": null,
+    "final_phase": "METASTABLE",
+    "anti_tautology": {
+      "gamma_original": null,
+      "shuffled_delta": null,
+      "surrogate_p": null,
+      "piecewise_delta": null,
+      "max_loto_sensitivity": null,
+      "tautology_flag": false,
+      "instability_flag": false,
+      "outlier_flag": false,
+      "surrogate_flag": false,
+      "passed": false,
+      "notes": [
+        "AT-1: NaN gamma encountered; shuffled delta undefined.",
+        "AT-2: could not estimate surrogate distribution (all NaN).",
+        "AT-4: LOTO produced only NaN gammas; sensitivity undefined.",
+        "gamma_original is NaN \u2014 battery result invalid."
+      ]
+    }
+  },
+  {
+    "session_id": "77629f4f-1d3d-4383-8c1d-f2db3d8c03eb",
+    "n_turns": 24,
+    "final_gamma": -1.2553305609504688,
+    "final_phase": "DRIFTING",
+    "anti_tautology": {
+      "gamma_original": -1.2553305609504688,
+      "shuffled_delta": 0.0690548783600533,
+      "surrogate_p": 0.3603432607868545,
+      "piecewise_delta": 0.15001404805312446,
+      "max_loto_sensitivity": 0.08157098808297136,
+      "tautology_flag": true,
+      "instability_flag": false,
+      "outlier_flag": false,
+      "surrogate_flag": true,
+      "passed": false,
+      "notes": []
+    }
+  },
+  {
+    "session_id": "9d66f9d3-86f8-44d1-9e0b-518c6008aec5",
+    "n_turns": 24,
+    "final_gamma": -1.6120083075581793,
+    "final_phase": "DRIFTING",
+    "anti_tautology": {
+      "gamma_original": -1.6120083075581793,
+      "shuffled_delta": 0.45239157398400054,
+      "surrogate_p": 0.8071471580898818,
+      "piecewise_delta": 0.1184825408538479,
+      "max_loto_sensitivity": 0.10271644857509377,
+      "tautology_flag": false,
+      "instability_flag": false,
+      "outlier_flag": false,
+      "surrogate_flag": true,
+      "passed": false,
+      "notes": []
+    }
+  },
+  {
+    "session_id": "b8d6eef2-7d8d-4414-88bf-8d620788307f",
+    "n_turns": 24,
+    "final_gamma": null,
+    "final_phase": "METASTABLE",
+    "anti_tautology": {
+      "gamma_original": null,
+      "shuffled_delta": null,
+      "surrogate_p": null,
+      "piecewise_delta": 0.45133828527816244,
+      "max_loto_sensitivity": null,
+      "tautology_flag": false,
+      "instability_flag": true,
+      "outlier_flag": false,
+      "surrogate_flag": false,
+      "passed": false,
+      "notes": [
+        "AT-1: NaN gamma encountered; shuffled delta undefined.",
+        "AT-2: could not estimate surrogate distribution (all NaN).",
+        "AT-4: LOTO produced only NaN gammas; sensitivity undefined.",
+        "gamma_original is NaN \u2014 battery result invalid."
+      ]
+    }
+  }
+]
