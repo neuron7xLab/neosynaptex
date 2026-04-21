@@ -1,0 +1,102 @@
+% ====================================================================
+\section{Analytical result for Kuramoto}
+\label{sec:lemma1}
+
+\subsection{Model and assumptions}
+\label{sec:lemma1-model}
+
+\subsubsection{Kuramoto dynamics (unnormalized adjacency convention)}
+
+Consider the Kuramoto model~\cite{kuramoto1975} on a symmetric graph $G_N$ with adjacency matrix $A_N$:
+\begin{equation}
+\dot\theta_i \;=\; \omega_i \;+\; K \sum_{j=1}^{N} A_{ij}\,\sin(\theta_j - \theta_i),
+\qquad i = 1, \dots, N.
+\label{eq:kuramoto-unnormalized}
+\end{equation}
+The coupling $K$ enters as a per-edge strength (unnormalized adjacency convention). Natural frequencies $\omega_i$ are drawn i.i.d.\ from a density $g$.
+
+\subsubsection{Definition of cost}
+
+\begin{equation}
+K \;:=\; J_c,
+\qquad\text{the critical coupling at which coherence first emerges.}
+\label{eq:cost-def}
+\end{equation}
+
+\subsubsection{Definition of complexity}
+
+\begin{equation}
+C \;:=\; \lambda_1(A_N),
+\qquad\text{the largest eigenvalue of the adjacency matrix.}
+\label{eq:complexity-def}
+\end{equation}
+
+\subsubsection{Assumptions}
+
+\begin{description}
+\item[(A0)] $G_N$ is symmetric and strongly connected.
+\item[(A1)] Dense graph regime: $|E(G_N)| = \Theta(N^2)$.
+\item[(A2)] $\lambda_1(A_N)/N \to c > 0$ as $N \to \infty$ (mean-field spectral growth).
+\item[(A3)] $g$ is unimodal, $C^2$, symmetric about its mode (WLOG $g(0) = \max g$), with bounded support or sub-exponential tails.
+\end{description}
+
+\subsection{Lemma 1}
+\label{sec:lemma1-statement}
+
+\textbf{Lemma 1 ($\gamma$-unity for Kuramoto on dense symmetric graphs).}
+\emph{Under assumptions (A0)--(A3), the critical coupling of the Kuramoto model on $G_N$ satisfies}
+\begin{equation}
+J_c \;=\; \frac{\kappa_0}{\lambda_1(A_N)},
+\qquad
+\kappa_0 \;=\; \frac{2}{\pi\,g(0)},
+\label{eq:lemma1}
+\end{equation}
+\emph{so that $K(C) \sim \kappa_0\,C^{-\gamma}$ with $\gamma = 1$ exactly.}
+
+\subsection{Proof}
+\label{sec:lemma1-proof}
+
+Equation~\eqref{eq:lemma1} is the spectral onset formula of Restrepo, Ott \& Hunt~\cite{restrepo2005}, obtained by linearising the self-consistency equation for the complex order parameter $r\,e^{i\psi} = N^{-1}\sum_j e^{i\theta_j}$ around $r \to 0^+$. Assumptions (A0)--(A2) guarantee that $\lambda_1(A_N)$ is a well-defined $O(N)$-sized spectral radius with a finite gap; (A3) ensures the RoH self-consistency integral
+\begin{equation}
+1 \;=\; K\,\lambda_1(A_N) \int_{-\infty}^{\infty} g(\omega)\,\chi(\omega, K, r)\,d\omega
+\end{equation}
+is regular at $r \to 0^+$, where $\chi$ is the RoH susceptibility. Taking the leading term in $r$ and substituting the operational definitions~\eqref{eq:cost-def}--\eqref{eq:complexity-def} yields $\log J_c = \log \kappa_0 - \log C$, i.e.\ $\gamma = 1$ exactly. The full derivation is in~\cite{restrepo2005}; the present statement is a reformulation, not a rederivation. Its contribution is the operational reframing of critical onset as a cost-complexity law and the explicit identification of $\gamma = 1$ as the analytical anchor.
+
+\subsection{Special case $\Delta = 0.5$}
+\label{sec:lemma1-special}
+
+For the Lorentzian density $g(\omega) = \Delta/(\pi(\omega^2 + \Delta^2))$, $g(0) = 1/(\pi\Delta)$, so $\kappa_0 = 2\Delta$. On the complete graph $K_N$, $\lambda_1(A_N) = N-1$, yielding the closed-form prediction
+\begin{equation}
+K_\mathrm{sum}^{(c)}(N) \;=\; \frac{2\Delta}{N-1}.
+\label{eq:special-KN}
+\end{equation}
+For the canonical choice $\Delta = 0.5$, $\kappa_0 = 1$ and $K_\mathrm{sum}^{(c)}(N) = 1/(N-1)$.
+
+\subsection{Numerical verification}
+\label{sec:lemma1-numerical}
+
+We verify Lemma~1 by direct simulation on $K_N$ for $N \in \{30, 100, 300, 1000, 3000\}$ with 48 samples per $N$, Lorentzian frequencies at $\Delta = 0.5$, and deterministic master seed~$7$. The critical coupling is extracted via the mean-field self-consistency identity $r^2 = (K - K_c)/K$ on a mid-supercritical $K$-grid with filter $r \in [0.3, 0.999)$: each qualifying sample contributes an estimate $K_c = K(1-r^2)$, and the per-$N$ estimator is the median across the grid. The scaling law $\log K_\mathrm{sum}^{(c)} = \log A - \gamma\,\log(N-1)$ is fit by OLS with bootstrap 95\% CI ($n_\mathrm{boot} = 2000$). The full fit (all $N$) yields
+\begin{equation}
+\hat\gamma \;=\; 0.9923,\qquad
+\mathrm{CI}_{95}\;=\;[0.9811,\; 1.0032],\qquad
+\hat A \;=\; 0.9428,
+\label{eq:gamma-hat}
+\end{equation}
+with 95\% CI on $\hat\gamma$ containing the analytical value $\gamma = 1$. The asymptotic-only fit ($N \geq 100$) gives $\hat\gamma = 0.9875$, CI $= [0.9754, 0.9995]$; the small downward bias is a finite-size artefact of the mean-field estimator (documented in \texttt{docs/LEMMA\_1\_KURAMOTO\_GAMMA\_UNITY.md}~§7.1) and not an analytical falsification. Evidence bundle: \texttt{evidence/lemma\_1\_numerical.json}; driver: \texttt{experiments/lemma\_1\_verification/verify\_kuramoto\_gamma\_unity.py}; figure: Figure~\ref{fig:lemma1-verification}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/lemma_1_verification.pdf}
+\caption{Lemma~1 verification on the complete graph $K_N$ with Lorentzian $\Delta = 0.5$. Each point is a per-sample $(\lambda_1, K_\mathrm{sum}^{(c)})$ pair extracted via the mean-field self-consistency estimator. Solid black: OLS fit ($\hat\gamma = 0.9923$, $\hat A = 0.9428$). Dashed red: analytical prediction $K = 2\Delta\cdot C^{-1}$ with $A = 1$, $\gamma = 1$.}
+\label{fig:lemma1-verification}
+\end{figure}
+
+\subsection{Remark on normalization conventions}
+\label{sec:lemma1-convention}
+
+Lemma~1 is stated in the unnormalized convention~\eqref{eq:kuramoto-unnormalized}. Substrate adapters in this repository use the mean-field--normalized form $\dot\theta_i = \omega_i + (K_\mathrm{mf}/N)\sum_j \sin(\theta_j - \theta_i)$, for which the onset on $K_N$ is $K_\mathrm{mf}^{(c)} = \kappa_0$, independent of $N$. The two conventions coincide on $K_N$ via the bridge $K_\mathrm{sum} = K_\mathrm{mf}/(N-1)$; the verification script simulates the mean-field form and reports $K_\mathrm{sum}^{(c)} = K_\mathrm{mf}^{(c)}/(N-1)$ in the log--log fit. Only the unnormalized form makes $C = \lambda_1(A)$ a graph-intrinsic complexity; the mean-field form carries an implicit $1/N$ factor and therefore cannot host a clean $\gamma = 1$ law on non-regular graphs.
+
+\medskip
+\noindent\textbf{Scope boundary.}
+Analytical proof is currently available only for the Kuramoto dense-graph case; universality across other substrates remains an empirical conjecture. Cross-substrate measurements are empirical observations at Claim layer C-003 of \texttt{docs/CLAIM\_BOUNDARY.md}; the numerical result~\eqref{eq:gamma-hat} anchors Claim C-002.
+

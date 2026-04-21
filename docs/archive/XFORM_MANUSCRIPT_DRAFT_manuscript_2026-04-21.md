@@ -1,3 +1,13 @@
+---
+archived_at: 2026-04-21
+status: superseded
+superseded_by: manuscript/arxiv_submission.tex (canon-closure v1.0)
+archived_from: manuscript/XFORM_MANUSCRIPT_DRAFT.md
+archival_reason: |
+  Operator directive 2026-04-21 (gate 0B resolution, B1): canonical
+  manuscript = arxiv_submission.tex; markdown drafts superseded.
+---
+
 # Universal gamma-scaling at the edge of metastability: evidence from three independent biological substrates with simulation validation
 
 **Yaroslav Vasylenko**
