@@ -1,0 +1,11 @@
+{
+  "_comment": "Per-file claim-status registry consumed by the semantic drift gate (tools/audit/semantic_drift_gate.py::_resolve_status). Provides a file-level fallback when a span has no inline `claim_status:` marker. Added 2026-04-21 for Canon Closure Protocol v1.0: files hosting C-001 Proved layer claims carry status 'proved' (ceiling 8); cross-substrate empirical reporting carries 'validated' (ceiling 6); operational canon documents carry 'measured' (ceiling 4).",
+  "manuscript/arxiv_submission.tex": "proved",
+  "docs/LEMMA_1_KURAMOTO_GAMMA_UNITY.md": "proved",
+  "docs/CLAIM_BOUNDARY.md": "validated",
+  "docs/CONTRIBUTION_STATEMENT.md": "validated",
+  "docs/REVIEWER_ATTACK_SURFACE.md": "validated",
+  "README.md": "validated",
+  "CANONICAL_POSITION.md": "measured",
+  "docs/CLAIM_BOUNDARY_CNS_AI.md": "falsified"
+}

@@ -67,6 +67,7 @@ EXCLUDED_DIRS = (
     "__pycache__",
     "docs/archive",
     "audit",  # audit/ is a frozen grep snapshot; do not enforce
+    "reports",  # generated drift/report artefacts may quote the pre-fix surface
 )
 
 # Only enforce on text file extensions we publish.

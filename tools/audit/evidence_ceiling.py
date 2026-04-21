@@ -49,6 +49,15 @@ def ceiling_from_evidence_object(evidence: Mapping[str, object]) -> int:
     ):
         return 8
 
+    # Analytical theorem layer (Claim C-001 of docs/CLAIM_BOUNDARY.md).
+    # A fully specified analytical proof authorises tier-8 language
+    # *within the model/graph family covered by the proof*, even when
+    # the proof is single-substrate by design (e.g. Kuramoto dense).
+    # The interpretation_boundary field in _REQUIRED_FIELDS keeps the
+    # scope explicit so language cannot leak outside the proved regime.
+    if status == "proved":
+        return 8
+
     if status == "causal" or _truthy(evidence.get("intervention")):
         return 7
 

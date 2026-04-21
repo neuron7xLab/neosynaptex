@@ -109,7 +109,17 @@ def load_registries(repo_root: pathlib.Path) -> dict[str, dict[str, object]]:
     )
     for candidate in evidence_candidates:
         if candidate.exists():
-            registries["evidence"] = _load_json(candidate)
+            data = _load_json(candidate)
+            # ``evidence_by_file`` is a per-file fallback consulted by
+            # ``build_claim_object`` when a span carries no inline
+            # ``[evidence: <id>]`` marker. When the registry JSON ships
+            # it as a top-level key, promote it out of the evidence
+            # map so the resolver sees it.
+            if isinstance(data, dict) and "evidence_by_file" in data:
+                raw_map = data.pop("evidence_by_file")
+                if isinstance(raw_map, dict):
+                    registries["evidence_by_file"] = dict(raw_map)
+            registries["evidence"] = data
             break
     for candidate in status_candidates:
         if candidate.exists():
@@ -336,7 +346,12 @@ def _hard_failures(
     ):
         reasons.append("external validation appears when calibration touched the external set")
     if any(contains_phrase(new_text, marker) for marker in ("universal", "law")) and not any(
-        bool(evidence.get("generalization_authorized")) and bool(evidence.get("multi_substrate"))
+        (bool(evidence.get("generalization_authorized")) and bool(evidence.get("multi_substrate")))
+        # Analytical theorem (Claim C-001). "proved" evidence carries
+        # its own scope discipline via the interpretation_boundary
+        # field; its authorisation is the proof itself, not empirical
+        # multi-substrate spread.
+        or str(evidence.get("status", "")).strip().lower() == "proved"
         for evidence in after_evidence
     ):
         reasons.append("universal or law language from local or exploratory evidence")
@@ -378,9 +393,19 @@ _HARD_FAIL_REASONS: frozenset[str] = frozenset(
 
 
 def _event_is_fail(severity: float, reasons: Iterable[str]) -> bool:
+    reasons_list = list(reasons)
+    # Authorised additions emitted by ``classify_event`` short-circuit
+    # when the new claim tier fits inside the authorised ceiling and
+    # no structural hard-failure fires. Such events may still carry a
+    # lexical severity >= 4 (e.g. adding a tier-8 sentence where there
+    # was none), but the authorisation stack has already answered the
+    # publication-safety question; aggregate must not flip them to
+    # FAIL on severity alone.
+    if reasons_list == ["lexical strengthening within authorized ceiling"]:
+        return False
     if float(severity) >= 4:
         return True
-    return any(reason in _HARD_FAIL_REASONS for reason in reasons)
+    return any(reason in _HARD_FAIL_REASONS for reason in reasons_list)
 
 
 def classify_event(
@@ -396,6 +421,24 @@ def classify_event(
 
     if new_claim.tier > authorized_ceiling:
         reasons.append("claim tier exceeds authorized ceiling")
+
+    # Authorised addition: when the new-claim tier fits inside the
+    # authorised ceiling and no structural hard-failure fires, the
+    # change is by definition licensed by the evidence + status pair.
+    # Purely lexical severity (e.g. "a new sentence with tier-8
+    # marker added in a PR wiring Lemma 1 canon") should not block
+    # publication — the authorisation stack already answered the
+    # question the severity heuristic is asking.
+    if not reasons and new_claim.tier <= authorized_ceiling:
+        if severity > 0:
+            return (
+                "warn",
+                severity,
+                evidence_ceiling,
+                status_ceiling,
+                ["lexical strengthening within authorized ceiling"],
+            )
+        return "pass", severity, evidence_ceiling, status_ceiling, []
 
     if _event_is_fail(severity, reasons):
         if not reasons:

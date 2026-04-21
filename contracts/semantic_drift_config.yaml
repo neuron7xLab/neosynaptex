@@ -36,6 +36,12 @@ status_ceilings:
   measured_but_bounded: 5
   bounded_positive: 5
   validated: 6
+  # Analytical theorem layer (Claim C-001 of docs/CLAIM_BOUNDARY.md).
+  # Reserved for claims backed by a fully specified analytical proof,
+  # not merely measurement + surrogate survival. Strictly scoped:
+  # the ceiling only authorises strong language about the model/graph
+  # family covered by the proof (e.g. Kuramoto dense-graph).
+  proved: 8
   honest_negative: 0
   honest_null: 2
   blocked: 0

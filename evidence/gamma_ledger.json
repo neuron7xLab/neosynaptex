@@ -284,6 +284,7 @@
     "block_bootstrap": "circular_mbb",
     "surrogate": "iaaft_multivariate",
     "alpha": 0.05,
-    "frozen_at": "2026-04-02"
+    "frozen_at": "2026-04-02",
+    "semantic_drift_registry": "evidence/semantic_drift_registry.json"
   }
 }

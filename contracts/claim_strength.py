@@ -127,6 +127,10 @@ STATUS_CEILINGS: Final[dict[str, int]] = {
     "measured_but_bounded": 5,
     "bounded_positive": 5,
     "validated": 6,
+    # Analytical theorem layer (Claim C-001 of docs/CLAIM_BOUNDARY.md).
+    # Reserved for claims with a fully specified analytical proof;
+    # strictly scoped to the model/graph family covered by the proof.
+    "proved": 8,
     "enforced": 4,
     "honest_negative": 0,
     "honest_null": 2,
