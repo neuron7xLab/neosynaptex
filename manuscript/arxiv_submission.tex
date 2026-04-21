@@ -82,13 +82,18 @@
 \maketitle
 
 \begin{abstract}
-\noindent We report empirical evidence for a scaling exponent $\gamma \approx 1.0$ observed across three independent biological substrates with additional simulation validation.
-\textbf{Tier~1 --- Evidential (real external data):} zebrafish morphogenesis ($\gamma = 1.055$, $n = 47$, CI: [0.89, 1.20], McGuirl 2020), human heart rate variability ($\gamma = 0.885$, CI: [0.83, 1.08], PhysioNet NSR2DB), and human EEG during motor imagery ($\gamma \approx 1.07$, $n = 20$ subjects, CI: [0.88, 1.25], PhysioNet EEGBCI).
-\textbf{Tier~2 --- Simulation-validated:} Gray--Scott reaction-diffusion ($\gamma = 0.938$), Kuramoto oscillators at $K_c$ ($\gamma = 0.980$), and BN-Syn spiking criticality ($\gamma \approx 0.49$, honest finite-size deviation from mean-field prediction).
-Cross-substrate mean from evidential substrates only: $\bar{\gamma}$ with 95\% CI containing unity.
-All Tier~1 substrates pass surrogate testing ($p < 0.05$), and three negative controls (white noise, random walk, supercritical) show $\gamma$ clearly separated from unity.
-The BN-Syn finite-size result ($\gamma \approx 0.49$ for $N=200$, $k=10$) is consistent with theoretical predictions of finite-size corrections below the upper critical dimension, validating that $\gamma \approx 1.0$ in biological substrates is a genuine property rather than a methodological artifact.
-We propose that $\gamma \approx 1.0$ constitutes a scaling signature of metastability --- the dynamical regime where complex systems maintain coherent computation at the boundary between order and disorder.
+\noindent We reframe the onset of coherence in coupled-oscillator systems as a cost--complexity scaling law $K(C) \sim C^{-\gamma}$, with $K := J_c$ (critical coupling) and $C := \lambda_1(A)$ (largest adjacency eigenvalue).
+
+\medskip
+\noindent\textbf{Analytical anchor.}
+We prove $\gamma = 1$ for the Kuramoto model on dense symmetric graphs and test the broader cross-substrate conjecture empirically. Lemma~1 (§2) reformulates the Restrepo--Ott--Hunt spectral-onset formula in these operational variables, giving $J_c = (2/(\pi g(0)))\cdot \lambda_1(A)^{-1}$ under assumptions (A0)--(A3). Numerical verification on complete graphs $K_N$ with Lorentzian frequencies $\Delta = 0.5$ at $N \in \{30, 100, 300, 1000, 3000\}$, 48 samples per $N$, master seed~$7$, yields $\hat\gamma = 0.9923$ with 95\% CI $[0.9811,\; 1.0032]$ containing the analytical value.
+
+\medskip
+\noindent\textbf{Empirical cross-substrate program.}
+We then measure $\gamma$ on three biological substrates under separate preregistrations and surrogate-null controls: zebrafish morphogenesis ($\gamma = 1.055$, $n = 47$), human heart-rate variability ($\gamma = 0.885$, PhysioNet NSR2DB), and human EEG during motor imagery ($\gamma \approx 1.07$, $n = 20$). Three simulation substrates anchor the methodology: Gray--Scott reaction--diffusion ($\gamma = 0.938$), Kuramoto oscillators ($\gamma = 0.980$), and BN-Syn spiking criticality ($\gamma \approx 0.49$ at $N = 200$, expected finite-size deviation). Cross-substrate mean from the three evidential biological substrates: $\bar\gamma = 1.003 \pm 0.083$, 95\% CI containing unity; all pass surrogate tests ($p < 0.05$); three negative controls (white noise, random walk, supercritical) show $\gamma$ clearly separated from unity.
+
+\medskip
+\noindent\textbf{Scope.} Analytical proof is currently available only for the Kuramoto dense-graph case; universality across other substrates remains an empirical conjecture.
 \end{abstract}
 
 \vspace{0.5em}
