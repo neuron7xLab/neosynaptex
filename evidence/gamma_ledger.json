@@ -270,7 +270,7 @@
       },
       "adapter_code_hash": null,
       "derivation_method": "Mean-field self-consistency: K_c = median_K( K * (1 - r^2) ) over mid-supercritical K grid [1.1..2.0] filtered by r in [0.3, 0.999). OLS fit log K_sum = log A - gamma * log(N-1) on full set N in {30,100,300,1000,3000}. Bootstrap CI n=2000.",
-      "method_tier": "T0_analytical",
+      "method_tier": "T1",
       "verdict": "CONSISTENT_WITH_GAMMA_EQUALS_ONE",
       "evidence_file": "evidence/lemma_1_numerical.json",
       "primary_fit_key": "primary_fit",

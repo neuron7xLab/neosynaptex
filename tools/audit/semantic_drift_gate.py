@@ -633,11 +633,55 @@ def _git_show(repo_root: pathlib.Path, ref: str, path: str) -> str:
         return ""
 
 
+_NON_TEXT_EXTS = frozenset(
+    {
+        ".pdf",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".webp",
+        ".svg",
+        ".ico",
+        ".tif",
+        ".tiff",
+        ".bmp",
+        ".zip",
+        ".gz",
+        ".tar",
+        ".tgz",
+        ".bz2",
+        ".xz",
+        ".7z",
+        ".whl",
+        ".mat",
+        ".npy",
+        ".npz",
+        ".pkl",
+        ".bin",
+        ".so",
+        ".dylib",
+        ".dll",
+        ".woff",
+        ".woff2",
+        ".ttf",
+        ".eot",
+    }
+)
+
+
 def _working_tree_text(repo_root: pathlib.Path, path: str) -> str:
     file_path = repo_root / path
     if not file_path.exists():
         return ""
-    return file_path.read_text(encoding="utf-8")
+    # Binary artefacts (figures, archives, bundled data) have no textual
+    # drift signal; skip them instead of tripping UnicodeDecodeError.
+    if file_path.suffix.lower() in _NON_TEXT_EXTS:
+        return ""
+    try:
+        return file_path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return ""
 
 
 def _build_diff_from_git(
