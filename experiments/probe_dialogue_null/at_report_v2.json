@@ -6,7 +6,7 @@
     "final_phase": "METASTABLE",
     "anti_tautology": {
       "gamma_original": -0.12511709154178258,
-      "shuffled_delta": NaN,
+      "shuffled_delta": null,
       "surrogate_p": 3.405364040667376e-05,
       "piecewise_delta": 1.1141217786519255,
       "max_loto_sensitivity": 1.1878380380933857,
@@ -86,7 +86,7 @@
       "gamma_original": -0.2306873662464351,
       "shuffled_delta": 1.7843260204941522,
       "surrogate_p": 5.064960813428693e-05,
-      "piecewise_delta": NaN,
+      "piecewise_delta": null,
       "max_loto_sensitivity": 0.6972918918711621,
       "tautology_flag": false,
       "instability_flag": false,
