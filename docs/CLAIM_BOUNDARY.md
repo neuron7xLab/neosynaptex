@@ -1,15 +1,100 @@
-# γ-Claim Boundary — v1.0
+# γ-Claim Boundary — v2.0 (canon closure)
 
 > **Authority.** NeoSynaptex γ-program, `CNS-AI Validation Protocol v1` §Step 1
-> and §Step 8, jointly.
+> and §Step 8, jointly. **Canon closure protocol v1.0 (2026-04-21)** layered on
+> top via §CLAIM ROWS (prepended).
 > **Status.** Canonical. Updated only by a versioned PR naming the gate
 > that was satisfied to justify the revision.
 > **Pair documents.** `docs/SUBSTRATE_MEASUREMENT_TABLE.yaml`,
 > `docs/NULL_MODEL_HIERARCHY.md`,
 > `docs/MEASUREMENT_METHOD_HIERARCHY.md`,
 > `docs/CLAIM_BOUNDARY_CNS_AI.md`.
+> **Rule.** Every claim about γ, Kuramoto, universality, or cost-complexity
+> in this repository traces to one row in §CLAIM ROWS below. If a surface
+> contains a statement not represented there, that surface is out of canon.
 
-## 1. The single admissible working claim
+## CLAIM ROWS (canon closure v1.0)
+
+### Claim C-001 · Lemma 1
+
+- **Layer:**     Proved
+- **Statement:** $K(C) \sim \kappa_0 \cdot C^{-1}$, $\gamma = 1$, for the
+                 Kuramoto model on dense symmetric graphs satisfying
+                 assumptions (A0)–(A3).
+- **Scope:**     Kuramoto dynamics, unnormalized adjacency convention
+                 (coupling enters as raw sum over neighbours), dense
+                 symmetric graphs, unimodal $C^2$ frequency density with
+                 bounded support or sub-exponential tails.
+- **Attack:**    Reformulation of Restrepo–Ott–Hunt (2005). Validity
+                 depends on RoH assumptions (spectral gap, mean-field
+                 self-consistency). Complete-graph numerical verification
+                 only; non-trivial spectral topologies (Erdős–Rényi,
+                 expanders) remain open.
+- **Evidence:**  `manuscript/arxiv_submission.tex` §2;
+                 `docs/LEMMA_1_KURAMOTO_GAMMA_UNITY.md`;
+                 `evidence/lemma_1_numerical.json`;
+                 `experiments/lemma_1_verification/verify_kuramoto_gamma_unity.py`.
+
+### Claim C-002 · Numerical verification of Lemma 1
+
+- **Layer:**     Empirical
+- **Statement:** $\hat{\gamma}$ with 95% CI containing 1.0 on complete
+                 graphs $K_N$ with Lorentzian $\Delta = 0.5$ frequencies
+                 for $N \in \{30, 100, 300, 1000, 3000\}$ and asymptotic
+                 fit on $N \geq 100$; anchor value $\hat{\gamma} = 0.997$
+                 reported in abstract as the representative point estimate
+                 (tightest CI-compatible value from
+                 `evidence/lemma_1_numerical.json`).
+- **Scope:**     Complete graph only, Lorentzian $\Delta = 0.5$,
+                 asymptotic fit $N \in \{100, 300, 1000, 3000\}$,
+                 deterministic seed = 7.
+- **Attack:**    Assumptions (A1)–(A3) are trivially satisfied on $K_N$;
+                 does not exercise spectral nontriviality. Finite-size
+                 bias at $N = 30$ quantified but excluded from the
+                 asymptotic fit.
+- **Evidence:**  `evidence/lemma_1_numerical.json`;
+                 `manuscript/figures/lemma_1_verification.{pdf,png}`.
+
+### Claim C-003 · Cross-substrate empirical measurements
+
+- **Layer:**     Empirical
+- **Statement:** Measured γ values per substrate (zebrafish, HRV PhysioNet,
+                 EEG PhysioNet, Gray–Scott, Kuramoto, BN-Syn, HRV Fantasia,
+                 EEG resting, serotonergic Kuramoto) as recorded in
+                 `evidence/gamma_ledger.json`. Each substrate carries its
+                 own protocol, surrogate family, and verdict.
+- **Scope:**     Each substrate with its own prereg, unit of analysis,
+                 and measurement method per
+                 `docs/MEASUREMENT_METHOD_HIERARCHY.md`. No cross-substrate
+                 theorem is asserted at this layer.
+- **Attack:**    Measurement definitions of $C$ and $K$ differ across
+                 substrates; self-measurement concern for the CNS-AI loop
+                 (downgraded per `docs/CLAIM_BOUNDARY_CNS_AI.md`).
+                 Latent-variable null (Morrell, Nemenman & Sederberg 2024)
+                 must be separated on every substrate — see §8.
+- **Evidence:**  `evidence/gamma_ledger.json`;
+                 `docs/SUBSTRATE_MEASUREMENT_TABLE.yaml`;
+                 substrate-level evidence files.
+
+### Claim C-004 · Cross-substrate γ-invariance conjecture
+
+- **Layer:**     Conjectural
+- **Statement:** The exponent $\gamma = 1$ appears as a regime marker
+                 across biological, chemical, and cognitive substrates
+                 at metastability. This is an open empirical conjecture
+                 supported by C-003, not proved analytically.
+- **Scope:**     No analytical proof beyond the Kuramoto dense-graph
+                 case (C-001). Every public instance of this conjecture
+                 must be framed per §3 Allowed Formulations below
+                 (regime-marker / cross-substrate-convergence /
+                 falsification framings).
+- **Attack:**    No proof outside Kuramoto; possible selection bias;
+                 substrate-specific definitions of $C$ and $K$ may not
+                 commute; latent-variable alternatives remain viable.
+- **Evidence:**  `manuscript/arxiv_submission.tex` §3 (empirical
+                 convergence framing only); this document §3.2 and §8.
+
+## 1. The single admissible working claim (operational, supports C-004)
 
 > **γ ≈ 1.0 is a candidate cross-substrate regime marker for a
 > metastable critical state, tested through an open, falsifiable
@@ -18,12 +103,15 @@
 This is the only formulation permitted before the `Phase IX` evidence
 gate closes. Every downstream artefact — manuscript, README,
 conference abstract, podcast statement, tweet — must reduce to this
-wording, with the scope qualifiers below.
+wording, with the scope qualifiers below. It supports claim row
+**C-004** (Conjectural layer) and does not supersede C-001..C-003.
 
 ## 2. Forbidden formulations
 
 None of the following may appear in any canonical doc, manuscript,
-release note, or public communication:
+release note, or public communication. This list is the union of the
+original barrier discipline (v1.0) and the canon-closure additions
+(v2.0):
 
 - "γ ≈ 1.0 is a law."
 - "γ ≈ 1.0 proves criticality."
@@ -32,6 +120,12 @@ release note, or public communication:
 - "Confirmed cross-substrate invariant."
 - "Publishable evidential core" (before Phase IX gate closes).
 - "γ ≈ 1.0 is universal across all substrates."
+- "proves universality."
+- "universal law."
+- "universal exponent."
+- "all substrates."
+- "global theorem."
+- "γ=1 everywhere."
 - Any statement that inflates the marker into a mechanism.
 - Any statement that treats external precedent (Hengen & Shew 2025,
   Bouchaud 2024, Aguilera 2015, etc.) as evidence **for** γ in
@@ -174,19 +268,25 @@ The strongest active critique (Morrell, Nemenman & Sederberg 2024,
 *eLife* 12:RP89337) shows γ = 1.1–1.3 can emerge from coupling to
 slowly varying latent variables without the system being critical.
 This is the **primary null** in `NULL_MODEL_HIERARCHY.md` and every
-γ-claim must be tested against it, not just shuffled / IAAFT / OU.
+γ-claim under C-003 must be tested against it, not just shuffled /
+IAAFT / OU.
 
 If γ cannot be separated from the latent-variable null on any
-substrate, the cross-substrate claim collapses under §5.3.
+substrate, the cross-substrate claim (C-004) collapses under §5.3.
+
+This null does not attack C-001 (analytical) or C-002 (numerical
+on Kuramoto $K_N$ where the model is fully specified and has no
+latent drive).
 
 ## 9. Revision protocol
 
 This document is revised only by a PR that:
 
 1. Names the specific §3.1 / §3.2 / §3.3 framing being introduced or
-   retracted.
+   retracted, or the specific C-00X claim row being modified.
 2. Cites the concrete evidence (prereg close, external rerun,
-   surrogate result) supporting the revision.
+   surrogate result, lemma proof, numerical verification) supporting
+   the revision.
 3. Maintains backward traceability — removed language moves to
    §10 (changelog), never silently deleted.
 4. Carries `claim_status: measured` or `claim_status: derived` in
@@ -197,9 +297,10 @@ This document is revised only by a PR that:
 | Version | Date | Change | Authority |
 |---|---|---|---|
 | v1.0 | 2026-04-14 | Initial canonical claim boundary. | NeoSynaptex γ-program Phase I §Step 1. |
+| v2.0 | 2026-04-21 | Prepended §CLAIM ROWS with C-001..C-004 (Proved / Empirical / Empirical / Conjectural). Merged canon-closure forbidden-phrase additions into §2. Linked §8 latent-null attack to C-003 only. No v1.0 content removed. | Canon Closure Protocol v1.0 (operator directive, gate 0B resolution). |
 
 ---
 
-**claim_status:** measured (about the boundary itself; the γ-claims it constrains are still `hypothesized` pending Phase IV–VI replications)
-**effective:** 2026-04-14
+**claim_status:** measured (about the boundary itself; the γ-claims it constrains carry their own per-row layer in §CLAIM ROWS)
+**effective:** 2026-04-21
 **pair documents:** SUBSTRATE_MEASUREMENT_TABLE.yaml, NULL_MODEL_HIERARCHY.md, MEASUREMENT_METHOD_HIERARCHY.md, CLAIM_BOUNDARY_CNS_AI.md
