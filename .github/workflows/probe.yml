@@ -1,0 +1,167 @@
+name: Probe (Dialogue Substrate)
+
+on:
+  push:
+    branches: [main, "release/**", "feat/probe-**"]
+    paths:
+      - "probe/**"
+      - "neosynaptex.py"
+      - "contracts/**"
+      - "core/**"
+      - ".github/workflows/probe.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "probe/**"
+      - "neosynaptex.py"
+      - "contracts/**"
+      - "core/**"
+      - ".github/workflows/probe.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+env:
+  FORCE_COLOR: 1
+  PIP_DISABLE_PIP_VERSION_CHECK: 1
+  PYTHONDONTWRITEBYTECODE: 1
+
+jobs:
+  lint:
+    name: Lint & Format (probe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install ruff --quiet
+      - name: Ruff check
+        working-directory: probe
+        run: ruff check src/ tests/ reproduce.py
+      - name: Ruff format
+        working-directory: probe
+        run: ruff format --check src/ tests/ reproduce.py
+
+  typecheck:
+    name: mypy --strict (probe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install mypy numpy scipy --quiet
+      - name: mypy strict
+        working-directory: probe
+        run: mypy --strict src/probe/
+
+  tests:
+    name: pytest (probe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [lint]
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install deps
+        run: pip install "numpy>=1.26" "scipy>=1.11" "pytest>=8.0" "pytest-timeout>=2.2" --quiet
+      - name: Run probe tests
+        working-directory: probe
+        run: python -m pytest tests/ -v --tb=short
+
+  reproduce:
+    name: reproduce.py (engineering synthetic)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [typecheck, tests]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install "numpy>=1.26" "scipy>=1.11" --quiet
+      - name: Run reproduce.py
+        working-directory: probe
+        env:
+          PYTHONPATH: src:..
+        run: python reproduce.py
+      - name: Upload engineering evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-engineering-evidence
+          path: probe/evidence/engineering/
+          if-no-files-found: error
+
+  hard_rules_audit:
+    name: HARD RULES audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rule 1 — probe never imports gamma engine directly
+        run: |
+          if grep -rnE "from core\.gamma|import core\.gamma|from core import gamma" probe/src probe/tests probe/reproduce.py; then
+            echo "::error::HARD RULE 1 violated — probe must only consume gamma via nx.observe()"
+            exit 1
+          fi
+      - name: Rule 3 — gamma never stored inside probe/
+        run: |
+          if grep -rnE "self\._gamma\s*=|self\.gamma\s*=" probe/src; then
+            echo "::error::HARD RULE 3 violated — gamma must not be stored on probe objects"
+            exit 1
+          fi
+      - name: Rule 5 — null result always documented
+        run: |
+          if ! grep -q "null_confirmed" probe/src/probe/falsification.py; then
+            echo "::error::HARD RULE 5 violated — null_confirmed contract missing"
+            exit 1
+          fi
+      - name: Rule 6 — reproduce.py labelled SYNTHETIC
+        run: |
+          if ! grep -q "SYNTHETIC" probe/reproduce.py; then
+            echo "::error::HARD RULE 6 violated — reproduce.py must print SYNTHETIC label"
+            exit 1
+          fi
+      - name: Rule 7 — evidence dirs separate
+        run: |
+          test -d probe/evidence/engineering
+          test -d probe/evidence/scientific
+      - name: Rule 8 — seed_ledger.json present
+        run: |
+          test -f probe/seed_ledger.json
+      - name: Rule 9 — claim boundary verbatim in README
+        run: |
+          if ! grep -q "CLAIM BOUNDARY" probe/README.md; then
+            echo "::error::HARD RULE 9 violated — claim boundary statement missing from probe/README.md"
+            exit 1
+          fi
+      - name: Rule 12 — no streamlit in core deps
+        run: |
+          if grep -E "^\s*\"streamlit" probe/pyproject.toml | grep -v "demo"; then
+            echo "::error::HARD RULE 12 violated — streamlit must be in [demo] extras only"
+            exit 1
+          fi
