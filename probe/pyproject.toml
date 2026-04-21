@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neosynaptex-probe"
+version = "0.1.0"
+description = "Dialogue substrate probe — human-AI session gamma scaling with anti-tautology + falsification gates"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "AGPL-3.0-or-later" }
+authors = [{ name = "Yaroslav Vasylenko", email = "neuron7x@ukr.net" }]
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+demo = ["streamlit>=1.30"]
+dev = [
+    "pytest>=8.0",
+    "pytest-timeout>=2.2",
+    "mypy>=1.8",
+    "ruff>=0.4",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short --timeout=300"
+filterwarnings = ["ignore::RuntimeWarning"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+# Resolve neosynaptex (single-file module) and contracts (local package)
+# from the parent repository root at ``../``.
+mypy_path = "src:.."
+packages = ["probe"]
+# neosynaptex ships without py.typed and uses runtime Protocols; scipy has
+# partial stubs only. We duck-type via the DomainAdapter Protocol and do
+# not import internal types.
+[[tool.mypy.overrides]]
+module = ["neosynaptex", "neosynaptex.*", "scipy.*", "contracts.provenance"]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+# Scientific code uses short math-style names (p, d, t) and argument casing.
+ignore = ["N803", "N806"]

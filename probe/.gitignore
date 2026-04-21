@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Runtime artifacts — keep the committed baseline, ignore future CI runs.
+evidence/engineering/reproduce_*.json
+!evidence/engineering/reproduce_20260421T170205Z.json
+evidence/scientific/*.json
+evidence/scientific/rejected.jsonl
+
+# Docker
+.docker-build/
