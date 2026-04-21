@@ -1,0 +1,99 @@
+[
+  {
+    "session_id": "28fde1cc-9c4d-4a0d-bf65-87f0320395ed",
+    "n_turns": 24,
+    "final_gamma": -0.12511709154178258,
+    "final_phase": "METASTABLE",
+    "anti_tautology": {
+      "gamma_original": -0.12511709154178258,
+      "shuffled_delta": NaN,
+      "surrogate_p": 3.405364040667376e-05,
+      "piecewise_delta": 1.1141217786519255,
+      "max_loto_sensitivity": 1.1878380380933857,
+      "tautology_flag": false,
+      "instability_flag": true,
+      "outlier_flag": true,
+      "surrogate_flag": false,
+      "passed": false,
+      "notes": [
+        "AT-1: NaN gamma encountered; shuffled delta undefined."
+      ]
+    }
+  },
+  {
+    "session_id": "466f89b5-2f77-4b6f-b217-a00f7a52d65c",
+    "n_turns": 24,
+    "final_gamma": -0.4075938628884509,
+    "final_phase": "DRIFTING",
+    "anti_tautology": {
+      "gamma_original": -0.4075938628884509,
+      "shuffled_delta": 0.6470876008234668,
+      "surrogate_p": 0.6242824570332489,
+      "piecewise_delta": 0.6123952085569447,
+      "max_loto_sensitivity": 0.42326870119738835,
+      "tautology_flag": false,
+      "instability_flag": true,
+      "outlier_flag": true,
+      "surrogate_flag": true,
+      "passed": false,
+      "notes": []
+    }
+  },
+  {
+    "session_id": "77629f4f-1d3d-4383-8c1d-f2db3d8c03eb",
+    "n_turns": 24,
+    "final_gamma": -0.9919965301643789,
+    "final_phase": "DRIFTING",
+    "anti_tautology": {
+      "gamma_original": -0.9919965301643789,
+      "shuffled_delta": 0.01451069285132478,
+      "surrogate_p": 0.8067929018659756,
+      "piecewise_delta": 0.31752738331882857,
+      "max_loto_sensitivity": 0.15514331530037118,
+      "tautology_flag": true,
+      "instability_flag": true,
+      "outlier_flag": false,
+      "surrogate_flag": true,
+      "passed": false,
+      "notes": []
+    }
+  },
+  {
+    "session_id": "9d66f9d3-86f8-44d1-9e0b-518c6008aec5",
+    "n_turns": 24,
+    "final_gamma": -1.0225974574398864,
+    "final_phase": "CONVERGING",
+    "anti_tautology": {
+      "gamma_original": -1.0225974574398864,
+      "shuffled_delta": 0.04489103385498794,
+      "surrogate_p": 0.5466132209866466,
+      "piecewise_delta": 0.12856609106571293,
+      "max_loto_sensitivity": 0.10121748582323131,
+      "tautology_flag": true,
+      "instability_flag": false,
+      "outlier_flag": false,
+      "surrogate_flag": true,
+      "passed": false,
+      "notes": []
+    }
+  },
+  {
+    "session_id": "b8d6eef2-7d8d-4414-88bf-8d620788307f",
+    "n_turns": 24,
+    "final_gamma": -0.2306873662464351,
+    "final_phase": "DRIFTING",
+    "anti_tautology": {
+      "gamma_original": -0.2306873662464351,
+      "shuffled_delta": 1.7843260204941522,
+      "surrogate_p": 5.064960813428693e-05,
+      "piecewise_delta": NaN,
+      "max_loto_sensitivity": 0.6972918918711621,
+      "tautology_flag": false,
+      "instability_flag": false,
+      "outlier_flag": true,
+      "surrogate_flag": false,
+      "passed": false,
+      "notes": []
+    }
+  }
+]
