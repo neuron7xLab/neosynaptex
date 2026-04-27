@@ -90,7 +90,7 @@ jobs:
         run: python3 -c "from core.axioms import SUBSTRATE_GAMMA, gamma_psd, verify_axiom_consistency; print('axioms OK:', len(SUBSTRATE_GAMMA), 'substrates')"
       - name: Demo
         run: make demo
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-${{ matrix.python-version }}
@@ -174,7 +174,7 @@ jobs:
             --cov-report=term-missing \
             --cov-fail-under=50 \
             -q
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-report

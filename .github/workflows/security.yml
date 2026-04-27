@@ -45,7 +45,7 @@ jobs:
       - name: pip-audit dependency scan
         run: pip install -e ".[dev]" --quiet && pip-audit --desc --skip-editable
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: security-reports
@@ -83,7 +83,7 @@ jobs:
         run: gitleaks detect --source . --redact --report-format sarif --report-path gitleaks.sarif
       - name: Upload gitleaks report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gitleaks-report
           path: gitleaks.sarif
