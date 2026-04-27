@@ -1,0 +1,60 @@
+# BN-Syn → NeoSynaptex local-structural-evidence thresholds.
+#
+# These are policy bounds for the *local* structural verdict only.
+# They do NOT decide γ-status, do NOT validate cross-substrate
+# universality, and do NOT close the substrate-evidence claim. The
+# γ-side gate, if any, is supplied by the caller (NeoSynaptex's own
+# null-control / provenance / determinism pipeline).
+#
+# Schema is flat by design — each section is a top-level mapping
+# consumed by ``substrates/bnsyn_structural_adapter.py``.
+
+schema_version: "1.0.0"
+
+kappa:
+  # κ is the branching-ratio surrogate. At criticality κ≈1.0.
+  # tolerance is the half-width around 1.0 within which the point
+  # estimate alone is treated as "near criticality"; if a CI is
+  # provided, κ passes whenever the CI overlaps 1.0, regardless of
+  # the point estimate's distance to 1.0.
+  target: 1.0
+  tolerance: 0.10
+
+avalanche:
+  # Power-law fit must clear this floor. BN-Syn currently emits a
+  # frequentist p-value (``avalanche_fit_report.p_value``); the
+  # importer maps that field directly. The floor is intentionally
+  # conservative — Clauset et al. recommend ``p >= 0.10`` as a
+  # minimum non-rejection threshold for power-law plausibility.
+  fit_quality_floor: 0.10
+  # Minimum number of distinct avalanche events required before the
+  # fit is even considered well-defined.
+  min_avalanche_count: 30
+
+phase_coherence:
+  # Lower bound on coherence for the structural channel to be
+  # treated as "non-trivially coherent". This floor is descriptive
+  # only — failing it does not by itself make the verdict
+  # ARTIFACT_SUSPECTED.
+  min_value: 0.05
+
+surrogate:
+  # If False, ``phase_surrogate_rejected`` must be True for the
+  # verdict to clear the artifact gate. Set to True to allow the
+  # importer to derive surrogate-rejection from the avalanche
+  # power-law-fit verdict (proxy mapping); the proxy is only valid
+  # when ``surrogate.proxy_from_avalanche_fit`` is also True AND the
+  # avalanche fit p-value clears ``avalanche.fit_quality_floor``.
+  proxy_from_avalanche_fit: true
+  # When the proxy is enabled, the avalanche fit's reported
+  # ``validity.verdict`` field must equal this exact string for the
+  # surrogate-rejection flag to be True.
+  required_validity_verdict: "PASS"
+
+provenance:
+  # The importer requires a non-empty ``run_manifest.json`` artifacts
+  # hash dict and a ``robustness_report.replay_check.identical: true``
+  # for the verdict to be eligible for VALIDATED_SUBSTRATE_EVIDENCE
+  # (which still also requires γ_pass from the caller).
+  require_run_manifest: true
+  require_replay_identical: true
