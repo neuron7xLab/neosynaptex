@@ -140,3 +140,70 @@ def test_no_observable_admit_path() -> None:
     forbidden = {"topo", "thermo_cost", "kappa", "phase", "admit", "validate_metrics"}
     public = set(mod.__all__)
     assert forbidden.isdisjoint(public)
+
+
+# 11
+def test_direct_construction_with_wrong_claim_status_is_refused() -> None:
+    """Bypassing ``gate_zero_verdict()`` must not yield a higher claim state."""
+    from contracts.mycelium_pre_admission import (
+        MYCELIUM_GATE_ZERO_NON_CLAIMS,
+        MYCELIUM_GATE_ZERO_REASONS,
+        MyceliumPreAdmissionVerdict,
+    )
+
+    with pytest.raises(ValueError, match="claim_status"):
+        MyceliumPreAdmissionVerdict(
+            claim_status="VALIDATED_SUBSTRATE_EVIDENCE",
+            gate_status="BLOCKED_BY_METHOD_DEFINITION",
+            reasons=MYCELIUM_GATE_ZERO_REASONS,
+            non_claims=MYCELIUM_GATE_ZERO_NON_CLAIMS,
+        )
+
+
+# 12
+def test_direct_construction_with_wrong_gate_status_is_refused() -> None:
+    from contracts.mycelium_pre_admission import (
+        MYCELIUM_GATE_ZERO_NON_CLAIMS,
+        MYCELIUM_GATE_ZERO_REASONS,
+        MyceliumPreAdmissionVerdict,
+    )
+
+    with pytest.raises(ValueError, match="gate_status"):
+        MyceliumPreAdmissionVerdict(
+            claim_status="NO_ADMISSIBLE_CLAIM",
+            gate_status="PASS",
+            reasons=MYCELIUM_GATE_ZERO_REASONS,
+            non_claims=MYCELIUM_GATE_ZERO_NON_CLAIMS,
+        )
+
+
+# 13
+def test_direct_construction_with_wrong_reasons_is_refused() -> None:
+    from contracts.mycelium_pre_admission import (
+        MYCELIUM_GATE_ZERO_NON_CLAIMS,
+        MyceliumPreAdmissionVerdict,
+    )
+
+    with pytest.raises(ValueError, match="reasons"):
+        MyceliumPreAdmissionVerdict(
+            claim_status="NO_ADMISSIBLE_CLAIM",
+            gate_status="BLOCKED_BY_METHOD_DEFINITION",
+            reasons=(),
+            non_claims=MYCELIUM_GATE_ZERO_NON_CLAIMS,
+        )
+
+
+# 14
+def test_direct_construction_with_wrong_non_claims_is_refused() -> None:
+    from contracts.mycelium_pre_admission import (
+        MYCELIUM_GATE_ZERO_REASONS,
+        MyceliumPreAdmissionVerdict,
+    )
+
+    with pytest.raises(ValueError, match="non_claims"):
+        MyceliumPreAdmissionVerdict(
+            claim_status="NO_ADMISSIBLE_CLAIM",
+            gate_status="BLOCKED_BY_METHOD_DEFINITION",
+            reasons=MYCELIUM_GATE_ZERO_REASONS,
+            non_claims=(),
+        )
