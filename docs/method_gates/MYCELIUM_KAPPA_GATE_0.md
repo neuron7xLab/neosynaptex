@@ -44,7 +44,7 @@ The same six-row matrix as the γ gate, **specialised for κ-class observables**
 
 **Tally: 0 PASS, 4 PARTIAL, 2 FAIL.**
 
-A single FAIL on rows 2 or 4 is sufficient to keep Gate 0 closed under the strict reading: row 2 (no peer-reviewed cascade primitive) and row 4 (no peer-reviewed critical band) are **definitional gaps**, not engineering gaps. Until at least these two flip to PASS or are explicitly downgraded to a documented PARTIAL with a published method-definition paper, κ-on-fungi cannot enter the canonical claim ladder above `NO_ADMISSIBLE_CLAIM`.
+A single FAIL on rows 2 or 4 is sufficient to keep Gate 0 closed under the strict reading: row 2 (no peer-reviewed cascade primitive) and row 4 (no peer-reviewed critical band) are **definitional gaps**, not engineering gaps. Closing only those two FAILs unblocks Gate 0 to enter the `NO_ADMISSIBLE_CLAIM`-with-reduced-reason state — i.e. the substrate is no longer rejected on definitional grounds — but **does not** suffice to admit data: the canonical claim ladder cannot move above `NO_ADMISSIBLE_CLAIM` until **all six rows convert to PASS** (per §7), because the four PARTIALs gate the actual admit-data pathway and are explicitly recorded as "not unblockers" in §5. In short: two FAILs flipped → Gate 0 becomes definitionally consistent; six rows PASS → substrate enters the ladder.
 
 ## 4. Why κ-on-fungi is closer than γ-on-fungi
 
@@ -54,7 +54,7 @@ Compared to `MYCELIUM_GAMMA_GATE_0.md` (six FAILs), the κ gate has four PARTIAL
 - κ has a generic critical band (`≈ 1`) that does not depend on substrate identity in the same definitional sense as γ ≈ 1.0 does in NeoSynaptex.
 - Standard avalanche-fit + branching-ratio pipelines are portable across substrates; γ pipelines are specific to phase-coupling structure.
 
-This does not mean fungal κ is "almost validated". It means the **bottleneck axes are different**: for γ, six axes are FAIL; for κ, two axes are FAIL and four are PARTIAL. The substrate-readiness number (~30–40% for κ-class fungal study, when peer-reviewed cascade + critical-band rows flip) is qualitatively different from γ-readiness (~5–8%).
+This does not mean fungal κ is "almost validated". It means the **bottleneck axes are different**: for γ, six axes are FAIL; for κ, two axes are FAIL and four are PARTIAL. The substrate-readiness number (~30–40% for κ-class fungal study, when peer-reviewed cascade + critical-band rows flip and PARTIALs are engineering-converted) is qualitatively different from γ-readiness (~5–8%).
 
 ## 5. Gate 0 verdict
 
@@ -86,13 +86,13 @@ While this gate verdict stands:
 
 ## 7. How fungal κ Gate 0 can be unblocked
 
-Two FAILs and four PARTIALs need to be converted to PASS through peer-reviewed evidence. The minimum-cost unblock path is:
+All six rows must convert to PASS for the substrate to enter the canonical claim ladder above `NO_ADMISSIBLE_CLAIM`. The two FAILs are blocking under the strict reading; the four PARTIALs are engineering-flippable but mandatory for full ladder entry. The minimum-cost unblock path is:
 
-1. **§3.2 (cascade primitive):** a peer-reviewed paper proposing and validating an event-to-event cascade structure on hyphal recordings, with a defensible "parent → descendant" mapping in either electrical or chemical signal propagation. Effort: 1–3 years of collaboration with mycelial electrophysiology lab.
-2. **§3.4 (critical-band study):** a peer-reviewed fungal κ̂ + surrogate-rejection study showing a critical regime. Builds on §3.2. Effort: ~12 months once §3.2 lands.
-3. PARTIALs §3.1 / §3.3 / §3.5 / §3.6: convertible to PASS through engineering work on a pre-registered protocol with public manifests and standard null pipelines (AAFT/IAAFT/phase-randomised). Effort: ~4–8 weeks once hardware is procured.
+1. **§3.2 (cascade primitive, FAIL):** a peer-reviewed paper proposing and validating an event-to-event cascade structure on hyphal recordings, with a defensible "parent → descendant" mapping in either electrical or chemical signal propagation. Effort: 1–3 years of collaboration with mycelial electrophysiology lab.
+2. **§3.4 (critical-band study, FAIL):** a peer-reviewed fungal κ̂ + surrogate-rejection study showing a critical regime. Builds on §3.2. Effort: ~12 months once §3.2 lands.
+3. PARTIALs §3.1 / §3.3 / §3.5 / §3.6: convertible to PASS through engineering work on a pre-registered protocol with public manifests and standard null pipelines (AAFT/IAAFT/phase-randomised). Effort: ~4–8 weeks once hardware is procured. PARTIALs are **not** blockers for the Gate 0 definitional verdict but **are** required for ladder entry.
 
-Until §3.2 and §3.4 flip, fungal κ stays at `NO_ADMISSIBLE_CLAIM`.
+Until all six convert, fungal κ stays at `NO_ADMISSIBLE_CLAIM`.
 
 ## 8. Non-claims
 
@@ -112,7 +112,7 @@ This document explicitly does **not**:
 - κ ≠ γ invariant: `docs/claim_boundaries/BN_SYN_LOCAL_STRUCTURAL_EVIDENCE.md`.
 - Sister gate: `docs/method_gates/MYCELIUM_GAMMA_GATE_0.md` (γ; BLOCKED on six FAILs).
 - BN-Syn precedent for κ pipeline: `contracts/bnsyn_structural_evidence.py`, `tools/import_bnsyn_structural_evidence.py`.
-- Future code-level twin: `contracts/mycelium_pre_admission.py` (PR #154); will gain a `MYCELIUM_KAPPA_GATE_ZERO_*` tuple-pair only when Gate 0 unblocks.
+- Future code-level twin: `contracts/mycelium_pre_admission.py` (#154); will gain a `MYCELIUM_KAPPA_GATE_ZERO_*` tuple-pair only when Gate 0 unblocks.
 
 ---
 
