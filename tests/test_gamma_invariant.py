@@ -46,9 +46,7 @@ def test_axiom_consistency():
     gammas = [v[0] for v in SUBSTRATE_GAMMA.values() if v[0] is not None]
     state = {
         "gamma": sum(gammas) / len(gammas),
-        "substrates": [
-            name for name, (g, _) in SUBSTRATE_GAMMA.items() if g is not None
-        ],
+        "substrates": [name for name, (g, _) in SUBSTRATE_GAMMA.items() if g is not None],
         "convergence_slope": -0.0016,
     }
     assert verify_axiom_consistency(state), "AXIOM_0 violated"
