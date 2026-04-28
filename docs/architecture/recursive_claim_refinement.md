@@ -29,6 +29,8 @@ VALIDATED_SUBSTRATE_EVIDENCE
 
 The ladder is monotonic but **not automatic**: every step requires positive evidence. Failure of any required gate downgrades the claim, never silently upgrades it.
 
+**Reason codes vs ladder states.** Throughout this document, fully-uppercased identifiers such as `BLOCKED_BY_METHOD_DEFINITION`, `KAPPA_NOT_FINITE`, `PROVENANCE_MISSING`, `DETERMINISM_NOT_REPLAYED`, `PHASE_SURROGATE_NOT_REJECTED`, and `LOCAL_STRUCTURAL_FAIL` are **reason codes** that populate the `verdict.reasons` tuple in the evidence contract. They are not additional ladder states. A substrate whose Gate 0 method-definition cannot be proven is held at `NO_ADMISSIBLE_CLAIM` (the lowest ladder state) with `BLOCKED_BY_METHOD_DEFINITION` as the pre-admission reason; the four-state ladder remains canonical.
+
 ## 3. Recursive loop
 
 The repository implements one canonical refinement cycle:
@@ -134,9 +136,9 @@ Any future substrate (mycelial, synthetic, neuromorphic, simulated, biological, 
 
 1. Define a typed evidence contract (`contracts/<substrate>_evidence.py`) with explicit `non_claims`.
 2. Implement a fail-closed adapter that refuses any observable it cannot honestly emit.
-3. Provide a method-definition gate (Gate 0) that proves the substrate's intended observables can be defined within NeoSynaptex's existing measurement spaces. If the gate cannot be proven, the substrate enters at `BLOCKED_BY_METHOD_DEFINITION` and no data is admitted.
+3. Provide a method-definition gate (Gate 0) that proves the substrate's intended observables can be defined within NeoSynaptex's existing measurement spaces. If the gate cannot be proven, the substrate is **held at `NO_ADMISSIBLE_CLAIM`** (per §2) with the pre-admission reason code `BLOCKED_BY_METHOD_DEFINITION`; no data is admitted, no contract is wired, and no higher ladder state is reachable until the gate verdict flips. `BLOCKED_BY_METHOD_DEFINITION` is a reason code, not a fifth ladder state.
 4. Pass through the canonical gate sequence: provenance → determinism → surrogate → local pass → γ-pipeline (external).
-5. Emit verdicts only through the canonical claim ladder.
+5. Emit verdicts only through the canonical four-state claim ladder defined in §2.
 
 No substrate may bypass these steps. No substrate may project its local proxy onto γ. No substrate may upgrade its own verdict.
 
