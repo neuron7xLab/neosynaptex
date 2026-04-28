@@ -79,7 +79,7 @@ gamma = 1.0 is not a tuned parameter. It is a **convergent empirical value** acr
 - Cross-domain coherence
 - The human-AI loop itself
 
-**Mean across 6 measured candidate substrates** (per `evidence/gamma_ledger.json` v2.0.0; none has yet closed all six §5.1 gates of `docs/CLAIM_BOUNDARY.md` for VALIDATED status):
+**Mean across 6 measured candidate substrates** (per `evidence/gamma_ledger.json` v2.0.0; the candidate cohort remains exploratory — none has yet closed all six §5.1 gates of `docs/CLAIM_BOUNDARY.md` for VALIDATED status):
 gamma = 0.991 +/- 0.052
 
 </td>
