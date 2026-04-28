@@ -80,15 +80,11 @@ def test_adapter_cannot_validate_without_gamma_pass() -> None:
     # gamma_pass=False also stays at LOCAL_STRUCTURAL_EVIDENCE_ONLY because
     # local_pass holds and we do not downgrade for an explicit γ-side
     # FAIL on the structural channel — we surface the FAIL via gamma_status.
-    v_fail = adapter.compute_verdict(
-        th, provenance_ok=True, determinism_ok=True, gamma_pass=False
-    )
+    v_fail = adapter.compute_verdict(th, provenance_ok=True, determinism_ok=True, gamma_pass=False)
     assert v_fail.claim_status == "LOCAL_STRUCTURAL_EVIDENCE_ONLY"
     assert v_fail.gamma_status == "FAIL"
     # Only an explicit caller-supplied gamma_pass=True upgrades.
-    v_ok = adapter.compute_verdict(
-        th, provenance_ok=True, determinism_ok=True, gamma_pass=True
-    )
+    v_ok = adapter.compute_verdict(th, provenance_ok=True, determinism_ok=True, gamma_pass=True)
     assert v_ok.claim_status == "VALIDATED_SUBSTRATE_EVIDENCE"
 
 
@@ -148,9 +144,7 @@ _FORBIDDEN_PHRASE_TOKENS: tuple[tuple[str, ...], ...] = (
     ("BN-Syn", "p" + "roves", "NeoSynaptex"),
     ("emer" + "gence", "p" + "roved"),
 )
-_FORBIDDEN_PHRASES: tuple[str, ...] = tuple(
-    " ".join(toks) for toks in _FORBIDDEN_PHRASE_TOKENS
-)
+_FORBIDDEN_PHRASES: tuple[str, ...] = tuple(" ".join(toks) for toks in _FORBIDDEN_PHRASE_TOKENS)
 
 
 def test_no_old_overclaim_language_in_new_files() -> None:
@@ -171,7 +165,10 @@ def test_no_old_overclaim_language_in_new_files() -> None:
     contract_text = (_REPO_ROOT / "contracts" / "bnsyn_structural_evidence.py").read_text(
         encoding="utf-8"
     )
-    assert re.search(r"NOT speak about.*γ|κ.*≠.*γ|kappa.*not.*gamma|κ.*alone is not γ",
-                     contract_text, re.IGNORECASE | re.DOTALL) or "κ ≠ γ" in (
+    assert re.search(
+        r"NOT speak about.*γ|κ.*≠.*γ|kappa.*not.*gamma|κ.*alone is not γ",
+        contract_text,
+        re.IGNORECASE | re.DOTALL,
+    ) or "κ ≠ γ" in (
         (_REPO_ROOT / "substrates" / "bnsyn_structural_adapter.py").read_text(encoding="utf-8")
     )
