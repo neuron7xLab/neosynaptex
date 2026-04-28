@@ -81,12 +81,45 @@ class MyceliumPreAdmissionVerdict:
 
     The dataclass is ``frozen=True`` and ``slots=True`` so callers cannot
     mutate the verdict in-place or attach extra fields.
+
+    ``__post_init__`` enforces runtime validation: any direct construction
+    of this dataclass that does not match the locked Gate 0 values raises
+    ``ValueError``. Together with ``frozen=True`` and ``slots=True`` this
+    closes the structural-bypass surface — there is no way to obtain a
+    ``MyceliumPreAdmissionVerdict`` with non-Gate-0 values, even by
+    instantiating the class directly.
     """
 
     claim_status: str
     gate_status: str
     reasons: tuple[str, ...]
     non_claims: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if self.claim_status != "NO_ADMISSIBLE_CLAIM":
+            raise ValueError(
+                "MyceliumPreAdmissionVerdict.claim_status must be "
+                "'NO_ADMISSIBLE_CLAIM' while Gate 0 is BLOCKED; "
+                f"got {self.claim_status!r}"
+            )
+        if self.gate_status != "BLOCKED_BY_METHOD_DEFINITION":
+            raise ValueError(
+                "MyceliumPreAdmissionVerdict.gate_status must be "
+                "'BLOCKED_BY_METHOD_DEFINITION' while Gate 0 is BLOCKED; "
+                f"got {self.gate_status!r}"
+            )
+        if self.reasons != MYCELIUM_GATE_ZERO_REASONS:
+            raise ValueError(
+                "MyceliumPreAdmissionVerdict.reasons must equal the "
+                "canonical MYCELIUM_GATE_ZERO_REASONS tuple while Gate 0 "
+                "is BLOCKED."
+            )
+        if self.non_claims != MYCELIUM_GATE_ZERO_NON_CLAIMS:
+            raise ValueError(
+                "MyceliumPreAdmissionVerdict.non_claims must equal the "
+                "canonical MYCELIUM_GATE_ZERO_NON_CLAIMS tuple while "
+                "Gate 0 is BLOCKED."
+            )
 
 
 def gate_zero_verdict() -> MyceliumPreAdmissionVerdict:
