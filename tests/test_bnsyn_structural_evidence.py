@@ -86,6 +86,7 @@ def test_validate_accepts_good_metrics() -> None:
 
 # Helpers ---------------------------------------------------------------
 
+
 def _frozen_instance_error_cls() -> type[BaseException]:
     """Look up FrozenInstanceError lazily to keep the import surface narrow."""
     import dataclasses
