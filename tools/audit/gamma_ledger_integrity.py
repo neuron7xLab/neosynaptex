@@ -85,6 +85,9 @@ ALLOWED_STATUSES: frozenset[str] = frozenset(
         # docs/architecture/recursive_claim_refinement.md §2 plus extended
         # sub-VALIDATED states authorised by the Phase 2 protocol.
         "EVIDENCE_CANDIDATE",
+        # Phase 2.1 P7: explicit verdict-state for substrates whose null
+        # screen failed to reject.
+        "EVIDENCE_CANDIDATE_NULL_FAILED",
         "LOCAL_STRUCTURAL_EVIDENCE_ONLY",
         "ARTIFACT_SUSPECTED",
         "NO_ADMISSIBLE_CLAIM",
