@@ -31,6 +31,9 @@ jobs:
         with:
           python-version-file: .python-version
 
+      - name: Install test deps
+        run: python -m pip install --quiet pytest
+
       - name: Run overclaim gate
         env:
           GH_PR_TITLE: ${{ github.event.pull_request.title }}
@@ -38,4 +41,4 @@ jobs:
         run: python -m tools.audit.claim_overclaim_gate
 
       - name: Run overclaim-gate tests
-        run: pytest -q --tb=short tests/test_claim_overclaim_gate.py
+        run: python -m pytest -q --tb=short tests/test_claim_overclaim_gate.py
