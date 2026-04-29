@@ -16,6 +16,18 @@ least one disavowal word (``not``, ``disavow``, ``forbidden``,
 ``rejected``, ``downgraded``, ``does not prove``, ``not yet``,
 ``not implemented``).
 
+Body-license rule (PR title/body only)
+--------------------------------------
+
+A forbidden phrase in the PR title is also admitted when the PR body
+explicitly disavows the *same* phrase on a single line (a
+*body-licensed* phrase). This handles the case where the PR author's
+account cannot edit the title (e.g. fork/READ permission) but the body
+makes the disavowal unambiguous, e.g. body says
+"this PR is **not** a 'cryptographic evidence chain'". Production
+source files (``core/``, ``contracts/``, …) are NEVER body-licensed —
+they must self-disavow on the same line.
+
 Forbidden phrases (current list):
 
 * ``cryptographic evidence chain`` — implies signed, attested, fully-bound
@@ -110,17 +122,28 @@ def _is_disavowal_context(line: str) -> bool:
     return any(tok in lower for tok in DISAVOWAL_TOKENS)
 
 
-def _scan_text(label: str, text: str) -> list[str]:
+def _scan_text(
+    label: str,
+    text: str,
+    licensed_phrases: frozenset[str] = frozenset(),
+) -> list[str]:
     """Return list of overclaim violations in ``text``.
 
     Each entry of the returned list is a human-readable string of the
     form ``"<label>:<line_no>: <forbidden phrase> in: <line>"``.
+
+    ``licensed_phrases`` are forbidden phrases that have been disavowed
+    elsewhere in the PR (e.g. body disavowal licensing the title); any
+    occurrence of them in this ``text`` is admitted regardless of local
+    disavowal context.
     """
     out: list[str] = []
     for n, line in enumerate(text.splitlines(), start=1):
         for phrase in FORBIDDEN_PHRASES:
             if phrase in line.lower():
                 if _is_disavowal_context(line):
+                    continue
+                if phrase in licensed_phrases:
                     continue
                 out.append(
                     f"{label}:{n}: forbidden phrase {phrase!r} "
@@ -129,15 +152,50 @@ def _scan_text(label: str, text: str) -> list[str]:
     return out
 
 
+def _body_licensed_phrases(pr_body: str) -> frozenset[str]:
+    """Return phrases the PR body explicitly disavows.
+
+    A forbidden phrase is *body-licensed* when it appears in ``pr_body``
+    on a line that also carries an explicit disavowal token. This
+    licenses the same phrase to appear in the (often less editable) PR
+    title — e.g. when the author's account has READ-only permission and
+    cannot edit the title, but the body unambiguously states "this PR
+    is **not** a cryptographic evidence chain".
+
+    A PR that mentions a forbidden phrase only positively in the body
+    licenses nothing — both title and body remain hard-fail.
+    """
+    if not pr_body:
+        return frozenset()
+    licensed: set[str] = set()
+    for line in pr_body.splitlines():
+        if not _is_disavowal_context(line):
+            continue
+        lower = line.lower()
+        for phrase in FORBIDDEN_PHRASES:
+            if phrase in lower:
+                licensed.add(phrase)
+    return frozenset(licensed)
+
+
 def find_overclaims(repo_root: Path = _REPO_ROOT) -> list[str]:
-    """Walk source roots + PR title/body env, return list of violations."""
+    """Walk source roots + PR title/body env, return list of violations.
+
+    The PR body is scanned first; any forbidden phrase the body
+    explicitly disavows is treated as *body-licensed* and admitted in
+    the PR title. Production source files are scanned line-by-line and
+    are NOT body-licensed — production code must self-disavow on the
+    same line.
+    """
     violations: list[str] = []
+
+    pr_body = os.environ.get("GH_PR_BODY", "")
+    licensed = _body_licensed_phrases(pr_body)
 
     pr_title = os.environ.get("GH_PR_TITLE", "")
     if pr_title:
-        violations.extend(_scan_text("PR_TITLE", pr_title))
+        violations.extend(_scan_text("PR_TITLE", pr_title, licensed_phrases=licensed))
 
-    pr_body = os.environ.get("GH_PR_BODY", "")
     if pr_body:
         violations.extend(_scan_text("PR_BODY", pr_body))
 
