@@ -1,0 +1,142 @@
+name: estimator_admissibility
+
+# Phase 3 P0 — measurement-operator admissibility trial.
+#
+# Gates whether the canonical Theil–Sen γ estimator (or any of four
+# alternatives) is mathematically admissible as a *ruler* before any
+# downstream null-screen p-value, verdict, or substrate claim.
+#
+# PR-time:        M=100 smoke (~5–15 min, parallelised across estimators).
+# main / merge:   M=1000 canonical (~30 min per estimator, parallelised).
+#
+# Output is the six-field verdict block defined in
+# ``docs/audit/ESTIMATOR_ADMISSIBILITY_PROTOCOL.md``. Phase 3's
+# null-screen runner gates on this verdict; this workflow does not
+# fail-closed on a BLOCKED verdict by itself — the gate is enforced
+# downstream so a failed-canonical run still uploads its artefacts.
+#
+# bootstrap_median_slope sizing note (PR-smoke only):
+# This estimator runs an inner bootstrap (default B=200, smoke B=100)
+# in addition to the outer (γ × N × σ × M) grid. Two PR-smoke attempts
+# timed out — 30:28 at the original 30-min cap, 44:31 at a 45-min cap.
+# The runner is silent throughout (the CLI writes JSON only at the
+# end); wall-clock is the runtime estimate. PR-smoke for this estimator
+# is therefore explicitly down-scoped to a bounded integration smoke
+# (M=40, B=20, 3γ × 3N × 3σ, n_window_replicates=3) whose only job is
+# to prove the code path runs end-to-end, the schema is valid, the
+# six-field verdict block prints, and the artefact uploads. The
+# *authoritative* admissibility answer for bootstrap_median_slope
+# stays at canonical/main M=1000 with the full grid (job below). PR
+# feedback is bounded; canonical evaluation is unchanged.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+jobs:
+  smoke:
+    name: estimator-admissibility-smoke (PR)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # Parallelise across estimators — each estimator's grid is
+        # independent. The verdict requires ALL five outputs, so the
+        # final aggregation must wait for all matrix legs.
+        estimator:
+          - canonical_theil_sen
+          - subwindow_bagged_theil_sen
+          - quantile_pivoted_slope
+          - bootstrap_median_slope
+          - odr_log_log
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+          cache: pip
+      - name: Install (test extras only)
+        run: pip install -e ".[dev]" --quiet
+      - name: Adversarial test battery
+        run: |
+          python -m pytest -q tests/test_estimator_admissibility.py
+      - name: Run smoke trial (M=100, ${{ matrix.estimator }} only)
+        # bootstrap_median_slope gets an explicitly bounded
+        # integration-smoke grid (see workflow comment above);
+        # all other estimators run the standard PR-smoke (M=100,
+        # full smoke N grid, default smoke bootstrap-B).
+        run: |
+          mkdir -p evidence/estimator_admissibility
+          M=100
+          EXTRA_ARGS=()
+          if [[ "${{ matrix.estimator }}" == "bootstrap_median_slope" ]]; then
+            M=40
+            EXTRA_ARGS+=(
+              --bootstrap-b 20
+              --gamma-grid "0.5,1,1.5"
+              --n-grid "64,128,256"
+              --noise-sigma "0,0.1,0.2"
+              --n-window-replicates 3
+            )
+          fi
+          python -m tools.phase_3.admissibility.run_admissibility_trial \
+            --M "$M" \
+            --smoke \
+            --estimators '${{ matrix.estimator }}' \
+            --print-block \
+            --out 'evidence/estimator_admissibility/smoke_${{ matrix.estimator }}.json' \
+            "${EXTRA_ARGS[@]}"
+      - name: Upload smoke artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: estimator-admissibility-smoke-${{ matrix.estimator }}
+          path: evidence/estimator_admissibility/smoke_${{ matrix.estimator }}.json
+          if-no-files-found: error
+
+  canonical:
+    name: estimator-admissibility-canonical (main / merge_group)
+    if: github.event_name == 'push' || github.event_name == 'merge_group'
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        estimator:
+          - canonical_theil_sen
+          - subwindow_bagged_theil_sen
+          - quantile_pivoted_slope
+          - bootstrap_median_slope
+          - odr_log_log
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+          cache: pip
+      - name: Install (test extras only)
+        run: pip install -e ".[dev]" --quiet
+      - name: Run canonical trial (M=1000, ${{ matrix.estimator }} only)
+        run: |
+          mkdir -p evidence/estimator_admissibility
+          python -m tools.phase_3.admissibility.run_admissibility_trial \
+            --M 1000 \
+            --estimators '${{ matrix.estimator }}' \
+            --print-block \
+            --out 'evidence/estimator_admissibility/canonical_${{ matrix.estimator }}.json'
+      - name: Upload canonical artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: estimator-admissibility-canonical-${{ matrix.estimator }}
+          path: evidence/estimator_admissibility/canonical_${{ matrix.estimator }}.json
+          if-no-files-found: error
