@@ -79,6 +79,7 @@ import json
 import re
 import sys
 from pathlib import Path, PurePosixPath
+from typing import Any
 
 __all__ = [
     "BindingError",
@@ -193,7 +194,7 @@ def _coerce_hash_binding(raw_binding: object) -> tuple[dict[str, object] | None,
     )
 
 
-def collect_violations(ledger: dict, *, repo_root: Path = _REPO_ROOT) -> list[str]:
+def collect_violations(ledger: dict[str, Any], *, repo_root: Path = _REPO_ROOT) -> list[str]:
     """Return human-readable binding violations across the ledger.
 
     Empty list ↔ every declared hash matches its declared source AND
