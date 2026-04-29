@@ -254,7 +254,7 @@
       "claim_boundary_ref": "docs/CLAIM_BOUNDARY.md#claim-c-003",
       "derivation_method": "Cross-concentration sweep, Welch log-log Theil-Sen fit on (topo, cost) pairs. K_eff = 2.0*(1 - 0.7*c), sigma_op = 0.065 Hz operational bandwidth.",
       "method_tier": "T5",
-      "verdict": "METASTABLE",
+      "verdict": "NULL_NOT_REJECTED",
       "calibration_basin": {
         "sigma_op_reference_hz": 0.065,
         "sigma_op_basin_hz": [
@@ -309,7 +309,7 @@
       "claim_boundary_ref": "docs/CLAIM_BOUNDARY.md#claim-c-003",
       "derivation_method": "Detrended Fluctuation Analysis \u03b1\u2082 on RR intervals (normal beats), scales 16-64 beats. Peng et al. 1995 convention. Bootstrap CI95 n=2000.",
       "method_tier": "T1",
-      "verdict": "METASTABLE",
+      "verdict": "NULL_NOT_REJECTED",
       "alpha1_cross_check": {
         "alpha1_mean": 1.0574,
         "alpha1_std": 0.1847,
@@ -487,6 +487,19 @@
         "schema rejects status in FROZEN_LADDER_STATES while CANON_VALIDATED_FROZEN=True",
         "schema rejects null-failed entries that sit at EVIDENCE_CANDIDATE or higher",
         "hash_binding must be dict-or-omitted (no falsy non-dict bypass)"
+      ]
+    },
+    {
+      "phase": "2.1-stanford-mit-v2",
+      "actor": "claude-code/phase-2.1-evidence-binding",
+      "date": "2026-04-29",
+      "reason": "PHASE_2_1_HARDENING",
+      "downgrades": [
+        "serotonergic_kuramoto.verdict: 'METASTABLE' \u2192 'NULL_NOT_REJECTED' (P7 deeper \u2014 was semantically positive while null cannot be rejected)",
+        "hrv_fantasia.verdict:          'METASTABLE' \u2192 'NULL_NOT_REJECTED' (same reason)"
+      ],
+      "added_invariants": [
+        "schema rejects positive verdict (METASTABLE/CONSISTENT_WITH_GAMMA_EQUALS_ONE/WARNING/POSITIVE) on null-failed entries"
       ]
     }
   ],
