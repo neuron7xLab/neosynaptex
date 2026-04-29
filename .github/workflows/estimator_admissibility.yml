@@ -33,7 +33,15 @@ jobs:
     name: estimator-admissibility-smoke (PR)
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # bootstrap_median_slope runs inner bootstrap (B=200) loops in
+    # addition to the outer (γ × N × σ × M) grid, so it is structurally
+    # slower than the other four estimators. A previous PR smoke leg
+    # reached 30:28 (≈30 min job cap) and was cancelled by GitHub. The
+    # admissibility gate requires bootstrap_median_slope IN the matrix
+    # — removing it would weaken the gate (one fewer alternate the
+    # canonical estimator is judged against). Extend the runtime budget
+    # to 45 min instead of dropping the check.
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
