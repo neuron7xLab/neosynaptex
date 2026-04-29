@@ -41,4 +41,7 @@ jobs:
         run: python -m tools.audit.claim_overclaim_gate
 
       - name: Run overclaim-gate tests
-        run: python -m pytest -q --tb=short tests/test_claim_overclaim_gate.py
+        # --noconftest bypasses tests/conftest.py whose project-wide
+        # imports (numpy, core.gamma, …) are irrelevant to this gate's
+        # tests. The gate itself imports only stdlib.
+        run: python -m pytest -q --tb=short --noconftest -p no:cacheprovider tests/test_claim_overclaim_gate.py
