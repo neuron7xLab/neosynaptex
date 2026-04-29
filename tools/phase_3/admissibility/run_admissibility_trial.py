@@ -187,6 +187,17 @@ def main(argv: list[str] | None = None) -> int:
         print(f"unknown estimator names: {invalid}", file=sys.stderr)
         return 2
 
+    # ``canonical_theil_sen`` is the verdict-comparison anchor — every
+    # alternate is judged "accepted vs canonical" or "rejected, this
+    # alternate is the replacement". The CI matrix parallelises across
+    # estimators, so single-estimator legs (e.g. ``--estimators
+    # odr_log_log``) still need canonical present for the verdict
+    # block. Auto-include it; the cost is one extra estimator-grid per
+    # leg, which is the cheapest of the five (no bootstrap, no ODR
+    # fit, no quantile sweep).
+    if "canonical_theil_sen" not in estimator_names:
+        estimator_names = ("canonical_theil_sen", *estimator_names)
+
     # Smoke-aware defaults for N grid and bootstrap B.
     if args.n_grid is None:
         n_grid = _SMOKE_N_GRID if args.smoke else DEFAULT_N_GRID
