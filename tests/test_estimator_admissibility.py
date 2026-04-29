@@ -289,6 +289,49 @@ def test_cli_smoke_minimal_grid_writes_valid_json(tmp_path: Path) -> None:
         assert field in block
 
 
+def test_cli_auto_includes_canonical_when_only_alternate_requested(
+    tmp_path: Path,
+) -> None:
+    """CI matrix legs run a single alternate. The verdict logic compares
+    every alternate against ``canonical_theil_sen``; running solely
+    e.g. ``--estimators odr_log_log`` would crash on
+    ``KeyError: 'canonical_theil_sen'`` in ``build_verdict``.
+    The CLI auto-includes canonical_theil_sen so every leg produces a
+    valid six-field verdict block. (CI regression — observed on
+    HEAD 61067ddd.)
+    """
+    out = tmp_path / "alt_only.json"
+    rc = cli_main(
+        [
+            "--M",
+            "10",
+            "--smoke",
+            "--out",
+            str(out),
+            "--estimators",
+            "odr_log_log",
+            "--gamma-grid",
+            "1.0",
+            "--n-grid",
+            "64,128",
+            "--noise-sigma",
+            "0.1",
+            "--n-window-replicates",
+            "3",
+        ]
+    )
+    assert rc == 0
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    estimator_names = payload["results"]["config"]["estimator_names"]
+    assert "canonical_theil_sen" in estimator_names, (
+        f"expected canonical_theil_sen auto-included; got {estimator_names}"
+    )
+    assert "odr_log_log" in estimator_names
+    # Verdict block must be present and complete.
+    for field in VERDICT_FIELDS:
+        assert field in payload["verdict_block"]
+
+
 def test_cli_smoke_reproducible_hash(tmp_path: Path) -> None:
     """Same args → same result_hash. Two consecutive runs must agree."""
     out_a = tmp_path / "a.json"
