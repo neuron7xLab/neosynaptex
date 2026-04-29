@@ -46,6 +46,11 @@ __all__ = [
     "validate_ledger",
 ]
 
+# NOTE Phase 2.1: ``_unsafe_construct`` is intentionally NOT exported.
+# Phase 2 audit (B3) found it could be imported and used to forge
+# entries. It remains module-private for the validate_ledger error
+# pathway but is no longer part of the public API.
+
 
 CANONICAL_LADDER: Final[frozenset[str]] = frozenset(
     {
@@ -132,6 +137,29 @@ class LedgerEntry:
         errors = list(_collect_entry_errors(self))
         if errors:
             raise LedgerSchemaError(f"LedgerEntry({self.substrate!r}) schema violations: {errors}")
+
+    # ------------------------------------------------------------------
+    # Phase 2.1: anti-pickle hardening (B3 partial mitigation).
+    #
+    # Default frozen+slots dataclass pickle round-trip silently bypasses
+    # __post_init__ on unpickle. We override __reduce__ to force the
+    # de-serialised side back through ``validate_entry``, which re-runs
+    # schema enforcement. Object-level __setattr__ remains a Python
+    # language guarantee that no pure-Python class can prevent — but the
+    # easy paths (pickle, copy, deepcopy) are now closed.
+    # ------------------------------------------------------------------
+    def __reduce__(self) -> tuple[Any, ...]:
+        # ``validate_entry(substrate_id, raw)`` reconstructs through
+        # __init__ → __post_init__ → schema check. Forged pickles whose
+        # ``raw`` dict violates the schema raise on unpickle.
+        return (validate_entry, (self.substrate, dict(self.raw)))
+
+
+def _ledger_entry_unpickle(substrate_id: str, raw: dict[str, Any]) -> LedgerEntry:
+    # Module-private trampoline; kept distinct from the public
+    # ``validate_entry`` so future schema changes can route legacy
+    # pickles through compatibility shims without changing semantics.
+    return validate_entry(substrate_id, raw)
 
 
 def _collect_entry_errors(e: LedgerEntry) -> list[str]:
