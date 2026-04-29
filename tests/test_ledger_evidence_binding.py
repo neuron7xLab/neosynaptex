@@ -39,6 +39,7 @@ from tools.audit.ledger_evidence_binding import (
     collect_violations,
     compute_file_hash,
     is_safe_repo_path,
+    resolve_repo_relative_source,
 )
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -280,8 +281,54 @@ def test_binding_error_class_exists() -> None:
         ("C:/Windows", False),
         ("", False),
         ("foo\x00bar", False),
+        (".", False),  # P1 stricter — bare repo root rejected
     ],
 )
 def test_is_safe_repo_path_unit(src: str, expected_ok: bool) -> None:
     ok, _err = is_safe_repo_path(src, repo_root=_REPO_ROOT)
     assert ok is expected_ok
+
+
+# ───────── P1 stricter — resolve_repo_relative_source raise-style API ─────────
+
+
+def test_resolve_resolves_real_repo_file() -> None:
+    p = resolve_repo_relative_source("evidence/data_hashes.json", _REPO_ROOT)
+    assert p.exists() and p.is_file()
+    assert p.is_absolute()
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "/etc/hosts",
+        "../outside.txt",
+        "foo/../../etc/hosts",
+        "C:/Windows/System32",
+        r"\\server\share",
+        "",
+        "foo\x00bar",
+        "foo\nbar",
+        ".",
+        "./",
+    ],
+)
+def test_resolve_raises_on_unsafe(src: str, tmp_path: Path) -> None:
+    with pytest.raises(BindingError):
+        resolve_repo_relative_source(src, tmp_path)
+
+
+def test_resolve_raises_on_non_string() -> None:
+    with pytest.raises(BindingError, match="non-empty string"):
+        resolve_repo_relative_source(42, _REPO_ROOT)
+    with pytest.raises(BindingError, match="non-empty string"):
+        resolve_repo_relative_source(None, _REPO_ROOT)
+    with pytest.raises(BindingError, match="non-empty string"):
+        resolve_repo_relative_source([], _REPO_ROOT)
+
+
+def test_resolve_rejects_directory(tmp_path: Path) -> None:
+    sub = tmp_path / "sub"
+    sub.mkdir()
+    with pytest.raises(BindingError, match="non-regular"):
+        resolve_repo_relative_source("sub", tmp_path)
