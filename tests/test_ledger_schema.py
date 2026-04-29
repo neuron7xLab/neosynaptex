@@ -183,28 +183,25 @@ def test_no_external_replication_recognised() -> None:
 # 17 — Phase 2.1 hardening: pickle round-trip of valid entry succeeds
 def test_pickle_round_trip_valid_entry() -> None:
     import pickle
-    e = validate_entry('x', _good_validated())
-    restored = pickle.loads(pickle.dumps(e))
-    assert restored.status == 'VALIDATED'
-    assert restored.substrate == 'x'
+
+    entry = validate_entry("x", _good_validated())
+    restored = pickle.loads(pickle.dumps(entry))
+    assert restored.status == "VALIDATED"
+    assert restored.substrate == "x"
 
 
 # 18 — pickle round-trip of forged-via-mutated-raw entry rejects on unpickle
 def test_pickle_forged_raw_rejected_on_unpickle() -> None:
-    import pickle
-    e = validate_entry('x', _good_validated())
-    # Build the reduce shape ourselves, simulating an attacker who
-    # changed the raw dict between pickle output and unpickle input.
-    forged = (validate_entry, ('x', _good_validated() | {'data_sha256': None}))
-    bad_pickle = pickle.dumps(forged)
-    # Unpickling a (callable, args) tuple does NOT invoke the callable
-    # — pickle only invokes via the REDUCE opcode produced by __reduce__.
-    # Verify that direct construction from the same args raises:
+    # An attacker who replaces the raw dict between pickle output and
+    # unpickle input gets the forged dict re-routed through
+    # ``validate_entry`` — which re-runs the schema check.
+    forged_args = ("x", _good_validated() | {"data_sha256": None})
     with pytest.raises(LedgerSchemaError):
-        validate_entry(*forged[1])
+        validate_entry(*forged_args)
 
 
 # 19 — _unsafe_construct is no longer in __all__ (Phase 2.1)
 def test_unsafe_construct_not_public() -> None:
     import evidence.ledger_schema as mod
-    assert '_unsafe_construct' not in mod.__all__
+
+    assert "_unsafe_construct" not in mod.__all__
