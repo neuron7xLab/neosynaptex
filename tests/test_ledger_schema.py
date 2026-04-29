@@ -287,3 +287,88 @@ def test_unsafe_construct_fully_removed() -> None:
 )
 def test_is_null_screen_failed(phrase: object, expected: bool) -> None:
     assert is_null_screen_failed(phrase) is expected
+
+
+# ───────── P7 deeper — verdict semantics on null-failed entries ─────────
+
+
+@pytest.mark.parametrize(
+    "verdict",
+    [
+        "METASTABLE",
+        "Metastable",
+        "metastable",
+        "CONSISTENT_WITH_GAMMA_EQUALS_ONE",
+        "WARNING",
+        "POSITIVE",
+    ],
+)
+def test_null_failed_with_positive_verdict_rejected(verdict: str) -> None:
+    """P7 deeper — null-failed entry must not carry positive verdict."""
+    raw = _good_null_failed() | {"verdict": verdict}
+    with pytest.raises(LedgerSchemaError, match="positive-metastability"):
+        validate_entry("x", raw)
+
+
+@pytest.mark.parametrize("verdict", ["NULL_NOT_REJECTED", "INCONCLUSIVE", None])
+def test_null_failed_with_neutral_verdict_admitted(verdict: object) -> None:
+    raw = _good_null_failed() | {"verdict": verdict}
+    e = validate_entry("x", raw)
+    assert e.status == "EVIDENCE_CANDIDATE_NULL_FAILED"
+
+
+# ───────── P8 — data_sha256_kind enum + raw-data honesty ─────────
+
+
+def test_data_sha256_without_kind_rejected() -> None:
+    raw = _good_candidate() | {
+        "data_sha256": "a" * 64,
+        # data_sha256_kind missing — must be rejected per P8
+    }
+    with pytest.raises(LedgerSchemaError, match="data_sha256_kind"):
+        validate_entry("x", raw)
+
+
+def test_data_sha256_kind_unknown_value_rejected() -> None:
+    raw = _good_candidate() | {
+        "data_sha256": "a" * 64,
+        "data_sha256_kind": "raw_pixie_dust",
+    }
+    with pytest.raises(LedgerSchemaError, match="data_sha256_kind"):
+        validate_entry("x", raw)
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "raw_dataset_merkle_root",
+        "bundle_manifest",
+        "bundle_manifest:evidence/data_hashes.json",
+        "adapter_source",
+        "script_source",
+        "script_sha256_at_generation_time",
+    ],
+)
+def test_data_sha256_kind_canonical_values_admitted(kind: str) -> None:
+    raw = _good_candidate() | {
+        "data_sha256": "a" * 64,
+        "data_sha256_kind": kind,
+    }
+    validate_entry("x", raw)
+
+
+def test_data_sha256_kind_optional_when_data_sha_null() -> None:
+    """If data_sha256 is null, data_sha256_kind may be absent."""
+    raw = _good_candidate()  # data_sha256=None, no kind
+    validate_entry("x", raw)
+
+
+def test_non_raw_data_kinds_documented_set() -> None:
+    """P8: manifest/adapter/script kinds are flagged as NOT raw-data."""
+    from evidence.ledger_schema import NON_RAW_DATA_KINDS
+
+    assert "bundle_manifest" in NON_RAW_DATA_KINDS
+    assert "adapter_source" in NON_RAW_DATA_KINDS
+    assert "script_source" in NON_RAW_DATA_KINDS
+    # raw_dataset_merkle_root is the ONLY kind that MAY back a raw-data claim
+    assert "raw_dataset_merkle_root" not in NON_RAW_DATA_KINDS
