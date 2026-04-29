@@ -87,6 +87,7 @@ __all__ = [
     "compute_file_hash",
     "is_safe_repo_path",
     "main",
+    "resolve_repo_relative_source",
 ]
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -130,7 +131,42 @@ def _path_violation(source: str) -> str | None:
     parts = PurePosixPath(source).parts
     if any(p == ".." for p in parts):
         return f"source path contains '..' traversal: {source!r}"
+    # P1 (Stanford/MIT review): explicit reject of "." / "./" / pure-dot
+    # paths. They resolve to the repo root (a directory), which the
+    # is_file() check would also catch — but the spec asks for explicit
+    # name-level rejection so the violation message stays precise.
+    if all(p in {".", "./"} or p == "" for p in parts) or source.strip() in {".", "./"}:
+        return f"source path is the bare repo-root '.': {source!r}"
     return None
+
+
+def resolve_repo_relative_source(source: object, repo_root: Path) -> Path:
+    """Resolve ``source`` to a regular file inside ``repo_root`` or RAISE.
+
+    Phase 2.1 P1 (Stanford/MIT review) raise-style API. Use this when
+    you want an exception on violation; ``is_safe_repo_path`` keeps the
+    tuple-style API for the binding-walk that aggregates messages.
+
+    Returns the symlink-resolved absolute path (always inside
+    ``repo_root.resolve()``). Raises :class:`BindingError` on any of:
+
+    * non-string source,
+    * empty source,
+    * ASCII control characters,
+    * Windows drive / UNC prefix,
+    * leading ``/`` or ``\\``,
+    * any ``..`` segment,
+    * the bare ``"."`` (repo root, never a regular file),
+    * resolved path outside ``repo_root.resolve()``,
+    * non-existent path,
+    * non-regular path (directory, socket, device).
+    """
+    if not isinstance(source, str):
+        raise BindingError(f"source must be a non-empty string; got {type(source).__name__}")
+    ok, err = is_safe_repo_path(source, repo_root=repo_root)
+    if not ok:
+        raise BindingError(err or f"source path {source!r} rejected")
+    return (repo_root / source).resolve(strict=False)
 
 
 def is_safe_repo_path(source: str, *, repo_root: Path) -> tuple[bool, str | None]:
@@ -227,11 +263,12 @@ def collect_violations(ledger: dict[str, Any], *, repo_root: Path = _REPO_ROOT) 
                     f"hash_binding.{source_field} — UNBOUND HASH"
                 )
                 continue
-            ok, path_err = is_safe_repo_path(str(source), repo_root=repo_root)
-            if not ok:
-                out.append(f"{sid}: {hash_field} → {source!r} unsafe — {path_err}")
+            try:
+                resolved = resolve_repo_relative_source(source, repo_root)
+            except BindingError as exc:
+                out.append(f"{sid}: {hash_field} → {source!r} unsafe — {exc}")
                 continue
-            actual = compute_file_hash(repo_root / str(source))
+            actual = compute_file_hash(resolved)
             if not hmac.compare_digest(str(stored), actual):
                 out.append(
                     f"{sid}: {hash_field} DRIFT — "
