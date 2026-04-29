@@ -3,33 +3,43 @@
 All gamma values MUST come from gamma_ledger.json via this registry.
 INV-1: gamma derived only, never assigned.
 
-Phase 2.1 hardening (closes audit-B4 "runtime never validates"): every
-load now passes through ``evidence.ledger_schema.validate_ledger``;
-schema violations raise :class:`GammaRegistryError` and the cache is
-*never* populated. Honest CI failure beats silent runtime drift.
+Phase 2.1 hardening
+-------------------
+
+Closes audit-B4 ("runtime never validates") and Stanford/MIT review
+P3+P5: every load runs **two** fail-closed gates before populating the
+cache:
+
+1. ``evidence.ledger_schema.validate_ledger`` — schema check
+   (status, downgrade reason, frozen-ladder freeze, null-failed
+   verdict semantics, hash_binding type discipline).
+2. ``tools.audit.ledger_evidence_binding.collect_violations`` —
+   runtime hash-binding check (recompute every declared SHA-256 from
+   the named repo-internal source).
+
+Both must pass. Any violation raises :class:`GammaRegistryError` and
+the cache is **never** populated. There is **no env-var escape hatch**
+(P5): tests that need a synthetic ledger pass an explicit
+``ledger_path`` to a test-only loader.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
-import os
 from pathlib import Path
 from typing import Any
 
 from evidence.ledger_schema import validate_ledger
+from tools.audit.ledger_evidence_binding import collect_violations
 
 __all__ = [
     "GammaRegistry",
     "GammaRegistryError",
 ]
 
-_LEDGER_PATH = Path(__file__).resolve().parent.parent / "evidence" / "gamma_ledger.json"
-
-# Escape hatch for downstream tooling that constructs synthetic ledgers
-# in tests. CI sets ``NFI_STRICT_LEDGER=1`` — in production this is the
-# default. Tests that need a permissive loader set the env var to ``0``.
-_STRICT = os.environ.get("NFI_STRICT_LEDGER", "1") != "0"
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+_LEDGER_PATH = _REPO_ROOT / "evidence" / "gamma_ledger.json"
 
 
 class GammaRegistryError(Exception):
@@ -37,7 +47,7 @@ class GammaRegistryError(Exception):
 
 
 class GammaRegistry:
-    """Read-only gateway to gamma_ledger.json with hash verification."""
+    """Read-only gateway to gamma_ledger.json with runtime verification."""
 
     _cache: dict[str, Any] | None = None
     _ledger_hash: str | None = None
@@ -54,13 +64,25 @@ class GammaRegistry:
             parsed = json.loads(raw)
         except json.JSONDecodeError as exc:
             raise GammaRegistryError(f"ledger JSON parse error: {exc}") from exc
-        if _STRICT:
-            errs = validate_ledger(parsed)
-            if errs:
-                raise GammaRegistryError(
-                    f"ledger fails schema validation; runtime refuses to load. violations={errs}"
-                )
-        # Only mutate cache after validation. Failure leaves cache empty.
+
+        # Gate 1: schema validation (P3, was already there, kept).
+        schema_errs = validate_ledger(parsed)
+        if schema_errs:
+            raise GammaRegistryError(
+                f"ledger fails schema validation; runtime refuses to load. violations={schema_errs}"
+            )
+
+        # Gate 2 (Phase 2.1 P3): runtime hash-binding recomputation.
+        # Required so a caller cannot land a ledger whose stored hashes
+        # drifted from disk between schema-time and runtime.
+        binding_errs = collect_violations(parsed, repo_root=_REPO_ROOT)
+        if binding_errs:
+            raise GammaRegistryError(
+                "ledger fails binding validation; runtime refuses to load. "
+                f"violations={binding_errs}"
+            )
+
+        # Only mutate cache after both gates pass.
         cls._ledger_hash = ledger_hash
         cls._cache = parsed
         return cls._cache
