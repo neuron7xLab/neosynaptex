@@ -14,6 +14,12 @@ Numbered tests:
     so the canonical phrase list is not self-flagged.
 8.  Adding a forbidden phrase to a tmp source file under one of the
     scanned roots is detected.
+9.  Body-license: PR title carries a forbidden phrase, PR body
+    explicitly disavows the same phrase → title is ADMITTED.
+10. Body-license is phrase-scoped: an unrelated body disavowal does
+    NOT license a different forbidden phrase in the title.
+11. Body that mentions a forbidden phrase positively (no disavowal
+    token on the line) does NOT license the title.
 """
 
 from __future__ import annotations
@@ -118,3 +124,62 @@ def test_temp_source_file_disavowal_admitted(tmp_path: Path) -> None:
     )
     v = find_overclaims(fake_repo)
     assert v == []
+
+
+# 9 — body-license: title carries the phrase, body disavows it on a
+# single line → title is admitted (PR-author-cannot-edit-title case).
+def test_pr_title_overclaim_body_licensed_admitted(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(
+        "GH_PR_TITLE",
+        "feat(evidence): runtime hash binding + cryptographic evidence chain",
+    )
+    monkeypatch.setenv(
+        "GH_PR_BODY",
+        (
+            "## Summary\n\n"
+            "This PR is a runtime repo-file hash binding gate, "
+            "**not** a 'cryptographic evidence chain'. Scope is "
+            "intentionally narrow.\n"
+        ),
+    )
+    v = find_overclaims(_REPO_ROOT)
+    assert all("PR_TITLE" not in s for s in v), v
+    assert all("PR_BODY" not in s for s in v), v
+
+
+# 10 — body-license is *phrase-scoped*: a different forbidden phrase in
+# the title is NOT licensed by an unrelated disavowal in the body.
+def test_pr_title_overclaim_unrelated_body_disavowal_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(
+        "GH_PR_TITLE",
+        "feat: hypothesis validated by Phase 2.1",
+    )
+    monkeypatch.setenv(
+        "GH_PR_BODY",
+        "This PR is **not** a 'cryptographic evidence chain'.\n",
+    )
+    v = find_overclaims(_REPO_ROOT)
+    assert any("PR_TITLE" in s and "hypothesis validated" in s for s in v), v
+
+
+# 11 — body that mentions a forbidden phrase *positively* (no disavowal
+# token on the line) does NOT license the title. Both title and body
+# remain hard-fail.
+def test_pr_body_positive_phrase_does_not_license_title(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(
+        "GH_PR_TITLE",
+        "feat: cryptographic evidence chain",
+    )
+    monkeypatch.setenv(
+        "GH_PR_BODY",
+        "We ship a cryptographic evidence chain in this PR.\n",
+    )
+    v = find_overclaims(_REPO_ROOT)
+    assert any("PR_TITLE" in s and "cryptographic evidence chain" in s for s in v)
+    assert any("PR_BODY" in s and "cryptographic evidence chain" in s for s in v)
