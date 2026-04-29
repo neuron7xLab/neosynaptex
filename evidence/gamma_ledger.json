@@ -238,10 +238,10 @@
       "r2": 0.5826,
       "n_pairs": 20,
       "p_permutation": 1.0,
-      "status": "EVIDENCE_CANDIDATE",
+      "status": "EVIDENCE_CANDIDATE_NULL_FAILED",
       "tier": "evidential",
       "evidence_tier": "MEASURED_WITH_HASH",
-      "downgrade_reason": "NO_EXTERNAL_REPLICATION",
+      "downgrade_reason": "NULL_NOT_REJECTED",
       "locked": true,
       "data_source": {
         "file": "substrates/serotonergic_kuramoto/adapter.py",
@@ -292,10 +292,10 @@
       "r2": 0.001077,
       "n_pairs": 10,
       "p_permutation": 0.946108,
-      "status": "EVIDENCE_CANDIDATE",
+      "status": "EVIDENCE_CANDIDATE_NULL_FAILED",
       "tier": "evidential",
       "evidence_tier": "MEASURED_WITH_HASH",
-      "downgrade_reason": "NO_EXTERNAL_REPLICATION",
+      "downgrade_reason": "NULL_NOT_REJECTED",
       "locked": true,
       "data_source": {
         "file": "data/fantasia/f1y{01..10}.{hea,ecg}",
@@ -462,6 +462,31 @@
       "added": [
         "hash_binding block per entry with explicit source path",
         "tools/audit/ledger_evidence_binding.py recomputes from disk on every CI run"
+      ]
+    },
+    {
+      "phase": "2.1-stanford-mit",
+      "actor": "claude-code/phase-2.1-evidence-binding",
+      "date": "2026-04-29",
+      "reason": "PHASE_2_1_HARDENING",
+      "downgrades": [
+        "serotonergic_kuramoto: EVIDENCE_CANDIDATE \u2192 EVIDENCE_CANDIDATE_NULL_FAILED (P7; null_family_status p_permutation=1.0)",
+        "hrv_fantasia:          EVIDENCE_CANDIDATE \u2192 EVIDENCE_CANDIDATE_NULL_FAILED (P7; null_family_status p_permutation=0.946)"
+      ],
+      "freezes": [
+        "VALIDATED + VALIDATED_SUBSTRATE_EVIDENCE rejected globally by schema (P6 \u2014 CANON_VALIDATED_FROZEN=True until promotion gates exist)"
+      ],
+      "added_reason_codes": [
+        "NULL_NOT_REJECTED",
+        "PHASE_2_1_HARDENING"
+      ],
+      "added_ladder_states": [
+        "EVIDENCE_CANDIDATE_NULL_FAILED"
+      ],
+      "added_invariants": [
+        "schema rejects status in FROZEN_LADDER_STATES while CANON_VALIDATED_FROZEN=True",
+        "schema rejects null-failed entries that sit at EVIDENCE_CANDIDATE or higher",
+        "hash_binding must be dict-or-omitted (no falsy non-dict bypass)"
       ]
     }
   ],
