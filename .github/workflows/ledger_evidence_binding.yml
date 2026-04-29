@@ -1,0 +1,30 @@
+name: ledger_evidence_binding
+
+# Phase 2.1 — closes audit B1 (format-only check) and B2 (stale hashes).
+# Recomputes every declared SHA-256 in evidence/gamma_ledger.json
+# against the file referenced by hash_binding.<field>_source on every PR.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+jobs:
+  check:
+    name: ledger-evidence-binding
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+      - name: Recompute and compare ledger hashes
+        run: python -m tools.audit.ledger_evidence_binding
