@@ -1,0 +1,111 @@
+name: estimator_admissibility
+
+# Phase 3 P0 — measurement-operator admissibility trial.
+#
+# Gates whether the canonical Theil–Sen γ estimator (or any of four
+# alternatives) is mathematically admissible as a *ruler* before any
+# downstream null-screen p-value, verdict, or substrate claim.
+#
+# PR-time:        M=100 smoke (~5–15 min, parallelised across estimators).
+# main / merge:   M=1000 canonical (~30 min per estimator, parallelised).
+#
+# Output is the six-field verdict block defined in
+# ``docs/audit/ESTIMATOR_ADMISSIBILITY_PROTOCOL.md``. Phase 3's
+# null-screen runner gates on this verdict; this workflow does not
+# fail-closed on a BLOCKED verdict by itself — the gate is enforced
+# downstream so a failed-canonical run still uploads its artefacts.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+jobs:
+  smoke:
+    name: estimator-admissibility-smoke (PR)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # Parallelise across estimators — each estimator's grid is
+        # independent. The verdict requires ALL five outputs, so the
+        # final aggregation must wait for all matrix legs.
+        estimator:
+          - canonical_theil_sen
+          - subwindow_bagged_theil_sen
+          - quantile_pivoted_slope
+          - bootstrap_median_slope
+          - odr_log_log
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+          cache: pip
+      - name: Install (test extras only)
+        run: pip install -e ".[dev]" --quiet
+      - name: Adversarial test battery
+        run: |
+          python -m pytest -q tests/test_estimator_admissibility.py
+      - name: Run smoke trial (M=100, ${{ matrix.estimator }} only)
+        run: |
+          mkdir -p evidence/estimator_admissibility
+          python -m tools.phase_3.admissibility.run_admissibility_trial \
+            --M 100 \
+            --smoke \
+            --estimators '${{ matrix.estimator }}' \
+            --print-block \
+            --out 'evidence/estimator_admissibility/smoke_${{ matrix.estimator }}.json'
+      - name: Upload smoke artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: estimator-admissibility-smoke-${{ matrix.estimator }}
+          path: evidence/estimator_admissibility/smoke_${{ matrix.estimator }}.json
+          if-no-files-found: error
+
+  canonical:
+    name: estimator-admissibility-canonical (main / merge_group)
+    if: github.event_name == 'push' || github.event_name == 'merge_group'
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        estimator:
+          - canonical_theil_sen
+          - subwindow_bagged_theil_sen
+          - quantile_pivoted_slope
+          - bootstrap_median_slope
+          - odr_log_log
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+          cache: pip
+      - name: Install (test extras only)
+        run: pip install -e ".[dev]" --quiet
+      - name: Run canonical trial (M=1000, ${{ matrix.estimator }} only)
+        run: |
+          mkdir -p evidence/estimator_admissibility
+          python -m tools.phase_3.admissibility.run_admissibility_trial \
+            --M 1000 \
+            --estimators '${{ matrix.estimator }}' \
+            --print-block \
+            --out 'evidence/estimator_admissibility/canonical_${{ matrix.estimator }}.json'
+      - name: Upload canonical artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: estimator-admissibility-canonical-${{ matrix.estimator }}
+          path: evidence/estimator_admissibility/canonical_${{ matrix.estimator }}.json
+          if-no-files-found: error
