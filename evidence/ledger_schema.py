@@ -53,6 +53,7 @@ from dataclasses import dataclass, field
 from typing import Any, Final
 
 __all__ = [
+    "ALLOWED_DATA_SHA256_KINDS",
     "ALLOWED_DOWNGRADE_REASONS",
     "ALLOWED_EVIDENCE_TIERS",
     "CANONICAL_LADDER",
@@ -60,6 +61,7 @@ __all__ = [
     "FROZEN_LADDER_STATES",
     "LedgerEntry",
     "LedgerSchemaError",
+    "NON_RAW_DATA_KINDS",
     "is_null_screen_failed",
     "validate_entry",
     "validate_ledger",
@@ -152,6 +154,37 @@ _P_PERMUTATION_RE: Final[re.Pattern[str]] = re.compile(r"p_permutation\s*=\s*([0
 
 #: Significance threshold for null rejection (P7).
 _ALPHA: Final[float] = 0.05
+
+
+#: P8 honest-downgrade enum for the ``data_sha256_kind`` field. The
+#: kind makes explicit *what* the stored hash binds to, so a "bundle
+#: manifest" (a file describing dataset SHA-256s) cannot silently be
+#: confused with raw data hashing. Until raw-file Merkle is computed
+#: in-tree, ``raw_dataset_merkle_root`` is the only kind allowed to
+#: claim direct raw-data binding.
+ALLOWED_DATA_SHA256_KINDS: Final[frozenset[str]] = frozenset(
+    {
+        "raw_dataset_merkle_root",  # Phase 3+: per-file SHA → Merkle root
+        "bundle_manifest",  # SHA-256 of evidence/data_hashes.json
+        "bundle_manifest:evidence/data_hashes.json",  # legacy explicit form
+        "adapter_source",  # SHA-256 of substrate adapter source
+        "script_source",  # SHA-256 of an analysis/verification script
+        "script_sha256_at_generation_time",  # legacy form for lemma_1
+    }
+)
+
+
+#: Kinds that are NOT direct raw-data bindings. A schema claim of
+#: VALIDATED with raw-data evidence may not be backed by these kinds.
+NON_RAW_DATA_KINDS: Final[frozenset[str]] = frozenset(
+    {
+        "bundle_manifest",
+        "bundle_manifest:evidence/data_hashes.json",
+        "adapter_source",
+        "script_source",
+        "script_sha256_at_generation_time",
+    }
+)
 
 
 class LedgerSchemaError(ValueError):
@@ -289,6 +322,31 @@ def _collect_entry_errors(substrate_id: str, raw: dict[str, Any]) -> list[str]:
                 f"status={status!r} is not permitted. Allowed: "
                 f"{sorted(permitted)}"
             )
+        # P7 deeper (Phase 2.1 v2): a null-failed entry must not carry a
+        # positive metastability VERDICT. Permitted verdicts mirror the
+        # ladder downgrade: NULL_NOT_REJECTED, INCONCLUSIVE, or null.
+        # METASTABLE / METASTABLE_* / CONSISTENT_* / WARNING are forbidden
+        # because they semantically project a positive γ ≈ 1 claim that
+        # the failed null screen cannot support.
+        verdict = raw.get("verdict")
+        if verdict is not None:
+            verdict_str = str(verdict).upper()
+            forbidden_when_null_failed = {
+                "METASTABLE",
+                "METASTABLE_SUPPORT",
+                "METASTABLE_CANDIDATE",
+                "CONSISTENT_WITH_GAMMA_EQUALS_ONE",
+                "WARNING",
+                "POSITIVE",
+            }
+            if verdict_str in forbidden_when_null_failed:
+                errs.append(
+                    f"null_family_status documents a failed null screen but "
+                    f"verdict={verdict!r} is a positive-metastability label. "
+                    f"Allowed verdicts for null-failed entries: NULL_NOT_REJECTED, "
+                    f"INCONCLUSIVE, or null. Forbidden: "
+                    f"{sorted(forbidden_when_null_failed)}"
+                )
 
     # P2 — hash_binding type discipline (echoed here so non-binding
     # consumers still surface the violation when reading via
@@ -297,6 +355,27 @@ def _collect_entry_errors(substrate_id: str, raw: dict[str, Any]) -> list[str]:
     hb = raw.get("hash_binding")
     if hb is not None and not isinstance(hb, dict):
         errs.append(f"hash_binding={hb!r} (type {type(hb).__name__}) — must be dict or omitted")
+
+    # P8 — data_sha256_kind enum check + raw-data honesty.
+    # When data_sha256 is non-null, the entry MUST declare what kind of
+    # binding the hash represents (P8 Option B / honest downgrade).
+    # Manifest / adapter / script kinds are NEVER raw-data bindings; the
+    # canon must not silently let a manifest hash satisfy a raw-data
+    # gate. The VALIDATED ladder freeze (P6) covers the latter today;
+    # this check makes the kind machine-checkable for future un-freezes.
+    kind = raw.get("data_sha256_kind")
+    data_sha = raw.get("data_sha256")
+    if kind is not None and kind not in ALLOWED_DATA_SHA256_KINDS:
+        errs.append(
+            f"data_sha256_kind={kind!r} not in ALLOWED_DATA_SHA256_KINDS "
+            f"({sorted(ALLOWED_DATA_SHA256_KINDS)})"
+        )
+    if data_sha is not None and kind is None:
+        errs.append(
+            "data_sha256 is non-null but data_sha256_kind is missing — "
+            "explicit kind is required so 'bundle_manifest' cannot silently "
+            "stand in for raw-data binding"
+        )
 
     return errs
 
