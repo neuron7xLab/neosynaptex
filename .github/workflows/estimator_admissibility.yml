@@ -7,7 +7,8 @@ name: estimator_admissibility
 # downstream null-screen p-value, verdict, or substrate claim.
 #
 # PR-time:        M=100 smoke (~5–15 min, parallelised across estimators).
-# main / merge:   M=1000 canonical (~30 min per estimator, parallelised).
+# main / merge:   M=1000 canonical, fast estimators only (~30 min each).
+# manual:         M=1000 canonical, slow estimators (workflow_dispatch).
 #
 # Output is the six-field verdict block defined in
 # ``docs/audit/ESTIMATOR_ADMISSIBILITY_PROTOCOL.md``. Phase 3's
@@ -24,16 +25,39 @@ name: estimator_admissibility
 # is therefore explicitly down-scoped to a bounded integration smoke
 # (M=40, B=20, 3γ × 3N × 3σ, n_window_replicates=3) whose only job is
 # to prove the code path runs end-to-end, the schema is valid, the
-# six-field verdict block prints, and the artefact uploads. The
-# *authoritative* admissibility answer for bootstrap_median_slope
-# stays at canonical/main M=1000 with the full grid (job below). PR
-# feedback is bounded; canonical evaluation is unchanged.
+# six-field verdict block prints, and the artefact uploads.
+#
+# Canonical-on-push split note:
+# At canonical M=1000 with B=1000, ``bootstrap_median_slope`` and
+# ``subwindow_bagged_theil_sen`` are computationally infeasible inside
+# a 240-min GitHub-Actions cap. The math is documented in
+# ``tools/phase_3/admissibility/run_admissibility_trial.py`` lines
+# 60-64: at N=1024 + B=1000 a single bootstrap_median_slope replicate
+# is ~16 s; M=100 alone at that single N is ~12 hours. The full
+# (7γ × 6N × 4σ) grid at M=1000 is several days per leg. Repeated
+# 240-min cancellations on every push to ``main`` were the result.
+#
+# Resolution: the canonical-on-push leg evaluates only the three
+# tractable estimators (canonical_theil_sen, quantile_pivoted_slope,
+# odr_log_log) — verdict integrity preserved for those, no behavioural
+# change. The two slow estimators move to ``workflow_dispatch`` with a
+# 360-min cap (GitHub max) for explicit, human-triggered canonical
+# evaluation. They were never producing a result_hash on push anyway —
+# this just stops shipping a known-cancelled job in the merge timeline.
 
 on:
   pull_request:
   push:
     branches: [main]
   merge_group:
+  workflow_dispatch:
+    inputs:
+      slow_estimators:
+        description: "Run the heavy canonical leg (subwindow_bagged_theil_sen, bootstrap_median_slope)."
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
 
 permissions:
   contents: read
@@ -112,11 +136,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Tractable estimators only — see workflow header for the math.
+        # The two slow estimators (subwindow_bagged_theil_sen,
+        # bootstrap_median_slope) run via the canonical-slow job below
+        # under workflow_dispatch.
         estimator:
           - canonical_theil_sen
-          - subwindow_bagged_theil_sen
           - quantile_pivoted_slope
-          - bootstrap_median_slope
           - odr_log_log
     steps:
       - uses: actions/checkout@v6
@@ -135,6 +161,44 @@ jobs:
             --print-block \
             --out 'evidence/estimator_admissibility/canonical_${{ matrix.estimator }}.json'
       - name: Upload canonical artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: estimator-admissibility-canonical-${{ matrix.estimator }}
+          path: evidence/estimator_admissibility/canonical_${{ matrix.estimator }}.json
+          if-no-files-found: error
+
+  canonical-slow:
+    name: estimator-admissibility-canonical-slow (manual)
+    # Runs only when explicitly dispatched with the slow_estimators
+    # input set to "true". Keeps the canonical M=1000 contract for the
+    # heavy estimators, just out of the merge-timeline critical path
+    # where a 12-hour leg would never finish inside a 240-min cap.
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.slow_estimators == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        estimator:
+          - subwindow_bagged_theil_sen
+          - bootstrap_median_slope
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+          cache: pip
+      - name: Install (test extras only)
+        run: pip install -e ".[dev]" --quiet
+      - name: Run canonical-slow trial (M=1000, ${{ matrix.estimator }} only)
+        run: |
+          mkdir -p evidence/estimator_admissibility
+          python -m tools.phase_3.admissibility.run_admissibility_trial \
+            --M 1000 \
+            --estimators '${{ matrix.estimator }}' \
+            --print-block \
+            --out 'evidence/estimator_admissibility/canonical_${{ matrix.estimator }}.json'
+      - name: Upload canonical-slow artefact
         uses: actions/upload-artifact@v4
         with:
           name: estimator-admissibility-canonical-${{ matrix.estimator }}
