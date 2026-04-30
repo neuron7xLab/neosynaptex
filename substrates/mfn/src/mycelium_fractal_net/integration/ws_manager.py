@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import hashlib
 import hmac
 import time
 import uuid
@@ -293,14 +294,15 @@ class WSConnectionManager:
 
     @staticmethod
     def _mask_api_key(api_key: str | None) -> str | None:
-        """Return a redacted API key for audit logging without raising errors."""
+        """Return a non-reversible audit fingerprint of an API key.
+
+        Uses a SHA-256 prefix so audit logs can correlate sessions to the
+        originating key without disclosing key material (CodeQL py/clear-text-logging).
+        """
         if not api_key or not isinstance(api_key, str):
             return None
-
-        if len(api_key) <= 8:
-            return api_key
-
-        return api_key[:8] + "..."
+        digest = hashlib.sha256(api_key.encode("utf-8")).hexdigest()
+        return f"sha256:{digest[:12]}"
 
     def _validate_api_key(self, api_key: str | None) -> bool:
         """Validate API key against configured keys."""

@@ -38,9 +38,24 @@ class _KeyPair:
     public_key_bytes: bytes
 
 
-def sha256_file(path: Path) -> str:
+def _validated_path(p: str | Path) -> Path:
+    """Sanitizer barrier for filesystem paths supplied by callers.
+
+    Rejects ``..`` traversal segments before resolution and returns an
+    absolute path. Used at every public entry point that accepts a
+    caller-supplied path so downstream filesystem operations operate on
+    a normalized, traversal-free location (CodeQL py/path-injection).
+    """
+    raw = os.fspath(p)
+    if ".." in Path(raw).parts:
+        raise ValueError(f"path traversal disallowed: {raw!r}")
+    return Path(raw).resolve()
+
+
+def sha256_file(path: str | Path) -> str:
+    safe_path = _validated_path(path)
     h = hashlib.sha256()
-    with path.open("rb") as fh:
+    with safe_path.open("rb") as fh:
         for chunk in iter(lambda: fh.read(65536), b""):
             h.update(chunk)
     return h.hexdigest()
@@ -105,9 +120,10 @@ def _crypto_config_seed(config_path: str | Path) -> str:
     return "mfn-artifact-signing-v1"
 
 
-def _append_audit_event(audit_log: Path, event: dict[str, Any]) -> None:
-    audit_log.parent.mkdir(parents=True, exist_ok=True)
-    with audit_log.open("a", encoding="utf-8") as fh:
+def _append_audit_event(audit_log: str | Path, event: dict[str, Any]) -> None:
+    safe_log = _validated_path(audit_log)
+    safe_log.parent.mkdir(parents=True, exist_ok=True)
+    with safe_log.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(event, sort_keys=True) + "\n")
 
 
@@ -117,7 +133,7 @@ def sign_artifact(
     config_path: str | Path,
     audit_log: str | Path | None = None,
 ) -> Path:
-    artifact_path = Path(path)
+    artifact_path = _validated_path(path)
     keypair = _derive_keypair_from_seed(_crypto_config_seed(config_path))
     digest = sha256_file(artifact_path)
     signature = _sign_message(digest.encode("utf-8"), keypair.private_key)
@@ -134,7 +150,7 @@ def sign_artifact(
     sig_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if audit_log is not None:
         _append_audit_event(
-            Path(audit_log),
+            audit_log,
             {
                 "event": "sign",
                 "path": str(artifact_path),
@@ -152,9 +168,9 @@ def verify_artifact_signature(
     signature_path: str | Path | None = None,
     audit_log: str | Path | None = None,
 ) -> bool:
-    artifact_path = Path(path)
+    artifact_path = _validated_path(path)
     sig_path = (
-        Path(signature_path)
+        _validated_path(signature_path)
         if signature_path is not None
         else artifact_path.with_suffix(artifact_path.suffix + ".sig.json")
     )
@@ -167,7 +183,7 @@ def verify_artifact_signature(
     )
     if audit_log is not None:
         _append_audit_event(
-            Path(audit_log),
+            audit_log,
             {
                 "event": "verify",
                 "path": str(artifact_path),

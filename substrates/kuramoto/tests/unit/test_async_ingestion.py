@@ -115,9 +115,7 @@ class TestAsyncDataIngestor:
         ingestor = AsyncDataIngestor()
         ticks = []
 
-        async for tick in ingestor.stream_ticks(
-            "test_source", "BTC", interval_ms=10, max_ticks=5
-        ):
+        async for tick in ingestor.stream_ticks("test_source", "BTC", interval_ms=10, max_ticks=5):
             ticks.append(tick)
 
         assert len(ticks) == 5
@@ -236,9 +234,7 @@ class TestAsyncDataIngestor:
         """The async ingestor should enforce configured file size limits."""
 
         csv_file = tmp_path / "big.csv"
-        csv_file.write_text(
-            "ts,price\n" + "\n".join("1,1" for _ in range(40)), encoding="utf-8"
-        )
+        csv_file.write_text("ts,price\n" + "\n".join("1,1" for _ in range(40)), encoding="utf-8")
 
         ingestor = AsyncDataIngestor(allowed_roots=[tmp_path], max_csv_bytes=32)
 
@@ -397,7 +393,7 @@ class TestBinanceWebSocketStream:
 
         assert stream.symbol == "BTCUSDT"
         assert "btcusdt@trade" in stream.url
-        assert stream.url.startswith("wss://stream.binance.com")
+        assert stream.url.startswith("wss://stream.binance.com/")
         assert not stream._running
 
     def test_initialization_custom_url(self) -> None:

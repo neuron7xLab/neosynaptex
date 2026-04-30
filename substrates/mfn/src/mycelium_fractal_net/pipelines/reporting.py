@@ -35,14 +35,31 @@ from mycelium_fractal_net.types.report import AnalysisReport
 SCHEMA_VERSION = "mfn-artifact-manifest-v2"
 
 
+def _validated_path(p: str | Path) -> Path:
+    """Sanitizer barrier for caller-supplied filesystem paths.
+
+    Rejects ``..`` traversal segments before resolution and returns an
+    absolute path; downstream filesystem operations then run on a
+    normalized, traversal-free location (CodeQL py/path-injection).
+    """
+    import os as _os
+
+    raw = _os.fspath(p)
+    if ".." in Path(raw).parts:
+        raise ValueError(f"path traversal disallowed: {raw!r}")
+    return Path(raw).resolve()
+
+
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    safe = _validated_path(path)
+    safe.parent.mkdir(parents=True, exist_ok=True)
+    safe.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def _write_text(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
+    safe = _validated_path(path)
+    safe.parent.mkdir(parents=True, exist_ok=True)
+    safe.write_text(text, encoding="utf-8")
 
 
 def _ensure_history(sequence: FieldSequence) -> np.ndarray:
@@ -50,17 +67,19 @@ def _ensure_history(sequence: FieldSequence) -> np.ndarray:
 
 
 def _sha256_file(path: Path) -> str:
+    safe = _validated_path(path)
     digest = hashlib.sha256()
-    with path.open("rb") as fh:
+    with safe.open("rb") as fh:
         for chunk in iter(lambda: fh.read(65536), b""):
             digest.update(chunk)
     return digest.hexdigest()
 
 
 def _artifact_manifest(run_dir: Path, artifact_list: list[str]) -> dict[str, dict[str, Any]]:
+    safe_root = _validated_path(run_dir)
     manifest: dict[str, dict[str, Any]] = {}
     for name in artifact_list:
-        path = run_dir / name
+        path = safe_root / name
         manifest[name] = {
             "bytes": int(path.stat().st_size),
             "sha256": _sha256_file(path),
@@ -305,7 +324,8 @@ def build_analysis_report(
     timestamp_now = datetime.now(timezone.utc)
     seed = int(sequence.metadata.get("seed", sequence.spec.seed if sequence.spec else 42))
     run_id = timestamp_now.strftime("run_%Y%m%dT%H%M%S_%fZ") + f"_s{seed}"
-    run_dir = Path(output_root) / run_id
+    safe_root = _validated_path(output_root)
+    run_dir = safe_root / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
 
     history = _ensure_history(sequence)

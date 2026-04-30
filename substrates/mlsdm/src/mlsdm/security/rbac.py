@@ -23,6 +23,7 @@ Example:
 from __future__ import annotations
 
 import hashlib
+import hmac
 import logging
 import os
 import time
@@ -227,15 +228,16 @@ class RoleValidator:
         return roles or {Role.READ}
 
     def _hash_key(self, key: str) -> str:
-        """Hash an API key for storage.
+        """HMAC-SHA256 fingerprint of an API key for storage.
 
-        Args:
-            key: Plain text API key
-
-        Returns:
-            SHA-256 hash of the key
+        Uses HMAC with a server-side pepper (env var ``MLSDM_API_KEY_PEPPER``)
+        so a leaked storage cannot be brute-forced via rainbow tables, even
+        for low-entropy keys. Constant-time-friendly (compare via ``hmac.compare_digest``).
         """
-        return hashlib.sha256(key.encode()).hexdigest()
+        pepper = os.environ.get(
+            "MLSDM_API_KEY_PEPPER", "mlsdm-default-pepper-set-MLSDM_API_KEY_PEPPER-in-prod"
+        ).encode("utf-8")
+        return hmac.new(pepper, key.encode("utf-8"), hashlib.sha256).hexdigest()
 
     def add_key(
         self,
