@@ -54,8 +54,9 @@ def infer_repo() -> str:
 
     if url.startswith("git@github.com:"):
         return url.split(":", 1)[1]
-    if "github.com/" in url:
-        return url.split("github.com/", 1)[1]
+    parsed = urllib.parse.urlparse(url)
+    if parsed.netloc == "github.com" or parsed.netloc.endswith(".github.com"):
+        return parsed.path.lstrip("/")
     return "neuron7x/bnsyn-phase-controlled-emergent-dynamics"
 
 
@@ -91,8 +92,7 @@ def select_required_runs(all_runs: list[dict[str, Any]]) -> list[dict[str, Any]]
         candidates = [
             run
             for run in all_runs
-            if run.get("workflow_path") == wf["workflow_path"]
-            or run.get("name") == wf["name"]
+            if run.get("workflow_path") == wf["workflow_path"] or run.get("name") == wf["name"]
         ]
 
         successful = [
