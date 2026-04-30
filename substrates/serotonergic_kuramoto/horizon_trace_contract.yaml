@@ -1,0 +1,232 @@
+# Horizon Trace Contract — serotonergic_kuramoto
+#
+# Phase 4a, declarative. The substrate's hidden core (Kuramoto phase
+# tensor θ ∈ R^{N_IC × N}) is NOT admissible evidence. Only its
+# boundary trace — the values that cross from inside the simulation to
+# the outside through declared observable methods — can ever be
+# admissible. This file fixes which boundary values are claimed, what
+# is still under-defined, and what nulls and tests must succeed before
+# any γ measurement can be admitted.
+#
+# Authority over this file:
+#   docs/audit/PHASE_4A_HORIZON_TRACE_PROTOCOL.md (frozen prose).
+#   Lint tool: tools/audit/horizon_trace_lint.py.
+#   Test:     tests/test_phase_4a_horizon_trace_contract.py.
+
+substrate: serotonergic_kuramoto
+phase: 4a
+
+claim_boundary:
+  hidden_core_is_evidence: false
+  boundary_trace_required: true
+  ledger_mutation_allowed: false
+  gamma_promotion_allowed: false
+
+observables:
+  topo:
+    status: UNDER_DEFINED_TRACE
+    source_path: substrates/serotonergic_kuramoto/adapter.py
+    code_symbol: SerotonergicKuramotoAdapter.topo
+    definition: >-
+      Pair count over (i < j) with |sin(θ_i − θ_j)| > 0.3 at the
+      single end-of-window snapshot, then averaged across N_IC=4
+      initial-condition replicates. Returned by adapter.topo() with
+      a 2 % multiplicative jitter applied at read time.
+    units_or_scale: >-
+      Integer count in [0, N(N−1)/2] = [0, 2016] for N=64. Not
+      normalised. Scales with N². Multiplicative-jitter at read
+      breaks integer-domain assumption downstream.
+    boundary_meaning: TODO_OR_FOUND
+    expected_null_behavior: TODO_OR_FOUND
+    failure_modes:
+      - "single-time snapshot conflates slow phase drift with fast oscillator dispersion"
+      - "threshold 0.3 has no theoretical justification in code or docs"
+      - "not a topological invariant; the 'topo' name is misleading"
+      - "not normalised by N(N−1)/2; cross-substrate comparison is undefined"
+      - "read-time multiplicative jitter (factor 1 ± 0.02) breaks integer domain"
+      - "single end-of-window snapshot is not stationarity-tested"
+    falsifiers:
+      - "synthesise N(0, 2π) IID phases and IAAFT-of-real-window phases; if topo distinguishes them at p < α, the metric carries boundary information; if not, it does not"
+      - "split the 10 000-step measurement window into halves; if topo computed from each half differs by more than its own jitter (2 %), the snapshot is non-stationary and the trace is undefined"
+      - "vary _PAIR_THRESHOLD ∈ {0.1, 0.3, 0.5}; if observed γ̂ depends on the threshold, the observable is parametrically under-determined"
+
+  thermo_cost:
+    status: UNDER_DEFINED_TRACE
+    source_path: substrates/serotonergic_kuramoto/adapter.py
+    code_symbol: SerotonergicKuramotoAdapter.thermo_cost
+    definition: >-
+      Time-average over the 10 000-step measurement window of
+      Σ_i |K_eff · R(t) · sin(ψ(t) − θ_i(t))|, then averaged across
+      N_IC=4 IC replicates. Returned by adapter.thermo_cost() with
+      a 2 % multiplicative jitter applied at read time.
+    units_or_scale: >-
+      rad/s × oscillator-count, time-averaged. Scales linearly with
+      K_eff by construction, so any K-dependence is entangled with
+      the modulation knob.
+    boundary_meaning: TODO_OR_FOUND
+    expected_null_behavior: TODO_OR_FOUND
+    failure_modes:
+      - "L1 norm choice (|·|) is unjustified; standard mean-field 'work' uses L2 (energy)"
+      - "named 'thermo_cost' but no thermodynamic linkage (no kT, no FDT)"
+      - "trivially K_eff-linear; cannot separate coupling-work from modulation knob"
+      - "confounded with R(t) which itself has K-dependence"
+      - "no fluctuation channel — only mean is reported, variance discarded"
+    falsifiers:
+      - "hold K_eff fixed and vary c only via a hypothetical reparametrisation; if thermo_cost still varies, observable is c-driven not K-driven, and the regression is on the wrong axis"
+      - "replace mean-field coupling with random pairing; if thermo_cost magnitude is preserved, the metric does not measure ordered coupling"
+      - "compute on first 5 000 steps vs last 5 000 steps; if difference exceeds the 2 % read-jitter, the window is non-stationary"
+
+coordinates:
+  raw_c:
+    status: SUSPECT
+    reason: >-
+      Raw c is the 5-HT2A pharmacological-modulation knob, not a
+      physical critical coordinate. The mapping K_eff = K_base ·
+      (1 − 0.7·c) makes c a linear reparametrisation of K_eff, but
+      Kuramoto theory predicts power-law scaling against the reduced
+      coupling r = (K − K_c) / K_c, not against a knob index. The
+      adapter docstring claims the c-axis crosses K_c at c ≈ 0.71;
+      direct calculation with σ_op = 0.065 Hz and K_base = 2.0 gives
+      crossing at c ≈ 0.963. The internal docstring is inconsistent
+      with its own constants, which is itself evidence that c-as-
+      coordinate has not been audited as a physical control variable.
+    required_tests:
+      - "fit log(observable) vs log(c) and log(observable) vs log(|r|) on the same trajectory; compare R² and slope CI"
+      - "split the trajectory into super-critical (r > 0) and sub-critical (r < 0) regimes; verify a single γ exponent does not fit both"
+      - "synthesise a constant-K_eff null where c varies but K_eff is held fixed; if any observable still scales with c, c is a confound"
+      - "fix the adapter docstring crossing claim — c ≈ 0.963, not 0.71 — before re-deriving γ"
+
+  critical_distance:
+    expression: "(K_eff - K_c) / K_c"
+    status: CANDIDATE_UNDEFINED
+    required_before_use:
+      - "K_eff: defined in adapter.py at line 178 as K_base · (1 − 0.7·c); deterministic given c"
+      - "K_c: defined in adapter.py at line 156 as σ_rad · sqrt(8/π) at construction; deterministic given σ_op and the quantile-frequency draw"
+      - "estimator for K_c: closed-form mean-field assumes Lorentzian or Gaussian frequency distribution; the adapter uses Gaussian quantile frequencies, so the formula applies — but this assumption must be declared, not silent"
+      - "deterministic computation: yes for the simulated value; for an experimentally measured K_c (when there is a real substrate), an empirical estimator and its CI are required"
+      - "null behaviour: surrogates that preserve K_eff but randomise phase coherence must collapse the (R, r) curve; surrogates that randomise K_eff but preserve phases must displace it"
+      - "regime selection: the canonical mean-field exponent R ~ |r|^(1/2) holds only for r > 0; sub-critical and critical regimes need separate scaling laws and separate fits"
+      - "expected scaling laws: R ~ r^(1/2) for r > 0 (super-critical), R ~ 1/√N for r < 0 (sub-critical incoherent), χ = N · var(R) ~ |r|^(-1) near r = 0"
+
+invariants:
+  estimator_identity:
+    required: true
+    current: canonical_theil_sen
+    where_enforced: tools/phase_3/admissibility/verdict.py (ADMISSIBLE_AT_N_MIN_128 from M=100 reference smoke)
+    enforcement_status: enforced
+    missing_enforcement: substrate adapters do not declare the estimator their observable is intended for; cross-coupling implicit
+  observable_definition:
+    required: true
+    current: as declared in this contract under observables.*
+    where_enforced: this YAML; future Phase 4b/4c PRs must update this contract before any code change
+    enforcement_status: declared in 4a; not yet checked by CI
+    missing_enforcement: a CI gate that diff-fails when adapter.py changes an observable definition without an accompanying contract update
+  coordinate_definition:
+    required: true
+    current: SUSPECT (raw_c) / CANDIDATE_UNDEFINED (critical_distance)
+    where_enforced: this YAML
+    enforcement_status: declared in 4a; not yet measured
+    missing_enforcement: Phase 4b PR must select one canonical coordinate and mark the other deprecated for γ regression
+  simulation_seed_path:
+    required: true
+    current: int seed → np.random.default_rng(seed); IC bank derived deterministically
+    where_enforced: adapter.py constructor
+    enforcement_status: enforced; tested in Phase 3 reproducibility
+    missing_enforcement: stationarity rejection on per-c basis is not part of the seed contract
+  burn_in_rule:
+    required: true
+    current: _BURN_IN_STEPS = 2000 (≈ 1.30 · τ_relax)
+    where_enforced: adapter.py constant
+    enforcement_status: declared, but not validated against τ_relax(K)
+    missing_enforcement: adaptive burn-in ≥ 10 · τ_relax(K_eff) at each c, especially near r = 0
+  integration_length:
+    required: true
+    current: _STEPS_PER_WINDOW = 10000 (≈ 6.5 · τ_relax)
+    where_enforced: adapter.py constant
+    enforcement_status: declared, marginal — recommended ≥ 100 · τ_relax for converged statistics near criticality
+    missing_enforcement: adaptive window length tied to convergence test
+  ensemble_size:
+    required: true
+    current: _N_IC = 4
+    where_enforced: adapter.py constant
+    enforcement_status: declared, severely undersampled (SE on R ≈ 0.5/√4 = 0.25)
+    missing_enforcement: ensemble convergence test; recommended ≥ 32 IC near criticality
+  result_hash:
+    required: true
+    current: tools/phase_3/result_hash.py; sha256 over canonicalised JSON with explicit non-deterministic-fields list
+    where_enforced: tools/phase_3/run_null_screen.py and admissibility runner
+    enforcement_status: enforced; tested in test_cli_smoke_reproducible_hash
+    missing_enforcement: substrate-side observable-definition hash (Phase 4b/4c)
+  null_family_list:
+    required: true
+    current: family_router.py — kuramoto_iaaft, linear_matched, iaaft_surrogate (Bonferroni α/3)
+    where_enforced: tools/phase_3/family_router.py per-substrate routing
+    enforcement_status: enforced for the null-screen runner
+    missing_enforcement: a stationarity-preserving null specifically targeting the boundary trace integrity (Phase 4c)
+  ledger_proposal_boundary:
+    required: true
+    current: PROPOSAL ONLY — Phase 3 never auto-promotes (verbatim in run_null_screen.py:662)
+    where_enforced: tools/phase_3/run_null_screen.py and CANON_VALIDATED_FROZEN at evidence/ledger_schema.py
+    enforcement_status: enforced; FROZEN_LADDER_STATES rejects VALIDATED globally
+    missing_enforcement: none at PR-level; intent of future maintainers is the only un-enforced channel
+
+failure_modes:
+  - name: linear_sweep_overweighting
+    description: linear c sampling concentrates probes at one end of K_eff range
+    detection: compare γ̂ stability across {linspace, geomspace, uniform-in-r}
+    required_test: per-coordinate coordinate-sensitivity sweep at fixed M, identical RNG seed
+    phase_4_target: 4b
+  - name: low_N_trajectory
+    description: N < admissibility floor (128) makes any estimator unreliable
+    detection: tools/phase_3/admissibility verdict on trajectory length
+    required_test: enforce N ≥ MIN_TRAJECTORY_LENGTH at adapter level
+    phase_4_target: 4c
+  - name: sorted_OLS_artefact
+    description: sorting points by topo before fit forces monotonicity even when (topo, cost) is non-monotone across the phase transition
+    detection: compare canonical Theil–Sen γ̂ vs sorted-OLS γ̂ on identical data
+    required_test: deprecate sorted-OLS path or restrict it to within-regime fits only
+    phase_4_target: 4d
+  - name: non_stationary_transient
+    description: measurement window is read before the simulation reaches steady state, especially near criticality where τ_relax → ∞
+    detection: split-window mean comparison; reject if Δmean / σ > threshold
+    required_test: stationarity check inside _simulate_at_concentration; emit INCONCLUSIVE if it fails
+    phase_4_target: 4c
+  - name: insufficient_burn_in
+    description: 2000 steps is ≈ 1.3 τ_relax(K_c) — far below the canonical 10 τ_relax for critical systems
+    detection: simulate with 2000-step and 20 000-step burn-in; compare end-of-window observables
+    required_test: adaptive burn-in tied to τ_relax(K_eff) at each c
+    phase_4_target: 4c
+  - name: too_few_initial_conditions
+    description: N_IC = 4 gives SE on R of about 0.25 — larger than any plausible scaling effect
+    detection: bootstrap over IC bank; report SE on each observable
+    required_test: enforce N_IC ≥ 32, document SE at every c
+    phase_4_target: 4c
+  - name: wrong_control_variable
+    description: regressing on raw c when Kuramoto theory predicts scaling on (K − K_c) / K_c
+    detection: dual-fit on raw_c vs critical_distance; compare R²
+    required_test: declared in coordinates.required_tests above
+    phase_4_target: 4b
+  - name: observable_not_physically_meaningful
+    description: topo is a single-time pair count with no theoretical scaling expectation; thermo_cost is a non-thermodynamic L1 quantity confounded with K_eff
+    detection: each observable fails to predict its own scaling exponent under Kuramoto theory
+    required_test: theoretical-expectation declaration in observable.boundary_meaning before any γ claim
+    phase_4_target: 4a (this PR; observables.boundary_meaning currently TODO_OR_FOUND)
+  - name: estimator_coordinate_mismatch
+    description: canonical Theil–Sen on c-coordinate gives γ̂ ≈ 0.07 (near-flat); sorted-OLS on c-coordinate gives γ̂ ≈ 0.74; v1 linear sweep gave γ̂ ≈ 1.07
+    detection: result_hash diverges across (estimator × coordinate × sweep) combinations on identical adapter
+    required_test: explicit (estimator × coordinate × sweep) sensitivity matrix
+    phase_4_target: 4b and 4d
+  - name: null_family_preserving_wrong_structure
+    description: kuramoto_iaaft preserves per-oscillator phase distribution but not inter-oscillator timing — may inadvertently preserve the very pair-count signature the topo metric reads
+    detection: simulate adapter trajectory; apply each null family; compare null distribution of topo across families
+    required_test: per-family null-distribution shape audit on a fixed substrate trajectory
+    phase_4_target: 4d
+
+forbidden_claims:
+  - "γ≈1 validated"
+  - "substrate validated"
+  - "Phase 4 fixed the hypothesis"
+  - "old γ preserved"
+  - "Theil-Sen killed the hypothesis"
+  - "log-uniform sweep is automatically correct"
+  - "raw c is automatically wrong"
