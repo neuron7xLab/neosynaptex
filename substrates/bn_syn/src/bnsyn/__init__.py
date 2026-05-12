@@ -30,3 +30,5 @@ except metadata.PackageNotFoundError:  # pragma: no cover
     __version__ = "0.0.0"
 
 __all__ = ["__version__", "rng", "config", "neurons", "synapses", "control", "simulation", "run", "phase_atlas", "sleep_stack"]
+REGIME_VERSION = "0.1.1"
+__all__.append("REGIME_VERSION")

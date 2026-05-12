@@ -1,0 +1,3 @@
+...................                                                      [100%]
+{"cmd": ["/root/.pyenv/versions/3.12.12/bin/python", "-m", "pytest", "tests/test_regime.py", "tests/test_regime_simulation.py", "tests/property/test_regime_properties.py", "tests/golden/test_regime_golden.py", "tests/validation/test_gamma_proxy_synthetic.py", "tests/test_invariants_contract.py", "tests/test_regime_ledger.py", "tests/test_governance_roles.py", "tests/test_regime_performance.py", "-q"], "event": "running_pytest"}
+{"event": "pytest_exit", "returncode": 0}

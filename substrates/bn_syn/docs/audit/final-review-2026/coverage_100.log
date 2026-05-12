@@ -1,0 +1,3 @@
+coverage_status: NOT_RUN
+reason: dependency unavailable in audit environment
+exit_code: 1

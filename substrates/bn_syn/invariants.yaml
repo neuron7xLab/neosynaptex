@@ -1,0 +1,22 @@
+artifact_owner: "Chief Neuro-Cognitive Systems Architect"
+module: "bnsyn.regime"
+claim_status:
+  compute_gamma_numerical_behavior: TESTED
+  gamma_biological_regime_marker: HYPOTHESIS
+invariants:
+  - id: I-RGM-1
+    statement: "compute_gamma returns NaN for short (<16) or non-finite activation vectors"
+    test_ref: test_compute_gamma_rejects_short_or_non_finite
+  - id: I-RGM-2
+    statement: "RegimeGate emits gate_signal in [0,1] and applies entropy threshold as rest bias"
+    test_ref: test_regime_gate_enforces_entropy_rest
+  - id: I-RGM-3
+    statement: "adaptive_update requires identical weight/grad shapes"
+    test_ref: test_adaptive_update_contracts
+  - id: I-RGM-4
+    statement: "RegimeController.step emits diagnostics on every step"
+    test_ref: test_regime_controller_step_contract
+kill_switch:
+  mechanism: "set learning_rate=0 or bypass RegimeController and call baseline optimizer"
+rollback: "git revert of regime-controller commit"
+utc_required_for_logs: true

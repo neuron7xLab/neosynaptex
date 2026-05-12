@@ -1,0 +1,26 @@
+version: 1
+roles:
+  - name: Recursive Systems Architect
+    owns_failure_mode: architecture_instability
+    veto_scope: architecture
+  - name: Problem Framing & Experiment Design Lead
+    owns_failure_mode: non_testable_objective
+    veto_scope: experiment_validity
+  - name: World Model & Inference Lead
+    owns_failure_mode: missing_update_mechanism
+    veto_scope: inference_mechanism
+  - name: Dynamics & Mechanistic Modeling Lead
+    owns_failure_mode: mechanism_behavior_confusion
+    veto_scope: dynamics_mechanism
+  - name: Research Systems Engineer
+    owns_failure_mode: non_reproducible_artifact
+    veto_scope: executable_artifact
+  - name: Adversarial Falsification Lead
+    owns_failure_mode: unchallenged_claims
+    veto_scope: claim_strength
+  - name: Safety & Model Risk Lead
+    owns_failure_mode: unbounded_risk
+    veto_scope: safety_risk
+  - name: Verification, Evidence & Closure Lead
+    owns_failure_mode: unproven_closure
+    veto_scope: release_closure
