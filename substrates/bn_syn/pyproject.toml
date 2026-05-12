@@ -1,8 +1,39 @@
 [project]
-name = "bnsyn-regime"
+name = "bnsyn"
 version = "0.1.1"
 description = "BN-Syn regime control subsystem"
 requires-python = ">=3.10,<3.13"
+dependencies = [
+  "numpy",
+  "scipy",
+  "pydantic",
+  "pyyaml",
+  "jsonschema",
+  "joblib",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "hypothesis",
+  "ruff",
+  "mypy",
+  "pre-commit",
+  "validate-pyproject",
+  "pylint",
+  "pydocstyle",
+  "bandit",
+  "pip-audit",
+  "build",
+  "packaging",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.ruff]
 line-length = 120
