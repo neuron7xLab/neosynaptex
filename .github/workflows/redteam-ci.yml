@@ -36,7 +36,9 @@ jobs:
         with:
           python-version-file: .python-version
           cache: pip
-      - name: Install pinned tooling
-        run: pip install --quiet pytest
+      - name: Install package + test runner
+        # tests/conftest.py imports core.gamma + neosynaptex which need
+        # numpy/scipy; pull them via the package's [dev] extras.
+        run: pip install --quiet -e ".[dev]"
       - name: Pytest — redteam slice
         run: pytest tests/eai/redteam -q

@@ -36,7 +36,9 @@ jobs:
         with:
           python-version-file: .python-version
           cache: pip
-      - name: Install pinned tooling
-        run: pip install --quiet pytest jsonschema
+      - name: Install package + test runner
+        # tests/conftest.py imports core.gamma + neosynaptex which need
+        # numpy/scipy; pull them and jsonschema via the [dev] extras.
+        run: pip install --quiet -e ".[dev]"
       - name: Pytest — schema slice
         run: pytest tests/eai/schemas -q
