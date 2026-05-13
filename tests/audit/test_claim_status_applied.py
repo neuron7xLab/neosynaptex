@@ -61,12 +61,9 @@ body text
 
 def test_claim_status_key_variants_all_counted():
     blocks = [
-        "claim_status: derived
-",
-        "p_status: falsified
-",
-        "claim: hypothesized
-",
+        "claim_status: derived\n",
+        "p_status: falsified\n",
+        "claim: hypothesized\n",
     ]
     labeled, per_label, distinct = count_labels_in_texts(blocks)
     assert labeled == 3
@@ -100,8 +97,7 @@ def test_bare_prose_is_not_counted():
 
 
 def test_unverified_analogy_multiword_label_is_counted():
-    block = "claim_status: unverified analogy
-"
+    block = "claim_status: unverified analogy\n"
     labeled, per_label, distinct = count_labels_in_texts([block])
     assert labeled == 1
     assert per_label["unverified analogy"] == 1
@@ -122,8 +118,7 @@ def test_multiple_labels_same_block_counted_independently():
 
 
 def test_case_insensitive_matching():
-    block = "status: Measured
-"
+    block = "status: Measured\n"
     labeled, per_label, distinct = count_labels_in_texts([block])
     assert labeled == 1
     assert per_label["measured"] == 1

@@ -41,17 +41,17 @@ def run_calibration(path: Path) -> Metrics:
     unknown_total = 0
 
     for r in rows:
-        pred = gated_decision(r['claim_text'])
-        bucket = r['bucket']
-        if bucket == 'false':
+        pred = gated_decision(r["claim_text"])
+        bucket = r["bucket"]
+        if bucket == "false":
             false_total += 1
-            promoted_false += int(pred == 'EVIDENCE')
-        elif bucket == 'ambiguous':
+            promoted_false += int(pred == "EVIDENCE")
+        elif bucket == "ambiguous":
             amb_total += 1
-            amb_ok += int(pred == 'QUARANTINED')
-        elif bucket == 'adversarial_overclaim':
+            amb_ok += int(pred == "QUARANTINED")
+        elif bucket == "adversarial_overclaim":
             traps_total += 1
-            traps_ok += int(pred != 'EVIDENCE')
+            traps_ok += int(pred != "EVIDENCE")
         else:
             unknown_total += 1
 
@@ -71,23 +71,23 @@ def contradiction_decision(source: str, candidate: str) -> str:
     s = source.lower()
     c = candidate.lower()
     if (
-        ('limited to local test' in s and 'universal' in c)
-        or ('not externally validated' in s and 'validated' in c)
-        or ('correlation only' in s and 'causal' in c)
-        or ('demo-ready' in s and 'enterprise-ready' in c)
+        ("limited to local test" in s and "universal" in c)
+        or ("not externally validated" in s and "validated" in c)
+        or ("correlation only" in s and "causal" in c)
+        or ("demo-ready" in s and "enterprise-ready" in c)
     ):
-        return 'KILLED'
-    if 'ambiguous' in s and 'confirmed' in c:
-        return 'QUARANTINED'
-    return 'EVIDENCE'
+        return "KILLED"
+    if "ambiguous" in s and "confirmed" in c:
+        return "QUARANTINED"
+    return "EVIDENCE"
 
 
 def run_contradiction_calibration(path: Path) -> Metrics:
     rows = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
     false_promo = 0
     for r in rows:
-        pred = contradiction_decision(r['source'], r['candidate'])
-        if r['expected_status'] in {'KILLED', 'QUARANTINED'} and pred == 'EVIDENCE':
+        pred = contradiction_decision(r["source"], r["candidate"])
+        if r["expected_status"] in {"KILLED", "QUARANTINED"} and pred == "EVIDENCE":
             false_promo += 1
     total = len(rows)
     return Metrics(

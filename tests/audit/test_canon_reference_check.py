@@ -130,8 +130,7 @@ def test_load_allowlist_malformed_returns_empty(tmp_path):
 def test_run_check_flags_broken_reference(tmp_path):
     doc = tmp_path / "docs" / "CANONICAL_POSITION.md"
     doc.parent.mkdir(parents=True)
-    doc.write_text("See `tools/audit/missing.py` for details.
-", encoding="utf-8")
+    doc.write_text("See `tools/audit/missing.py` for details.\n", encoding="utf-8")
 
     code, msg = run_check(
         repo_root=tmp_path,
@@ -146,11 +145,9 @@ def test_run_check_flags_broken_reference(tmp_path):
 def test_run_check_passes_when_reference_resolves(tmp_path):
     (tmp_path / "docs").mkdir()
     (tmp_path / "tools").mkdir()
-    (tmp_path / "tools" / "real.py").write_text("# exists
-")
+    (tmp_path / "tools" / "real.py").write_text("# exists\n")
     doc = tmp_path / "docs" / "CANONICAL_POSITION.md"
-    doc.write_text("See `tools/real.py`.
-", encoding="utf-8")
+    doc.write_text("See `tools/real.py`.\n", encoding="utf-8")
 
     code, msg = run_check(
         repo_root=tmp_path,
@@ -163,8 +160,7 @@ def test_run_check_passes_when_reference_resolves(tmp_path):
 def test_run_check_allowlist_exempts_missing_path(tmp_path):
     (tmp_path / "docs").mkdir()
     doc = tmp_path / "docs" / "CANONICAL_POSITION.md"
-    doc.write_text("See `evidence/future.md` (later).
-", encoding="utf-8")
+    doc.write_text("See `evidence/future.md` (later).\n", encoding="utf-8")
     allow = tmp_path / "allow.yaml"
     allow.write_text(
         textwrap.dedent(

@@ -34,6 +34,9 @@ class PsychophysiologyParameters:
     k_interoceptive_precision: float = 0.30
 
 
+_DEFAULT_PARAMETERS = PsychophysiologyParameters()
+
+
 def observe_state(x: LatentPsychophysiologyState) -> PsychophysiologyObservation:
     hr = 70.0 + 18.0 * x.sympathetic - 12.0 * x.parasympathetic
     hrv = max(5.0, 45.0 + 20.0 * x.parasympathetic - 15.0 * x.sympathetic)
@@ -42,7 +45,9 @@ def observe_state(x: LatentPsychophysiologyState) -> PsychophysiologyObservation
     bp = 110.0 + 20.0 * x.sympathetic - 8.0 * x.parasympathetic
     cort = max(0.0, 8.0 + 5.0 * x.hpa)
     self_report_arousal = max(0.0, min(10.0, 4.0 + 2.5 * x.interoceptive + 1.5 * x.contextual))
-    return PsychophysiologyObservation(hr=hr, hrv=hrv, eda=eda, rsp=rsp, bp=bp, cort=cort, self_report_arousal=self_report_arousal)
+    return PsychophysiologyObservation(
+        hr=hr, hrv=hrv, eda=eda, rsp=rsp, bp=bp, cort=cort, self_report_arousal=self_report_arousal
+    )
 
 
 def step_state(
@@ -50,13 +55,17 @@ def step_state(
     *,
     threat_input: float,
     safety_input: float,
-    params: PsychophysiologyParameters = PsychophysiologyParameters(),
+    params: PsychophysiologyParameters = _DEFAULT_PARAMETERS,
 ) -> LatentPsychophysiologyState:
     net = threat_input - safety_input
     sympathetic = x.sympathetic + params.k_sympathetic * net - 0.1 * x.sympathetic
     parasympathetic = x.parasympathetic - params.k_parasympathetic * net - 0.1 * x.parasympathetic
     hpa = x.hpa + params.k_hpa * net - 0.05 * x.hpa
-    intero = x.interoceptive + params.k_interoceptive_precision * (sympathetic - parasympathetic) - 0.1 * x.interoceptive
+    intero = (
+        x.interoceptive
+        + params.k_interoceptive_precision * (sympathetic - parasympathetic)
+        - 0.1 * x.interoceptive
+    )
 
     return LatentPsychophysiologyState(
         neural=x.neural + 0.05 * net,

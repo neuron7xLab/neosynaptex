@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-import subprocess
+import subprocess  # nosec B404 — argv-list runner for verifier protocols; no shell.
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 
@@ -47,14 +47,28 @@ def run_local_command(
     timeout_sec: int = 10,
 ) -> VerificationReport:
     try:
-        proc = subprocess.run(command, capture_output=True, text=True, timeout=timeout_sec)
+        proc = subprocess.run(  # nosec B603 — argv list, shell=False, deterministic local verifier
+            command,
+            capture_output=True,
+            text=True,
+            timeout=timeout_sec,
+            check=False,
+        )
         status = "PASS" if proc.returncode == 0 else "FAIL"
         stdout = proc.stdout
         stderr = proc.stderr
     except subprocess.TimeoutExpired as exc:
         status = "FAIL"
-        stdout = exc.stdout or ""
-        stderr = (exc.stderr or "") + f"\nTIMEOUT after {timeout_sec}s"
+
+        def _as_text(raw: bytes | str | None) -> str:
+            if raw is None:
+                return ""
+            if isinstance(raw, bytes):
+                return raw.decode("utf-8", errors="replace")
+            return raw
+
+        stdout = _as_text(exc.stdout)
+        stderr = _as_text(exc.stderr) + f"\nTIMEOUT after {timeout_sec}s"
 
     stdout_hash = sha256_text(stdout)
     stderr_hash = sha256_text(stderr)

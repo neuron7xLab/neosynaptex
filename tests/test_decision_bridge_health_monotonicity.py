@@ -111,8 +111,7 @@ class TestHealthMonotonicityExhaustive:
                                             f"{stable_b},γ={g_b}) "
                                             f"but health {ha} < {hb}"
                                         )
-        assert not violations, "
-".join(violations[:20])
+        assert not violations, "\n".join(violations[:20])
 
 
 # ─────────────────────────────────────────────────────────────────────────

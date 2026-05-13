@@ -46,8 +46,7 @@ def test_load_events_empty_file_returns_empty(tmp_path):
 
 def test_load_events_rejects_malformed_json(tmp_path):
     sink = tmp_path / "events.jsonl"
-    sink.write_text("{valid:false,}
-", encoding="utf-8")
+    sink.write_text("{valid:false,}\n", encoding="utf-8")
     with pytest.raises(ValueError, match="JSON parse error"):
         load_events(sink)
 
@@ -55,8 +54,7 @@ def test_load_events_rejects_malformed_json(tmp_path):
 def test_load_events_rejects_schema_violations(tmp_path):
     sink = tmp_path / "events.jsonl"
     # Missing every required field → schema validator rejects.
-    sink.write_text(json.dumps({"schema_version": "v1"}) + "
-", encoding="utf-8")
+    sink.write_text(json.dumps({"schema_version": "v1"}) + "\n", encoding="utf-8")
     with pytest.raises(ValueError, match="schema violations"):
         load_events(sink)
 

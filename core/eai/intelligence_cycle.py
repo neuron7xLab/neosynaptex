@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import re
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
-
 
 
 class ClaimStatus(str, Enum):
@@ -122,15 +121,26 @@ class QuarantinedClaim:
         return False
 
 
-def may_update_intent(artifact: "EvidenceArtifact | None", *, retention_hash: str | None, revalidation_passed: bool) -> bool:
-    return bool(artifact and artifact.can_be_promoted() and _is_sha256_hex(retention_hash or "") and revalidation_passed)
+def may_update_intent(
+    artifact: EvidenceArtifact | None, *, retention_hash: str | None, revalidation_passed: bool
+) -> bool:
+    return bool(
+        artifact
+        and artifact.can_be_promoted()
+        and _is_sha256_hex(retention_hash or "")
+        and revalidation_passed
+    )
 
 
-def inference_seals_future_lie(next_intent_delta: dict[str, Any] | None, integration_patch: dict[str, Any] | None) -> bool:
+def inference_seals_future_lie(
+    next_intent_delta: dict[str, Any] | None, integration_patch: dict[str, Any] | None
+) -> bool:
     """ICU policy: inference must both change next action and encode anti-regression controls."""
     if not next_intent_delta or not integration_patch:
         return False
-    anti_regression = integration_patch.get('guardrail_update') or integration_patch.get('regression_block')
+    anti_regression = integration_patch.get("guardrail_update") or integration_patch.get(
+        "regression_block"
+    )
     return bool(anti_regression)
 
 
@@ -172,4 +182,6 @@ class IntelligenceClosureUnit:
         """ICU = falsified + bounded + artifacted + intent-shifting + anti-regression."""
         if self.status is not ClaimStatus.EVIDENCE:
             return False
-        return self.is_intelligence_unit() and inference_seals_future_lie(self.next_intent_delta, self.integration_patch)
+        return self.is_intelligence_unit() and inference_seals_future_lie(
+            self.next_intent_delta, self.integration_patch
+        )

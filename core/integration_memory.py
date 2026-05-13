@@ -11,7 +11,7 @@ class IntegrationMemory:
         self._snapshots: dict[str, dict[str, dict[str, object]]] = {}
 
     def apply_patch(self, *, claim_id: str, status: str, patch: dict[str, object]) -> bool:
-        if status != 'EVIDENCE':
+        if status != "EVIDENCE":
             return False
         self._store[claim_id] = patch
         return True

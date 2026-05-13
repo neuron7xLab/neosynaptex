@@ -180,10 +180,7 @@ def test_no_circular_construction() -> None:
     # and cannot quietly multiply.
     if exempt:
         print(
-            "
-shield: circular thermo_cost allowed (protocol-shim) in:
-  " + "
-  ".join(exempt)
+            "\nshield: circular thermo_cost allowed (protocol-shim) in:\n  " + "\n  ".join(exempt)
         )
 
 

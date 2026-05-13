@@ -22,17 +22,19 @@ class LoopIntegrator:
     def apply_feedback(self, outcome: EngineOutcome) -> None:
         if outcome.status is ClaimStatus.KILLED:
             self.architecture.contradiction_sensitivity += 0.1
-            self._compress('killed_requires_stricter_falsification')
+            self._compress("killed_requires_stricter_falsification")
             return
 
         if outcome.status is ClaimStatus.QUARANTINED:
             self.architecture.revalidation_bias += 0.1
-            self._compress('quarantine_requires_stronger_revalidation')
+            self._compress("quarantine_requires_stronger_revalidation")
             return
 
         self.architecture.revalidation_bias = max(0.0, self.architecture.revalidation_bias - 0.05)
-        self.architecture.contradiction_sensitivity = max(0.0, self.architecture.contradiction_sensitivity - 0.05)
-        self._compress('evidence_allows_gradual_relaxation')
+        self.architecture.contradiction_sensitivity = max(
+            0.0, self.architecture.contradiction_sensitivity - 0.05
+        )
+        self._compress("evidence_allows_gradual_relaxation")
 
     def _compress(self, rule: str) -> None:
         if rule not in self.compressed_rules:

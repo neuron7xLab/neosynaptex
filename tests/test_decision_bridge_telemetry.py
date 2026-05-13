@@ -73,9 +73,7 @@ class TestLedgerTamperDetection:
         obj = json.loads(lines[2])
         obj["payload"]["v"] = 999.0  # silent edit
         lines[2] = json.dumps(obj, sort_keys=True, separators=(",", ":"))
-        path.write_text("
-".join(lines) + "
-", encoding="utf-8")
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
         verdict = TelemetryLedger.verify(path)
         assert not verdict.ok
@@ -94,9 +92,7 @@ class TestLedgerTamperDetection:
         lines = path.read_text(encoding="utf-8").splitlines()
         # Drop the middle event — chain MUST break at index 3 (next one).
         del lines[2]
-        path.write_text("
-".join(lines) + "
-", encoding="utf-8")
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         verdict = TelemetryLedger.verify(path)
         assert not verdict.ok
         assert verdict.first_broken_index is not None
@@ -116,8 +112,7 @@ class TestLedgerTamperDetection:
             "self_hash": "0" * 64,
         }
         with path.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(fake, sort_keys=True, separators=(",", ":")) + "
-")
+            fh.write(json.dumps(fake, sort_keys=True, separators=(",", ":")) + "\n")
         verdict = TelemetryLedger.verify(path)
         assert not verdict.ok
         assert verdict.first_broken_index == 3

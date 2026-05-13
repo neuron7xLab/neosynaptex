@@ -337,16 +337,14 @@ def test_append_rows_is_append_only(tmp_path: pathlib.Path):
 
 def test_append_rows_rejects_v1_header(tmp_path: pathlib.Path):
     out = tmp_path / "legacy.csv"
-    out.write_text(",".join(SCHEMA_V1_COLUMNS) + "
-", encoding="utf-8")
+    out.write_text(",".join(SCHEMA_V1_COLUMNS) + "\n", encoding="utf-8")
     with pytest.raises(SchemaVersionMismatch, match="legacy v1 header"):
         append_rows([_defined_row()], out)
 
 
 def test_append_rows_rejects_unknown_header(tmp_path: pathlib.Path):
     out = tmp_path / "bogus.csv"
-    out.write_text("foo,bar,baz
-", encoding="utf-8")
+    out.write_text("foo,bar,baz\n", encoding="utf-8")
     with pytest.raises(SchemaVersionMismatch, match="unknown header"):
         append_rows([_defined_row()], out)
 
@@ -414,8 +412,7 @@ def test_append_rows_csv_still_written_when_telemetry_sink_unwritable(
     # so the emit's mkdir() raises. The JSONL write path fails
     # silently, but the CSV append must still complete.
     broken_parent = tmp_path / "not_a_dir"
-    broken_parent.write_text("stub
-")
+    broken_parent.write_text("stub\n")
     monkeypatch.setenv("NEOSYNAPTEX_TELEMETRY_SINK", str(broken_parent / "events.jsonl"))
 
     out = tmp_path / "metrics.csv"
@@ -434,8 +431,7 @@ def test_append_rows_csv_still_written_when_telemetry_sink_unwritable(
 
 def test_migrate_v1_header_only_is_noop_on_v2(tmp_path: pathlib.Path):
     out = tmp_path / "metrics.csv"
-    out.write_text(",".join(SCHEMA_V2_COLUMNS) + "
-", encoding="utf-8")
+    out.write_text(",".join(SCHEMA_V2_COLUMNS) + "\n", encoding="utf-8")
     assert migrate_v1_to_v2(out) == 0
     # header preserved
     assert out.read_text(encoding="utf-8").splitlines()[0] == ",".join(SCHEMA_V2_COLUMNS)
@@ -443,8 +439,7 @@ def test_migrate_v1_header_only_is_noop_on_v2(tmp_path: pathlib.Path):
 
 def test_migrate_v1_header_only_rewrites_to_v2(tmp_path: pathlib.Path):
     out = tmp_path / "legacy.csv"
-    out.write_text(",".join(SCHEMA_V1_COLUMNS) + "
-", encoding="utf-8")
+    out.write_text(",".join(SCHEMA_V1_COLUMNS) + "\n", encoding="utf-8")
     assert migrate_v1_to_v2(out) == 0
     assert out.read_text(encoding="utf-8").splitlines()[0] == ",".join(SCHEMA_V2_COLUMNS)
 

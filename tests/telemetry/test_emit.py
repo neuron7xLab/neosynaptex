@@ -118,8 +118,7 @@ def test_emit_event_drops_on_exception_from_sink(tmp_path, caplog, monkeypatch):
     # Point the sink at a path whose parent is a file, not a directory:
     # mkdir() inside _write_jsonl will raise; emit must swallow it.
     parent_file = tmp_path / "not_a_dir"
-    parent_file.write_text("no
-")
+    parent_file.write_text("no\n")
     sink = parent_file / "events.jsonl"  # parent is a file → mkdir fails
     with caplog.at_level(logging.WARNING, logger="tools.telemetry.emit"):
         result = emit_event("substrate.x.run.start", "x", sink=sink)

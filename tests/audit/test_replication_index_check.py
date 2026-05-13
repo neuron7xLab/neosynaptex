@@ -93,8 +93,7 @@ def test_load_registry_missing_file_raises(tmp_path):
 
 
 def test_load_registry_rejects_missing_replications_key(tmp_path):
-    path = _write_registry(tmp_path, "schema_version: 1
-")
+    path = _write_registry(tmp_path, "schema_version: 1\n")
     with pytest.raises(IntegrityError, match="replications"):
         load_registry(path)
 
@@ -172,8 +171,7 @@ def test_run_check_fails_on_bad_verdict(tmp_path):
     # only failure surface.
     prereg_dir = tmp_path / "evidence/replications/test-rep"
     prereg_dir.mkdir(parents=True)
-    (prereg_dir / "prereg.yaml").write_text("stub
-", encoding="utf-8")
+    (prereg_dir / "prereg.yaml").write_text("stub\n", encoding="utf-8")
 
     body = textwrap.dedent(
         """\
@@ -201,8 +199,7 @@ def test_run_check_fails_on_bad_verdict(tmp_path):
 def test_run_check_fails_on_bad_substrate_class(tmp_path):
     prereg_dir = tmp_path / "evidence/replications/test-rep"
     prereg_dir.mkdir(parents=True)
-    (prereg_dir / "prereg.yaml").write_text("stub
-", encoding="utf-8")
+    (prereg_dir / "prereg.yaml").write_text("stub\n", encoding="utf-8")
 
     body = textwrap.dedent(
         """\
@@ -230,8 +227,7 @@ def test_run_check_fails_on_bad_substrate_class(tmp_path):
 def test_run_check_fails_on_missing_required_key(tmp_path):
     prereg_dir = tmp_path / "evidence/replications/test-rep"
     prereg_dir.mkdir(parents=True)
-    (prereg_dir / "prereg.yaml").write_text("stub
-", encoding="utf-8")
+    (prereg_dir / "prereg.yaml").write_text("stub\n", encoding="utf-8")
 
     body = textwrap.dedent(
         """\
@@ -257,8 +253,7 @@ def test_run_check_fails_on_missing_required_key(tmp_path):
 def test_run_check_passes_on_valid_single_entry(tmp_path):
     prereg_dir = tmp_path / "evidence/replications/test-rep"
     prereg_dir.mkdir(parents=True)
-    (prereg_dir / "prereg.yaml").write_text("stub
-", encoding="utf-8")
+    (prereg_dir / "prereg.yaml").write_text("stub\n", encoding="utf-8")
 
     body = textwrap.dedent(
         """\

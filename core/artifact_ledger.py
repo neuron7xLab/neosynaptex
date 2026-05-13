@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 from datetime import datetime, timezone
 
 
@@ -20,7 +20,9 @@ class ArtifactLedger:
     def __init__(self) -> None:
         self._entries: list[LedgerEntry] = []
 
-    def append(self, artifact_id: str, claim_id: str, status: str, retention_hash: str) -> LedgerEntry:
+    def append(
+        self, artifact_id: str, claim_id: str, status: str, retention_hash: str
+    ) -> LedgerEntry:
         if not re.fullmatch(r"[0-9a-f]{64}", retention_hash or ""):
             raise ValueError("retention_hash must be lowercase SHA-256 hex")
         entry = LedgerEntry(

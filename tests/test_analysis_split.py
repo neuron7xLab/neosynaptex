@@ -106,8 +106,7 @@ def test_split_covers_every_record_from_manifests() -> None:
 
 def test_immutability_error_on_tamper(tmp_path: Path) -> None:
     tampered = tmp_path / "split.yaml"
-    tampered.write_bytes(ANALYSIS_SPLIT_PATH.read_bytes() + b"# tampered
-")
+    tampered.write_bytes(ANALYSIS_SPLIT_PATH.read_bytes() + b"# tampered\n")
     with pytest.raises(ImmutabilityError):
         load_split(path=tampered)
 

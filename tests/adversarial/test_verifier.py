@@ -166,12 +166,7 @@ def test_contract_verdict_as_str_failure_lists_both_missing_and_malformed():
 def _write_system_protocol(tmp_path: pathlib.Path, frontmatter: str) -> pathlib.Path:
     (tmp_path / "docs").mkdir(parents=True, exist_ok=True)
     path = tmp_path / "docs" / "SYSTEM_PROTOCOL.md"
-    body = "---
-" + frontmatter.strip() + "
----
-
-# body
-"
+    body = "---\n" + frontmatter.strip() + "\n---\n\n# body\n"
     path.write_text(body, encoding="utf-8")
     return path
 

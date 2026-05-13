@@ -19,16 +19,20 @@ class ActiveInferenceResult:
     stabilized: bool
 
 
-def run_active_inference_loop(claims: list[str], contradiction_markers: list[str], stabilization_threshold: float = 0.2) -> ActiveInferenceResult:
+def run_active_inference_loop(
+    claims: list[str], contradiction_markers: list[str], stabilization_threshold: float = 0.2
+) -> ActiveInferenceResult:
     steps: list[InferenceStep] = []
     uncertainty_hits = 0
 
     for claim in claims:
         passed, reason = falsification_decision(claim, contradiction_markers)
-        status = 'EVIDENCE' if passed else 'KILLED'
-        if status != 'EVIDENCE':
+        status = "EVIDENCE" if passed else "KILLED"
+        if status != "EVIDENCE":
             uncertainty_hits += 1
-        steps.append(InferenceStep(claim_text=claim, predicted_status=status, falsification_reason=reason))
+        steps.append(
+            InferenceStep(claim_text=claim, predicted_status=status, falsification_reason=reason)
+        )
 
     entropy_score = uncertainty_hits / max(1, len(claims))
     stabilized = entropy_score <= stabilization_threshold

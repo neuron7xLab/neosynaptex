@@ -2,17 +2,25 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
-import sys
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from core.eai.engine import EAIEngine
 from core.eai.intelligence_cycle import BoundaryCard, ClaimCard, ClaimType, ReproducibilityManifest
 
 
-def run_claim_gate(*, claim_text: str, context: str, retention_hash: str, revalidation_passed: bool, kill_switch: bool = False) -> dict[str, object]:
+def run_claim_gate(
+    *,
+    claim_text: str,
+    context: str,
+    retention_hash: str,
+    revalidation_passed: bool,
+    kill_switch: bool = False,
+) -> dict[str, Any]:
     claim = ClaimCard('CLM-CLI-1', claim_text, ClaimType.FACTUAL)
     boundary = BoundaryCard('BND-CLI-1', [context], ['global'], [context], ['global'])
     reproducibility = ReproducibilityManifest(['run_claim_gate'], 'local-cli', retention_hash)

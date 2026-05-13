@@ -229,9 +229,7 @@ def test_no_forbidden_claims_in_phase_4b_protocol_doc() -> None:
             if any((i0 - k) in disavowal_at for k in range(1, window + 1)):
                 continue
             violations.append(f"PHASE_4B doc:{n}: {phrase!r} → {line.strip()[:140]}")
-    assert not violations, "positive forbidden-claim use:
-" + "
-".join(violations)
+    assert not violations, "positive forbidden-claim use:\n" + "\n".join(violations)
 
 
 # J

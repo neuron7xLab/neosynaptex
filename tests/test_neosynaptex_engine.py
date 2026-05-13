@@ -661,8 +661,7 @@ class TestEdge:
 
         src = pathlib.Path(__file__).parent.parent / "neosynaptex.py"
         text = src.read_text(encoding="utf-8")
-        for i, line in enumerate(text.split("
-"), 1):
+        for i, line in enumerate(text.split("\n"), 1):
             code = line.split("#")[0]
             for ch in code:
                 if ord(ch) > 127:

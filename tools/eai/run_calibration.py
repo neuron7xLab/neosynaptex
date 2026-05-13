@@ -3,10 +3,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
-import sys
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from core.eai.calibration import run_calibration
@@ -16,7 +17,7 @@ def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def build_report(dataset_path: Path) -> dict[str, object]:
+def build_report(dataset_path: Path) -> dict[str, Any]:
     metrics = run_calibration(dataset_path)
     return {
         'timestamp_utc': datetime.now(timezone.utc).isoformat(),

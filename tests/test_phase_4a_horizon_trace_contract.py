@@ -222,6 +222,4 @@ def test_forbidden_claims_do_not_appear_positively(path: Path) -> None:
             if any((idx0 - k) in disavowal_at for k in range(1, window + 1)):
                 continue
             violations.append(f"{path.name}:{n}: {phrase!r} → {line.strip()[:160]}")
-    assert not violations, "positive forbidden-claim use detected:
-" + "
-".join(violations)
+    assert not violations, "positive forbidden-claim use detected:\n" + "\n".join(violations)

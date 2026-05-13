@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from core.eai.intelligence_cycle import EvidenceArtifact
 import os
 import re
+
+from core.eai.intelligence_cycle import EvidenceArtifact
 
 
 def _is_sha256_hex(value: str) -> bool:
@@ -20,11 +21,11 @@ def decide_intent_update(
     revalidation_passed: bool,
 ) -> str:
     if _emergency_exit_enabled():
-        return 'QUARANTINED'
+        return "QUARANTINED"
     if not artifact.can_be_promoted():
-        return 'KILLED'
+        return "KILLED"
     if not _is_sha256_hex(retention_hash or ""):
-        return 'QUARANTINED'
+        return "QUARANTINED"
     if not revalidation_passed:
-        return 'QUARANTINED'
-    return 'EVIDENCE'
+        return "QUARANTINED"
+    return "EVIDENCE"

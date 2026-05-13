@@ -453,10 +453,7 @@ def test_validate_events_counts_valid_and_invalid():
 
 
 def test_validate_jsonl_text_skips_blank_lines():
-    text = json.dumps(_GOLDEN_EVENT) + "
-
-" + json.dumps(_GOLDEN_EVENT) + "
-"
+    text = json.dumps(_GOLDEN_EVENT) + "\n\n" + json.dumps(_GOLDEN_EVENT) + "\n"
     report = validate_jsonl_text(text)
     assert report.total == 2
     assert report.valid == 2
@@ -464,9 +461,7 @@ def test_validate_jsonl_text_skips_blank_lines():
 
 
 def test_validate_jsonl_text_handles_malformed_json():
-    text = "{this is not json
-" + json.dumps(_GOLDEN_EVENT) + "
-"
+    text = "{this is not json\n" + json.dumps(_GOLDEN_EVENT) + "\n"
     report = validate_jsonl_text(text)
     assert report.total == 2
     # First line is a parse error; second is valid.

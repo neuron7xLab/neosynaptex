@@ -3,7 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from core.eai.engine import EAIEngine
-from core.eai.intelligence_cycle import BoundaryCard, ClaimCard, ClaimStatus, ClaimType, ReproducibilityManifest
+from core.eai.intelligence_cycle import (
+    BoundaryCard,
+    ClaimCard,
+    ClaimStatus,
+    ClaimType,
+    ReproducibilityManifest,
+)
 
 
 @dataclass
@@ -22,11 +28,13 @@ def _score(status: ClaimStatus) -> float:
 
 
 def estimate_gate_leverage() -> LeverageReport:
-    claim = ClaimCard('CLM-LEV-1', 'bounded local claim', ClaimType.FACTUAL)
-    boundary = BoundaryCard('BND-LEV-1', ['local'], ['global'], ['local'], ['global'])
-    repro = ReproducibilityManifest(['pytest'], 'local', 'a' * 64)
+    claim = ClaimCard("CLM-LEV-1", "bounded local claim", ClaimType.FACTUAL)
+    boundary = BoundaryCard("BND-LEV-1", ["local"], ["global"], ["local"], ["global"])
+    repro = ReproducibilityManifest(["pytest"], "local", "a" * 64)
 
-    def run(*, contradictions: list[str], retention_hash: str, revalidation_passed: bool) -> ClaimStatus:
+    def run(
+        *, contradictions: list[str], retention_hash: str, revalidation_passed: bool
+    ) -> ClaimStatus:
         engine = EAIEngine()
         try:
             out = engine.run_candidate(
@@ -36,21 +44,29 @@ def estimate_gate_leverage() -> LeverageReport:
                 reproducibility=repro,
                 retention_hash=retention_hash,
                 revalidation_passed=revalidation_passed,
-                integration_patch={'guardrail_update': {'id': 'GR-LEV-1'}},
-                next_intent_delta={'delta': 1},
+                integration_patch={"guardrail_update": {"id": "GR-LEV-1"}},
+                next_intent_delta={"delta": 1},
             )
             return out.status
         except ValueError:
             return ClaimStatus.QUARANTINED
 
-    baseline = run(contradictions=[], retention_hash='a' * 64, revalidation_passed=True)
+    baseline = run(contradictions=[], retention_hash="a" * 64, revalidation_passed=True)
     base_score = _score(baseline)
 
     variants = {
-        'contradiction_markers': run(contradictions=['bounded'], retention_hash='a' * 64, revalidation_passed=True),
-        'retention_hash_validity': run(contradictions=[], retention_hash='bad', revalidation_passed=True),
-        'revalidation_passed': run(contradictions=[], retention_hash='a' * 64, revalidation_passed=False),
+        "contradiction_markers": run(
+            contradictions=["bounded"], retention_hash="a" * 64, revalidation_passed=True
+        ),
+        "retention_hash_validity": run(
+            contradictions=[], retention_hash="bad", revalidation_passed=True
+        ),
+        "revalidation_passed": run(
+            contradictions=[], retention_hash="a" * 64, revalidation_passed=False
+        ),
     }
     sensitivities = {k: abs(_score(v) - base_score) for k, v in variants.items()}
-    top = max(sensitivities, key=sensitivities.get)
-    return LeverageReport(baseline_status=baseline, sensitivities=sensitivities, top_leverage_parameter=top)
+    top = max(sensitivities, key=lambda k: sensitivities[k])
+    return LeverageReport(
+        baseline_status=baseline, sensitivities=sensitivities, top_leverage_parameter=top
+    )

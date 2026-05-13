@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Literal
 
@@ -28,7 +29,7 @@ class RevalidationArtifact:
     evidence_artifact_id: str
     old_guardrail_state: str
     new_guardrail_state: str
-    decision: Literal['SCOPED_DOWN', 'RETIRED', 'SUPERSEDED', 'STRENGTHENED', 'UNCHANGED']
+    decision: Literal["SCOPED_DOWN", "RETIRED", "SUPERSEDED", "STRENGTHENED", "UNCHANGED"]
     decision_reason: str
     tests_run: list[str]
     boundary_before: str

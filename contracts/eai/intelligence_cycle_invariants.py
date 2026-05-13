@@ -19,7 +19,8 @@ def may_update_intent(
     """Canonical gate: no inference may update intent unless fully verified."""
     return bool(
         artifact
-        and hasattr(artifact, "can_be_promoted") and artifact.can_be_promoted()
+        and hasattr(artifact, "can_be_promoted")
+        and artifact.can_be_promoted()
         and retention_hash
         and revalidation_passed
     )

@@ -185,8 +185,7 @@ def test_empty_path_rejected(tmp_path: Path) -> None:
 
 
 # 13
-@pytest.mark.parametrize("payload", ["foo\x00bar", "foo
-bar", "foo\rbar", "foo\tbar"])
+@pytest.mark.parametrize("payload", ["foo\x00bar", "foo\nbar", "foo\rbar", "foo\tbar"])
 def test_control_char_rejected(tmp_path: Path, payload: str) -> None:
     v = collect_violations(_bad_path_ledger(payload), repo_root=tmp_path)
     assert any("control" in s.lower() for s in v)
@@ -309,8 +308,7 @@ def test_resolve_resolves_real_repo_file() -> None:
         r"\\server\share",
         "",
         "foo\x00bar",
-        "foo
-bar",
+        "foo\nbar",
         ".",
         "./",
     ],

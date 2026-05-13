@@ -88,9 +88,7 @@ def _rules(violations: list[LintViolation]) -> set[str]:
 def test_real_contract_is_admissible() -> None:
     assert _REAL_CONTRACT_PATH.is_file()
     violations = lint_contract_path(_REAL_CONTRACT_PATH)
-    assert not violations, "real contract must be admissible at Phase 4a:
-" + "
-".join(
+    assert not violations, "real contract must be admissible at Phase 4a:\n" + "\n".join(
         str(v) for v in violations
     )
 
@@ -232,6 +230,5 @@ def test_baseline_contract_is_admissible() -> None:
     violations = lint_contract(copy.deepcopy(_baseline_contract()))
     assert not violations, (
         "baseline contract used by adversarial tests must itself be "
-        f"admissible:
-{[str(v) for v in violations]}"
+        f"admissible:\n{[str(v) for v in violations]}"
     )
