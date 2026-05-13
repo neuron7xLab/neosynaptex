@@ -37,7 +37,12 @@ def _read_sink() -> list[dict]:
 def test_pr_body_check_emits_start_end_and_verdict_on_canonical_label(tmp_path):
     body = tmp_path / "body.txt"
     body.write_text(
-        "## Summary\n\nSome description.\n\nclaim_status: measured\n",
+        "## Summary
+
+Some description.
+
+claim_status: measured
+",
         encoding="utf-8",
     )
     rc = pr_body_check.main([str(body)])
@@ -63,7 +68,10 @@ def test_pr_body_check_emits_start_end_and_verdict_on_canonical_label(tmp_path):
 
 def test_pr_body_check_emits_fail_verdict_on_missing_label(tmp_path):
     body = tmp_path / "body.txt"
-    body.write_text("## Summary\n\nno claim_status here\n", encoding="utf-8")
+    body.write_text("## Summary
+
+no claim_status here
+", encoding="utf-8")
     rc = pr_body_check.main([str(body)])
     assert rc == 2
 
@@ -83,21 +91,24 @@ def test_pr_body_check_emits_fail_verdict_on_missing_label(tmp_path):
 
 def test_pr_body_check_emits_fail_verdict_on_unknown_label(tmp_path):
     body = tmp_path / "body.txt"
-    body.write_text("claim_status: maybe\n", encoding="utf-8")
+    body.write_text("claim_status: maybe
+", encoding="utf-8")
     rc = pr_body_check.main([str(body)])
     assert rc == 2
 
     events = _read_sink()
     verdict = next(e for e in events if e["event_type"].endswith(".verdict"))
     assert verdict["outcome"] == "fail"
-    assert "outside the\ncanonical" in verdict["payload"]["reason_head"] or (
+    assert "outside the
+canonical" in verdict["payload"]["reason_head"] or (
         "outside the" in verdict["payload"]["reason_head"]
     )
 
 
 def test_pr_body_check_verdict_events_share_single_trace(tmp_path):
     body = tmp_path / "body.txt"
-    body.write_text("claim_status: measured\n", encoding="utf-8")
+    body.write_text("claim_status: measured
+", encoding="utf-8")
     pr_body_check.main([str(body)])
     events = _read_sink()
     traces = {e["trace_id"] for e in events}
@@ -162,8 +173,10 @@ def test_pr_body_check_result_unchanged_when_telemetry_sink_unwritable(tmp_path,
     """
 
     broken_parent = tmp_path / "not_a_dir"
-    broken_parent.write_text("stub\n")
+    broken_parent.write_text("stub
+")
     monkeypatch.setenv("NEOSYNAPTEX_TELEMETRY_SINK", str(broken_parent / "events.jsonl"))
     body = tmp_path / "body.txt"
-    body.write_text("claim_status: measured\n", encoding="utf-8")
+    body.write_text("claim_status: measured
+", encoding="utf-8")
     assert pr_body_check.main([str(body)]) == 0  # unchanged

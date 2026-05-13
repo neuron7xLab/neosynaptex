@@ -47,7 +47,8 @@ def test_count_declared_scope_is_case_insensitive():
 
 def test_count_declared_scope_rejects_missing_declaration():
     with pytest.raises(ValueError, match="Substrates in scope after audit"):
-        count_declared_scope("# Some doc with no scope declaration\n")
+        count_declared_scope("# Some doc with no scope declaration
+")
 
 
 def test_word_to_count_covers_regex_alternation():
@@ -84,9 +85,13 @@ def test_extract_prereg_paths_ignores_header_alignment_and_scoped_out():
 
 def test_extract_prereg_paths_handles_backticks_and_whitespace():
     md = (
-        "## Pre-registration block\n\n"
-        "| X | y | `  substrates/x/a.py  ` | *(tba)* |\n"
-        "| Y | y | scoped out | — |\n"
+        "## Pre-registration block
+
+"
+        "| X | y | `  substrates/x/a.py  ` | *(tba)* |
+"
+        "| Y | y | scoped out | — |
+"
     )
     paths = extract_prereg_paths(md)
     assert paths == ["`  substrates/x/a.py  `"]
@@ -185,7 +190,8 @@ def test_run_check_reports_drift_on_missing_path(tmp_path):
 def test_run_check_missing_declaration_is_drift(tmp_path):
     # horizon_knobs.md without the canonical sentence.
     path = tmp_path / "knobs.md"
-    path.write_text("# no declaration here\n", encoding="utf-8")
+    path.write_text("# no declaration here
+", encoding="utf-8")
     code, msg = run_check(knobs_path=path, repo_root=tmp_path)
     assert code == 2
     assert "Substrates in scope after audit" in msg

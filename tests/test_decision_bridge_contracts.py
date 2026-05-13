@@ -14,7 +14,8 @@ from tools.audit.decision_bridge_contracts import check
 def test_registered_contracts_all_resolve_to_real_tests() -> None:
     report = check()
     assert report.yaml_error is None, report.yaml_error
-    assert report.missing_tests == [], "\n".join(
+    assert report.missing_tests == [], "
+".join(
         f"{i}: {f}::{s}" for i, f, s in report.missing_tests
     )
     assert report.unregistered_ids == [], (

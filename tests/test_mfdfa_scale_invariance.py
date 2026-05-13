@@ -121,7 +121,8 @@ def test_delta_h_scale_invariance_on_monofractal_fgn(H_true: float) -> None:
     dh_max = float(np.max(dh_values))
 
     # Diagnostic for the log (will also show up on failure).
-    print(f"\nH_true={H_true}: Δh per window = {dh_values}, std={dh_std:.4f}, max={dh_max:.4f}")
+    print(f"
+H_true={H_true}: Δh per window = {dh_values}, std={dh_std:.4f}, max={dh_max:.4f}")
 
     assert dh_std < 0.10, (
         f"Δh scale-instability at H={H_true}: std={dh_std:.4f} "
@@ -169,7 +170,8 @@ def test_hq2_recovers_h_on_monofractal_fgn(
         hq2_values.append(res.h_at_q2)
 
     print(
-        f"\nH_true={H_true}: h(q=2) per window = {hq2_values}, "
+        f"
+H_true={H_true}: h(q=2) per window = {hq2_values}, "
         f"H-recovery-error (EEG window) = {abs(hq2_values[1] - H_true):.3f}"
     )
 

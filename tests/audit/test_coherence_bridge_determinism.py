@@ -213,7 +213,8 @@ def test_devonly_flag_unlocks_subprocess_path(monkeypatch: pytest.MonkeyPatch) -
     calls: list[list[str]] = []
 
     class _Result:
-        stdout = "cafef00d\n"
+        stdout = "cafef00d
+"
 
     def _capture(cmd: list[str], **_kw: object) -> _Result:
         calls.append(cmd)

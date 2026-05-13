@@ -83,14 +83,18 @@ def test_load_kill_criteria_reads_instrumented_and_not_instrumented(tmp_path):
 
 def test_load_kill_criteria_rejects_missing_frontmatter(tmp_path):
     path = tmp_path / "no_frontmatter.md"
-    path.write_text("# just body\n", encoding="utf-8")
+    path.write_text("# just body
+", encoding="utf-8")
     with pytest.raises(IntegrityError, match="frontmatter"):
         load_kill_criteria(path)
 
 
 def test_load_kill_criteria_rejects_missing_list(tmp_path):
     path = tmp_path / "empty.md"
-    path.write_text("---\nversion: v1\n---\n", encoding="utf-8")
+    path.write_text("---
+version: v1
+---
+", encoding="utf-8")
     with pytest.raises(IntegrityError, match="kill_criteria"):
         load_kill_criteria(path)
 
@@ -134,7 +138,8 @@ def test_run_check_passes_when_contracts_exist_and_count_at_baseline(tmp_path):
     test = tmp_path / "tests/audit/test_my_tool.py"
     for p in (tool, test):
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text("# exists\n", encoding="utf-8")
+        p.write_text("# exists
+", encoding="utf-8")
 
     yaml_block = textwrap.dedent(
         """\
@@ -198,7 +203,8 @@ def test_run_check_fails_when_count_below_baseline(tmp_path):
     test = tmp_path / "tests/audit/test_only.py"
     for p in (tool, test):
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text("# exists\n", encoding="utf-8")
+        p.write_text("# exists
+", encoding="utf-8")
 
     yaml_block = textwrap.dedent(
         """\
@@ -230,7 +236,8 @@ def test_run_check_ignores_not_instrumented_contract_integrity(tmp_path):
     test = tmp_path / "tests/audit/test_the_one.py"
     for p in (tool, test):
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text("# exists\n", encoding="utf-8")
+        p.write_text("# exists
+", encoding="utf-8")
 
     yaml_block = textwrap.dedent(
         """\

@@ -20,7 +20,8 @@ def test_all_substrates_not_collapsed():
         regime = classify_regime(gamma)
         assert regime != "COLLAPSE", (
             f"Substrate '{name}' collapsed: γ={gamma:.4f} "
-            f"|γ-1|={abs(gamma - 1):.4f} > 0.50\nNote: {note}"
+            f"|γ-1|={abs(gamma - 1):.4f} > 0.50
+Note: {note}"
         )
 
 

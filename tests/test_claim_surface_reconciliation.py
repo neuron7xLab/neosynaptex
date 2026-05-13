@@ -64,21 +64,34 @@ def _write_clean_fixture(root: Path) -> None:
     )
 
     (root / "README.md").write_text(
-        "# NeoSynaptex\n\nRegime-marker hypothesis under active test.\n",
+        "# NeoSynaptex
+
+Regime-marker hypothesis under active test.
+",
         encoding="utf-8",
     )
 
     (root / "docs" / "CLAIM_BOUNDARY.md").write_text(
-        "# Claim boundary\n\n"
-        "### Claim C-001\n- **Layer:** Proved\n\n"
-        "### Claim C-004\n"
-        "- **Layer:** Conjectural\n"
-        "- **Statement:** open empirical conjecture.\n",
+        "# Claim boundary
+
+"
+        "### Claim C-001
+- **Layer:** Proved
+
+"
+        "### Claim C-004
+"
+        "- **Layer:** Conjectural
+"
+        "- **Statement:** open empirical conjecture.
+",
         encoding="utf-8",
     )
 
     (root / "contracts" / "mycelium_pre_admission.py").write_text(
-        '"""Mycelium pre-admission contract."""\nBLOCKED_BY_METHOD_DEFINITION = True\n',
+        '"""Mycelium pre-admission contract."""
+BLOCKED_BY_METHOD_DEFINITION = True
+',
         encoding="utf-8",
     )
 
@@ -91,15 +104,19 @@ def _write_ledger_only(root: Path, entries: dict[str, Any]) -> None:
     )
     (root / "docs").mkdir(parents=True, exist_ok=True)
     (root / "docs" / "CLAIM_BOUNDARY.md").write_text(
-        "### Claim C-004\n- **Layer:** Conjectural\n",
+        "### Claim C-004
+- **Layer:** Conjectural
+",
         encoding="utf-8",
     )
     (root / "contracts").mkdir(parents=True, exist_ok=True)
     (root / "contracts" / "mycelium_pre_admission.py").write_text(
-        "BLOCKED_BY_METHOD_DEFINITION = True\n",
+        "BLOCKED_BY_METHOD_DEFINITION = True
+",
         encoding="utf-8",
     )
-    (root / "README.md").write_text("Regime marker.\n", encoding="utf-8")
+    (root / "README.md").write_text("Regime marker.
+", encoding="utf-8")
 
 
 # 1
@@ -185,7 +202,10 @@ def test_bnsyn_overclaim(tmp_path: Path) -> None:
 def test_readme_forbidden_phrase(tmp_path: Path) -> None:
     _write_clean_fixture(tmp_path)
     (tmp_path / "README.md").write_text(
-        "# title\n\nThis confirms the universal law of γ.\n",
+        "# title
+
+This confirms the universal law of γ.
+",
         encoding="utf-8",
     )
     violations = collect_violations(tmp_path)
@@ -197,7 +217,10 @@ def test_readme_forbidden_phrase(tmp_path: Path) -> None:
 def test_readme_validated_count_inconsistent(tmp_path: Path) -> None:
     _write_clean_fixture(tmp_path)
     (tmp_path / "README.md").write_text(
-        "# title\n\nMean across 6 validated substrates.\n",
+        "# title
+
+Mean across 6 validated substrates.
+",
         encoding="utf-8",
     )
     violations = collect_violations(tmp_path)
@@ -208,7 +231,10 @@ def test_readme_validated_count_inconsistent(tmp_path: Path) -> None:
 def test_c004_layer_overclaim(tmp_path: Path) -> None:
     _write_clean_fixture(tmp_path)
     (tmp_path / "docs" / "CLAIM_BOUNDARY.md").write_text(
-        "### Claim C-004\n- **Layer:** Empirical\n- statement\n",
+        "### Claim C-004
+- **Layer:** Empirical
+- statement
+",
         encoding="utf-8",
     )
     violations = collect_violations(tmp_path)
@@ -219,7 +245,8 @@ def test_c004_layer_overclaim(tmp_path: Path) -> None:
 def test_mycelium_contract_overclaim(tmp_path: Path) -> None:
     _write_clean_fixture(tmp_path)
     (tmp_path / "contracts" / "mycelium_pre_admission.py").write_text(
-        '"""no gate marker present."""\n',
+        '"""no gate marker present."""
+',
         encoding="utf-8",
     )
     violations = collect_violations(tmp_path)
@@ -242,7 +269,8 @@ def test_main_exit_codes(tmp_path: Path) -> None:
     rc_clean = main(["--repo-root", str(tmp_path), "--json-out", str(tmp_path / "j.json")])
     assert rc_clean == 0
 
-    (tmp_path / "README.md").write_text("γ = 1 everywhere now.\n", encoding="utf-8")
+    (tmp_path / "README.md").write_text("γ = 1 everywhere now.
+", encoding="utf-8")
     rc_dirty = main(["--repo-root", str(tmp_path), "--json-out", str(tmp_path / "j2.json")])
     assert rc_dirty == 2
 

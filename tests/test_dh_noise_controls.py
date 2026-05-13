@@ -83,7 +83,8 @@ def test_noise_control_dh_below_healthy_band(
 
     # Visible in CI log whether the test passes or fails.
     print(
-        f"\n{label} (H={H_true}): Δh samples = {dh_values}, "
+        f"
+{label} (H={H_true}): Δh samples = {dh_values}, "
         f"mean={dh_mean:.4f}, p95={dh_p95:.4f}, max={dh_max:.4f}"
     )
 
@@ -126,7 +127,8 @@ def test_noise_controls_all_below_hrv_nsr_mean() -> None:
             all_dh.append(float(res.delta_h))
 
     pooled_mean = float(np.mean(all_dh))
-    print(f"\nPooled noise Δh mean across {len(all_dh)} runs = {pooled_mean:.4f}")
+    print(f"
+Pooled noise Δh mean across {len(all_dh)} runs = {pooled_mean:.4f}")
 
     assert pooled_mean < 0.19 - 0.02, (
         f"Pooled noise Δh {pooled_mean:.4f} not separated from HRV-NSR anchor 0.19 "

@@ -80,7 +80,8 @@ def test_six_reason_codes_in_canonical_order() -> None:
 
 # 5
 def test_non_claims_include_reason_code_disclaimer() -> None:
-    joined = "\n".join(MYCELIUM_GATE_ZERO_NON_CLAIMS)
+    joined = "
+".join(MYCELIUM_GATE_ZERO_NON_CLAIMS)
     assert "BLOCKED_BY_METHOD_DEFINITION is a reason code" in joined
     assert "not a fifth ladder state" in joined
     # Defensive: the no-validation-of-fungi promise is also explicit.

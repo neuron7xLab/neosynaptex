@@ -73,7 +73,10 @@ def test_pr_title_with_disavowal_admitted(monkeypatch: pytest.MonkeyPatch) -> No
 def test_pr_body_overclaim_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv(
         "GH_PR_BODY",
-        "## Summary\n\nWe ship a full evidence verification system in this PR.\n",
+        "## Summary
+
+We ship a full evidence verification system in this PR.
+",
     )
     v = find_overclaims(_REPO_ROOT)
     assert any("PR_BODY" in s and "full evidence verification" in s for s in v)
@@ -107,7 +110,8 @@ def test_temp_source_file_overclaim_detected(tmp_path: Path) -> None:
     (fake_repo / "tools" / "audit").mkdir(parents=True)
     bad = fake_repo / "tools" / "audit" / "fake.py"
     bad.write_text(
-        '"""This module ships a cryptographic evidence chain."""\n',
+        '"""This module ships a cryptographic evidence chain."""
+',
         encoding="utf-8",
     )
     v = find_overclaims(fake_repo)
@@ -119,7 +123,8 @@ def test_temp_source_file_disavowal_admitted(tmp_path: Path) -> None:
     (fake_repo / "tools" / "audit").mkdir(parents=True)
     ok = fake_repo / "tools" / "audit" / "fake.py"
     ok.write_text(
-        '"""This module is NOT a cryptographic evidence chain."""\n',
+        '"""This module is NOT a cryptographic evidence chain."""
+',
         encoding="utf-8",
     )
     v = find_overclaims(fake_repo)
@@ -138,10 +143,13 @@ def test_pr_title_overclaim_body_licensed_admitted(
     monkeypatch.setenv(
         "GH_PR_BODY",
         (
-            "## Summary\n\n"
+            "## Summary
+
+"
             "This PR is a runtime repo-file hash binding gate, "
             "**not** a 'cryptographic evidence chain'. Scope is "
-            "intentionally narrow.\n"
+            "intentionally narrow.
+"
         ),
     )
     v = find_overclaims(_REPO_ROOT)
@@ -160,7 +168,8 @@ def test_pr_title_overclaim_unrelated_body_disavowal_rejected(
     )
     monkeypatch.setenv(
         "GH_PR_BODY",
-        "This PR is **not** a 'cryptographic evidence chain'.\n",
+        "This PR is **not** a 'cryptographic evidence chain'.
+",
     )
     v = find_overclaims(_REPO_ROOT)
     assert any("PR_TITLE" in s and "hypothesis validated" in s for s in v), v
@@ -178,7 +187,8 @@ def test_pr_body_positive_phrase_does_not_license_title(
     )
     monkeypatch.setenv(
         "GH_PR_BODY",
-        "We ship a cryptographic evidence chain in this PR.\n",
+        "We ship a cryptographic evidence chain in this PR.
+",
     )
     v = find_overclaims(_REPO_ROOT)
     assert any("PR_TITLE" in s and "cryptographic evidence chain" in s for s in v)

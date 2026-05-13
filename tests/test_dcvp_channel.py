@@ -28,7 +28,9 @@ def test_channel_tamper_detected(tmp_path: Path) -> None:
     # Mutate a middle line in-place — should break the chain.
     lines = path.read_text().splitlines()
     lines[2] = lines[2].replace('"gamma": 2.0', '"gamma": 99.0')
-    path.write_text("\n".join(lines) + "\n")
+    path.write_text("
+".join(lines) + "
+")
     with pytest.raises(ChannelTampered):
         GammaChannel(path).read()
 

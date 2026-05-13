@@ -168,7 +168,9 @@ def test_excludes_tests_tree(tmp_path):
 
 
 def test_skips_files_with_syntax_errors(tmp_path):
-    (tmp_path / "broken.py").write_text("def oops(:\n    pass\n", encoding="utf-8")
+    (tmp_path / "broken.py").write_text("def oops(:
+    pass
+", encoding="utf-8")
     _mk_module(
         tmp_path,
         "producer/worker.py",

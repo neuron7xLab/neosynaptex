@@ -528,14 +528,22 @@ def test_load_config_accepts_real_yaml_file(tmp_path):
     from tools.audit.semantic_drift_gate import load_config
 
     config_text = (
-        "protected_files:\n"
-        "  - README.md\n"
-        "  - docs/X.md\n"
-        "excluded_prefixes:\n"
-        "  - archive/\n"
-        "status_ceilings:\n"
-        "  measured: 4\n"
-        "  falsified: 0\n"
+        "protected_files:
+"
+        "  - README.md
+"
+        "  - docs/X.md
+"
+        "excluded_prefixes:
+"
+        "  - archive/
+"
+        "status_ceilings:
+"
+        "  measured: 4
+"
+        "  falsified: 0
+"
     )
     path = tmp_path / "conf.yaml"
     path.write_text(config_text, encoding="utf-8")

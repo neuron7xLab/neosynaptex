@@ -213,6 +213,8 @@ def test_no_positive_forbidden_phrase_anywhere_in_repo_docs(phrase: str) -> None
     mod = _load_lint_module()
     violations = mod.scan_docs([phrase])
     assert violations == [], (
-        f"forbidden phrase {phrase!r} appears positively in docs:\n"
-        + "\n".join(f"  {v.path}:{v.line_number}: {v.line}" for v in violations)
+        f"forbidden phrase {phrase!r} appears positively in docs:
+"
+        + "
+".join(f"  {v.path}:{v.line_number}: {v.line}" for v in violations)
     )

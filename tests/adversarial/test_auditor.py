@@ -125,14 +125,18 @@ def test_run_all_runs_verifier_first_and_passes_on_main():
 
 
 def test_run_all_with_pr_body_invokes_pr_body_check(tmp_path):
-    report = run_all(pr_body="## Summary\n\nclaim_status: measured\n")
+    report = run_all(pr_body="## Summary
+
+claim_status: measured
+")
     body_verdict = next(v for v in report.verdicts if v.name == "pr_body_check")
     assert not body_verdict.skipped
     assert body_verdict.exit_code == 0
 
 
 def test_run_all_flags_pr_body_missing_claim_status():
-    report = run_all(pr_body="## No status label here\n")
+    report = run_all(pr_body="## No status label here
+")
     body_verdict = next(v for v in report.verdicts if v.name == "pr_body_check")
     assert body_verdict.exit_code == 2
     assert not body_verdict.ok
