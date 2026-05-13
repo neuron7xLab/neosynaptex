@@ -1,0 +1,59 @@
+name: eai-admissibility-tracker
+
+# Longitudinal admissibility regression gate.
+# On every PR + push, append a forensic row to the committed history
+# JSONL (in a tmp copy — we do not mutate the committed file in CI),
+# and fail if the new rate regresses below the most-recent committed
+# rate. Regressions can occur via (a) gate logic change that lowers
+# admissibility, (b) ledger entry that drops below threshold,
+# (c) determinism drift on identical inputs.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+jobs:
+  admissibility-regression:
+    name: admissibility regression gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+          cache: pip
+      - name: Install package
+        run: pip install --quiet -e ".[dev]"
+      - name: Tracker tests
+        run: PYTHONPATH=. pytest tests/eai/integration/test_admissibility_tracker.py -q
+      - name: Run regression check against committed history
+        run: |
+          cp artifacts/eai/benchmarks/gamma_ledger_admissibility_history.jsonl /tmp/history_pre.jsonl
+          PYTHONPATH=. python tools/eai/track_admissibility.py \
+            --ledger evidence/gamma_ledger.json \
+            --history /tmp/history_pre.jsonl \
+            --check-regression
+      - name: Upload forensic history artifact (CI tmp copy)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eai-admissibility-history-ci-snapshot
+          path: /tmp/history_pre.jsonl
+          if-no-files-found: error
+          retention-days: 90
