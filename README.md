@@ -431,12 +431,6 @@ neosynaptex/
 +-- evidence/                         gamma_ledger.json + proof chains
 +-- .github/workflows/                16 CI workflows
 +-- formal/                           3 modules: proofs, falsification, substrate diversity
-+-- core/eai/                         EAI research track: engine, gate, ledger, guardrails
-+-- contracts/eai/                    EAI invariants (no_evidence_without_boundary etc.)
-+-- tools/eai/                        EAI CLIs (run_claim_gate, run_calibration, run_false_promotion_benchmark)
-+-- data/eai_calibration/             EAI labelled datasets (false_promotion_benchmark_v1.jsonl)
-+-- artifacts/eai/benchmarks/         EAI deterministic benchmark reports
-+-- docs/research/EAI_*.md            EAI specs, checklist, false-promotion benchmark v1
 |
 +-- CFP_PROTOCOL.md                   Cognitive Field Protocol v3.0
 +-- CONTRACT.md                       invariants + formulas
@@ -498,24 +492,6 @@ Delegation suppression: -9.5% per 10% delegation
 ### LM Substrate (2026-04-02)
 
 GPT-4o-mini via API: **gamma = -0.094 (null result)**. Stateless inference has no temporal structure. Confirms that gamma != 0 requires closed-loop dynamics, not isolated sampling.
-
-### EAI False-Promotion Benchmark v1 (2026-05-13)
-
-Computational verification harness for the EAI gate. On a deterministic 120-row labelled dataset (40 EVIDENCE / 60 KILLED / 20 QUARANTINED, of which 20 are adversarial overclaim traps across six families), the gate measured:
-
-| metric | value |
-|---|---|
-| false_promotion_count | 0 |
-| false_promotion_rate | 0.0 (threshold ≤ 0.02) |
-| boundary_violation_count | 0 (hard floor 0) |
-| trap_detection_rate | 1.0 |
-| quarantine_accuracy | 1.0 |
-| deterministic_replay | byte-identical across two runs |
-| decision | **PASS** |
-
-Run: `PYTHONPATH=. python tools/eai/run_false_promotion_benchmark.py`. Report: `artifacts/eai/benchmarks/false_promotion_report_v1.json`. Full spec + claim boundary: [docs/research/EAI_FALSE_PROMOTION_BENCHMARK_V1.md](docs/research/EAI_FALSE_PROMOTION_BENCHMARK_V1.md).
-
-**Claim boundary**: this measures **gate behaviour on a synthetic calibrated dataset**, not real-world correctness. It is a regression-detection harness, not a validation of cognition.
 
 <br>
 
