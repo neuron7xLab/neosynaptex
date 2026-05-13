@@ -1,8 +1,16 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
+
+Clock = Callable[[], str]
+
+
+def _utc_now_iso() -> str:
+    """Default wall-clock for ledger timestamps (UTC ISO-8601)."""
+    return datetime.now(timezone.utc).isoformat()
 
 
 @dataclass(frozen=True)
@@ -15,10 +23,17 @@ class LedgerEntry:
 
 
 class ArtifactLedger:
-    """Append-only artifact ledger for auditability."""
+    """Append-only artifact ledger for auditability.
 
-    def __init__(self) -> None:
+    The optional ``clock`` callable controls the source of
+    ``timestamp_utc`` on every appended entry. The default reads
+    real UTC wall-clock; benchmarks and replay tests inject a fixed
+    clock to produce bit-identical ledger transcripts.
+    """
+
+    def __init__(self, *, clock: Clock | None = None) -> None:
         self._entries: list[LedgerEntry] = []
+        self._clock: Clock = clock if clock is not None else _utc_now_iso
 
     def append(
         self, artifact_id: str, claim_id: str, status: str, retention_hash: str
@@ -30,7 +45,7 @@ class ArtifactLedger:
             claim_id=claim_id,
             status=status,
             retention_hash=retention_hash,
-            timestamp_utc=datetime.now(timezone.utc).isoformat(),
+            timestamp_utc=self._clock(),
         )
         self._entries.append(entry)
         return entry
