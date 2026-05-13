@@ -84,12 +84,25 @@ def _load_history(path: Path) -> list[dict[str, Any]]:
 
 
 def _check_regression(history: list[dict[str, Any]], new_row: dict[str, Any]) -> tuple[bool, str]:
-    """Return ``(is_regression, reason)``."""
+    """Return ``(is_regression, reason)``.
+
+    Two independent guards, BOTH must pass:
+
+    1. **Determinism**: if the same ``ledger_sha256`` +
+       ``bridge_module_sha256`` appears in history, the new
+       row's rate MUST equal it (gate must be deterministic).
+    2. **Monotone non-decrease vs most-recent**: regardless of
+       input-hash match, the new rate MUST be greater than or
+       equal to ``history[-1].admissibility_rate``. This blocks
+       a rollback to older inputs that had a lower historical
+       rate — same-input match is not a free pass to undo a
+       legitimate later improvement.
+    """
 
     if not history:
         return False, "first_row"
 
-    # Same-inputs determinism check
+    # Guard 1: determinism on identical inputs
     same_inputs = [
         r
         for r in history
@@ -97,22 +110,25 @@ def _check_regression(history: list[dict[str, Any]], new_row: dict[str, Any]) ->
         and r.get("bridge_module_sha256") == new_row["bridge_module_sha256"]
     ]
     if same_inputs:
-        prior = same_inputs[-1]
-        if prior["admissibility_rate"] != new_row["admissibility_rate"]:
+        prior_same = same_inputs[-1]
+        if prior_same["admissibility_rate"] != new_row["admissibility_rate"]:
             return True, (
                 f"determinism drift: same inputs but "
-                f"prior={prior['admissibility_rate']} vs "
+                f"prior={prior_same['admissibility_rate']} vs "
                 f"new={new_row['admissibility_rate']}"
             )
-        return False, "deterministic_match_prior"
 
-    # Otherwise: monotone non-decreasing rate
-    prior = history[-1]
-    if new_row["admissibility_rate"] < prior["admissibility_rate"]:
+    # Guard 2: monotone non-decrease vs most-recent committed row
+    prior_recent = history[-1]
+    if new_row["admissibility_rate"] < prior_recent["admissibility_rate"]:
         return True, (
-            f"admissibility regression: prior={prior['admissibility_rate']} "
+            f"admissibility regression vs most-recent: "
+            f"prior={prior_recent['admissibility_rate']} "
             f"vs new={new_row['admissibility_rate']}"
         )
+
+    if same_inputs:
+        return False, "deterministic_match_prior"
     return False, "non_decreasing_rate"
 
 

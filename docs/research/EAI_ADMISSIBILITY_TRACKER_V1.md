@@ -17,20 +17,37 @@ The tracker answers:
 
 ## Regression policy
 
-Two failure modes are caught:
+Four failure modes are caught (TWO independent guards, both must pass):
 
 1. **Determinism drift** — same `ledger_sha256` AND same
    `bridge_module_sha256` as a prior row, but a different
    `admissibility_rate`. Indicates the bridge stopped being
-   deterministic. CI must block.
-2. **Rate regression** — different inputs, but
-   `admissibility_rate < prior_rate`. Indicates the gate became
-   *less* strict (false-promotion danger) or a ledger entry
-   slipped below threshold without compensating improvements
-   elsewhere.
+   deterministic.
+2. **Rate regression vs most-recent** — regardless of whether the
+   inputs were seen before, the new rate MUST be ≥ the rate of the
+   *most recent committed row*. This blocks two distinct attacks:
+   - **Forward regression**: PR changes the gate or ledger such
+     that the new rate is lower than main's most-recent rate.
+   - **Rollback bypass**: PR reverts code/data to an older input
+     pair whose historical rate was lower than main's current
+     most-recent rate, which would otherwise sneak past a
+     "same-inputs deterministic match" short-circuit.
 
-Improvements (`admissibility_rate >=` prior) are permitted and
-silently logged.
+Improvements (`admissibility_rate >=` most-recent prior) are
+permitted and silently logged.
+
+## CI trust model
+
+The baseline history is ALWAYS read from `origin/main` via
+`git show origin/main:artifacts/eai/benchmarks/gamma_ledger_admissibility_history.jsonl`,
+NEVER from the PR's working tree. This blocks the bypass where
+a PR rewrites the committed history file to lower its own
+baseline and then passes `--check-regression` against the
+rewritten file. See
+`.github/workflows/eai-admissibility-tracker.yml`.
+
+On a first-time bootstrap (file not yet on main), CI seeds with
+an empty file so the new measurement records as `first_row`.
 
 ## History schema (`EAI-GAMMA-ADMISSIBILITY-HISTORY-v1`)
 

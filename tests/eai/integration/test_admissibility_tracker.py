@@ -138,6 +138,60 @@ def test_check_regression_pure_function() -> None:
     assert not is_reg and reason == "non_decreasing_rate"
 
 
+def test_rollback_to_older_inputs_with_lower_rate_is_regression() -> None:
+    """Regression: same-input determinism check must NOT bypass the
+    monotone-vs-recent guard. Reverting code/data to an older hash
+    pair whose recorded rate sits below the most-recent committed
+    rate must be flagged.
+
+    Scenario:
+      row1 (inputs A, rate 0.30) — older legitimate measurement
+      row2 (inputs B, rate 0.50) — most recent committed
+      new  (inputs A, rate 0.30) — rollback to A; same-inputs match
+                                  exists in history, but 0.30 < 0.50.
+    """
+
+    row_a = {
+        "ledger_sha256": "a" * 64,
+        "bridge_module_sha256": "a" * 64,
+        "admissibility_rate": 0.30,
+    }
+    row_b = {
+        "ledger_sha256": "b" * 64,
+        "bridge_module_sha256": "b" * 64,
+        "admissibility_rate": 0.50,
+    }
+    rollback = dict(row_a)  # inputs A again, rate 0.30
+    is_reg, reason = _check_regression([row_a, row_b], rollback)
+    assert is_reg, "rollback to A with rate < most-recent must be regression"
+    assert "regression vs most-recent" in reason
+
+
+def test_same_input_same_rate_with_newer_lower_recent_is_accepted() -> None:
+    """Edge case: if the most-recent row has a LOWER rate than the
+    same-inputs match (which should not normally happen, since
+    history is monotone non-decreasing), the same-inputs determinism
+    path still permits an exact rate match because the rate equals
+    the same-inputs row.
+    """
+
+    row_a = {
+        "ledger_sha256": "a" * 64,
+        "bridge_module_sha256": "a" * 64,
+        "admissibility_rate": 0.50,
+    }
+    # Most-recent row with lower rate (pathological history)
+    row_recent = {
+        "ledger_sha256": "b" * 64,
+        "bridge_module_sha256": "b" * 64,
+        "admissibility_rate": 0.45,
+    }
+    new = dict(row_a)  # rate 0.50, ≥ 0.45 so guard 2 is satisfied
+    is_reg, reason = _check_regression([row_a, row_recent], new)
+    assert not is_reg
+    assert reason == "deterministic_match_prior"
+
+
 def test_compute_history_digest_ignores_recorded_at() -> None:
     row_a = {
         "ledger_sha256": "a" * 64,
