@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import re
 import time
 from dataclasses import dataclass
 
@@ -18,6 +20,24 @@ from core.eai.intelligence_cycle import (
 from core.falsification_engine import falsification_decision
 from core.iev_gate import decide_intent_update
 from core.integration_memory import IntegrationMemory
+
+_SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _safe_retention_hash(user_hash: str, *, status: str, claim_id: str, claim_text: str) -> str:
+    """Return ``user_hash`` if it is a valid SHA-256 hex digest, else a
+    deterministic fallback for non-EVIDENCE policy records.
+
+    The artifact ledger only accepts lowercase SHA-256 hex; a malformed
+    user-supplied hash from upstream must not turn a *policy* decision
+    (QUARANTINED / KILLED) into a *runtime crash*. For non-EVIDENCE
+    statuses the fallback is computed from ``status:claim_id:claim_text``
+    so the entry remains audit-stable and reproducible.
+    """
+    if _SHA256_HEX.fullmatch(user_hash or ""):
+        return user_hash
+    digest = hashlib.sha256(f"{status}:{claim_id}:{claim_text}".encode())
+    return digest.hexdigest()
 
 
 @dataclass
@@ -64,6 +84,12 @@ class EAIEngine:
         )
         if not passed:
             status = ClaimStatus.KILLED
+            safe_hash = _safe_retention_hash(
+                retention_hash,
+                status=status.value,
+                claim_id=claim.claim_id,
+                claim_text=claim.claim_text,
+            )
             kill_artifact = KillArtifact(
                 artifact_id=f"KILL-{claim.claim_id}",
                 claim=claim,
@@ -72,10 +98,10 @@ class EAIEngine:
                 future_guardrail="block_repromotion",
             )
             icu = IntelligenceClosureUnit(
-                status=status, artifact=kill_artifact, retention_hash=retention_hash
+                status=status, artifact=kill_artifact, retention_hash=safe_hash
             )
             entry = self.ledger.append(
-                f"KILL-{claim.claim_id}", claim.claim_id, status.value, retention_hash
+                f"KILL-{claim.claim_id}", claim.claim_id, status.value, safe_hash
             )
             return EngineOutcome(
                 status=status,
@@ -99,25 +125,48 @@ class EAIEngine:
             evidence, retention_hash=retention_hash, revalidation_passed=revalidation_passed
         )
         status = ClaimStatus(decision)
-        decision_reason = (
-            "promotion_allowed"
-            if status is ClaimStatus.EVIDENCE
-            else (
+        safe_hash = _safe_retention_hash(
+            retention_hash,
+            status=status.value,
+            claim_id=claim.claim_id,
+            claim_text=claim.claim_text,
+        )
+
+        # Three-way fan-out: EVIDENCE keeps the artifact as-is; KILLED
+        # synthesizes a KillArtifact (decide_intent_update can return
+        # KILLED when can_be_promoted() is False, e.g. missing boundary
+        # or invalid reproducibility hash); QUARANTINED wraps the
+        # claim with the gate reason.
+        outcome_artifact: EvidenceArtifact | KillArtifact | QuarantinedClaim
+        artifact_id: str
+        decision_reason: str
+        if status is ClaimStatus.EVIDENCE:
+            outcome_artifact = evidence
+            artifact_id = evidence.artifact_id
+            decision_reason = "promotion_allowed"
+        elif status is ClaimStatus.KILLED:
+            outcome_artifact = KillArtifact(
+                artifact_id=f"KILL-{claim.claim_id}",
+                claim=claim,
+                kill_reason="iev_gate_promotion_denied",
+                failed_test="gate_iev_can_be_promoted",
+                future_guardrail="block_repromotion_until_boundary_repaired",
+            )
+            artifact_id = outcome_artifact.artifact_id
+            decision_reason = "iev_gate_promotion_denied"
+        else:  # QUARANTINED
+            outcome_artifact = QuarantinedClaim(claim=claim, quarantine_reason="gate_not_satisfied")
+            artifact_id = evidence.artifact_id
+            decision_reason = (
                 "revalidation_failed_or_hash_invalid"
                 if not revalidation_passed
                 else "gate_quarantine"
             )
-        )
 
-        outcome_artifact: EvidenceArtifact | QuarantinedClaim = (
-            evidence
-            if status is ClaimStatus.EVIDENCE
-            else QuarantinedClaim(claim=claim, quarantine_reason="gate_not_satisfied")
-        )
         icu = IntelligenceClosureUnit(
             status=status,
             artifact=outcome_artifact,
-            retention_hash=retention_hash,
+            retention_hash=safe_hash,
             integration_patch=integration_patch if status is ClaimStatus.EVIDENCE else None,
             next_intent_delta=next_intent_delta if status is ClaimStatus.EVIDENCE else None,
             revalidation_passed=revalidation_passed,
@@ -129,9 +178,7 @@ class EAIEngine:
             )
 
         path.append("artifact_ledger")
-        entry = self.ledger.append(
-            evidence.artifact_id, claim.claim_id, status.value, retention_hash
-        )
+        entry = self.ledger.append(artifact_id, claim.claim_id, status.value, safe_hash)
         return EngineOutcome(
             status=status,
             icu=icu,
