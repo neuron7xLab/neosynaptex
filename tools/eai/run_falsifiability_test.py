@@ -5,8 +5,11 @@ CONTRACT:
     post: writes deterministic JSON report comparing two gate
           configurations (binary vs graded) on the dataset and
           emits a pre-registered verdict.
-    fail: exit 1 on NULL_RESULT, exit 2 on FALSIFIED, exit 0 on
-          SUPPORTED.
+    fail: exit 33 on NULL_RESULT, exit 22 on FALSIFIED, exit 0 on
+          SUPPORTED. Exit 1 is RESERVED for Python uncaught-exception
+          default — CI must treat 1 as a runner-failure (block build),
+          NOT as a benign NULL_RESULT. Rare codes (22, 33) are
+          unambiguous verdict signals.
     inv:  the binary configuration uses the SAME code paths and
           inputs the test harness in PR #192 used, so binary
           results are byte-comparable to the prior benchmark
@@ -401,11 +404,21 @@ def main() -> int:
             sort_keys=True,
         )
     )
+    # Verdict-specific exit codes, chosen to NOT collide with Python's
+    # default exit code 1 (uncaught exception). Codex P1: distinguishing
+    # NULL_RESULT from runner crash is critical, because a silent bug
+    # in the runner would have exit code 1 and be misread as a benign
+    # NULL_RESULT by CI.
+    #   0  = HYPOTHESIS_SUPPORTED
+    #   22 = HYPOTHESIS_FALSIFIED (CI MUST block)
+    #   33 = NULL_RESULT          (CI warning, build passes)
+    #   1  = reserved for Python's uncaught-exception default
+    #         (handled by CI as runner failure, build blocks)
     if report["verdict"] == "HYPOTHESIS_SUPPORTED":
         return 0
     if report["verdict"] == "HYPOTHESIS_FALSIFIED":
-        return 2
-    return 1  # NULL_RESULT
+        return 22
+    return 33  # NULL_RESULT
 
 
 if __name__ == "__main__":

@@ -54,8 +54,13 @@ jobs:
             tests/eai/protocol/test_graded_gate_threshold.py \
             tests/eai/calibration/test_falsifiability_v1.py -q
       - name: Run pre-registered falsifiability test
-        # Exit 0 SUPPORTED, exit 1 NULL_RESULT (warning, build passes),
-        # exit 2 FALSIFIED (build fails).
+        # Exit code policy (rare codes to avoid colliding with
+        # Python's default exception exit code 1):
+        #   0  = HYPOTHESIS_SUPPORTED
+        #   22 = HYPOTHESIS_FALSIFIED  (CI MUST block)
+        #   33 = NULL_RESULT           (CI warning, build passes)
+        #   1  = Python uncaught exception   (runner failure, CI blocks)
+        #   anything else = unknown verdict signal (CI blocks)
         run: |
           set +e
           PYTHONPATH=. python tools/eai/run_falsifiability_test.py \
@@ -64,13 +69,22 @@ jobs:
           rc=$?
           set -e
           echo "verdict_exit_code=$rc"
-          if [ "$rc" = "2" ]; then
-            echo "::error::HYPOTHESIS_FALSIFIED — graded gate regressed true evidence; build fails"
-            exit 2
-          fi
-          if [ "$rc" = "1" ]; then
-            echo "::warning::NULL_RESULT — STN-analog showed no improvement signal at these constants; documented negative finding, build passes"
-          fi
+          case "$rc" in
+            0)
+              echo "::notice::HYPOTHESIS_SUPPORTED"
+              ;;
+            22)
+              echo "::error::HYPOTHESIS_FALSIFIED — graded gate regressed true evidence; build fails"
+              exit 22
+              ;;
+            33)
+              echo "::warning::NULL_RESULT — STN-analog showed no improvement signal at these constants; documented negative finding, build passes"
+              ;;
+            *)
+              echo "::error::Falsifiability runner returned UNEXPECTED exit code $rc (likely uncaught exception or unknown verdict); build fails"
+              exit "$rc"
+              ;;
+          esac
       - name: Determinism replay (byte-identical assertion)
         run: |
           cp artifacts/eai/benchmarks/falsifiability_test_v1_report.json /tmp/falsifiability_a.json

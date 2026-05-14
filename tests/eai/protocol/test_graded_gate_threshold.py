@@ -12,6 +12,8 @@ CONTRACT pinned:
 
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from core.eai.graded_gate import (
@@ -143,9 +145,8 @@ def test_emergency_exit_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_decision_is_frozen_dataclass() -> None:
+    """Codex P2 fix: use FrozenInstanceError-specific raises,
+    so successful mutation propagates AttributeError and fails."""
     d = GradedGateDecision(status="EVIDENCE", reason="ok", required_paths=1, available_paths=1)
-    try:
+    with pytest.raises(FrozenInstanceError):
         d.status = "KILLED"  # type: ignore[misc]
-        raise AssertionError("GradedGateDecision must be frozen")
-    except Exception:
-        pass

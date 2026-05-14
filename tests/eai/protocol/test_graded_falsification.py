@@ -11,6 +11,10 @@ CONTRACT pinned:
 
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
+
+import pytest
+
 from core.falsification_engine import (
     FalsificationResult,
     falsification_decision,
@@ -91,12 +95,16 @@ def test_legacy_falsification_decision_unchanged() -> None:
 
 
 def test_falsification_result_is_frozen_dataclass() -> None:
+    """If FalsificationResult ever becomes mutable, this test MUST
+    fail. Codex P2: a bare ``except Exception`` would swallow the
+    ``AssertionError`` raised on unexpected successful mutation,
+    making the test ineffective. Use ``pytest.raises`` with the
+    specific ``FrozenInstanceError`` so a successful mutation
+    propagates an uncaught AttributeError and fails the test.
+    """
     r = FalsificationResult(passed=True, reason="passed", conflict_strength=0.0)
-    try:
+    with pytest.raises(FrozenInstanceError):
         r.passed = False  # type: ignore[misc]
-        raise AssertionError("FalsificationResult must be frozen")
-    except Exception:
-        pass
 
 
 def test_single_token_overlap_below_two_is_not_a_hit() -> None:
