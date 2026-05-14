@@ -202,7 +202,13 @@ def main() -> int:
     out_json = Path(args.out_json)
     out_csv = Path(args.out_csv)
     out_md = Path(args.out_summary)
-    out_json.parent.mkdir(parents=True, exist_ok=True)
+    # Codex P2 fix: create parent directories for ALL output paths,
+    # not just out_json. Callers using custom --out-csv / --out-summary
+    # with non-existent parent directories would otherwise crash with
+    # FileNotFoundError (exit 1 = Python uncaught-exception default
+    # = CI blocks for the wrong reason).
+    for path in (out_json, out_csv, out_md):
+        path.parent.mkdir(parents=True, exist_ok=True)
 
     full_report: dict[str, Any] = {
         "schema_version": _SCHEMA_VERSION,

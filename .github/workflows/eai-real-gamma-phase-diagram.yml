@@ -60,11 +60,13 @@ jobs:
             core/iev_gate.py \
             core/eai/graded_gate.py \
             core/eai/graded_phase_diagram.py \
+            core/falsification_engine.py \
             tools/eai/run_falsifiability_test.py \
             tools/eai/run_graded_falsification_phase_diagram.py \
             artifacts/eai/benchmarks/falsifiability_test_v1_report.json \
             artifacts/eai/phase_diagrams/graded_falsification_phase_diagram_v1.json \
-            tests/eai/calibration/test_falsifiability_v1.py)
+            tests/eai/calibration/test_falsifiability_v1.py \
+            tests/eai/falsification/test_graded_phase_diagram.py)
           if [ -n "$changed" ]; then
             echo "::error::Read-only invariant violated. Files modified that must not be: $changed"
             exit 22
