@@ -393,7 +393,15 @@ def evaluate_cell(cell: GridCell) -> CellRecord:
     graded_reduced_fp = (
         expected != "EVIDENCE" and binary_verdict == "EVIDENCE" and graded_verdict != "EVIDENCE"
     )
-    graded_killed_te = expected == "EVIDENCE" and graded_verdict == "KILLED"
+    # Codex P1.1 fix: `graded_killed_true_evidence` must measure
+    # graded-SPECIFIC regression, i.e. graded kills a true-bounded
+    # cell that binary would have left alive. When binary also kills
+    # (e.g. boundary_state=missing makes can_be_promoted False for
+    # BOTH gates), graded did not cause regression — it concurred
+    # with binary on a structurally invalid cell.
+    graded_killed_te = (
+        expected == "EVIDENCE" and graded_verdict == "KILLED" and binary_verdict != "KILLED"
+    )
     graded_quar_amb = (
         expected == "QUARANTINED"
         and binary_verdict != "QUARANTINED"
@@ -485,9 +493,32 @@ def _per_class_metrics(records: list[CellRecord], cls: ClaimClass) -> dict[str, 
     }
 
 
+def _zone_key(r: CellRecord) -> tuple[BoundaryState, RevalidationState]:
+    """Per-pre-registration: a 'zone' is the (boundary_state,
+    revalidation_state) tuple. The PHASE_REGION_FOUND rule requires
+    co-occurrence within the SAME zone, not globally."""
+    return (r.axes.boundary_state, r.axes.revalidation_state)
+
+
 def summarize_regions(records: list[CellRecord]) -> dict[str, Any]:
     """Aggregate global + per-class summary; apply pre-registered
-    global verdict rules."""
+    ZONE-LEVEL verdict rules (Codex P1.2 fix).
+
+    The pre-registration in
+    docs/research/EAI_GRADED_FALSIFICATION_PHASE_DIAGRAM_V1.md
+    requires verdict aggregation by (boundary_state, revalidation_state)
+    zone, not by global counts. This implementation walks the 8 zones
+    and applies the rule:
+
+      - In each zone, count (useful, regression_true_bounded).
+      - If ANY zone has useful>0 AND regression_true_bounded==0:
+          a separable region exists -> PHASE_REGION_FOUND
+          (provided no OTHER target class regresses globally).
+      - Else if ANY zone has useful>0 AND regression>0 in the same zone:
+          regression dominates -> REGRESSION_REGION_FOUND
+      - Else if NO zone has useful>0:
+          no separable region -> NO_SEPARABLE_REGION_FOUND
+    """
 
     per_class = {cls: _per_class_metrics(records, cls) for cls in CLAIM_CLASSES}
     total_cells = len(records)
@@ -496,47 +527,64 @@ def summarize_regions(records: list[CellRecord]) -> dict[str, Any]:
     null_cells_global = sum(1 for r in records if classify_region(r) == "null")
     regression_cells_in_true_bounded = per_class["true_bounded"]["regression_cells_count"]
 
-    # PHASE_REGION_FOUND iff at least one false_subtle/adversarial class
-    # improves AND true_bounded has zero regression cells.
-    target_classes: tuple[ClaimClass, ...] = (
-        "false_subtle",
-        "adversarial_authority",
-        "adversarial_boundary_expansion",
-        "adversarial_fake_citation",
-        "adversarial_software_no_execution",
-    )
-    improvement_seen = any(per_class[c]["graded_delta_false_promotion"] < 0 for c in target_classes)
-    regression_in_true_bounded = regression_cells_in_true_bounded > 0
+    # --- Zone-level aggregation (Codex P1.2) ---
+    zones: dict[tuple[BoundaryState, RevalidationState], dict[str, int]] = {}
+    for boundary in BOUNDARY_STATES:
+        for reval in REVALIDATION_STATES:
+            zones[(boundary, reval)] = {"useful": 0, "regression": 0}
+    for r in records:
+        zk = _zone_key(r)
+        region = classify_region(r)
+        if region == "useful":
+            zones[zk]["useful"] += 1
+        if r.graded_killed_true_evidence:
+            zones[zk]["regression"] += 1
 
-    # REGRESSION_REGION_FOUND iff useful cells exist only by killing
-    # true evidence (i.e., for the *same* boundary/revalidation zone
-    # where useful cells exist, there is at least one true-bounded
-    # regression). We approximate "same zone" by global presence.
-    if regression_in_true_bounded and useful_cells_global > 0:
-        verdict = "REGRESSION_REGION_FOUND"
-        verdict_reason = (
-            f"useful_cells_global={useful_cells_global} "
-            f"and true_bounded.regression_cells={regression_cells_in_true_bounded} "
-            "(graded reduces false promotion only by killing true evidence)"
-        )
-    elif improvement_seen and not regression_in_true_bounded:
+    zone_separable: list[tuple[BoundaryState, RevalidationState]] = []
+    zone_regression: list[tuple[BoundaryState, RevalidationState]] = []
+    for zk, counts in zones.items():
+        if counts["useful"] > 0 and counts["regression"] == 0:
+            zone_separable.append(zk)
+        elif counts["useful"] > 0 and counts["regression"] > 0:
+            zone_regression.append(zk)
+
+    # PHASE_REGION_FOUND: at least one zone is cleanly separable
+    # (useful gains AND zero true-bounded regression in that zone).
+    if zone_separable:
         verdict = "PHASE_REGION_FOUND"
         verdict_reason = (
-            "at least one target class has graded_delta_false_promotion < 0 "
-            "AND true_bounded.regression_cells_count == 0"
+            f"separable zones (useful>0 AND regression==0): "
+            f"{[f'{b}/{r}' for (b, r) in zone_separable]}; "
+            f"co-regression zones: {[f'{b}/{r}' for (b, r) in zone_regression]}"
         )
-    elif not improvement_seen and not regression_in_true_bounded:
-        verdict = "NO_SEPARABLE_REGION_FOUND"
-        verdict_reason = (
-            "graded did not improve false promotion in any target class; "
-            "no regression observed either — graded equals binary in aggregate"
-        )
-    else:
+    elif zone_regression:
+        # All useful zones are co-located with regression -> graded
+        # only helps by killing true evidence.
         verdict = "REGRESSION_REGION_FOUND"
         verdict_reason = (
-            f"true_bounded.regression_cells={regression_cells_in_true_bounded} > 0; "
-            "graded kills real evidence"
+            f"useful gains exist ONLY in zones that also regress "
+            f"true-bounded evidence: {[f'{b}/{r}' for (b, r) in zone_regression]}; "
+            "no separable zone."
         )
+    elif useful_cells_global == 0 and regression_cells_in_true_bounded == 0:
+        verdict = "NO_SEPARABLE_REGION_FOUND"
+        verdict_reason = (
+            "graded did not improve in any zone and did not regress "
+            "true-bounded evidence; graded == binary across the grid."
+        )
+    else:
+        # Edge case: regression exists but no useful gains anywhere.
+        verdict = "REGRESSION_REGION_FOUND"
+        verdict_reason = (
+            f"regression_cells_in_true_bounded={regression_cells_in_true_bounded} > 0 "
+            f"with useful_cells_global={useful_cells_global}; "
+            "graded reduces nothing and kills real evidence."
+        )
+
+    zone_breakdown = {
+        f"{b}/{r}": {"useful": c["useful"], "regression": c["regression"]}
+        for (b, r), c in zones.items()
+    }
 
     return {
         "total_cells": total_cells,
@@ -544,6 +592,9 @@ def summarize_regions(records: list[CellRecord]) -> dict[str, Any]:
         "regression_cells_global": regression_cells_global,
         "null_cells_global": null_cells_global,
         "regression_cells_in_true_bounded": regression_cells_in_true_bounded,
+        "zone_breakdown": zone_breakdown,
+        "zone_separable": [f"{b}/{r}" for (b, r) in zone_separable],
+        "zone_regression": [f"{b}/{r}" for (b, r) in zone_regression],
         "per_class": per_class,
         "verdict": verdict,
         "verdict_reason": verdict_reason,

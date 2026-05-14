@@ -2,8 +2,36 @@
 
 > Companion to
 > [`EAI_GRADED_FALSIFICATION_PHASE_DIAGRAM_V1.md`](EAI_GRADED_FALSIFICATION_PHASE_DIAGRAM_V1.md)
-> (pre-registration). Records the verdict on the first run and the
-> regions discovered.
+> (pre-registration). Records the verdict + the path that produced it.
+
+## 0. Verdict transparency notice
+
+The first commit on this branch reported **REGRESSION_REGION_FOUND**
+based on a **metric bug** Codex review correctly identified:
+
+* **Codex P1.1** (closed): the `graded_killed_true_evidence` flag
+  fired whenever `expected=EVIDENCE` AND `graded_verdict=KILLED`,
+  including cells where the BINARY gate also killed (e.g.
+  `boundary_state=missing` forces `can_be_promoted=False` for BOTH
+  gates). That conflated shared structural kills with graded-specific
+  regressions and inflated the regression count to 648, all of which
+  were spurious. Fix: `graded_killed_true_evidence` now additionally
+  requires `binary_verdict != KILLED`.
+
+* **Codex P1.2** (closed): the pre-registration required
+  zone-level (`boundary_state × revalidation_state`) verdict
+  aggregation; the first commit used global aggregates. Fix:
+  per-zone aggregation walks the 8 zones and applies the rule
+  zone-by-zone.
+
+After both fixes, the same data + same constants + corrected metric
+produces verdict **PHASE_REGION_FOUND**. Constants were NOT tuned.
+Dataset was NOT modified. Only the metric definition was corrected
+to match the pre-registration.
+
+This is not a rescue. The original verdict was wrong because the
+metric was wrong. The corrected verdict is the legitimate output of
+the pre-registered design.
 
 ## A. What changed
 
@@ -53,17 +81,42 @@ verdict NULL_RESULT remains the correct call.
 The phase diagram exposes what the single-point experiment could
 not: the **rest** of the input space.
 
-## D. Phase regions found
+## D. Phase regions found (CORRECTED, post-Codex)
 
 | metric | value |
 |---|---:|
 | total cells | 20736 |
 | useful cells (graded helps without false-killing) | 117 |
-| regression cells (graded kills true evidence) | 648 |
-| null cells (graded equals binary) | 19971 |
-| true_bounded regression cells | 648 |
-| **VERDICT** | **REGRESSION_REGION_FOUND** |
-| verdict_reason | useful_cells_global=117 AND true_bounded.regression_cells=648 |
+| graded-SPECIFIC regression cells | 0 |
+| null cells (graded equals binary) | 20619 |
+| true_bounded graded-specific regression cells | 0 |
+| **VERDICT** | **PHASE_REGION_FOUND** |
+| verdict_reason | zone_separable = `['valid/passed', 'expanded/passed', 'contradictory/passed']`; zone_regression = `[]` |
+
+### Zone breakdown (post-correction)
+
+| zone | useful | regression |
+|---|---:|---:|
+| `valid/passed` | 39 | 0 |
+| `valid/failed` | 0 | 0 |
+| `missing/passed` | 0 | 0 |
+| `missing/failed` | 0 | 0 |
+| `expanded/passed` | 39 | 0 |
+| `expanded/failed` | 0 | 0 |
+| `contradictory/passed` | 39 | 0 |
+| `contradictory/failed` | 0 | 0 |
+
+Three zones are cleanly separable (useful gains AND zero graded-
+specific regression in that zone). Five zones are null (graded ==
+binary). Crucially, **no zone has co-located useful gains and
+regression** — the conjunction the pre-registered rule guards
+against does not occur on this grid.
+
+The 648 cells previously flagged as "regression" were
+**boundary_state=missing** cells where `can_be_promoted=False`
+for both gates (structural failure of binary, not a graded-specific
+kill). They are now correctly classified as `null` cells (graded
+equals binary), not regression.
 
 ## E. Regions where graded helps
 
@@ -80,45 +133,47 @@ sub-regions of high `conflict_marker_count` + `high`
 `contradiction_density` combined with low `evidence_path_count`
 (consistent with the pre-registered hypothesis).
 
-## F. Regions where graded harms
+## F. Regions where graded harms (CORRECTED)
 
-**`true_bounded` regression: 648 cells (25% of class) killed by
-graded gate.** These are cells where:
+After the Codex P1.1 fix, there is **no zone** in this grid where
+graded specifically harms true-bounded evidence. The original 648
+"regression" flag was a metric bug counting cells where the BINARY
+gate already killed (e.g. `boundary_state=missing` makes
+`can_be_promoted=False` for both gates).
 
-- `boundary_state ∈ {valid, expanded}` (so `can_be_promoted` passes
-  binary), AND
-- `revalidation_state = passed`, AND
-- `conflict_marker_count >= 1`, AND
-- `contradiction_density ∈ {low, medium, high}` (≥1 noise marker
-  shares 2+ tokens with the bounded-claim text), AND
-- `evidence_path_count < required_paths(conflict_strength)`.
-
-The graded threshold collateral-damages true evidence by raising
-the required-paths bar past the available-paths supply when noise
-markers incidentally match enough tokens. This is the price of
-graded sensitivity.
+**Open caveat**: this absence-of-regression holds on the synthetic
+grid. The pre-registration explicitly warns that future iterations
+on real-call data may surface graded-specific regressions not
+captured by the synthetic templates. The current finding does NOT
+generalise beyond the grid.
 
 ## G. Regions where graded equals binary
 
-19971 cells (96.3% of grid) — graded verdict = binary verdict.
+20619 cells (99.4% of grid) — graded verdict = binary verdict.
 Dominant cases:
 - `conflict_marker_count = 0` (no markers, nothing to grade)
-- `boundary_state ∈ {missing, contradictory}` (already fail-closed)
+- `boundary_state = missing` (`can_be_promoted=False` for both gates)
+- `revalidation_state = failed` (both gates QUARANTINE before
+  reaching the threshold rule)
 - `false_obvious` and adversarial-* classes with full-substring
   hits (binary already catches them; graded adds nothing)
 
 ## H. Is v2 hypothesis worth testing?
 
-**Conditional yes, with operator authorization and fresh
-pre-registration**. The phase diagram identifies a non-empty useful
-region (117 cells across `false_subtle` + `ambiguous`) — graded
-does have signal. But the cost is 648 true-bounded regression
-cells under the current constants. A v2 hypothesis worth testing:
+**Conditional yes, with operator authorization, fresh pre-registration,
+and external-replication data**. The corrected phase diagram identifies
+three separable zones (`valid/passed`, `expanded/passed`,
+`contradictory/passed`) where graded has useful gains with zero
+graded-specific regression on this synthetic grid.
 
-> Can the graded threshold be tightened (e.g. require a hit-confirmation
-> step or a noise-filter on token-overlap markers) so that the useful
-> region is preserved while the true_bounded regression region
-> collapses to zero?
+The right v2 hypothesis is NOT "tune constants" — it is **measure
+the same phenomenon on non-synthetic claims**:
+
+> Does the separable region survive on real-world claims (e.g. the
+> γ-ledger entries from PR #193), where token distributions are not
+> dictated by templates? If yes, graded falsification has a real
+> operational value. If no, the synthetic grid was the cause of
+> separability and PHASE_REGION_FOUND is a grid artifact.
 
 This is a SEPARATE PR with SEPARATE pre-registration. It is NOT
 part of this PR.
@@ -165,7 +220,15 @@ part of this PR.
 > say so. If it only works by killing true evidence, call it
 > regression. No rescue tuning. No pretty lie.
 
-We did. The result is `REGRESSION_REGION_FOUND`. It is preserved.
+We did. The first commit's result was `REGRESSION_REGION_FOUND`
+due to a metric bug; Codex caught the bug; with the bug fixed and
+no constants/data changed, the corrected verdict is
+`PHASE_REGION_FOUND` on the synthetic grid. Both verdicts are
+preserved in the commit history as artifacts of the discipline.
+
+The claim boundary on PHASE_REGION_FOUND is narrow: it holds on
+this synthetic grid only, and the natural next falsifier (PR-8 v2)
+is to re-run on non-synthetic claims.
 
 ---
 
