@@ -10,7 +10,7 @@ failure). Status reflects the seeded reference run on this branch.
 | 1 | **DNCA signal source exists and is imported** | `load_dopamine_operator()` imports + forward-runs the real `neuron7x_agents…DopamineOperator`; `None` ⇒ `INADMISSIBLE_MISSING_DNCA_EXECUTABLE_SIGNAL` | ✅ executable (torch 2.5.1) |
 | 2 | **dopamine/vRPE is signed** | vRPE = pre-asymmetric `valence` = `clamp(δ,−1,1)`; sign preserved, not the ×5.5/×1.0-gained channel | ✅ |
 | 3 | **Verifier beats majority AND random** | pure recomputation, deterministic, network-free; `beats_majority ∧ beats_random` else `INADMISSIBLE_WEAK_VERIFIER` | ✅ acc 1.0 > maj ≈0.52 > rand 0.5 |
-| 4 | **Signed vRPE truth-correlated (precond. #3)** | Spearman of the **routed** score `−vRPE` vs needs-verify, `p<0.01 ∧ ρ>0`, *before* any routing read; else `INADMISSIBLE_WEAK_VERIFIER` | ✅ ρ=+0.175, p=0.0066 (weak but admissible) |
+| 4 | **Signed vRPE truth-correlated (precond. #3)** | Spearman of the **routed** `−vRPE` vs needs-verify, `p<0.01 ∧ ρ>0`, **fail-closed on an independent seed band disjoint from Step-D, all 12 seeds**; else `INADMISSIBLE_WEAK_VERIFIER` | ❌ 0/12 pass (median ρ=0.10, worst p=0.64) ⇒ clean INADMISSIBLE |
 | 5 | **VCR is not plain accuracy** | VCR = budgeted closure-event rate ≠ policy label accuracy; equality ⇒ `INADMISSIBLE_METRIC_COLLAPSE` | ✅ definition + numeric guard |
 | 6 | **Data/input CI-reproducible** | task synthesised from seeded `np.random.default_rng`; `data_hash` over all arrays; no git-ignored corpus | ✅ |
 | 7 | **Negative control is real sign inversion** | `dopa_inverted = −dopa`; test rejects any `\|vRPE\|`-complement; must reorder routing | ✅ enforced by test |
@@ -22,18 +22,17 @@ failure). Status reflects the seeded reference run on this branch.
 
 ## Reference-run verdict
 
-`KILLED` (scoped → `KILL-0979B_DNCA_DOPA_ROUTING`). Steps A, B1, B2, C all
-genuinely pass: real executable DNCA dopamine signal; verifier 1.0 ≫ baselines;
-routed `−vRPE` weakly but admissibly correlated (ρ=+0.175, p=0.0066); VCR ≠
-accuracy. At Step D the DNCA signed-vRPE routing **fails**: `dopa ≈ 9.25` vs
-`uncertainty_only ≈ 9.17` (Δ=0.002 ≪ DELTA_MIN 0.05), Wilcoxon `p = 0.65`, and
-it is **worse than `random_gate ≈ 12.5`**. The true sign-flip control collapses
-(`signed_vrpe_inverted ≈ 1.67`), confirming the control is real.
+`INADMISSIBLE_WEAK_VERIFIER` — the designed fail-closed success. Step A
+genuinely passes (real executable DNCA dopamine signal); Step B1 passes
+(verifier 1.0 ≫ baselines); **Step B2 fails closed**: on 12 independent seeds
+disjoint from the Step-D decision draws, the routed `−vRPE` is *not* robustly
+truth-correlated with verification benefit (**0/12 pass**, median ρ=0.10, worst
+p=0.64). The instrument refuses to read the routing comparison.
 
-This is a legitimate scoped negative — the *first* admissible DOPA/DNCA
-instrument — not a fabricated kill: all seven RETRACTION preconditions hold and
-significance was tested. **DOPA-CLOSURE the theory remains UNTESTED**; the kill
-binds only this implementation (untrained value-net, arithmetic micro-task).
-A prior pre-merge run reported `INADMISSIBLE_WEAK_VERIFIER` due to a B2 sign
-bug (review P1, amendment A1) that produced a *false* INADMISSIBLE; correcting
-the gate's sign — not any threshold — surfaced this honest scoped KILL.
+No kill, no survival, no theory movement. The instrument **retracted its own
+premature verdict**: an interim run (amendment A1) reported a scoped `KILLED`,
+but that rested on a single non-independent draw (`cfg.SEED`, p=0.0066) — an
+outlier. Hardening B2 to an independent, unanimous, fail-closed gate (amendment
+A2) is faithful to RETRACTION precondition #3 and correctly withdrew that KILL.
+**DOPA-CLOSURE the theory remains UNTESTED.** A clean INADMISSIBLE on a
+fragile signal is exactly the failure class this machine exists to enforce.

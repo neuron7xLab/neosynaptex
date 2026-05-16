@@ -15,10 +15,12 @@ Decision logic (pre-registered — see docs/experiments/DOPA_VALIDITY_001_PREREG
             else INADMISSIBLE_MISSING_DNCA_EXECUTABLE_SIGNAL.
     Step B1 The verification action must beat majority AND random baselines,
             else INADMISSIBLE_WEAK_VERIFIER.
-    Step B2 The signed vRPE must be truth-correlated with verification benefit
-            (Spearman, pre-registered alpha) BEFORE any routing comparison,
-            else INADMISSIBLE_WEAK_VERIFIER  (an uninformative routing signal is
-            a weak instrument — RETRACTION precondition #3).
+    Step B2 The routed signal (-vRPE) must be truth-correlated with
+            verification benefit (Spearman) BEFORE any routing comparison —
+            fail-closed and INDEPENDENT: on a seed band disjoint from the
+            Step-D draws, significant + positive on EVERY seed. Else
+            INADMISSIBLE_WEAK_VERIFIER (RETRACTION precondition #3: a fragile
+            or non-independent gate may not license a destructive verdict).
     Step C  Verified-Closure Rate must NOT collapse to plain policy accuracy,
             else INADMISSIBLE_METRIC_COLLAPSE.
     Step D  Only now: 6-policy routing test under equal budget with a paired
@@ -169,16 +171,25 @@ def _draw_blob(seed: int) -> bytes:
     )
 
 
+def _b2_seeds() -> list[int]:
+    """Independent B2 seed band, disjoint from the Step-D routing seeds."""
+    return [cfg.SEED + cfg.B2_SEED_OFFSET + s for s in range(cfg.N_B2_SEEDS)]
+
+
+def _decision_seeds() -> list[int]:
+    """Every seed whose draw can enter a verdict: Step-B1 (SEED), the
+    independent Step-B2 band, and all Step-D routing draws."""
+    return [cfg.SEED] + _b2_seeds() + [cfg.SEED + s for s in range(cfg.N_SEEDS)]
+
+
 def task_data_hash() -> str:
-    """Hash *every* task draw that can enter a decision: the Step-B gate draw
-    (cfg.SEED) and all Step-D routing draws (cfg.SEED + s, s in 0..N_SEEDS-1).
+    """Hash *every* task draw that can enter a decision.
 
     Hashing only cfg.SEED would let nonzero-seed draws change a KILLED/SURVIVED
     decision without changing data_hash — a provenance hole flagged in review.
     """
-    seeds = [cfg.SEED] + [cfg.SEED + s for s in range(cfg.N_SEEDS)]
     h = hashlib.sha256()
-    for s in seeds:
+    for s in _decision_seeds():
         h.update(s.to_bytes(8, "little", signed=False))
         h.update(_draw_blob(s))
     return h.hexdigest()
@@ -250,6 +261,51 @@ def signed_vrpe(handle: DopamineHandle, task: TaskDraw) -> FloatArray:
         res = op.modulate(sps)
         out[i] = float(res[cfg.SIGNED_VRPE_FIELD].item())
     return out
+
+
+# --------------------------------------------------------------------------
+# Step B2 — independent, fail-closed truth-correlation of the routed signal
+# --------------------------------------------------------------------------
+def b2_truth_correlation(handle: DopamineHandle) -> dict[str, Any]:
+    """Per RETRACTION precondition #3, the estimator must be shown
+    truth-correlated *independently* and *before* any routing read.
+
+    Evaluated on a seed band disjoint from the Step-D decision draws. The gate
+    is fail-closed: the routed signal ``-vRPE`` must be Spearman-significant
+    (p < alpha) AND positively correlated with ``needs_verify`` on *every*
+    independent B2 seed (``B2_REQUIRED_FRACTION`` = 1.0). A single fragile or
+    borderline draw can never license reading a KILL/SURVIVED.
+
+    Reported scalars are conservative: median ρ and the *worst* (max) p across
+    the band.
+    """
+    rhos: list[float] = []
+    pvals: list[float] = []
+    per_seed_pass: list[bool] = []
+    for seed in _b2_seeds():
+        task = _make_task(seed)
+        dopa_route = -signed_vrpe(handle, task)
+        needs_verify = (task.policy_correct == 0).astype(np.float64)
+        if float(np.std(dopa_route)) < 1e-12 or float(np.std(needs_verify)) < 1e-12:
+            per_seed_pass.append(False)
+            continue
+        res = stats.spearmanr(dopa_route, needs_verify)
+        rho_s = float(res.statistic)
+        p_s = float(res.pvalue)
+        rhos.append(rho_s)
+        pvals.append(p_s)
+        per_seed_pass.append(p_s < cfg.VRPE_TRUTH_CORR_ALPHA and rho_s > 0.0)
+
+    n = len(_b2_seeds())
+    frac_pass = (sum(per_seed_pass) / n) if n else 0.0
+    signal_truth_corr = frac_pass >= cfg.B2_REQUIRED_FRACTION
+    return {
+        "signed_vrpe_truth_correlation": (float(np.median(rhos)) if rhos else None),
+        "signed_vrpe_truth_corr_p": (float(max(pvals)) if pvals else None),
+        "signal_is_truth_correlated": signal_truth_corr,
+        "b2_seeds_passing": sum(per_seed_pass),
+        "b2_seeds_total": n,
+    }
 
 
 # --------------------------------------------------------------------------
@@ -383,6 +439,8 @@ def run() -> dict[str, Any]:
                 "signed_vrpe_truth_correlation": None,
                 "signed_vrpe_truth_corr_p": None,
                 "signal_is_truth_correlated": False,
+                "b2_seeds_passing": 0,
+                "b2_seeds_total": cfg.N_B2_SEEDS,
             },
             majority,
             random_b,
@@ -404,33 +462,23 @@ def run() -> dict[str, Any]:
     beats_majority = verifier_acc > majority
     beats_random = verifier_acc > random_b
 
-    vrpe0 = signed_vrpe(handle, task0)
-    # Step B2 — is the *routed* signal truth-correlated with verification
-    # benefit? The gate must be measured on the exact quantity Step D routes
-    # on, i.e. dopa_route = -vRPE (more negative vRPE => higher verify
-    # priority). Correlating raw vRPE and demanding rho>0 would contradict the
-    # routing direction and reject a genuinely informative signal (review P1).
-    # Requiring corr(-vRPE, needs_verify) > 0 == requiring vRPE negatively
-    # correlated with needs_verify — consistent with the hypothesis.
-    dopa_route0 = -vrpe0
-    needs_verify = (task0.policy_correct == 0).astype(np.float64)
-    if float(np.std(dopa_route0)) < 1e-12 or float(np.std(needs_verify)) < 1e-12:
-        rho: float | None = None
-        rho_p: float | None = None
-        signal_truth_corr = False
-    else:
-        rho_res = stats.spearmanr(dopa_route0, needs_verify)
-        rho = float(rho_res.statistic)
-        rho_p = float(rho_res.pvalue)
-        signal_truth_corr = (rho_p < cfg.VRPE_TRUTH_CORR_ALPHA) and (rho > 0.0)
+    # Step B2 — routed-signal truth-correlation, evaluated independently and
+    # fail-closed across a seed band disjoint from the Step-D decision draws
+    # (RETRACTION precondition #3: shown truth-correlated independently, before
+    # any routing read; review P1 fixed the sign — this hardens the gate so a
+    # single borderline draw cannot license a KILL).
+    b2 = b2_truth_correlation(handle)
+    signal_truth_corr = bool(b2["signal_is_truth_correlated"])
 
     verifier_admissibility = {
         "verifier_accuracy": verifier_acc,
         "beats_majority": beats_majority,
         "beats_random": beats_random,
-        "signed_vrpe_truth_correlation": rho,
-        "signed_vrpe_truth_corr_p": rho_p,
+        "signed_vrpe_truth_correlation": b2["signed_vrpe_truth_correlation"],
+        "signed_vrpe_truth_corr_p": b2["signed_vrpe_truth_corr_p"],
         "signal_is_truth_correlated": signal_truth_corr,
+        "b2_seeds_passing": b2["b2_seeds_passing"],
+        "b2_seeds_total": b2["b2_seeds_total"],
     }
 
     if not (beats_majority and beats_random):

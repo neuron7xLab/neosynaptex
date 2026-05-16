@@ -115,6 +115,34 @@ def test_verifier_must_beat_majority_before_kill_or_survived(
         assert va["signal_is_truth_correlated"] is True
 
 
+def test_b2_seed_band_is_independent_of_decision_draws() -> None:
+    """RETRACTION precondition #3: the truth-correlation must be shown
+    *independently*. The B2 seed band must not overlap the Step-D routing
+    seeds nor the Step-B1 seed."""
+    b2 = set(exp._b2_seeds())
+    routing = {cfg.SEED + s for s in range(cfg.N_SEEDS)}
+    assert cfg.SEED not in b2
+    assert b2.isdisjoint(routing)
+    assert len(b2) == cfg.N_B2_SEEDS
+    # data_hash must cover every decision seed, B2 band included
+    decision = set(exp._decision_seeds())
+    assert b2 <= decision and routing <= decision and cfg.SEED in decision
+
+
+def test_b2_gate_is_fail_closed_unanimous() -> None:
+    """The B2 gate may declare the signal truth-correlated only if it passed
+    on EVERY independent seed (B2_REQUIRED_FRACTION == 1.0). A single
+    borderline draw can never license a KILL/SURVIVED."""
+    assert cfg.B2_REQUIRED_FRACTION == 1.0
+    handle = exp.load_dopamine_operator()
+    if handle is None:
+        pytest.skip("DNCA DopamineOperator not executable in this environment")
+    b2 = exp.b2_truth_correlation(handle)
+    if b2["signal_is_truth_correlated"]:
+        assert b2["b2_seeds_passing"] == b2["b2_seeds_total"]
+    assert 0 <= b2["b2_seeds_passing"] <= b2["b2_seeds_total"] == cfg.N_B2_SEEDS
+
+
 def test_no_unscoped_dopa_closure_kill(result: dict[str, object]) -> None:
     """The instrument may never assert 'DOPA-CLOSURE killed'. A KILL is only
     ever scoped to this implementation (KILL-0979B)."""

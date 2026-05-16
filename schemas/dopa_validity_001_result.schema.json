@@ -49,7 +49,9 @@
         "beats_random",
         "signed_vrpe_truth_correlation",
         "signed_vrpe_truth_corr_p",
-        "signal_is_truth_correlated"
+        "signal_is_truth_correlated",
+        "b2_seeds_passing",
+        "b2_seeds_total"
       ],
       "properties": {
         "verifier_accuracy": { "type": "number" },
@@ -57,7 +59,9 @@
         "beats_random": { "type": "boolean" },
         "signed_vrpe_truth_correlation": { "type": ["number", "null"] },
         "signed_vrpe_truth_corr_p": { "type": ["number", "null"] },
-        "signal_is_truth_correlated": { "type": "boolean" }
+        "signal_is_truth_correlated": { "type": "boolean" },
+        "b2_seeds_passing": { "type": "integer", "minimum": 0 },
+        "b2_seeds_total": { "type": "integer", "minimum": 0 }
       }
     },
     "majority_baseline": { "type": "number" },

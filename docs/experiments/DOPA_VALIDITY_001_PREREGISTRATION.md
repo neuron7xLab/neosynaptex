@@ -53,7 +53,15 @@ right. If VCR is numerically equal to policy accuracy → metric collapse.
 - Step B2 truth-correlation: two-sided Spearman of the **routed score**
   `dopa_route = −vRPE` against `needs_verify`, with `p < VRPE_TRUTH_CORR_ALPHA`
   (= 0.01) **and** `ρ > 0`. The gate is measured on the exact quantity Step D
-  routes on, so its sign cannot contradict the routing direction.
+  routes on (sign cannot contradict the routing direction) and, per RETRACTION
+  precondition #3 ("*independently* shown truth-correlated, *before* any
+  gate"), it is evaluated **fail-closed and independently**: on a dedicated
+  seed band (`B2_SEED_OFFSET`, `N_B2_SEEDS` = 12) **disjoint** from the Step-D
+  decision draws, and it must hold on **every** seed
+  (`B2_REQUIRED_FRACTION` = 1.0). A single borderline draw never licenses a
+  KILL/SURVIVED. Power note: N = 240/seed makes p < 0.01 high-powered for any
+  moderate true effect, so unanimity across 12 independent draws is strict but
+  not power-starved; it is symmetric (gates KILL and SURVIVED alike).
 - Step D advantage: `delta ≥ DELTA_MIN` (= 0.05 of recoverable benefit).
 - Step D significance: Wilcoxon signed-rank `p < ALPHA` (= 0.01), `N_SEEDS` = 12.
 - Effect size: paired rank-biserial, reported regardless of sign.
@@ -102,3 +110,22 @@ policy scores; an INADMISSIBLE or scaffold-only run stays `hypothesized`.
   theory remains UNTESTED. Constants unchanged; `config_hash` unaffected. No
   threshold was tuned after seeing data — only the gate's sign was aligned to
   the routing direction it had always declared.
+
+- **A2 (pre-merge, frontier-rigor self-audit).** A1's B2 still measured the
+  correlation on a *single* draw (`cfg.SEED`), the same family used downstream
+  — not "independent", and `p = 0.0066` is a borderline single-draw pass. Per
+  RETRACTION precondition #3 a destructive verdict (KILL/SURVIVED) must not
+  rest on a fragile, non-independent gate. B2 is now evaluated **fail-closed**
+  on an **independent** seed band disjoint from the Step-D draws, requiring
+  significance + positive sign on **all 12** seeds. Honest disclosure: this
+  **withdrew the A1 `KILLED`**. On 12 independent draws the signal is *not*
+  robustly routed-correlated (**0/12 pass**, median `ρ = 0.10`, worst
+  `p = 0.64`); the `cfg.SEED` draw was an outlier. Reference verdict returns to
+  `INADMISSIBLE_WEAK_VERIFIER` — the correct fail-closed outcome: the prior
+  KILL was a single-draw artifact and is **retracted**, not a finding. This is
+  the instrument working as designed (it kills its own premature verdict).
+  Constants are *added* (`B2_SEED_OFFSET`, `N_B2_SEEDS`, `B2_REQUIRED_FRACTION`),
+  pre-registered here before the run; `VRPE_TRUTH_CORR_ALPHA`, `DELTA_MIN`,
+  `ALPHA` unchanged. No data-driven tuning: the unanimity rule is a
+  principled reading of "independently shown", fixed before observing the
+  per-seed outcomes.

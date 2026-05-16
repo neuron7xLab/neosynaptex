@@ -49,9 +49,21 @@ N_SEEDS: Final[int] = 12  # independent task draws for the routing significance 
 BUDGET_FRACTION: Final[float] = 0.30
 
 # --- Admissibility thresholds (pre-registered, no post-hoc tuning) --------
-# Step B2: signed-vRPE must be truth-correlated with verification-benefit
-# (Spearman) at this two-sided alpha BEFORE any routing comparison is read.
+# Step B2: the *routed* signal (-vRPE) must be truth-correlated with
+# verification benefit (Spearman) at this two-sided alpha. Per RETRACTION
+# precondition #3 the estimator must be shown truth-correlated *independently*
+# and *before* any routing comparison — so B2 is evaluated on its own seed band
+# disjoint from the Step-D decision draws, and must hold robustly across them,
+# not on a single borderline draw.
 VRPE_TRUTH_CORR_ALPHA: Final[float] = 0.01
+# B2 independence: a dedicated seed band, offset far from SEED so it cannot
+# overlap the Step-D routing seeds [SEED, SEED+N_SEEDS).
+B2_SEED_OFFSET: Final[int] = 1_000_003
+N_B2_SEEDS: Final[int] = 12
+# Fail-closed robustness: the routed correlation must be significant
+# (p < VRPE_TRUTH_CORR_ALPHA) AND positive on *every* independent B2 seed.
+# A single fragile/borderline draw never licenses reading a KILL.
+B2_REQUIRED_FRACTION: Final[float] = 1.0
 # Step D: minimum pre-registered advantage of dopa over uncertainty_only,
 # expressed as a fraction of total recoverable verification benefit.
 DELTA_MIN: Final[float] = 0.05

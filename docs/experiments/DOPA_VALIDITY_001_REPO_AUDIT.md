@@ -46,21 +46,21 @@ construction (Step B1 passes).
 
 ## What is missing?
 
-1. A **stronger truth-correlated vRPE**. The shipped `DopamineOperator.value_net`
-   is *untrained*; over margin-informed inference features its routed δ is only
-   weakly correlated (ρ=+0.175, p=0.0066) — enough to pass B2 admissibility but
-   it routes **worse than random** at Step D. A trained/theory-anchored value
-   estimator is the open work.
+1. A **robustly truth-correlated vRPE**. The shipped `DopamineOperator.value_net`
+   is *untrained*; on 12 independent draws its routed δ is **not** robustly
+   correlated with verification benefit (0/12 pass, median ρ=0.10) — a single
+   `cfg.SEED` draw (p=0.0066) was an outlier, not a signal. A trained or
+   theory-anchored value estimator is the binding open work.
 2. A real (non-arithmetic) hallucination/truthfulness corpus with
    command-verifiable Verified Closure.
-3. Replication of the scoped KILL across independent task families before any
-   generalisation beyond this implementation.
+3. Only after (1)–(2): a Step-D routing read. None is licensed today.
 
 ## Conclusion
 
-Materials suffice to build the **admissibility machine** and run the *first
-admissible* DOPA/DNCA instrument. Reference verdict: scoped **`KILLED`**
-(`KILL-0979B`) — the executable DNCA signed-vRPE does not beat uncertainty (it
-is worse than random) for verification routing on this micro-task, with all
-seven RETRACTION preconditions satisfied and significance tested. This kills
-*this implementation only*. **DOPA-CLOSURE the theory remains UNTESTED.**
+Materials suffice to build the **admissibility machine**; they do **not** yet
+suffice to test the theory. Reference verdict: `INADMISSIBLE_WEAK_VERIFIER`
+(fail-closed at independent B2). An interim run reported a scoped `KILLED`;
+hardening B2 to an independent, unanimous gate (precondition #3) showed that
+KILL rested on one outlier draw and **retracted it**. The honest outcome is a
+clean INADMISSIBLE — the machine refusing to let a fragile signal pretend it
+tested anything. **DOPA-CLOSURE the theory remains UNTESTED.**
