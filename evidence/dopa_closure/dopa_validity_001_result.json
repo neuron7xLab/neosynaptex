@@ -1,0 +1,38 @@
+{
+  "boundary": "Scoped strictly to: the executable neuron7x_agents DopamineOperator value-net TD error, a deterministic arithmetic-closure verifier micro-task, and the policies enumerated in this module. No claim about DOPA-CLOSURE the theory; no claim beyond this exact implementation.",
+  "claim": "An actual DNCA/dopamine-derived signed vRPE predicts verification benefit better than uncertainty/margin, under an admissible verifier and a true sign-flip negative control.",
+  "config_hash": "37959f16716877cf7e7fd88d9c0a69879470489f4a83967969a04eb3bd8aa1f2",
+  "data_hash": "8e9907e7f18bc5371c942eb396fda3af7bfbaaff931d6df939fe2373a9976770",
+  "delta_dopa_vs_uncertainty": null,
+  "dnca_signal_source": "neuron7x_agents.dnca.neuromodulators.dopamine.DopamineOperator",
+  "dopamine_signal_source": "neuron7x_agents.dnca.neuromodulators.dopamine.DopamineOperator.modulate()['valence']",
+  "effect_size": null,
+  "majority_baseline": 0.5166666666666667,
+  "negative_control_result": {
+    "detail": "signed vRPE is NOT truth-correlated with verification benefit (RETRACTION precondition #3 unmet); routing comparison would be an invalid instrument",
+    "inverted_loses_advantage": null,
+    "is_true_sign_flip": true
+  },
+  "p_value": null,
+  "policy_scores": {
+    "dopa_signed_vrpe": null,
+    "no_vRPE": null,
+    "random_gate": null,
+    "signed_vrpe_inverted": null,
+    "uncertainty_only": null,
+    "verify_all": null
+  },
+  "random_baseline": 0.5,
+  "repro_hash": "b4515e88b934452f4f78f46d590995e973ad044ef992e7e322b64c699f27d1da",
+  "signed_vrpe_definition": "DopamineOperator.modulate(...)['valence'] = clamp(delta, -1, 1) where delta = r + gamma*V(s_t) - V(s_{t-1}) is the temporal-difference prediction error BEFORE the Schultz asymmetric gain. Sign is preserved; the negative control negates this signed scalar (vRPE -> -vRPE), it is NOT a complement of |vRPE|.",
+  "verdict": "INADMISSIBLE_WEAK_VERIFIER",
+  "verified_closure_definition": "A Verified-Closure event = the independent deterministic verifier spent a budgeted verification action on an item AND returned a definitive VERIFIED/REFUTED outcome bound to an evidence hash under a fixed boundary (pure recomputation, network disabled). VCR = (closure events) / (items). It is distinct from policy label accuracy: VCR counts independent verifier-confirmed closures, not whether the policy's own label was right.",
+  "verifier_admissibility": {
+    "beats_majority": true,
+    "beats_random": true,
+    "signal_is_truth_correlated": false,
+    "signed_vrpe_truth_corr_p": 0.006616810363190428,
+    "signed_vrpe_truth_correlation": -0.17484777783145877,
+    "verifier_accuracy": 1.0
+  }
+}
