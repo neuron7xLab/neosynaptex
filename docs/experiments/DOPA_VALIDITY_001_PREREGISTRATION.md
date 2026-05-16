@@ -50,8 +50,10 @@ right. If VCR is numerically equal to policy accuracy → metric collapse.
 
 ## Pre-registered thresholds (no post-hoc tuning)
 
-- Step B2 truth-correlation: two-sided Spearman `p < VRPE_TRUTH_CORR_ALPHA`
-  (= 0.01) **and** `ρ > 0`.
+- Step B2 truth-correlation: two-sided Spearman of the **routed score**
+  `dopa_route = −vRPE` against `needs_verify`, with `p < VRPE_TRUTH_CORR_ALPHA`
+  (= 0.01) **and** `ρ > 0`. The gate is measured on the exact quantity Step D
+  routes on, so its sign cannot contradict the routing direction.
 - Step D advantage: `delta ≥ DELTA_MIN` (= 0.05 of recoverable benefit).
 - Step D significance: Wilcoxon signed-rank `p < ALPHA` (= 0.01), `N_SEEDS` = 12.
 - Effect size: paired rank-biserial, reported regardless of sign.
@@ -81,3 +83,22 @@ Any retuning of these constants invalidates the run; they are hashed.
 
 `claim_status: hypothesized` until a run reaches Step D with measured
 policy scores; an INADMISSIBLE or scaffold-only run stays `hypothesized`.
+
+## Amendment log
+
+- **A1 (pre-merge, PR #200 review P1).** Step B2 originally correlated raw
+  `vRPE` and required `ρ > 0`, contradicting the routed signal `−vRPE`. This
+  was a genuine sign bug: it produced a **false** `INADMISSIBLE_WEAK_VERIFIER`
+  by rejecting a signal that *is* weakly routed-correlated
+  (`ρ(−vRPE, needs_verify) = +0.175`, `p = 0.0066 < 0.01` on the seed draw).
+  Corrected to correlate the routed score `−vRPE` itself. Honest disclosure:
+  this **did change the reference verdict**, from a false
+  `INADMISSIBLE_WEAK_VERIFIER` to a legitimate scoped **`KILLED`**
+  (`KILL-0979B`). The flip is *not* a theory rescue — the opposite: the now-
+  admissible instrument shows the DNCA signed-vRPE routing is **worse than
+  random** (`dopa ≈ 9.25` vs `uncertainty ≈ 9.17` vs `random ≈ 12.5`,
+  `Δ = 0.002 ≪ 0.05`, Wilcoxon `p = 0.65`). All seven RETRACTION preconditions
+  hold; the kill is scoped strictly to this implementation; DOPA-CLOSURE the
+  theory remains UNTESTED. Constants unchanged; `config_hash` unaffected. No
+  threshold was tuned after seeing data — only the gate's sign was aligned to
+  the routing direction it had always declared.

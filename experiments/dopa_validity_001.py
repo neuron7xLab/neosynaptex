@@ -153,9 +153,9 @@ def _make_task(seed: int) -> TaskDraw:
     )
 
 
-def task_data_hash(seed: int) -> str:
+def _draw_blob(seed: int) -> bytes:
     t = _make_task(seed)
-    blob = b"".join(
+    return b"".join(
         arr.tobytes()
         for arr in (
             t.a,
@@ -167,7 +167,21 @@ def task_data_hash(seed: int) -> str:
             t.policy_correct,
         )
     )
-    return hashlib.sha256(blob).hexdigest()
+
+
+def task_data_hash() -> str:
+    """Hash *every* task draw that can enter a decision: the Step-B gate draw
+    (cfg.SEED) and all Step-D routing draws (cfg.SEED + s, s in 0..N_SEEDS-1).
+
+    Hashing only cfg.SEED would let nonzero-seed draws change a KILLED/SURVIVED
+    decision without changing data_hash — a provenance hole flagged in review.
+    """
+    seeds = [cfg.SEED] + [cfg.SEED + s for s in range(cfg.N_SEEDS)]
+    h = hashlib.sha256()
+    for s in seeds:
+        h.update(s.to_bytes(8, "little", signed=False))
+        h.update(_draw_blob(s))
+    return h.hexdigest()
 
 
 # --------------------------------------------------------------------------
@@ -293,7 +307,7 @@ def _repro_hash(payload: dict[str, Any]) -> str:
 
 def run() -> dict[str, Any]:
     cfg_hash = cfg.config_hash()
-    data_hash = task_data_hash(cfg.SEED)
+    data_hash = task_data_hash()
 
     base: dict[str, Any] = {
         "claim": cfg.CLAIM,
@@ -391,15 +405,21 @@ def run() -> dict[str, Any]:
     beats_random = verifier_acc > random_b
 
     vrpe0 = signed_vrpe(handle, task0)
-    # Step B2 — signed vRPE truth-correlated with verification benefit?
-    # benefit indicator = policy is wrong (verification would help here).
+    # Step B2 — is the *routed* signal truth-correlated with verification
+    # benefit? The gate must be measured on the exact quantity Step D routes
+    # on, i.e. dopa_route = -vRPE (more negative vRPE => higher verify
+    # priority). Correlating raw vRPE and demanding rho>0 would contradict the
+    # routing direction and reject a genuinely informative signal (review P1).
+    # Requiring corr(-vRPE, needs_verify) > 0 == requiring vRPE negatively
+    # correlated with needs_verify — consistent with the hypothesis.
+    dopa_route0 = -vrpe0
     needs_verify = (task0.policy_correct == 0).astype(np.float64)
-    if float(np.std(vrpe0)) < 1e-12 or float(np.std(needs_verify)) < 1e-12:
+    if float(np.std(dopa_route0)) < 1e-12 or float(np.std(needs_verify)) < 1e-12:
         rho: float | None = None
         rho_p: float | None = None
         signal_truth_corr = False
     else:
-        rho_res = stats.spearmanr(vrpe0, needs_verify)
+        rho_res = stats.spearmanr(dopa_route0, needs_verify)
         rho = float(rho_res.statistic)
         rho_p = float(rho_res.pvalue)
         signal_truth_corr = (rho_p < cfg.VRPE_TRUTH_CORR_ALPHA) and (rho > 0.0)

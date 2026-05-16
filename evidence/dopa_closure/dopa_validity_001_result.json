@@ -2,37 +2,37 @@
   "boundary": "Scoped strictly to: the executable neuron7x_agents DopamineOperator value-net TD error, a deterministic arithmetic-closure verifier micro-task, and the policies enumerated in this module. No claim about DOPA-CLOSURE the theory; no claim beyond this exact implementation.",
   "claim": "An actual DNCA/dopamine-derived signed vRPE predicts verification benefit better than uncertainty/margin, under an admissible verifier and a true sign-flip negative control.",
   "config_hash": "37959f16716877cf7e7fd88d9c0a69879470489f4a83967969a04eb3bd8aa1f2",
-  "data_hash": "8e9907e7f18bc5371c942eb396fda3af7bfbaaff931d6df939fe2373a9976770",
-  "delta_dopa_vs_uncertainty": null,
+  "data_hash": "5f0c1d5a8a8ec9f31cac1b1b1916a1cd5e0d8c80176a1bc94351282e5611430f",
+  "delta_dopa_vs_uncertainty": 0.0021691973969631393,
   "dnca_signal_source": "neuron7x_agents.dnca.neuromodulators.dopamine.DopamineOperator",
   "dopamine_signal_source": "neuron7x_agents.dnca.neuromodulators.dopamine.DopamineOperator.modulate()['valence']",
-  "effect_size": null,
+  "effect_size": 0.3333333333333333,
   "majority_baseline": 0.5166666666666667,
   "negative_control_result": {
-    "detail": "signed vRPE is NOT truth-correlated with verification benefit (RETRACTION precondition #3 unmet); routing comparison would be an invalid instrument",
-    "inverted_loses_advantage": null,
+    "detail": "negative control = -vRPE (sign negation), routed on signed value",
+    "inverted_loses_advantage": true,
     "is_true_sign_flip": true
   },
-  "p_value": null,
+  "p_value": 0.65234375,
   "policy_scores": {
-    "dopa_signed_vrpe": null,
-    "no_vRPE": null,
-    "random_gate": null,
-    "signed_vrpe_inverted": null,
-    "uncertainty_only": null,
-    "verify_all": null
+    "dopa_signed_vrpe": 9.25,
+    "no_vRPE": 1.75,
+    "random_gate": 12.5,
+    "signed_vrpe_inverted": 1.6666666666666667,
+    "uncertainty_only": 9.166666666666666,
+    "verify_all": 38.416666666666664
   },
   "random_baseline": 0.5,
-  "repro_hash": "b4515e88b934452f4f78f46d590995e973ad044ef992e7e322b64c699f27d1da",
+  "repro_hash": "398e80a125d340ec5f0e67258d0c39a63a6978ef95a0e79793564a091874c724",
   "signed_vrpe_definition": "DopamineOperator.modulate(...)['valence'] = clamp(delta, -1, 1) where delta = r + gamma*V(s_t) - V(s_{t-1}) is the temporal-difference prediction error BEFORE the Schultz asymmetric gain. Sign is preserved; the negative control negates this signed scalar (vRPE -> -vRPE), it is NOT a complement of |vRPE|.",
-  "verdict": "INADMISSIBLE_WEAK_VERIFIER",
+  "verdict": "KILLED",
   "verified_closure_definition": "A Verified-Closure event = the independent deterministic verifier spent a budgeted verification action on an item AND returned a definitive VERIFIED/REFUTED outcome bound to an evidence hash under a fixed boundary (pure recomputation, network disabled). VCR = (closure events) / (items). It is distinct from policy label accuracy: VCR counts independent verifier-confirmed closures, not whether the policy's own label was right.",
   "verifier_admissibility": {
     "beats_majority": true,
     "beats_random": true,
-    "signal_is_truth_correlated": false,
+    "signal_is_truth_correlated": true,
     "signed_vrpe_truth_corr_p": 0.006616810363190428,
-    "signed_vrpe_truth_correlation": -0.17484777783145877,
+    "signed_vrpe_truth_correlation": 0.17484777783145877,
     "verifier_accuracy": 1.0
   }
 }

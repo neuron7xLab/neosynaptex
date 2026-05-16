@@ -46,15 +46,21 @@ construction (Step B1 passes).
 
 ## What is missing?
 
-1. A **truth-correlated vRPE** (RETRACTION precondition #3). The shipped
-   `DopamineOperator.value_net` is *untrained*; its δ over inference features is
-   not yet shown to correlate with verification benefit. This is the binding
-   gap: Step B2 fails today → verdict `INADMISSIBLE_WEAK_VERIFIER`.
+1. A **stronger truth-correlated vRPE**. The shipped `DopamineOperator.value_net`
+   is *untrained*; over margin-informed inference features its routed δ is only
+   weakly correlated (ρ=+0.175, p=0.0066) — enough to pass B2 admissibility but
+   it routes **worse than random** at Step D. A trained/theory-anchored value
+   estimator is the open work.
 2. A real (non-arithmetic) hallucination/truthfulness corpus with
    command-verifiable Verified Closure.
-3. A trained or theoretically-anchored value estimator before any routing read.
+3. Replication of the scoped KILL across independent task families before any
+   generalisation beyond this implementation.
 
 ## Conclusion
 
-Materials suffice to build the **admissibility machine**, not to test the
-theory. The honest outcome today is a clean INADMISSIBLE — by design.
+Materials suffice to build the **admissibility machine** and run the *first
+admissible* DOPA/DNCA instrument. Reference verdict: scoped **`KILLED`**
+(`KILL-0979B`) — the executable DNCA signed-vRPE does not beat uncertainty (it
+is worse than random) for verification routing on this micro-task, with all
+seven RETRACTION preconditions satisfied and significance tested. This kills
+*this implementation only*. **DOPA-CLOSURE the theory remains UNTESTED.**
