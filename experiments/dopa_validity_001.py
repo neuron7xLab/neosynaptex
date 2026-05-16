@@ -349,21 +349,29 @@ def run() -> dict[str, Any]:
         )
         return result
 
+    # Baselines and the verification action are properties of the task, not of
+    # the DNCA signal — always computable, so the artifact never carries a fake
+    # zero baseline even when Step A fails.
+    task0 = _make_task(cfg.SEED)
+    majority = majority_baseline(task0)
+    random_b = random_baseline(task0)
+    _, verifier_acc_pre = run_verifier(task0)
+
     # ---- Step A -------------------------------------------------------
     handle = load_dopamine_operator()
     if handle is None:
         return finalize(
             cfg.VERDICT_INADMISSIBLE_NO_SIGNAL,
             {
-                "verifier_accuracy": 0.0,
-                "beats_majority": False,
-                "beats_random": False,
+                "verifier_accuracy": verifier_acc_pre,
+                "beats_majority": verifier_acc_pre > majority,
+                "beats_random": verifier_acc_pre > random_b,
                 "signed_vrpe_truth_correlation": None,
                 "signed_vrpe_truth_corr_p": None,
                 "signal_is_truth_correlated": False,
             },
-            0.0,
-            0.0,
+            majority,
+            random_b,
             dict.fromkeys(cfg.POLICIES),
             None,
             None,
@@ -376,10 +384,6 @@ def run() -> dict[str, Any]:
                 ),
             },
         )
-
-    task0 = _make_task(cfg.SEED)
-    majority = majority_baseline(task0)
-    random_b = random_baseline(task0)
 
     # ---- Step B1 — verifier above majority AND random -----------------
     _, verifier_acc = run_verifier(task0)
