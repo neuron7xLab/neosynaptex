@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from decimal import Decimal, getcontext
+
+getcontext().prec = 28
+_SCALE = Decimal("0.000001")
 
 
 @dataclass(frozen=True)
@@ -13,29 +17,27 @@ class BudgetStep:
 
 @dataclass
 class BudgetLedger:
-    envelope: float
-    probe_tax: float
-    remaining: float
+    envelope: Decimal
+    probe_tax: Decimal
+    remaining: Decimal
 
     @classmethod
     def create(cls, envelope: float, probe_tax: float) -> "BudgetLedger":
-        return cls(envelope=envelope, probe_tax=probe_tax, remaining=envelope)
+        e = Decimal(str(envelope))
+        p = Decimal(str(probe_tax))
+        return cls(envelope=e, probe_tax=p, remaining=e)
 
     def apply(self, requested_cost: float, quarantine_cost: float) -> BudgetStep:
-        cost = requested_cost + self.probe_tax
+        cost = Decimal(str(requested_cost)) + self.probe_tax
         before = self.remaining
         overspend = cost > self.remaining
         if overspend:
-            cost = min(self.remaining, quarantine_cost + self.probe_tax)
+            q = Decimal(str(quarantine_cost)) + self.probe_tax
+            cost = min(self.remaining, q)
         self.remaining -= cost
-        return BudgetStep(before=before, action_cost=cost, after=self.remaining, overspend=overspend)
+        return BudgetStep(float(before), float(cost), float(self.remaining), overspend)
 
     def snapshot(self) -> dict[str, float | bool]:
         spent = self.envelope - self.remaining
-        return {
-            "envelope": round(self.envelope, 6),
-            "probe_tax": round(self.probe_tax, 6),
-            "spent": round(spent, 6),
-            "remaining": round(self.remaining, 6),
-            "conserved": round(spent + self.remaining, 6) == round(self.envelope, 6),
-        }
+        eq = (spent + self.remaining).quantize(_SCALE) == self.envelope.quantize(_SCALE)
+        return {"envelope": float(self.envelope), "probe_tax": float(self.probe_tax), "spent": float(spent), "remaining": float(self.remaining), "conserved": eq}

@@ -2,10 +2,22 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "schemas/dopa_closure_v2_config.schema.json",
   "type": "object",
-  "required": ["priority_gate", "budget", "modes", "negative_controls", "construct_validity_gate"],
+  "additionalProperties": false,
+  "required": ["version", "construct", "priority_gate", "budget", "modes", "negative_controls", "construct_validity_gate"],
   "properties": {
-    "priority_gate": {"type": "object"},
-    "budget": {"type": "object"},
+    "version": {"type": "string"},
+    "construct": {"type": "string"},
+    "priority_gate": {
+      "type": "object",
+      "required": ["load_center", "load_spread", "weights", "thresholds"],
+      "properties": {
+        "load_center": {"type": "number"},
+        "load_spread": {"type": "number", "exclusiveMinimum": 0},
+        "weights": {"type": "object", "additionalProperties": {"type": "number"}},
+        "thresholds": {"type": "object", "additionalProperties": {"type": "number"}}
+      }
+    },
+    "budget": {"type": "object", "required": ["envelope", "action_costs"], "properties": {"envelope": {"type": "number", "exclusiveMinimum": 0}, "probe_tax": {"type": "number", "minimum": 0}, "action_costs": {"type": "object", "additionalProperties": {"type": "number", "exclusiveMinimum": 0}}}},
     "modes": {"type": "object"},
     "negative_controls": {"type": "object"},
     "construct_validity_gate": {"type": "object"}

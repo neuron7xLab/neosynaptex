@@ -2,6 +2,25 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from enum import StrEnum
+
+
+class RouteMode(StrEnum):
+    CHEAP_TRIAGE = "cheap_triage"
+    VERIFY = "verify"
+    ESCALATE = "escalate"
+    QUARANTINE = "quarantine"
+    REJECT = "reject"
+
+
+class FinalStatus(StrEnum):
+    CLOSED = "CLOSED"
+    QUARANTINED = "QUARANTINED"
+    REJECTED = "REJECTED"
+    REJECT = "REJECT"
+    ESCALATE = "ESCALATE"
+    VERIFY = "VERIFY"
+    CHEAP_TRIAGE = "CHEAP_TRIAGE"
 
 
 def _unit(name: str, v: float) -> float:
@@ -26,12 +45,5 @@ class ClaimSignal:
     def __post_init__(self) -> None:
         if not self.claim_id:
             raise ValueError("claim_id must be non-empty")
-        for k in (
-            "prediction_error",
-            "uncertainty",
-            "novelty",
-            "evidence_risk",
-            "reversibility",
-            "load",
-        ):
+        for k in ("prediction_error", "uncertainty", "novelty", "evidence_risk", "reversibility", "load"):
             _unit(k, float(getattr(self, k)))
