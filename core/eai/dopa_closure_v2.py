@@ -34,7 +34,11 @@ class DopaClosureV2Allocator:
         self.config = loaded.value.payload
         self.config_hash = loaded.value.config_hash
 
-    def priority_of_verification(self, claim: ClaimSignal, budget_ratio: float = 1.0) -> float:
+    def priority_of_verification(
+        self,
+        claim: ClaimSignal,
+        budget_ratio: float = 1.0,
+    ) -> float:
         w = self.config["priority_gate"]["weights"]
         drive = (
             w["prediction_error"] * claim.prediction_error
@@ -124,7 +128,11 @@ def _final_status_for(mode: RouteMode) -> FinalStatus:
     }[mode]
 
 
-def _failure_reasons(final_verdict: str, controls_doc: dict[str, Any], degraded: bool) -> list[str]:
+def _failure_reasons(
+    final_verdict: str,
+    controls_doc: dict[str, Any],
+    degraded: bool,
+) -> list[str]:
     if final_verdict == "ADMISSIBLE":
         return []
     reasons: list[str] = []
@@ -185,7 +193,10 @@ def run_allocator_full_path(
         quarantine_reason = None
 
         requested = float(costs[desired_mode.value])
-        needs_budgeted_verification = desired_mode in (RouteMode.ESCALATE, RouteMode.VERIFY)
+        needs_budgeted_verification = desired_mode in (
+            RouteMode.ESCALATE,
+            RouteMode.VERIFY,
+        )
         verify_unaffordable = needs_budgeted_verification and (
             requested + float(ledger.probe_tax) > float(ledger.remaining)
         )
