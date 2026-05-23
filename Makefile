@@ -1,6 +1,6 @@
-.PHONY: all clean init validate_contracts test_dynamic verify test lint format install typecheck reproduce report demo
+.PHONY: all clean init validate_contracts test_dynamic verify audit_internal test lint format install typecheck reproduce report demo
 
-all: clean init validate_contracts test_dynamic
+all: clean init audit_internal validate_contracts test_dynamic
 
 clean:
 	@echo "Purging non-deterministic artifacts..."
@@ -49,3 +49,5 @@ demo:
 
 report:
 	python3 run_calibration_diagnostic.py
+audit_internal: verify demo report
+	@echo "Internal audit surfaces executed (verify + demo + report)."

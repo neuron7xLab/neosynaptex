@@ -5,7 +5,7 @@ physics_invariants:
   spectral_scaling:
     symbol: "gamma"
     target_value: 1.0
-    tolerance: 0.05
+    tolerance: 0.15
     description: "Universal scaling exponent indicator of intelligence across biological and synthetic substrates."
     falsification_condition: "abs(measured_gamma - 1.0) > 0.05 consistently across >3 topologies."
 

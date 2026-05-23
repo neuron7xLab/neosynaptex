@@ -5,8 +5,13 @@ import re
 import sys
 from pathlib import Path
 
+import numpy as np
 import yaml  # type: ignore[import-untyped]
 from pydantic import BaseModel, Field, ValidationError
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 
 class SpectralScaling(BaseModel):
@@ -88,6 +93,37 @@ def find_untraced_tests(module_path: Path) -> list[str]:
     return missing
 
 
+def validate_dynamic_gamma_state(contract: InvariantsContract) -> tuple[bool, str]:
+    """Fail-closed runtime audit on current γ topology, not only syntax."""
+    from core.axioms import SUBSTRATE_GAMMA
+
+    gammas = np.array([g for g, _ in SUBSTRATE_GAMMA.values() if g is not None], dtype=np.float64)
+    if gammas.size == 0:
+        return False, "FAIL: dynamic gamma audit found zero γ-emitting substrates"
+
+    target = contract.physics_invariants.spectral_scaling.target_value
+    tolerance = contract.physics_invariants.spectral_scaling.tolerance
+    abs_dev = np.abs(gammas - target)
+    violations = int(np.sum(abs_dev > tolerance))
+    # Real-time spectral-entropy proxy over |γ-target| distribution.
+    hist, _ = np.histogram(abs_dev, bins=min(8, gammas.size), density=False)
+    p = hist.astype(np.float64) / max(1.0, float(hist.sum()))
+    p = p[p > 0]
+    entropy = float(-np.sum(p * np.log2(p)))
+    if violations > 3:
+        return (
+            False,
+            "FAIL: dynamic gamma audit violated falsification condition: "
+            f"violations={violations} tolerance={tolerance}",
+        )
+    return (
+        True,
+        "PASS: dynamic gamma audit | "
+        f"n={gammas.size} mean={float(np.mean(gammas)):.4f} "
+        f"violations={violations} spectral_entropy={entropy:.4f}",
+    )
+
+
 def main() -> int:
     contract_path = Path("invariants.yaml")
     if not contract_path.exists():
@@ -129,6 +165,12 @@ def main() -> int:
             print(f"  - {fn}")
         return 1
 
+    dyn_ok, dyn_msg = validate_dynamic_gamma_state(contract)
+    if not dyn_ok:
+        print(dyn_msg)
+        return 1
+
+    print(dyn_msg)
     print(
         "PASS: invariants contract valid | "
         f"equations={len(equations)} traces={len(test_traces)} "
