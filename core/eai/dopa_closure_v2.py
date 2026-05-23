@@ -55,7 +55,6 @@ class DopaClosureV2Allocator:
         spread = float(self.config["priority_gate"]["load_spread"])
         eps = 1e-9
         load_gate = max(0.0, 1.0 - ((claim.load - center) / (spread + eps)) ** 2)
-        # Adaptive anti-blind-spot coupling: as budget depletes, keep prediction_error salient.
         scarcity_boost = (1.0 - max(0.0, min(1.0, budget_ratio))) * claim.prediction_error * 0.35
         return max(0.0, float((drive + scarcity_boost) * load_gate))
 
@@ -90,26 +89,28 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
         priority = allocator.priority_of_verification(claim, budget_ratio=budget_ratio)
         priorities.append(priority)
 
-        route_mode: RouteMode = (
+        desired_mode: RouteMode = (
             RouteMode.REJECT if claim.evidence_risk >= t["reject_evidence_risk"] else
             RouteMode.ESCALATE if priority >= t["escalate"] else
             RouteMode.VERIFY if priority >= t["verify"] else
             RouteMode.CHEAP_TRIAGE if priority >= t["triage"] else
             RouteMode.QUARANTINE
         )
-
-        requested = float(costs[route_mode.value])
-        verify_unaffordable = route_mode in (RouteMode.ESCALATE, RouteMode.VERIFY) and (requested + float(ledger.probe_tax) > float(ledger.remaining))
+        executed_mode = desired_mode
         unmet_verification_need = False
-        if verify_unaffordable:
-            # avoid blind quarantine: retain signal with cheap triage if possible
-            triage_cost = float(costs[RouteMode.CHEAP_TRIAGE.value]) + float(ledger.probe_tax)
-            if triage_cost <= float(ledger.remaining):
-                route_mode = RouteMode.CHEAP_TRIAGE
-                unmet_verification_need = True
-                deferred_due_budget += 1
+        quarantine_reason = None
 
-        step = ledger.apply(float(costs[route_mode.value]), float(costs[RouteMode.QUARANTINE.value]))
+        requested = float(costs[desired_mode.value])
+        needs_budgeted_verification = desired_mode in (RouteMode.ESCALATE, RouteMode.VERIFY)
+        verify_unaffordable = needs_budgeted_verification and (requested + float(ledger.probe_tax) > float(ledger.remaining))
+        if verify_unaffordable:
+            unmet_verification_need = True
+            deferred_due_budget += 1
+            quarantine_reason = "INSUFFICIENT_BUDGET_FOR_VERIFICATION"
+            triage_cost = float(costs[RouteMode.CHEAP_TRIAGE.value]) + float(ledger.probe_tax)
+            executed_mode = RouteMode.CHEAP_TRIAGE if triage_cost <= float(ledger.remaining) else RouteMode.QUARANTINE
+
+        step = ledger.apply(float(costs[executed_mode.value]), float(costs[RouteMode.QUARANTINE.value]))
         verification_result = "not_run"
         default_status = {
             RouteMode.REJECT: FinalStatus.REJECTED,
@@ -118,19 +119,22 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
             RouteMode.CHEAP_TRIAGE: FinalStatus.CHEAP_TRIAGE,
             RouteMode.QUARANTINE: FinalStatus.QUARANTINED,
         }
-        final_status = default_status[route_mode]
-        quarantine_reason = None
-        if step.overspend:
-            route_mode, final_status, quarantine_reason = RouteMode.QUARANTINE, FinalStatus.QUARANTINED, "INSUFFICIENT_BUDGET"
-        elif route_mode == RouteMode.VERIFY:
+        final_status = default_status[executed_mode]
+
+        if unmet_verification_need:
+            final_status = FinalStatus.QUARANTINED
+        elif step.overspend:
+            executed_mode, final_status, quarantine_reason = RouteMode.QUARANTINE, FinalStatus.QUARANTINED, "INSUFFICIENT_BUDGET"
+        elif executed_mode == RouteMode.VERIFY:
             verification_result = "pass" if claim.evidence_risk <= t["close_evidence_risk_max"] else "inconclusive"
             final_status = FinalStatus.CLOSED if verification_result == "pass" else FinalStatus.QUARANTINED
 
         claim_dir = output / "claims" / claim.claim_id
-        artifact = claim_artifact_name(route_mode.value, final_status.value)
+        artifact = claim_artifact_name(executed_mode.value, final_status.value)
         route_doc = {
             "claim_id": claim.claim_id,
-            "route_mode": route_mode.value,
+            "desired_route_mode": desired_mode.value,
+            "route_mode": executed_mode.value,
             "epistemic_status": claim.epistemic_status,
             "final_status": final_status.value,
             "priority_of_verification": priority,
