@@ -16,10 +16,23 @@ REQUIRED_CONTROLS = {
 }
 
 
+def _frontmatter(text: str) -> dict[str, object]:
+    if not text.startswith("---\n"):
+        return {}
+    end = text.find("\n---\n", 4)
+    if end == -1:
+        return {}
+    raw = text[4:end]
+    data = yaml.safe_load(raw)
+    return data if isinstance(data, dict) else {}
+
+
 def validate_contract(config_path: Path, contract_path: Path) -> list[str]:
     errors: list[str] = []
     cfg = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    txt = contract_path.read_text(encoding="utf-8").lower()
+    text = contract_path.read_text(encoding="utf-8")
+    meta = _frontmatter(text)
+
     if set(cfg.get("modes", {}).keys()) != REQUIRED_MODES:
         errors.append("modes must exactly match required set")
     if set(cfg.get("negative_controls", {}).keys()) != REQUIRED_CONTROLS:
@@ -27,8 +40,8 @@ def validate_contract(config_path: Path, contract_path: Path) -> list[str]:
     w = cfg["priority_gate"]["weights"]
     if abs(sum(float(v) for v in w.values()) - 1.0) > 1e-9:
         errors.append("weights must sum to 1.0")
-    if "claims, not truth labels" not in txt:
-        errors.append("contract must state non-truth semantics")
+    if meta.get("semantics") != "non-truth_routing":
+        errors.append("frontmatter semantics must be non-truth_routing")
     return errors
 
 

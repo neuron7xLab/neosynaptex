@@ -1,3 +1,7 @@
+---
+semantics: non-truth_routing
+---
+
 # DOPA-CLOSURE v2 Construct Contract
 
 claim_status: derived

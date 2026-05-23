@@ -51,7 +51,8 @@ class DopaClosureV2Allocator:
         )
         center = float(self.config["priority_gate"]["load_center"])
         spread = float(self.config["priority_gate"]["load_spread"])
-        return max(0.0, float(drive * max(0.0, 1.0 - ((claim.load - center) / spread) ** 2)))
+        eps = 1e-9
+        return max(0.0, float(drive * max(0.0, 1.0 - ((claim.load - center) / (spread + eps)) ** 2)))
 
 
 def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], output_root: str | Path, construct_context: ConstructContext) -> dict[str, Any]:
