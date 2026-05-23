@@ -1,6 +1,7 @@
 .PHONY: all clean lock sync_locked init validate_contracts test_dynamic verify verify_pr verify_full audit_internal governance_brake unicode_scan secrets_scan sast dependency_audit sbom security package_manifest package_scan test lint format install typecheck reproduce report demo demo_full demo_synthetic_ci
 
 PR_BODY_FILE ?= /tmp/pr_body.txt
+PYTHON ?= python3
 
 all: clean sync_locked governance_brake validate_contracts unicode_scan secrets_scan sast dependency_audit sbom package_manifest package_scan test_dynamic audit_internal
 
@@ -64,10 +65,10 @@ reproduce: install
 	uv run python3 scripts/reproduce.py
 
 demo_full:
-	uv run python3 demo_multi.py
+	$(PYTHON) demo_multi.py
 
 demo_synthetic_ci:
-	NEOSYNAPTEX_DEMO_SYNTHETIC_ONLY=1 uv run python3 demo_multi.py
+	NEOSYNAPTEX_DEMO_SYNTHETIC_ONLY=1 $(PYTHON) demo_multi.py
 
 demo: demo_synthetic_ci
 
