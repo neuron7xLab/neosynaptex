@@ -8,6 +8,7 @@ import sys
 
 sys.path.insert(0, ".")
 from core.axioms import SUBSTRATE_GAMMA, classify_regime, verify_axiom_consistency
+from core.testing.governance import traces_equation
 
 
 def test_all_substrates_not_collapsed():
@@ -34,6 +35,7 @@ def test_majority_substrates_metastable():
     assert len(metastable) >= 4, f"Only {len(metastable)}/6 substrates metastable: {metastable}"
 
 
+@traces_equation("EQ-GAMMA-01")
 def test_mean_gamma_near_unity():
     """Mean γ across γ-emitting substrates within 0.15 of 1.0."""
     gammas = [v[0] for v in SUBSTRATE_GAMMA.values() if v[0] is not None]
@@ -52,6 +54,7 @@ def test_axiom_consistency():
     assert verify_axiom_consistency(state), "AXIOM_0 violated"
 
 
+@traces_equation("EQ-GAMMA-02")
 def test_gamma_formula():
     """γ_PSD = 2H+1 verification. NEVER 2H-1."""
     from core.axioms import gamma_psd

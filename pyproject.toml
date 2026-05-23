@@ -37,9 +37,16 @@ classifiers = [
 dependencies = [
     "numpy>=2.2.6",
     "scipy>=1.15.3",
+    "PyWavelets>=1.8",
+    "networkx>=3.2.1",
 ]
 
 [project.optional-dependencies]
+test = [
+    "pytest>=9.0.3",
+    "hypothesis>=6.0",
+    "pytest-cov>=7.1.0",
+]
 dev = [
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
@@ -103,6 +110,7 @@ filterwarnings = ["ignore::RuntimeWarning"]
 addopts = "-v --tb=short"
 markers = [
     "slow: marks tests as slow (>30 s); run explicitly or in full CI only",
+    "trace_eq(eq_id): binds a test to a formal equation identifier",
 ]
 
 [tool.mypy]
@@ -116,7 +124,7 @@ target-version = "py310"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM", "FIX", "ERA", "RET"]
 ignore = [
     "N803",  # H is a standard mathematical symbol (Hurst exponent)
     "N806",  # T, X, Y, H, N are standard scientific variable names
@@ -137,3 +145,7 @@ ignore = [
 # accepted locally but rejected by ``ruff check`` on CI due to import-
 # group disagreement (or vice versa).
 known-third-party = ["pywt"]
+
+
+[tool.uv]
+resolution = "highest"

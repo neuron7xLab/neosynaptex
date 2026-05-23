@@ -1,0 +1,19 @@
+version: "1.0"
+scope: "cross-substrate-metastability"
+
+physics_invariants:
+  spectral_scaling:
+    symbol: "gamma"
+    target_value: 1.0
+    tolerance: 0.05
+    description: "Universal scaling exponent indicator of intelligence across biological and synthetic substrates."
+    falsification_condition: "abs(measured_gamma - 1.0) > 0.05 consistently across >3 topologies."
+
+thermodynamic_bounds:
+  energy_dissipation_rate:
+    max_threshold: "calculated per substrate topology (see docs/math/entropy_bounds.tex)"
+    fail_state: "system_halt"
+
+architecture_rules:
+  fail_closed: true
+  allow_silent_exceptions: false
