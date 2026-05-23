@@ -35,12 +35,25 @@ def main() -> None:
     nx = Neosynaptex(window=16, mode="demo")
 
     # Admissible substrates across real + synthetic provenance.
+    # Zebrafish requires local data files; on CI runners where those
+    # files are absent, degrade gracefully to synthetic-only demo so
+    # pipeline smoke checks remain deterministic.
     nx.register(ZebrafishAdapter("WT"))
     nx.register(GrayScottAdapter())
     nx.register(KuramotoAdapter())
     nx.register(BnSynAdapter())
 
-    s = nx.observe()
+    try:
+        s = nx.observe()
+    except RuntimeError as exc:
+        if "Cannot load zebrafish data" not in str(exc):
+            raise
+        print("WARN: zebrafish data missing; continuing demo with synthetic substrates only.")
+        nx = Neosynaptex(window=16, mode="demo")
+        nx.register(GrayScottAdapter())
+        nx.register(KuramotoAdapter())
+        nx.register(BnSynAdapter())
+        s = nx.observe()
     for _ in range(49):
         s = nx.observe()
         print(
