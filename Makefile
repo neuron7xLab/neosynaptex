@@ -1,6 +1,6 @@
-.PHONY: all clean init validate_contracts test_dynamic verify audit_internal test lint format install typecheck reproduce report demo
+.PHONY: all clean init validate_contracts test_dynamic verify audit_internal governance_brake test lint format install typecheck reproduce report demo
 
-all: clean init audit_internal validate_contracts test_dynamic
+all: clean init audit_internal governance_brake validate_contracts test_dynamic
 
 clean:
 	@echo "Purging non-deterministic artifacts..."
@@ -17,6 +17,10 @@ validate_contracts:
 	python3 scripts/validate_invariants.py
 	ruff check neosynaptex.py core/ contracts/ evl/ tests/
 
+
+governance_brake:
+	@echo "Checking PR-body claim_status contract..."
+	python -m tools.audit.pr_body_check pr_body.md
 
 test_dynamic:
 	@echo "Executing property-based test matrix..."
