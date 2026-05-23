@@ -121,10 +121,13 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
         }
         final_status = default_status[executed_mode]
 
-        if unmet_verification_need:
-            final_status = FinalStatus.QUARANTINED
-        elif step.overspend:
+        if step.overspend:
             executed_mode, final_status, quarantine_reason = RouteMode.QUARANTINE, FinalStatus.QUARANTINED, "INSUFFICIENT_BUDGET"
+        elif verify_unaffordable:
+            if executed_mode == RouteMode.CHEAP_TRIAGE:
+                final_status = FinalStatus.CHEAP_TRIAGE
+            else:
+                final_status = FinalStatus.QUARANTINED
         elif executed_mode == RouteMode.VERIFY:
             verification_result = "pass" if claim.evidence_risk <= t["close_evidence_risk_max"] else "inconclusive"
             final_status = FinalStatus.CLOSED if verification_result == "pass" else FinalStatus.QUARANTINED
