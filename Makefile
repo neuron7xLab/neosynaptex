@@ -60,7 +60,7 @@ demo_full:
 demo_synthetic_ci:
 	NEOSYNAPTEX_DEMO_SYNTHETIC_ONLY=1 uv run python3 demo_multi.py
 
-demo: demo_full
+demo: demo_synthetic_ci
 
 report:
 	uv run python3 run_calibration_diagnostic.py
