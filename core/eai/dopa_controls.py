@@ -18,11 +18,15 @@ class ControlResults:
     passed: bool
 
 
-def run_controls(claims: list[ClaimSignal], priorities: list[float], seed: int) -> ControlResults:
+def run_controls(
+    claims: list[ClaimSignal],
+    priorities: list[float],
+    seed: int,
+) -> ControlResults:
     if not claims or not priorities:
         return ControlResults(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, False)
 
-    rng = random.Random(seed)
+    rng = random.Random(seed)  # nosec B311: deterministic simulation control, not crypto.
     n = len(claims)
     main_mean = sum(priorities) / n
     random_mean = sum(rng.random() for _ in claims) / n
@@ -35,8 +39,26 @@ def run_controls(claims: list[ClaimSignal], priorities: list[float], seed: int) 
 
     majority_load = Counter(round(c.load, 2) for c in claims).most_common(1)[0][0]
     trivial_majority = sum(
-        max(0.0, 1.0 - abs(c.load - majority_load)) * c.evidence_risk for c in claims
+        max(0.0, 1.0 - abs(c.load - majority_load)) * c.evidence_risk
+        for c in claims
     ) / n
 
-    passed = all(main_mean > x for x in (random_mean, margin_mean, no_dopa_mean, overactivation_mean, trivial_majority))
-    return ControlResults(random_mean, margin_mean, no_dopa_mean, permuted_mean, overactivation_mean, trivial_majority, passed)
+    passed = all(
+        main_mean > baseline
+        for baseline in (
+            random_mean,
+            margin_mean,
+            no_dopa_mean,
+            overactivation_mean,
+            trivial_majority,
+        )
+    )
+    return ControlResults(
+        random_mean,
+        margin_mean,
+        no_dopa_mean,
+        permuted_mean,
+        overactivation_mean,
+        trivial_majority,
+        passed,
+    )
