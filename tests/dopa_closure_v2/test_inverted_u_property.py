@@ -2,11 +2,15 @@ from core.eai.dopa_closure_v2 import DopaClosureV2Allocator
 from core.eai.dopa_types import ClaimSignal
 
 
+def _claim(claim_id: str, load: float) -> ClaimSignal:
+    return ClaimSignal(claim_id, 0.7, 0.6, 0.5, 0.4, 0.7, load)
+
+
 def test_inverted_u_peak_property_sweep() -> None:
-    a = DopaClosureV2Allocator("configs/dopa_closure_v2/allocator.yaml")
-    base = dict(prediction_error=0.7, uncertainty=0.6, novelty=0.5, evidence_risk=0.4, reversibility=0.7)
-    mid = a.priority_of_verification(ClaimSignal("m", load=0.55, **base))
-    for i in range(0, 101):
-        l = i / 100
-        p = a.priority_of_verification(ClaimSignal(f"c{i}", load=l, **base))
-        assert p <= mid + 1e-12
+    allocator = DopaClosureV2Allocator("configs/dopa_closure_v2/allocator.yaml")
+    mid = allocator.priority_of_verification(_claim("m", 0.55))
+    for i in range(101):
+        load = i / 100
+        claim_id = "c" + str(i)
+        priority = allocator.priority_of_verification(_claim(claim_id, load))
+        assert priority <= mid + 1e-12
