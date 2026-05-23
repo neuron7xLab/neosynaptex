@@ -48,7 +48,6 @@ class InvariantsContract(BaseModel):
     architecture_rules: ArchitectureRules
 
 
-TRACE_RE = re.compile(r"(?:TraceID:\s*|traces_equation\(\s*[\"'])(EQ-[A-Z0-9\-]+)")
 EQ_RE = re.compile(r"\b(EQ-[A-Z0-9\-]+)\b")
 
 
@@ -72,8 +71,20 @@ def collect_test_traces(test_root: Path) -> set[str]:
     if not test_root.exists():
         return ids
     for test_file in test_root.rglob("test_*.py"):
-        text = test_file.read_text(encoding="utf-8", errors="ignore")
-        ids.update(TRACE_RE.findall(text))
+        tree = ast.parse(test_file.read_text(encoding="utf-8"), filename=str(test_file))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef) or not node.name.startswith("test_"):
+                continue
+            for dec in node.decorator_list:
+                if (
+                    isinstance(dec, ast.Call)
+                    and isinstance(dec.func, ast.Name)
+                    and dec.func.id == "traces_equation"
+                    and dec.args
+                    and isinstance(dec.args[0], ast.Constant)
+                    and isinstance(dec.args[0].value, str)
+                ):
+                    ids.add(dec.args[0].value)
     return ids
 
 
@@ -91,6 +102,17 @@ def find_untraced_tests(module_path: Path) -> list[str]:
             if not has_trace:
                 missing.append(node.name)
     return missing
+
+
+def find_untraced_tests_in_tree(test_root: Path) -> list[str]:
+    missing_all: list[str] = []
+    for test_file in test_root.rglob("test_*.py"):
+        text = test_file.read_text(encoding="utf-8", errors="ignore")
+        if "traces_equation" not in text:
+            continue
+        for fn in find_untraced_tests(test_file):
+            missing_all.append(f"{test_file}:{fn}")
+    return missing_all
 
 
 def validate_dynamic_gamma_state(contract: InvariantsContract) -> tuple[bool, str]:
@@ -157,10 +179,9 @@ def main() -> int:
             print(f"  - {eq}")
         return 1
 
-    target_module = Path("tests/test_gamma_invariant.py")
-    untraced = find_untraced_tests(target_module)
+    untraced = find_untraced_tests_in_tree(Path("tests"))
     if untraced:
-        print(f"FAIL: untraced tests in {target_module}:")
+        print("FAIL: untraced tests in tests tree:")
         for fn in untraced:
             print(f"  - {fn}")
         return 1
@@ -174,7 +195,7 @@ def main() -> int:
     print(
         "PASS: invariants contract valid | "
         f"equations={len(equations)} traces={len(test_traces)} "
-        f"gamma_module_tests={len(untraced) + 5}"
+        f"traced_tests={len(test_traces)}"
     )
     return 0
 

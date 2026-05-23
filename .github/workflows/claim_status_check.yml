@@ -35,12 +35,6 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           printf '%s' "${PR_BODY:-}" > .pr_body.txt
-          # Fail-closed fallback for metadata propagation races:
-          # if the event body is empty or lacks claim_status, use repo
-          # canonical body scaffold to keep governance checks deterministic.
-          if ! python -m tools.audit.pr_body_check .pr_body.txt >/dev/null 2>&1; then
-            cp pr_body.md .pr_body.txt
-          fi
 
       - name: Validate claim_status block
         run: python -m tools.audit.pr_body_check .pr_body.txt
