@@ -1,7 +1,7 @@
 from core.eai.dopa_closure_v2 import run_allocator_full_path
 from core.eai.dopa_construct_gate import ConstructContext
-from core.eai.dopa_types import ClaimSignal
 from core.eai.dopa_result import Ok
+from core.eai.dopa_types import ClaimSignal
 
 
 def test_controls_execute_and_emit_pass_flag(tmp_path):
