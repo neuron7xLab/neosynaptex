@@ -14,6 +14,7 @@ Remove sources of nondeterminism and provide a single-command, fail-closed verif
 - python -m tools.audit.pr_body_check .pr_body.txt
 - pytest -q tests/test_gamma_invariant.py
 
+### Claim status
 claim_status: derived
 
 Governance and boundary compliance only. No new measured universality, intelligence-law, biological validity, causal, or validation claim is introduced.
