@@ -1,24 +1,86 @@
 from __future__ import annotations
+
 import sys
+import unicodedata
 from pathlib import Path
-FORBIDDEN={0x202A,0x202B,0x202D,0x202E,0x202C,0x2066,0x2067,0x2068,0x2069,0x200B,0x200C,0x200D,0xFEFF}
-ALLOW_SUFFIX={'.png','.jpg','.jpeg','.gif','.pdf','.lock'}
 
-def main()->int:
-    bad=[]
-    for p in Path('.').rglob('*'):
-        if not p.is_file() or '.git/' in str(p):
+FORBIDDEN_CATEGORIES = {"Cf", "Cc"}
+FORBIDDEN_CODEPOINTS = {
+    *range(0x202A, 0x202F),
+    *range(0x2066, 0x2070),
+    0x200B,
+    0x200C,
+    0x200D,
+    0xFEFF,
+}
+ALLOWED_CONTROL = {"\n", "\r", "\t"}
+SKIP_DIRS = {
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "node_modules",
+    "dist",
+    "build",
+}
+BINARY_SUFFIXES = {
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".pdf",
+    ".zip",
+    ".gz",
+    ".npy",
+    ".npz",
+    ".parquet",
+    ".onnx",
+    ".pt",
+    ".pth",
+    ".lock",
+}
+
+
+def should_skip(path: Path) -> bool:
+    if any(part in SKIP_DIRS for part in path.parts):
+        return True
+    return path.suffix.lower() in BINARY_SUFFIXES
+
+
+def is_forbidden(ch: str) -> bool:
+    cp = ord(ch)
+    if cp in FORBIDDEN_CODEPOINTS:
+        return True
+    return unicodedata.category(ch) in FORBIDDEN_CATEGORIES and ch not in ALLOWED_CONTROL
+
+
+def main() -> int:
+    findings: list[str] = []
+    for path in Path(".").rglob("*"):
+        if not path.is_file() or should_skip(path):
             continue
-        if p.suffix.lower() in ALLOW_SUFFIX:
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
             continue
-        try:text=p.read_text(encoding='utf-8')
-        except Exception:continue
-        for i,ch in enumerate(text):
-            if ord(ch) in FORBIDDEN:
-                bad.append((str(p),i,ord(ch)));break
-    if bad:
-        for f,i,c in bad: print(f'FORBIDDEN_UNICODE {f}:{i} U+{c:04X}')
+        for line_no, line in enumerate(text.splitlines(keepends=True), start=1):
+            for col_no, ch in enumerate(line, start=1):
+                if is_forbidden(ch):
+                    findings.append(
+                        f"{path}:{line_no}:{col_no}: U+{ord(ch):04X} "
+                        f"{unicodedata.name(ch, 'UNKNOWN')} category={unicodedata.category(ch)}"
+                    )
+    if findings:
+        print("FAIL: hidden/control Unicode detected")
+        for item in findings:
+            print(item)
         return 1
-    print('unicode-scan: OK');return 0
+    print("unicode-scan: OK")
+    return 0
 
-if __name__=='__main__': raise SystemExit(main())
+
+if __name__ == "__main__":
+    sys.exit(main())
