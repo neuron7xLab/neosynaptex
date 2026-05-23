@@ -66,8 +66,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          # Secret Scan only needs the checked-out tree. Full ref fetch can fail
-          # on protected/private refs before gitleaks even starts.
+          # This required gate scans the checked-out tree only. Full history
+          # fetching is intentionally avoided because checkout can fail before
+          # gitleaks starts when GitHub cannot enumerate refs/tags. History-wide
+          # secret forensics belongs in a separate non-required workflow.
           fetch-depth: 1
           fetch-tags: false
           persist-credentials: false
@@ -90,7 +92,9 @@ jobs:
           tar -xzf "/tmp/${GITLEAKS_TARBALL}" -C /usr/local/bin gitleaks
           gitleaks version
       - name: Run gitleaks
-        run: gitleaks detect --source . --redact --report-format sarif --report-path gitleaks.sarif
+        # Explicit tree scan: do not rely on git history when the job performs a
+        # shallow checkout. This preserves the intended fast required gate.
+        run: gitleaks dir --source . --redact --report-format sarif --report-path gitleaks.sarif
       - name: Upload gitleaks report
         if: always()
         uses: actions/upload-artifact@v4
