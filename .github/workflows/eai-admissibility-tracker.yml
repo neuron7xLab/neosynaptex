@@ -74,6 +74,12 @@ jobs:
             --ledger evidence/gamma_ledger.json \
             --history /tmp/history_trusted.jsonl \
             --check-regression
+      - name: Ensure forensic artifact path exists
+        if: always()
+        run: |
+          if [[ ! -f /tmp/history_trusted.jsonl ]]; then
+            : > /tmp/history_trusted.jsonl
+          fi
       - name: Upload forensic history artifact (post-CI snapshot)
         if: always()
         uses: actions/upload-artifact@v4
