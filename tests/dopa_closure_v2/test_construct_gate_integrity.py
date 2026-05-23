@@ -1,4 +1,4 @@
-from core.eai.dopa_construct_gate import ConstructContext, validate_construct_context
+from core.eai.dopa_construct_gate import validate_construct_context
 
 
 class FakeContext:
