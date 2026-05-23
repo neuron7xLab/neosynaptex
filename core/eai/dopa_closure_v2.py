@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import re
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,14 +15,10 @@ from core.eai.dopa_runtime_config import load_and_validate_config
 from core.eai.dopa_types import ClaimSignal, FinalStatus, RouteMode
 
 _SCHEMA_PATH = Path("schemas/dopa_closure_v2_config.schema.json")
-_SHA40 = re.compile(r"^[a-f0-9]{40}$")
 
 
 def _git_head_sha() -> str:
-    env_sha = os.getenv("COMMIT_SHA") or os.getenv("GITHUB_SHA")
-    if env_sha and _SHA40.fullmatch(env_sha.strip()):
-        return env_sha.strip()
-    return "UNSTAMPED:dopa_closure_v2"
+    return os.getenv("COMMIT_SHA") or os.getenv("GITHUB_SHA") or "UNSTAMPED:dopa_closure_v2"
 
 
 def _run_id() -> str:
@@ -50,15 +45,17 @@ class DopaClosureV2Allocator:
         )
         center = float(self.config["priority_gate"]["load_center"])
         spread = float(self.config["priority_gate"]["load_spread"])
-        eps = 1e-9
-        load_gate = max(0.0, 1.0 - ((claim.load - center) / (spread + eps)) ** 2)
+        load_gate = max(0.0, 1.0 - ((claim.load - center) / (spread + 1e-9)) ** 2)
         budget_floor = max(0.0, min(1.0, budget_ratio))
         scarcity_boost = (1.0 - budget_floor) * claim.prediction_error * 0.35
         return max(0.0, float((drive + scarcity_boost) * load_gate))
 
 
 def _provenance(config_path: str | Path) -> dict[str, str]:
-    return {"timestamp_utc": datetime.now(timezone.utc).isoformat(), "config_path": str(config_path)}
+    return {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "config_path": str(config_path),
+    }
 
 
 def _write_config_snapshot(output: Path, config_path: str | Path, config_hash: str) -> None:
@@ -101,7 +98,7 @@ def _inadmissible_result(
     }
 
 
-def _select_route_mode(claim: ClaimSignal, priority: float, thresholds: dict[str, float]) -> RouteMode:
+def _select_route_mode(claim: ClaimSignal, priority: float, thresholds: dict[str, Any]) -> RouteMode:
     if claim.evidence_risk >= thresholds["reject_evidence_risk"]:
         return RouteMode.REJECT
     if priority >= thresholds["escalate"]:
@@ -218,14 +215,16 @@ def run_allocator_full_path(
             if claim.evidence_risk <= thresholds["close_evidence_risk_max"]:
                 verification_result = "pass"
             final_status = (
-                FinalStatus.CLOSED if verification_result == "pass" else FinalStatus.QUARANTINED
+                FinalStatus.CLOSED
+                if verification_result == "pass"
+                else FinalStatus.QUARANTINED
             )
 
         ledger.register_failure(final_status != FinalStatus.CLOSED)
 
         claim_dir = output / "claims" / claim.claim_id
         artifact = claim_artifact_name(executed_mode.value, final_status.value)
-        route_doc = {
+        route_doc: dict[str, Any] = {
             "claim_id": claim.claim_id,
             "desired_route_mode": desired_mode.value,
             "route_mode": executed_mode.value,
@@ -260,7 +259,7 @@ def run_allocator_full_path(
     final_verdict = "INADMISSIBLE"
     if controls_doc["passed"] and not degradation_triggered:
         final_verdict = "ADMISSIBLE"
-    result = {
+    result: dict[str, Any] = {
         "run_id": run_id,
         "commit_sha": _git_head_sha(),
         "final_verdict": final_verdict,
