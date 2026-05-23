@@ -168,10 +168,11 @@ def ledger_entry_to_gate_inputs(
     retention_hash = "a" * 64  # boundary scaffold; ledger pinning
     # done via artifact_hash + dataset sha in the report.
 
-    # Routing order (fail-closed):
-    #   - Any status tag means immediate falsification (KILLED).
-    #   - Otherwise, missing hash binding forces quarantine.
-    #   - Only clean, hash-bound entries are treated as evidence.
+    # Routing:
+    #   - tags non-empty (e.g. NULL_FAILED)  -> KILLED (falsification)
+    #   - hash NOT bound to real data        -> QUARANTINED via
+    #     revalidation_passed=False
+    #   - clean + hash bound                 -> EVIDENCE
     if tags:
         revalidation_passed = False  # immaterial — falsifier kills first
     elif not hash_bound:

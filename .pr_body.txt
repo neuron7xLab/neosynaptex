@@ -1,0 +1,11 @@
+## Summary
+Apply claim-boundary wording fix and restore read-only EAI gamma bridge file.
+
+## Test plan
+- [x] python3 scripts/validate_invariants.py
+- [x] python -m tools.audit.pr_body_check .pr_body.txt
+
+## Claim status
+claim_status: derived
+
+Governance and boundary compliance only; no new measured claim is introduced.

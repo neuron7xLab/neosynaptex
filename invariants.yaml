@@ -6,7 +6,7 @@ physics_invariants:
     symbol: "gamma"
     target_value: 1.0
     tolerance: 0.15
-    description: "Universal scaling exponent indicator of intelligence across biological and synthetic substrates."
+    description: "Bounded candidate metastability-scaling observable for γ-emitting substrates; not a universal intelligence law or validation claim."
     falsification_condition: "abs(measured_gamma - 1.0) > 0.05 consistently across >3 topologies."
 
 thermodynamic_bounds:
