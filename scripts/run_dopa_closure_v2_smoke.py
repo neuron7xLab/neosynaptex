@@ -16,8 +16,8 @@ def main() -> int:
         ClaimSignal("smoke-2", 0.9, 0.7, 0.7, 0.99, 0.2, 0.5),
     ]
     ctx = ConstructContext(True, True, False, False, True, True)
-    run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", claims, "artifacts/dopa_closure_v2", ctx)
-    return 0
+    res = run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", claims, "artifacts/dopa_closure_v2", ctx)
+    return 0 if hasattr(res, "value") else 1
 
 
 if __name__ == "__main__":

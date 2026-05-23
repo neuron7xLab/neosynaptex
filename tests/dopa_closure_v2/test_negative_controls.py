@@ -6,5 +6,7 @@ from core.eai.dopa_types import ClaimSignal
 def test_controls_execute_and_emit_pass_flag(tmp_path):
     ctx = ConstructContext(True, True, False, False, True, True)
     claims = [ClaimSignal("c", 0.8, 0.8, 0.8, 0.3, 0.7, 0.5)]
-    out = run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", claims, tmp_path, ctx)
+    res = run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", claims, tmp_path, ctx)
+    assert hasattr(res, "value")
+    out = res.value
     assert "passed" in out["controls"]

@@ -20,7 +20,9 @@ def _claims() -> list[ClaimSignal]:
 
 def test_full_path_and_schema(tmp_path: Path) -> None:
     ctx = ConstructContext(True, True, False, False, True, True)
-    result = run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", _claims(), tmp_path, ctx)
+    res = run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", _claims(), tmp_path, ctx)
+    assert hasattr(res, "value")
+    result = res.value
     schema = json.loads(Path("schemas/dopa_closure_v2_result.schema.json").read_text())
     validate(result, schema)
     assert result["budget_ledger"]["conserved"] is True
@@ -29,7 +31,9 @@ def test_full_path_and_schema(tmp_path: Path) -> None:
 
 def test_inadmissible_construct_blocks_routing(tmp_path: Path) -> None:
     ctx = ConstructContext(False, True, False, False, True, True)
-    result = run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", _claims(), tmp_path, ctx)
+    res = run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", _claims(), tmp_path, ctx)
+    assert hasattr(res, "value")
+    result = res.value
     assert result["final_verdict"] == "INSTRUMENT_INADMISSIBLE"
 
 

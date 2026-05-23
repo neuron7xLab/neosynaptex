@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import hashlib
-import json
 import os
 import re
 import subprocess
@@ -10,13 +8,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import yaml
-from jsonschema import validate
-
 from core.eai.dopa_artifacts import claim_artifact_name, sha256_file, write_json
 from core.eai.dopa_budget import BudgetLedger
 from core.eai.dopa_construct_gate import ConstructContext, validate_construct_context
 from core.eai.dopa_controls import run_controls
+from core.eai.dopa_result import Err, Ok, Result
+from core.eai.dopa_runtime_config import load_and_validate_config
 from core.eai.dopa_types import ClaimSignal, FinalStatus, RouteMode
 
 _SHA40 = re.compile(r"^[a-f0-9]{40}$")
@@ -32,13 +29,18 @@ def _git_head_sha() -> str:
         return "UNSTAMPED:dopa_closure_v2"
 
 
+def _run_id() -> str:
+    return os.getenv("DOPA_RUN_ID") or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
 class DopaClosureV2Allocator:
     def __init__(self, config_path: str | Path) -> None:
         self.config_path = Path(config_path)
-        self.config = yaml.safe_load(self.config_path.read_text(encoding="utf-8"))
-        schema = json.loads(Path("schemas/dopa_closure_v2_config.schema.json").read_text(encoding="utf-8"))
-        validate(self.config, schema)
-        self.config_hash = hashlib.sha256(self.config_path.read_bytes()).hexdigest()
+        loaded = load_and_validate_config(self.config_path, Path("schemas/dopa_closure_v2_config.schema.json"))
+        if isinstance(loaded, Err):
+            raise ValueError(loaded.reason)
+        self.config = loaded.value.payload
+        self.config_hash = loaded.value.config_hash
 
     def priority_of_verification(self, claim: ClaimSignal) -> float:
         w = self.config["priority_gate"]["weights"]
@@ -55,9 +57,13 @@ class DopaClosureV2Allocator:
         return max(0.0, float(drive * max(0.0, 1.0 - ((claim.load - center) / (spread + eps)) ** 2)))
 
 
-def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], output_root: str | Path, construct_context: ConstructContext) -> dict[str, Any]:
-    allocator = DopaClosureV2Allocator(config_path)
-    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], output_root: str | Path, construct_context: ConstructContext) -> Result[dict[str, Any]]:
+    try:
+        allocator = DopaClosureV2Allocator(config_path)
+    except ValueError as exc:
+        return Err(str(exc))
+
+    run_id = _run_id()
     output = Path(output_root) / "runs" / run_id
     output.mkdir(parents=True, exist_ok=True)
     verdict = validate_construct_context(construct_context)
@@ -67,7 +73,7 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
     if not verdict.admissible:
         final = {"run_id": run_id, "final_verdict": verdict.verdict, "failure_reasons": verdict.reasons, "config_hash": allocator.config_hash, "commit_sha": _git_head_sha(), "routes": []}
         write_json(output / "final_verdict.json", final)
-        return final
+        return Ok(final)
 
     cfg = allocator.config
     t = cfg["priority_gate"]["thresholds"]
@@ -92,7 +98,7 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
             RouteMode.CHEAP_TRIAGE: FinalStatus.CHEAP_TRIAGE,
             RouteMode.QUARANTINE: FinalStatus.QUARANTINED,
         }
-        final_status: FinalStatus = default_status[route_mode]
+        final_status = default_status[route_mode]
         quarantine_reason = None
         if step.overspend:
             route_mode, final_status, quarantine_reason = RouteMode.QUARANTINE, FinalStatus.QUARANTINED, "INSUFFICIENT_BUDGET"
@@ -115,4 +121,4 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
     result = {"run_id": run_id, "commit_sha": _git_head_sha(), "final_verdict": final_verdict, "failure_reasons": [] if final_verdict == "ADMISSIBLE" else ["controls_failed"], "config_hash": allocator.config_hash, "construct_gate": asdict(verdict), "controls": controls_doc, "budget_ledger": ledger.snapshot(), "routes": routes, "artifact_hashes": artifact_hashes, "provenance": {"timestamp_utc": datetime.now(timezone.utc).isoformat(), "config_path": str(config_path)}}
     write_json(output / "budget_ledger.json", result["budget_ledger"])
     write_json(output / "final_verdict.json", result)
-    return result
+    return Ok(result)
