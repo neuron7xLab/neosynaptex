@@ -18,6 +18,7 @@ priority_gate:
 budget:
   envelope: 100.0
   probe_tax: 1.0
+  burn_rate_lambda: 0.35
   action_costs:
     cheap_triage: 1.0
     verify: 8.0

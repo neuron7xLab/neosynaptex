@@ -102,6 +102,10 @@
             "type": "number",
             "exclusiveMinimum": 0
           }
+        },
+        "burn_rate_lambda": {
+          "type": "number",
+          "minimum": 0
         }
       }
     },

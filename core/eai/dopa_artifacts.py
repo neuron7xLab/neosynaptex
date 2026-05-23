@@ -23,6 +23,8 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as tmp:
         tmp.write(json.dumps(payload, indent=2))
+        tmp.flush()
+        os.fsync(tmp.fileno())
         tmp_name = tmp.name
     os.replace(tmp_name, path)
 

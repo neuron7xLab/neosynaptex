@@ -80,7 +80,11 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
     cfg = allocator.config
     t = cfg["priority_gate"]["thresholds"]
     costs = cfg["budget"]["action_costs"]
-    ledger = BudgetLedger.create(float(cfg["budget"]["envelope"]), float(cfg["budget"].get("probe_tax", 0.0)))
+    ledger = BudgetLedger.create(
+        float(cfg["budget"]["envelope"]),
+        float(cfg["budget"].get("probe_tax", 0.0)),
+        lambda_penalty=float(cfg["budget"].get("burn_rate_lambda", 0.0)),
+    )
     routes, priorities, artifact_hashes = [], [], {}
     deferred_due_budget = 0
 
@@ -132,6 +136,8 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
             verification_result = "pass" if claim.evidence_risk <= t["close_evidence_risk_max"] else "inconclusive"
             final_status = FinalStatus.CLOSED if verification_result == "pass" else FinalStatus.QUARANTINED
 
+        ledger.register_failure(final_status != FinalStatus.CLOSED)
+
         claim_dir = output / "claims" / claim.claim_id
         artifact = claim_artifact_name(executed_mode.value, final_status.value)
         route_doc = {
@@ -155,12 +161,16 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
 
     controls_doc = asdict(run_controls(claims, priorities, seed=int(cfg["negative_controls"]["random_routing_seed"])))
     write_json(output / "controls.json", controls_doc)
-    final_verdict = "ADMISSIBLE" if controls_doc["passed"] else "INADMISSIBLE"
+    # active stop-trigger degradation check
+    random_u = controls_doc.get("random_routing_mean_priority", 0.0)
+    allocator_u = sum(priorities) / max(1, len(priorities))
+    degradation_triggered = allocator_u <= random_u
+    final_verdict = "ADMISSIBLE" if controls_doc["passed"] and not degradation_triggered else "INADMISSIBLE"
     result = {
         "run_id": run_id,
         "commit_sha": _git_head_sha(),
         "final_verdict": final_verdict,
-        "failure_reasons": [] if final_verdict == "ADMISSIBLE" else ["controls_failed"],
+        "failure_reasons": [] if final_verdict == "ADMISSIBLE" else (["controls_failed"] if not degradation_triggered else ["allocator_degradation_triggered"]),
         "config_hash": allocator.config_hash,
         "construct_gate": asdict(verdict),
         "controls": controls_doc,
