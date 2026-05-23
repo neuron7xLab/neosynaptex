@@ -1,5 +1,7 @@
 .PHONY: all clean lock sync_locked init validate_contracts test_dynamic verify verify_pr verify_full audit_internal governance_brake unicode_scan secrets_scan sast dependency_audit sbom security package_manifest package_scan test lint format install typecheck reproduce report demo demo_full demo_synthetic_ci
 
+PR_BODY_FILE ?= /tmp/pr_body.txt
+
 all: clean sync_locked governance_brake validate_contracts unicode_scan secrets_scan sast dependency_audit sbom package_manifest package_scan test_dynamic audit_internal
 
 clean:
@@ -25,8 +27,15 @@ validate_contracts:
 
 
 governance_brake:
-	@echo "Checking PR-body claim_status contract..."
-	uv run python -m tools.audit.pr_body_check /tmp/pr_body.txt
+	@echo "Checking PR-body claim_status contract from explicit event input..."
+	@if [ -n "$${PR_BODY:-}" ]; then \
+		mkdir -p "$$(dirname "$(PR_BODY_FILE)")"; \
+		printf '%s' "$${PR_BODY}" > "$(PR_BODY_FILE)"; \
+	elif [ -n "$${GITHUB_EVENT_PATH:-}" ] && [ -f "$${GITHUB_EVENT_PATH}" ]; then \
+		uv run python -c "import json, os, pathlib; p=pathlib.Path('$(PR_BODY_FILE)'); p.parent.mkdir(parents=True, exist_ok=True); data=json.load(open(os.environ['GITHUB_EVENT_PATH'], encoding='utf-8')); p.write_text((data.get('pull_request') or {}).get('body') or '', encoding='utf-8')"; \
+	fi
+	@test -s "$(PR_BODY_FILE)"
+	uv run python -m tools.audit.pr_body_check "$(PR_BODY_FILE)"
 
 test_dynamic:
 	@echo "Executing property-based test matrix..."
@@ -69,8 +78,9 @@ verify_full: install lint test
 
 verify: verify_full
 
-audit_internal: verify_full demo report
-	@echo "Internal audit surfaces executed (verify + demo + report)."
+audit_internal: validate_contracts package_scan
+	NFI_FAIL_CLOSED=1 uv run python scripts/validate_invariants.py
+	@echo "Internal audit surfaces executed (contracts + package evidence scan)."
 
 
 unicode_scan:
@@ -79,7 +89,7 @@ unicode_scan:
 
 secrets_scan:
 	mkdir -p artifacts/security
-	gitleaks detect --source . --redact --verbose --report-format json --report-path artifacts/security/gitleaks.json
+	uv run python scripts/security/secret_safety_check.py
 
 sast:
 	mkdir -p artifacts/security
