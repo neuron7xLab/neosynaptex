@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/dopa_closure_v2_config.schema.json",
+  "type": "object",
+  "required": ["priority_gate", "budget", "modes", "negative_controls", "construct_validity_gate"],
+  "properties": {
+    "priority_gate": {"type": "object"},
+    "budget": {"type": "object"},
+    "modes": {"type": "object"},
+    "negative_controls": {"type": "object"},
+    "construct_validity_gate": {"type": "object"}
+  }
+}
