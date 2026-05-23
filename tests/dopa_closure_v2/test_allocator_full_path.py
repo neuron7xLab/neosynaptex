@@ -7,8 +7,10 @@ from jsonschema import validate
 
 from core.eai.dopa_closure_v2 import DopaClosureV2Allocator, run_allocator_full_path
 from core.eai.dopa_construct_gate import ConstructContext
-from core.eai.dopa_types import ClaimSignal
 from core.eai.dopa_result import Ok
+from core.eai.dopa_types import ClaimSignal
+
+CONFIG_PATH = "configs/dopa_closure_v2/allocator.yaml"
 
 
 def _claims() -> list[ClaimSignal]:
@@ -21,7 +23,7 @@ def _claims() -> list[ClaimSignal]:
 
 def test_full_path_and_schema(tmp_path: Path) -> None:
     ctx = ConstructContext(True, True, False, False, True, True)
-    res = run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", _claims(), tmp_path, ctx)
+    res = run_allocator_full_path(CONFIG_PATH, _claims(), tmp_path, ctx)
     assert isinstance(res, Ok)
     result = res.value
     schema = json.loads(Path("schemas/dopa_closure_v2_result.schema.json").read_text())
@@ -32,14 +34,14 @@ def test_full_path_and_schema(tmp_path: Path) -> None:
 
 def test_inadmissible_construct_blocks_routing(tmp_path: Path) -> None:
     ctx = ConstructContext(False, True, False, False, True, True)
-    res = run_allocator_full_path("configs/dopa_closure_v2/allocator.yaml", _claims(), tmp_path, ctx)
+    res = run_allocator_full_path(CONFIG_PATH, _claims(), tmp_path, ctx)
     assert isinstance(res, Ok)
     result = res.value
     assert result["final_verdict"] == "INSTRUMENT_INADMISSIBLE"
 
 
 def test_inverted_u_non_monotone() -> None:
-    a = DopaClosureV2Allocator("configs/dopa_closure_v2/allocator.yaml")
+    a = DopaClosureV2Allocator(CONFIG_PATH)
     low = a.priority_of_verification(ClaimSignal("x", 0.6, 0.6, 0.6, 0.6, 0.6, 0.0))
     mid = a.priority_of_verification(ClaimSignal("y", 0.6, 0.6, 0.6, 0.6, 0.6, 0.55))
     high = a.priority_of_verification(ClaimSignal("z", 0.6, 0.6, 0.6, 0.6, 0.6, 1.0))
