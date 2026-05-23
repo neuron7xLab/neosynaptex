@@ -42,7 +42,7 @@ class DopaClosureV2Allocator:
         self.config = loaded.value.payload
         self.config_hash = loaded.value.config_hash
 
-    def priority_of_verification(self, claim: ClaimSignal) -> float:
+    def priority_of_verification(self, claim: ClaimSignal, budget_ratio: float = 1.0) -> float:
         w = self.config["priority_gate"]["weights"]
         drive = (
             w["prediction_error"] * claim.prediction_error
@@ -54,7 +54,10 @@ class DopaClosureV2Allocator:
         center = float(self.config["priority_gate"]["load_center"])
         spread = float(self.config["priority_gate"]["load_spread"])
         eps = 1e-9
-        return max(0.0, float(drive * max(0.0, 1.0 - ((claim.load - center) / (spread + eps)) ** 2)))
+        load_gate = max(0.0, 1.0 - ((claim.load - center) / (spread + eps)) ** 2)
+        # Adaptive anti-blind-spot coupling: as budget depletes, keep prediction_error salient.
+        scarcity_boost = (1.0 - max(0.0, min(1.0, budget_ratio))) * claim.prediction_error * 0.35
+        return max(0.0, float((drive + scarcity_boost) * load_gate))
 
 
 def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], output_root: str | Path, construct_context: ConstructContext) -> Result[dict[str, Any]]:
@@ -77,11 +80,16 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
 
     cfg = allocator.config
     t = cfg["priority_gate"]["thresholds"]
+    costs = cfg["budget"]["action_costs"]
     ledger = BudgetLedger.create(float(cfg["budget"]["envelope"]), float(cfg["budget"].get("probe_tax", 0.0)))
     routes, priorities, artifact_hashes = [], [], {}
+    deferred_due_budget = 0
+
     for claim in claims:
-        priority = allocator.priority_of_verification(claim)
+        budget_ratio = 0.0 if float(ledger.envelope) <= 0 else float(ledger.remaining / ledger.envelope)
+        priority = allocator.priority_of_verification(claim, budget_ratio=budget_ratio)
         priorities.append(priority)
+
         route_mode: RouteMode = (
             RouteMode.REJECT if claim.evidence_risk >= t["reject_evidence_risk"] else
             RouteMode.ESCALATE if priority >= t["escalate"] else
@@ -89,7 +97,19 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
             RouteMode.CHEAP_TRIAGE if priority >= t["triage"] else
             RouteMode.QUARANTINE
         )
-        step = ledger.apply(float(cfg["budget"]["action_costs"][route_mode.value]), float(cfg["budget"]["action_costs"][RouteMode.QUARANTINE.value]))
+
+        requested = float(costs[route_mode.value])
+        verify_unaffordable = route_mode in (RouteMode.ESCALATE, RouteMode.VERIFY) and (requested + float(ledger.probe_tax) > float(ledger.remaining))
+        unmet_verification_need = False
+        if verify_unaffordable:
+            # avoid blind quarantine: retain signal with cheap triage if possible
+            triage_cost = float(costs[RouteMode.CHEAP_TRIAGE.value]) + float(ledger.probe_tax)
+            if triage_cost <= float(ledger.remaining):
+                route_mode = RouteMode.CHEAP_TRIAGE
+                unmet_verification_need = True
+                deferred_due_budget += 1
+
+        step = ledger.apply(float(costs[route_mode.value]), float(costs[RouteMode.QUARANTINE.value]))
         verification_result = "not_run"
         default_status = {
             RouteMode.REJECT: FinalStatus.REJECTED,
@@ -108,7 +128,18 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
 
         claim_dir = output / "claims" / claim.claim_id
         artifact = claim_artifact_name(route_mode.value, final_status.value)
-        route_doc = {"claim_id": claim.claim_id, "route_mode": route_mode.value, "epistemic_status": claim.epistemic_status, "final_status": final_status.value, "priority_of_verification": priority, "verification_result": verification_result, "quarantine_reason": quarantine_reason, "budget": asdict(step), "config_hash": allocator.config_hash}
+        route_doc = {
+            "claim_id": claim.claim_id,
+            "route_mode": route_mode.value,
+            "epistemic_status": claim.epistemic_status,
+            "final_status": final_status.value,
+            "priority_of_verification": priority,
+            "verification_result": verification_result,
+            "quarantine_reason": quarantine_reason,
+            "unmet_verification_need": unmet_verification_need,
+            "budget": asdict(step),
+            "config_hash": allocator.config_hash,
+        }
         write_json(claim_dir / artifact, route_doc)
         route_doc["verification_artifact_hash"] = sha256_file(claim_dir / artifact) if final_status == FinalStatus.CLOSED else None
         write_json(claim_dir / "route.json", route_doc)
@@ -118,7 +149,20 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
     controls_doc = asdict(run_controls(claims, priorities, seed=int(cfg["negative_controls"]["random_routing_seed"])))
     write_json(output / "controls.json", controls_doc)
     final_verdict = "ADMISSIBLE" if controls_doc["passed"] else "INADMISSIBLE"
-    result = {"run_id": run_id, "commit_sha": _git_head_sha(), "final_verdict": final_verdict, "failure_reasons": [] if final_verdict == "ADMISSIBLE" else ["controls_failed"], "config_hash": allocator.config_hash, "construct_gate": asdict(verdict), "controls": controls_doc, "budget_ledger": ledger.snapshot(), "routes": routes, "artifact_hashes": artifact_hashes, "provenance": {"timestamp_utc": datetime.now(timezone.utc).isoformat(), "config_path": str(config_path)}}
+    result = {
+        "run_id": run_id,
+        "commit_sha": _git_head_sha(),
+        "final_verdict": final_verdict,
+        "failure_reasons": [] if final_verdict == "ADMISSIBLE" else ["controls_failed"],
+        "config_hash": allocator.config_hash,
+        "construct_gate": asdict(verdict),
+        "controls": controls_doc,
+        "budget_ledger": ledger.snapshot(),
+        "deferred_due_budget": deferred_due_budget,
+        "routes": routes,
+        "artifact_hashes": artifact_hashes,
+        "provenance": {"timestamp_utc": datetime.now(timezone.utc).isoformat(), "config_path": str(config_path)},
+    }
     write_json(output / "budget_ledger.json", result["budget_ledger"])
     write_json(output / "final_verdict.json", result)
     return Ok(result)
