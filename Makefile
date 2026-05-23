@@ -90,7 +90,7 @@ unicode_scan:
 
 secrets_scan:
 	mkdir -p artifacts/security
-	uv run python scripts/security/secret_safety_check.py
+	uv run python scripts/security/release_secret_safety_check.py
 
 sast:
 	mkdir -p artifacts/security
