@@ -38,10 +38,13 @@ def run_controls(
     overactivation_mean = sum(p * 0.2 for p in priorities) / n
 
     majority_load = Counter(round(c.load, 2) for c in claims).most_common(1)[0][0]
-    trivial_majority = sum(
-        max(0.0, 1.0 - abs(c.load - majority_load)) * c.evidence_risk
-        for c in claims
-    ) / n
+    trivial_majority = (
+        sum(
+            max(0.0, 1.0 - abs(c.load - majority_load)) * c.evidence_risk
+            for c in claims
+        )
+        / n
+    )
 
     passed = all(
         main_mean > baseline
