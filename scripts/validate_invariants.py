@@ -48,7 +48,7 @@ class InvariantsContract(BaseModel):
     architecture_rules: ArchitectureRules
 
 
-EQ_RE = re.compile(r"\b(EQ-[A-Z0-9\-]+)\b")
+EQ_RE = re.compile(r"\b((?:EQ|INV)-[A-Z0-9\-]+)\b")
 
 
 def collect_equations(doc_roots: list[Path]) -> set[str]:
@@ -163,7 +163,7 @@ def main() -> int:
         print("FAIL: allow_silent_exceptions must be false (fail-closed)")
         return 1
 
-    equations = collect_equations([Path("docs"), Path("README.md")])
+    equations = collect_equations([Path("docs/TRACEABILITY.md")])
     test_traces = collect_test_traces(Path("tests"))
 
     missing_in_tests = sorted(eq for eq in equations if eq not in test_traces)

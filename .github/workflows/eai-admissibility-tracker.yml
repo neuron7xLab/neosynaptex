@@ -65,8 +65,10 @@ jobs:
           if git cat-file -e origin/main:artifacts/eai/benchmarks/gamma_ledger_admissibility_history.jsonl 2>/dev/null; then
             git show origin/main:artifacts/eai/benchmarks/gamma_ledger_admissibility_history.jsonl > /tmp/history_trusted.jsonl
           else
-            : > /tmp/history_trusted.jsonl
+            echo "ERROR: trusted baseline missing on origin/main"
+            exit 1
           fi
+          test -s /tmp/history_trusted.jsonl
           wc -l /tmp/history_trusted.jsonl
       - name: Run regression check against trusted baseline
         run: |
@@ -74,12 +76,6 @@ jobs:
             --ledger evidence/gamma_ledger.json \
             --history /tmp/history_trusted.jsonl \
             --check-regression
-      - name: Ensure forensic artifact path exists
-        if: always()
-        run: |
-          if [[ ! -f /tmp/history_trusted.jsonl ]]; then
-            : > /tmp/history_trusted.jsonl
-          fi
       - name: Upload forensic history artifact (post-CI snapshot)
         if: always()
         uses: actions/upload-artifact@v4

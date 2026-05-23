@@ -11,7 +11,7 @@ from core.axioms import SUBSTRATE_GAMMA, classify_regime, verify_axiom_consisten
 from tests.support.governance import traces_equation
 
 
-@traces_equation("EQ-GAMMA-01")
+@traces_equation("INV-GAMMA-01")
 def test_all_substrates_not_collapsed():
     """No substrate in COLLAPSE zone. Hard requirement."""
     # Skip substrates that do not emit γ (e.g. BN-Syn after Phase 2 hardening
@@ -26,7 +26,7 @@ def test_all_substrates_not_collapsed():
         )
 
 
-@traces_equation("EQ-GAMMA-02")
+@traces_equation("INV-GAMMA-02")
 def test_majority_substrates_metastable():
     """≥ 4/6 γ-emitting substrates in METASTABLE zone (|γ-1| < 0.15)."""
     metastable = [
@@ -37,7 +37,7 @@ def test_majority_substrates_metastable():
     assert len(metastable) >= 4, f"Only {len(metastable)}/6 substrates metastable: {metastable}"
 
 
-@traces_equation("EQ-GAMMA-03")
+@traces_equation("INV-GAMMA-03")
 def test_mean_gamma_near_unity():
     """Mean γ across γ-emitting substrates within 0.15 of 1.0."""
     gammas = [v[0] for v in SUBSTRATE_GAMMA.values() if v[0] is not None]
@@ -45,7 +45,7 @@ def test_mean_gamma_near_unity():
     assert abs(mean_g - 1.0) < 0.15, f"Mean γ={mean_g:.4f} outside metastable zone"
 
 
-@traces_equation("EQ-GAMMA-04")
+@traces_equation("INV-GAMMA-04")
 def test_axiom_consistency():
     """Full AXIOM_0 consistency check (γ-emitting substrates only)."""
     gammas = [v[0] for v in SUBSTRATE_GAMMA.values() if v[0] is not None]

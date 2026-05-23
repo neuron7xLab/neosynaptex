@@ -1,6 +1,6 @@
-.PHONY: all clean lock sync_locked init validate_contracts test_dynamic verify verify_pr verify_full audit_internal governance_brake unicode_scan secrets_scan sast dependency_audit sbom security package_manifest package_scan test lint format install typecheck reproduce report demo
+.PHONY: all clean lock sync_locked init validate_contracts test_dynamic verify verify_pr verify_full audit_internal governance_brake unicode_scan secrets_scan sast dependency_audit sbom security package_manifest package_scan test lint format install typecheck reproduce report demo demo_full demo_synthetic_ci
 
-all: clean sync_locked governance_brake validate_contracts unicode_scan secrets_scan sast dependency_audit test_dynamic audit_internal
+all: clean sync_locked governance_brake validate_contracts unicode_scan secrets_scan sast dependency_audit sbom package_manifest package_scan test_dynamic audit_internal
 
 clean:
 	@echo "Purging non-deterministic artifacts..."
@@ -26,7 +26,7 @@ validate_contracts:
 
 governance_brake:
 	@echo "Checking PR-body claim_status contract..."
-	uv run python -m tools.audit.pr_body_check pr_body.md
+	uv run python -m tools.audit.pr_body_check /tmp/pr_body.txt
 
 test_dynamic:
 	@echo "Executing property-based test matrix..."
@@ -54,8 +54,13 @@ verify_pr: install lint test
 reproduce: install
 	uv run python3 scripts/reproduce.py
 
-demo:
+demo_full:
 	uv run python3 demo_multi.py
+
+demo_synthetic_ci:
+	NEOSYNAPTEX_DEMO_SYNTHETIC_ONLY=1 uv run python3 demo_multi.py
+
+demo: demo_full
 
 report:
 	uv run python3 run_calibration_diagnostic.py
@@ -69,15 +74,19 @@ audit_internal: verify_full demo report
 
 
 unicode_scan:
+	mkdir -p artifacts/security
 	uv run python scripts/security/unicode_safety_check.py | tee artifacts/security/unicode_scan.txt
 
 secrets_scan:
+	mkdir -p artifacts/security
 	gitleaks detect --source . --redact --verbose --report-format json --report-path artifacts/security/gitleaks.json
 
 sast:
+	mkdir -p artifacts/security
 	uv run bandit -r core contracts scripts neosynaptex.py -f json -o artifacts/security/bandit.json
 
 dependency_audit:
+	mkdir -p artifacts/security
 	uv run pip-audit -f json -o artifacts/security/pip_audit.json
 
 sbom:
@@ -87,7 +96,9 @@ sbom:
 security: unicode_scan secrets_scan sast dependency_audit sbom
 
 package_manifest:
+	mkdir -p artifacts/package
 	uv run python scripts/security/package_evidence_manifest.py
 
 package_scan:
+	mkdir -p artifacts/package
 	uv run python scripts/security/evidence_leakage_scan.py
