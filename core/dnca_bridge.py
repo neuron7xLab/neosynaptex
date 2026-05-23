@@ -164,11 +164,9 @@ class DncaBridge:
             return "unknown"
         try:
             if hasattr(self._dnca, "get_regime"):
-                result: str = str(self._dnca.get_regime())
-                return result
+                return str(self._dnca.get_regime())
             if hasattr(self._dnca, "regime"):
-                result = str(self._dnca.regime)
-                return result
+                return str(self._dnca.regime)
         except Exception:  # nosec B110 — graceful degradation: DNCA regime query optional
             pass
         return "unknown"
