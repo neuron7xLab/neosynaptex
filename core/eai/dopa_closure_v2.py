@@ -98,7 +98,11 @@ def _inadmissible_result(
     }
 
 
-def _select_route_mode(claim: ClaimSignal, priority: float, thresholds: dict[str, Any]) -> RouteMode:
+def _select_route_mode(
+    claim: ClaimSignal,
+    priority: float,
+    thresholds: dict[str, Any],
+) -> RouteMode:
     if claim.evidence_risk >= thresholds["reject_evidence_risk"]:
         return RouteMode.REJECT
     if priority >= thresholds["escalate"]:
