@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import re
-import subprocess
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,6 +15,7 @@ from core.eai.dopa_result import Err, Ok, Result
 from core.eai.dopa_runtime_config import load_and_validate_config
 from core.eai.dopa_types import ClaimSignal, FinalStatus, RouteMode
 
+_SCHEMA_PATH = Path("schemas/dopa_closure_v2_config.schema.json")
 _SHA40 = re.compile(r"^[a-f0-9]{40}$")
 
 
@@ -23,10 +23,7 @@ def _git_head_sha() -> str:
     env_sha = os.getenv("COMMIT_SHA") or os.getenv("GITHUB_SHA")
     if env_sha and _SHA40.fullmatch(env_sha.strip()):
         return env_sha.strip()
-    try:
-        return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    except (subprocess.SubprocessError, FileNotFoundError):
-        return "UNSTAMPED:dopa_closure_v2"
+    return "UNSTAMPED:dopa_closure_v2"
 
 
 def _run_id() -> str:
@@ -36,7 +33,7 @@ def _run_id() -> str:
 class DopaClosureV2Allocator:
     def __init__(self, config_path: str | Path) -> None:
         self.config_path = Path(config_path)
-        loaded = load_and_validate_config(self.config_path, Path("schemas/dopa_closure_v2_config.schema.json"))
+        loaded = load_and_validate_config(self.config_path, _SCHEMA_PATH)
         if isinstance(loaded, Err):
             raise ValueError(loaded.reason)
         self.config = loaded.value.payload
@@ -55,11 +52,94 @@ class DopaClosureV2Allocator:
         spread = float(self.config["priority_gate"]["load_spread"])
         eps = 1e-9
         load_gate = max(0.0, 1.0 - ((claim.load - center) / (spread + eps)) ** 2)
-        scarcity_boost = (1.0 - max(0.0, min(1.0, budget_ratio))) * claim.prediction_error * 0.35
+        budget_floor = max(0.0, min(1.0, budget_ratio))
+        scarcity_boost = (1.0 - budget_floor) * claim.prediction_error * 0.35
         return max(0.0, float((drive + scarcity_boost) * load_gate))
 
 
-def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], output_root: str | Path, construct_context: ConstructContext) -> Result[dict[str, Any]]:
+def _provenance(config_path: str | Path) -> dict[str, str]:
+    return {"timestamp_utc": datetime.now(timezone.utc).isoformat(), "config_path": str(config_path)}
+
+
+def _write_config_snapshot(output: Path, config_path: str | Path, config_hash: str) -> None:
+    (output / "config.sha256").write_text(config_hash + "\n", encoding="utf-8")
+    config_text = Path(config_path).read_text(encoding="utf-8")
+    (output / "config.yaml").write_text(config_text, encoding="utf-8")
+
+
+def _empty_budget_snapshot(cfg: dict[str, Any]) -> dict[str, float | bool | int]:
+    envelope = float(cfg["budget"]["envelope"])
+    return {
+        "envelope": envelope,
+        "probe_tax": float(cfg["budget"].get("probe_tax", 0.0)),
+        "spent": 0.0,
+        "remaining": envelope,
+        "failure_streak": 0,
+        "conserved": True,
+    }
+
+
+def _inadmissible_result(
+    run_id: str,
+    verdict: Any,
+    allocator: DopaClosureV2Allocator,
+    config_path: str | Path,
+) -> dict[str, Any]:
+    return {
+        "run_id": run_id,
+        "commit_sha": _git_head_sha(),
+        "final_verdict": verdict.verdict,
+        "failure_reasons": verdict.reasons,
+        "config_hash": allocator.config_hash,
+        "construct_gate": asdict(verdict),
+        "controls": asdict(run_controls([], [], seed=0)),
+        "budget_ledger": _empty_budget_snapshot(allocator.config),
+        "routes": [],
+        "artifact_hashes": {},
+        "provenance": _provenance(config_path),
+        "deferred_due_budget": 0,
+    }
+
+
+def _select_route_mode(claim: ClaimSignal, priority: float, thresholds: dict[str, float]) -> RouteMode:
+    if claim.evidence_risk >= thresholds["reject_evidence_risk"]:
+        return RouteMode.REJECT
+    if priority >= thresholds["escalate"]:
+        return RouteMode.ESCALATE
+    if priority >= thresholds["verify"]:
+        return RouteMode.VERIFY
+    if priority >= thresholds["triage"]:
+        return RouteMode.CHEAP_TRIAGE
+    return RouteMode.QUARANTINE
+
+
+def _final_status_for(mode: RouteMode) -> FinalStatus:
+    return {
+        RouteMode.REJECT: FinalStatus.REJECTED,
+        RouteMode.ESCALATE: FinalStatus.ESCALATE,
+        RouteMode.VERIFY: FinalStatus.VERIFY,
+        RouteMode.CHEAP_TRIAGE: FinalStatus.CHEAP_TRIAGE,
+        RouteMode.QUARANTINE: FinalStatus.QUARANTINED,
+    }[mode]
+
+
+def _failure_reasons(final_verdict: str, controls_doc: dict[str, Any], degraded: bool) -> list[str]:
+    if final_verdict == "ADMISSIBLE":
+        return []
+    reasons: list[str] = []
+    if not controls_doc["passed"]:
+        reasons.append("controls_failed")
+    if degraded:
+        reasons.append("allocator_degradation_triggered")
+    return reasons
+
+
+def run_allocator_full_path(
+    config_path: str | Path,
+    claims: list[ClaimSignal],
+    output_root: str | Path,
+    construct_context: ConstructContext,
+) -> Result[dict[str, Any]]:
     try:
         allocator = DopaClosureV2Allocator(config_path)
     except ValueError as exc:
@@ -69,72 +149,77 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
     output = Path(output_root) / "runs" / run_id
     output.mkdir(parents=True, exist_ok=True)
     verdict = validate_construct_context(construct_context)
+    _write_config_snapshot(output, config_path, allocator.config_hash)
     write_json(output / "construct_gate.json", asdict(verdict))
-    (output / "config.sha256").write_text(allocator.config_hash + "\n", encoding="utf-8")
-    (output / "config.yaml").write_text(Path(config_path).read_text(encoding="utf-8"), encoding="utf-8")
     if not verdict.admissible:
-        final = {"run_id": run_id, "final_verdict": verdict.verdict, "failure_reasons": verdict.reasons, "config_hash": allocator.config_hash, "commit_sha": _git_head_sha(), "routes": []}
+        final = _inadmissible_result(run_id, verdict, allocator, config_path)
+        write_json(output / "budget_ledger.json", final["budget_ledger"])
+        write_json(output / "controls.json", final["controls"])
         write_json(output / "final_verdict.json", final)
         return Ok(final)
 
     cfg = allocator.config
-    t = cfg["priority_gate"]["thresholds"]
+    thresholds = cfg["priority_gate"]["thresholds"]
     costs = cfg["budget"]["action_costs"]
     ledger = BudgetLedger.create(
         float(cfg["budget"]["envelope"]),
         float(cfg["budget"].get("probe_tax", 0.0)),
         lambda_penalty=float(cfg["budget"].get("burn_rate_lambda", 0.0)),
     )
-    routes, priorities, artifact_hashes = [], [], {}
+    routes: list[dict[str, Any]] = []
+    priorities: list[float] = []
+    artifact_hashes: dict[str, str] = {}
     deferred_due_budget = 0
 
     for claim in claims:
-        budget_ratio = 0.0 if float(ledger.envelope) <= 0 else float(ledger.remaining / ledger.envelope)
+        budget_ratio = 0.0
+        if float(ledger.envelope) > 0:
+            budget_ratio = float(ledger.remaining / ledger.envelope)
         priority = allocator.priority_of_verification(claim, budget_ratio=budget_ratio)
         priorities.append(priority)
 
-        desired_mode: RouteMode = (
-            RouteMode.REJECT if claim.evidence_risk >= t["reject_evidence_risk"] else
-            RouteMode.ESCALATE if priority >= t["escalate"] else
-            RouteMode.VERIFY if priority >= t["verify"] else
-            RouteMode.CHEAP_TRIAGE if priority >= t["triage"] else
-            RouteMode.QUARANTINE
-        )
+        desired_mode = _select_route_mode(claim, priority, thresholds)
         executed_mode = desired_mode
         unmet_verification_need = False
         quarantine_reason = None
 
         requested = float(costs[desired_mode.value])
         needs_budgeted_verification = desired_mode in (RouteMode.ESCALATE, RouteMode.VERIFY)
-        verify_unaffordable = needs_budgeted_verification and (requested + float(ledger.probe_tax) > float(ledger.remaining))
+        verify_unaffordable = needs_budgeted_verification and (
+            requested + float(ledger.probe_tax) > float(ledger.remaining)
+        )
         if verify_unaffordable:
             unmet_verification_need = True
             deferred_due_budget += 1
             quarantine_reason = "INSUFFICIENT_BUDGET_FOR_VERIFICATION"
-            triage_cost = float(costs[RouteMode.CHEAP_TRIAGE.value]) + float(ledger.probe_tax)
-            executed_mode = RouteMode.CHEAP_TRIAGE if triage_cost <= float(ledger.remaining) else RouteMode.QUARANTINE
+            triage_cost = float(costs[RouteMode.CHEAP_TRIAGE.value])
+            triage_cost += float(ledger.probe_tax)
+            executed_mode = (
+                RouteMode.CHEAP_TRIAGE
+                if triage_cost <= float(ledger.remaining)
+                else RouteMode.QUARANTINE
+            )
 
-        step = ledger.apply(float(costs[executed_mode.value]), float(costs[RouteMode.QUARANTINE.value]))
+        step = ledger.apply(
+            float(costs[executed_mode.value]),
+            float(costs[RouteMode.QUARANTINE.value]),
+        )
         verification_result = "not_run"
-        default_status = {
-            RouteMode.REJECT: FinalStatus.REJECTED,
-            RouteMode.ESCALATE: FinalStatus.ESCALATE,
-            RouteMode.VERIFY: FinalStatus.VERIFY,
-            RouteMode.CHEAP_TRIAGE: FinalStatus.CHEAP_TRIAGE,
-            RouteMode.QUARANTINE: FinalStatus.QUARANTINED,
-        }
-        final_status = default_status[executed_mode]
+        final_status = _final_status_for(executed_mode)
 
         if step.overspend:
-            executed_mode, final_status, quarantine_reason = RouteMode.QUARANTINE, FinalStatus.QUARANTINED, "INSUFFICIENT_BUDGET"
+            executed_mode = RouteMode.QUARANTINE
+            final_status = FinalStatus.QUARANTINED
+            quarantine_reason = "INSUFFICIENT_BUDGET"
         elif verify_unaffordable:
-            if executed_mode == RouteMode.CHEAP_TRIAGE:
-                final_status = FinalStatus.CHEAP_TRIAGE
-            else:
-                final_status = FinalStatus.QUARANTINED
+            final_status = _final_status_for(executed_mode)
         elif executed_mode == RouteMode.VERIFY:
-            verification_result = "pass" if claim.evidence_risk <= t["close_evidence_risk_max"] else "inconclusive"
-            final_status = FinalStatus.CLOSED if verification_result == "pass" else FinalStatus.QUARANTINED
+            verification_result = "inconclusive"
+            if claim.evidence_risk <= thresholds["close_evidence_risk_max"]:
+                verification_result = "pass"
+            final_status = (
+                FinalStatus.CLOSED if verification_result == "pass" else FinalStatus.QUARANTINED
+            )
 
         ledger.register_failure(final_status != FinalStatus.CLOSED)
 
@@ -154,23 +239,36 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
             "config_hash": allocator.config_hash,
         }
         write_json(claim_dir / artifact, route_doc)
-        route_doc["verification_artifact_hash"] = sha256_file(claim_dir / artifact) if final_status == FinalStatus.CLOSED else None
+        route_doc["verification_artifact_hash"] = None
+        if final_status == FinalStatus.CLOSED:
+            route_doc["verification_artifact_hash"] = sha256_file(claim_dir / artifact)
         write_json(claim_dir / "route.json", route_doc)
         artifact_hashes[f"{claim.claim_id}/{artifact}"] = sha256_file(claim_dir / artifact)
         routes.append(route_doc)
 
-    controls_doc = asdict(run_controls(claims, priorities, seed=int(cfg["negative_controls"]["random_routing_seed"])))
+    controls_doc = asdict(
+        run_controls(
+            claims,
+            priorities,
+            seed=int(cfg["negative_controls"]["random_routing_seed"]),
+        )
+    )
     write_json(output / "controls.json", controls_doc)
-    # active stop-trigger degradation check
     random_u = controls_doc.get("random_routing_mean_priority", 0.0)
     allocator_u = sum(priorities) / max(1, len(priorities))
     degradation_triggered = allocator_u <= random_u
-    final_verdict = "ADMISSIBLE" if controls_doc["passed"] and not degradation_triggered else "INADMISSIBLE"
+    final_verdict = "INADMISSIBLE"
+    if controls_doc["passed"] and not degradation_triggered:
+        final_verdict = "ADMISSIBLE"
     result = {
         "run_id": run_id,
         "commit_sha": _git_head_sha(),
         "final_verdict": final_verdict,
-        "failure_reasons": [] if final_verdict == "ADMISSIBLE" else (["controls_failed"] if not degradation_triggered else ["allocator_degradation_triggered"]),
+        "failure_reasons": _failure_reasons(
+            final_verdict,
+            controls_doc,
+            degradation_triggered,
+        ),
         "config_hash": allocator.config_hash,
         "construct_gate": asdict(verdict),
         "controls": controls_doc,
@@ -178,7 +276,7 @@ def run_allocator_full_path(config_path: str | Path, claims: list[ClaimSignal], 
         "deferred_due_budget": deferred_due_budget,
         "routes": routes,
         "artifact_hashes": artifact_hashes,
-        "provenance": {"timestamp_utc": datetime.now(timezone.utc).isoformat(), "config_path": str(config_path)},
+        "provenance": _provenance(config_path),
     }
     write_json(output / "budget_ledger.json", result["budget_ledger"])
     write_json(output / "final_verdict.json", result)
