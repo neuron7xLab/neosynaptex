@@ -1,4 +1,4 @@
-.PHONY: all clean init validate_contracts test_dynamic verify audit_internal governance_brake test lint format install typecheck reproduce report demo
+.PHONY: all clean init validate_contracts test_dynamic verify verify_pr verify_full audit_internal governance_brake test lint format install typecheck reproduce report demo
 
 all: clean init governance_brake validate_contracts audit_internal test_dynamic
 
@@ -42,7 +42,7 @@ format:
 typecheck:
 	uv run mypy core/ contracts/ --ignore-missing-imports
 
-verify: install lint test
+verify_pr: install lint test
 	uv run python3 -c "from core.axioms import SUBSTRATE_GAMMA, verify_axiom_consistency; gammas=[v[0] for v in SUBSTRATE_GAMMA.values() if v[0] is not None]; subs=[k for k,v in SUBSTRATE_GAMMA.items() if v[0] is not None]; state={'gamma':sum(gammas)/len(gammas),'substrates':subs,'convergence_slope':-0.0016}; assert verify_axiom_consistency(state); print('AXIOM_0: CONSISTENT')"
 
 reproduce: install
@@ -53,5 +53,10 @@ demo:
 
 report:
 	uv run python3 run_calibration_diagnostic.py
-audit_internal: verify demo report
+verify_full: install lint test
+	uv run python3 -c "from core.axioms import SUBSTRATE_GAMMA, verify_axiom_consistency; gammas=[v[0] for v in SUBSTRATE_GAMMA.values() if v[0] is not None]; subs=[k for k,v in SUBSTRATE_GAMMA.items() if v[0] is not None]; state={'gamma':sum(gammas)/len(gammas),'substrates':subs,'convergence_slope':-0.0016}; assert verify_axiom_consistency(state); print('AXIOM_0: CONSISTENT')"
+
+verify: verify_full
+
+audit_internal: verify_full demo report
 	@echo "Internal audit surfaces executed (verify + demo + report)."

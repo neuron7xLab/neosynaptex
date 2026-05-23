@@ -8,7 +8,7 @@ import sys
 
 sys.path.insert(0, ".")
 from core.axioms import SUBSTRATE_GAMMA, classify_regime, verify_axiom_consistency
-from core.testing.governance import traces_equation
+from tests.support.governance import traces_equation
 
 
 @traces_equation("EQ-GAMMA-01")

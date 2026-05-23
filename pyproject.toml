@@ -148,8 +148,6 @@ ignore = [
 known-third-party = ["pywt"]
 
 
-[tool.uv]
-resolution = "highest"
 
 [tool.ruff.lint.per-file-ignores]
 "core/eai/gamma_bridge.py" = ["ERA001"]
