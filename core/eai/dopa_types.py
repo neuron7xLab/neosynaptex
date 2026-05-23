@@ -3,10 +3,10 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import dataclass
-from enum import StrEnum
+from enum import Enum
 
 
-class RouteMode(StrEnum):
+class RouteMode(str, Enum):
     CHEAP_TRIAGE = "cheap_triage"
     VERIFY = "verify"
     ESCALATE = "escalate"
@@ -14,7 +14,7 @@ class RouteMode(StrEnum):
     REJECT = "reject"
 
 
-class FinalStatus(StrEnum):
+class FinalStatus(str, Enum):
     CLOSED = "CLOSED"
     QUARANTINED = "QUARANTINED"
     REJECTED = "REJECTED"
@@ -33,6 +33,14 @@ ALLOWED_EPISTEMIC_STATUSES = {
     "unknown",
 }
 _SAFE_CLAIM_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+_SIGNAL_FIELDS = (
+    "prediction_error",
+    "uncertainty",
+    "novelty",
+    "evidence_risk",
+    "reversibility",
+    "load",
+)
 
 
 def _unit(name: str, v: float) -> float:
@@ -71,5 +79,5 @@ class ClaimSignal:
         object.__setattr__(self, "claim_id", _safe_claim_id(self.claim_id))
         if self.epistemic_status not in ALLOWED_EPISTEMIC_STATUSES:
             raise ValueError(f"unsupported epistemic_status: {self.epistemic_status}")
-        for key in ("prediction_error", "uncertainty", "novelty", "evidence_risk", "reversibility", "load"):
+        for key in _SIGNAL_FIELDS:
             object.__setattr__(self, key, _unit(key, getattr(self, key)))
