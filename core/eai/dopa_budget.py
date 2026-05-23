@@ -31,10 +31,21 @@ class BudgetLedger:
         self._lock = Lock()
 
     @classmethod
-    def create(cls, envelope: float, probe_tax: float, lambda_penalty: float = 0.0) -> "BudgetLedger":
+    def create(
+        cls,
+        envelope: float,
+        probe_tax: float,
+        lambda_penalty: float = 0.0,
+    ) -> BudgetLedger:
         e = Decimal(str(envelope))
         p = Decimal(str(probe_tax))
-        return cls(envelope=e, probe_tax=p, remaining=e, failure_streak=0, lambda_penalty=lambda_penalty)
+        return cls(
+            envelope=e,
+            probe_tax=p,
+            remaining=e,
+            failure_streak=0,
+            lambda_penalty=lambda_penalty,
+        )
 
     def apply(self, requested_cost: float, quarantine_cost: float) -> BudgetStep:
         with self._lock:
