@@ -1,12 +1,18 @@
-.PHONY: all clean init validate_contracts test_dynamic verify verify_pr verify_full audit_internal governance_brake test lint format install typecheck reproduce report demo
+.PHONY: all clean lock sync_locked init validate_contracts test_dynamic verify verify_pr verify_full audit_internal governance_brake unicode_scan secrets_scan sast dependency_audit sbom security package_manifest package_scan test lint format install typecheck reproduce report demo
 
-all: clean init governance_brake validate_contracts audit_internal test_dynamic
+all: clean sync_locked governance_brake validate_contracts unicode_scan secrets_scan sast dependency_audit test_dynamic audit_internal
 
 clean:
 	@echo "Purging non-deterministic artifacts..."
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -name "*.pyc" -delete 2>/dev/null || true
 	rm -rf .pytest_cache .mypy_cache .ruff_cache *.egg-info dist build .coverage htmlcov .tox .nox
+
+lock:
+	uv lock
+
+sync_locked:
+	uv sync --locked --extra test --extra dev --extra security
 
 init:
 	@echo "Bootstrapping hermetic environment via uv..."
@@ -60,3 +66,28 @@ verify: verify_full
 
 audit_internal: verify_full demo report
 	@echo "Internal audit surfaces executed (verify + demo + report)."
+
+
+unicode_scan:
+	uv run python scripts/security/unicode_safety_check.py | tee artifacts/security/unicode_scan.txt
+
+secrets_scan:
+	gitleaks detect --source . --redact --verbose --report-format json --report-path artifacts/security/gitleaks.json
+
+sast:
+	uv run bandit -r core contracts scripts neosynaptex.py -f json -o artifacts/security/bandit.json
+
+dependency_audit:
+	uv run pip-audit -f json -o artifacts/security/pip_audit.json
+
+sbom:
+	mkdir -p artifacts/sbom
+	uv export --format requirements-txt --locked > artifacts/sbom/requirements.locked.txt
+
+security: unicode_scan secrets_scan sast dependency_audit sbom
+
+package_manifest:
+	uv run python scripts/security/package_evidence_manifest.py
+
+package_scan:
+	uv run python scripts/security/evidence_leakage_scan.py
