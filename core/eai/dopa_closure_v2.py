@@ -18,11 +18,17 @@ _SCHEMA_PATH = Path("schemas/dopa_closure_v2_config.schema.json")
 
 
 def _git_head_sha() -> str:
-    return os.getenv("COMMIT_SHA") or os.getenv("GITHUB_SHA") or "UNSTAMPED:dopa_closure_v2"
+    return (
+        os.getenv("COMMIT_SHA")
+        or os.getenv("GITHUB_SHA")
+        or "UNSTAMPED:dopa_closure_v2"
+    )
 
 
 def _run_id() -> str:
-    return os.getenv("DOPA_RUN_ID") or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return os.getenv("DOPA_RUN_ID") or datetime.now(timezone.utc).strftime(
+        "%Y%m%dT%H%M%SZ"
+    )
 
 
 class DopaClosureV2Allocator:
@@ -62,7 +68,9 @@ def _provenance(config_path: str | Path) -> dict[str, str]:
     }
 
 
-def _write_config_snapshot(output: Path, config_path: str | Path, config_hash: str) -> None:
+def _write_config_snapshot(
+    output: Path, config_path: str | Path, config_hash: str
+) -> None:
     (output / "config.sha256").write_text(config_hash + "\n", encoding="utf-8")
     config_text = Path(config_path).read_text(encoding="utf-8")
     (output / "config.yaml").write_text(config_text, encoding="utf-8")
@@ -257,7 +265,9 @@ def run_allocator_full_path(
         if final_status == FinalStatus.CLOSED:
             route_doc["verification_artifact_hash"] = sha256_file(claim_dir / artifact)
         write_json(claim_dir / "route.json", route_doc)
-        artifact_hashes[f"{claim.claim_id}/{artifact}"] = sha256_file(claim_dir / artifact)
+        artifact_hashes[f"{claim.claim_id}/{artifact}"] = sha256_file(
+            claim_dir / artifact
+        )
         routes.append(route_doc)
 
     controls_doc = asdict(
