@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from hashlib import sha256
-from typing import Callable
 
 
 class ContextContaminationError(ValueError):
@@ -69,7 +69,10 @@ def validate_construct_context(ctx: ConstructContext) -> ConstructVerdict:
         dnca = _resolve("dnca_substrate", ctx.dnca_substrate_check)
         dopamine = _resolve("dopamine_mechanism", ctx.dopamine_mechanism_check)
         proxy_only = _resolve("sklearn_proxy_only", ctx.sklearn_proxy_only_check)
-        accuracy_only = _resolve("closure_metric_accuracy_only", ctx.closure_metric_accuracy_only_check)
+        accuracy_only = _resolve(
+            "closure_metric_accuracy_only",
+            ctx.closure_metric_accuracy_only_check,
+        )
         trivial_ok = _resolve("trivial_baselines", ctx.trivial_baselines_check)
         controls_ok = _resolve("negative_controls", ctx.negative_controls_check)
     except (ContextContaminationError, ConstructCheckError) as exc:
