@@ -21,3 +21,9 @@
 - Silent exceptions are forbidden.
 - Any invariant contract parse failure is terminal.
 - Missing equation/test trace links are terminal.
+
+
+## Pull request governance
+- Every PR body must include a canonical status line: `claim_status: <label>`.
+- Allowed labels: `measured`, `derived`, `hypothesized`, `unverified analogy`, `falsified`.
+- Omission or non-canonical labels are fail-closed CI errors (`tools.audit.pr_body_check`).
