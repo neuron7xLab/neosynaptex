@@ -16,7 +16,51 @@ claim_status: derived
 
 Стохастичні потоки знання з подкастів, лекцій, діалогів і голосових фрагментів швидко втрачаються або перетворюються на шум, якщо не проходять через явний контур: capture → hypothesis → protocol gate → artifact → CI trace.
 
-## 2. Falsification Condition
+---
+
+## 2. Value Function
+
+Основна функція цінності `CIP-01` — перетворювати інформаційний хаос на стабільну архітектурну структуру з мінімальним когнітивним навантаженням для оператора.
+
+`CIP-01` діє як семантичний фільтр:
+
+```text
+external noise → falsifiable hypothesis → first-principles gate → artifact or pruning
+```
+
+Механізм відсікає фрагменти, які не проходять перевірку на фальсифікованість, protocol mapping і відповідність першопринципам системи. Корисні фрагменти зміцнюють архітектурну вагу репозиторію через accepted artifacts. Некорисні або неприв’язані фрагменти видаляються TTL-процедурою.
+
+Операційна аналогія із синаптичним зміцненням допустима лише в цьому вузькому сенсі: не як біологічна претензія, а як retention model. Те, що підсилює виживання коду, зберігається; те, що не дає перевірюваної інженерної цінності, пруниться.
+
+### Value metrics
+
+```yaml
+value_function:
+  id: CIP-01-VF
+  objective: maximize_architectural_precision_under_cognitive_load_constraint
+  positive_signal:
+    - accepted_artifact_with_provenance
+    - falsifiable_hypothesis_created
+    - checklist_or_value_function_mapping_present
+    - pr_or_ci_trace_linked
+  negative_signal:
+    - transcript_without_falsification_boundary
+    - emotionally_salient_but_non_actionable_fragment
+    - unlinked_quarantine_item_past_ttl
+    - direct_code_change_without_contract_artifact
+  optimization_target:
+    precision: high
+    cognitive_load: low
+    entropy_retention: near_zero
+```
+
+### Boundary
+
+`CIP-01` does not crystallize truth directly. It crystallizes **testable claims and bounded artifacts**. Truth enters only after validation, falsification, or CI-backed evidence. Without that boundary, the pipeline is just a faster way to manufacture confident noise, and civilization has already automated enough of that nonsense.
+
+---
+
+## 3. Falsification Condition
 
 `CIP-01` спростовується як корисний механізм, якщо захоплений фрагмент не може бути:
 
@@ -30,7 +74,7 @@ claim_status: derived
 
 ---
 
-## 3. Contract
+## 4. Contract
 
 ### Inputs
 
@@ -63,9 +107,9 @@ linked_ci_run: string|null
 
 ---
 
-## 4. Pipeline
+## 5. Pipeline
 
-### 4.1 Ingestion Phase — Stochastic Capture
+### 5.1 Ingestion Phase — Stochastic Capture
 
 **Goal:** capture the smallest meaningful external signal without pretending that the transcript is already knowledge.
 
@@ -81,7 +125,7 @@ Voice / Audio → Raw Transcript → Candidate Segment
 - Do not treat transcript text as verified fact.
 - Do not import long copyrighted passages; summarize and cite/record source metadata where available.
 
-### 4.2 Distillation Phase — Semantic Filtering
+### 5.2 Distillation Phase — Semantic Filtering
 
 Each captured segment is compressed into a falsifiable hypothesis using two mandatory prompts:
 
@@ -101,7 +145,7 @@ The result must map to at least one of:
 
 If no mapping exists, mark as `ENTROPY`.
 
-### 4.3 Protocol Alignment Gate
+### 5.3 Protocol Alignment Gate
 
 ```text
 IF violates FP-01 Contract-before-implementation → REJECT
@@ -112,7 +156,7 @@ IF useful but not actionable now → QUARANTINE with TTL
 
 A model may propose the mapping, but the operator remains the final gate. LLM consensus is not falsification evidence.
 
-### 4.4 Persistence & TTL
+### 5.4 Persistence & TTL
 
 - `ACCEPT`: integrate into a target artifact with provenance.
 - `QUARANTINE`: store temporarily with TTL and reason.
@@ -129,7 +173,7 @@ If a quarantined item is not linked to a PR, issue, CI trace, or accepted resear
 
 ---
 
-## 5. Invariants
+## 6. Invariants
 
 ```yaml
 invariants:
@@ -156,7 +200,7 @@ invariants:
 
 ---
 
-## 6. Implementation Logic
+## 7. Implementation Logic
 
 ```python
 def ingest_cognition(audio_stream, source_context, operator_intent):
@@ -195,7 +239,7 @@ def ingest_cognition(audio_stream, source_context, operator_intent):
 
 ---
 
-## 7. Validation Plan
+## 8. Validation Plan
 
 ### Positive test
 
@@ -228,7 +272,7 @@ Expected behavior: `QUARANTINE` or `REJECT`, never silent integration.
 
 ---
 
-## 8. Integration Targets
+## 9. Integration Targets
 
 `CIP-01` may write into:
 
@@ -242,7 +286,7 @@ Expected behavior: `QUARANTINE` or `REJECT`, never silent integration.
 
 ---
 
-## 9. Governance
+## 10. Governance
 
 - Human operator remains the final decision gate.
 - LLM output is candidate inference, not authority.
@@ -258,7 +302,7 @@ Remove CIP-01 artifact → remove associated generated notes/reports → revert 
 
 ---
 
-## 10. Summary
+## 11. Summary
 
 `CIP-01` converts ambient learning into a bounded engineering loop. It does not claim that hearing equals understanding or that transcription equals knowledge. It enforces a stricter rule:
 
