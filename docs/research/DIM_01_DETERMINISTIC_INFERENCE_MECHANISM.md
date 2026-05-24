@@ -14,7 +14,7 @@ claim_status: derived
 
 ## 1. Objects
 
-Let `(Ω, F, P)` be a probability space representing stochastic generation over token sequences. Let `X` be the token alphabet and `X*` the finite sequence space.
+Let `(Ω, F, P)` be a probability space representing stochastic generation traces. Let `X` be the token alphabet and `X*` the finite sequence space.
 
 For model parameters `θ`, the generator defines a conditional next-token distribution:
 
@@ -28,7 +28,7 @@ For a prefix `h = x_<t`, the local entropy is:
 H_\theta(h) = -\sum_{x \in X} P_\theta(x \mid h) \log P_\theta(x \mid h)
 ```
 
-Boundary: `H_θ(h)` may be zero or positive depending on the prefix, backend, masking, and model distribution. In this protocol, “chaos” means candidate-space uncertainty, not a physical entropy claim. Apparently this distinction is necessary because humans keep trying to smuggle thermodynamics into prompt engineering like it is duty-free luggage.
+Boundary: `H_θ(h)` may be zero or positive depending on the prefix, backend, masking, and model distribution. In this protocol, “chaos” means candidate-space uncertainty, not a physical entropy claim.
 
 ---
 
@@ -48,25 +48,33 @@ Where:
 - `Φ_prefix` includes constraints that can be evaluated during decoding.
 - `Φ_global` includes constraints that require a complete candidate sequence, such as cross-field consistency, artifact linkage, or external audit reports.
 
-This separation prevents a fake proof where full-document properties are magically checked at every token. Reality has enough problems without adding clairvoyant validators.
+This separation prevents a fake proof where full-document properties are incorrectly claimed to be checked at every token.
 
 ---
 
 ## 3. Masked Projection
 
-For `C_t(h) ≠ ∅`, define the masked distribution:
+For `C_t(h) ≠ ∅`, define the live admissible set:
 
 ```math
-Q_{\theta,\tau}(x \mid h, C_t) = \frac{\mathbf{1}[x \in C_t(h)]\;P_\theta(x \mid h)^{1/\tau}}{\sum_{y \in C_t(h)} P_\theta(y \mid h)^{1/\tau}}
+A_t(h) = \{x \in C_t(h) \mid P_\theta(x \mid h) > 0\}
+```
+
+If `A_t(h) = ∅`, the transition must fail closed because no admissible token has model support.
+
+For `A_t(h) ≠ ∅`, define the masked distribution:
+
+```math
+Q_{\theta,\tau}(x \mid h, A_t) = \frac{\mathbf{1}[x \in A_t(h)]\;P_\theta(x \mid h)^{1/\tau}}{\sum_{y \in A_t(h)} P_\theta(y \mid h)^{1/\tau}}
 ```
 
 Equivalent logit form:
 
 ```math
-Q_{\theta,\tau}(x \mid h, C_t) = softmax\left(\frac{\log P_\theta(x \mid h) + \log \mathbf{1}[x \in C_t(h)]}{\tau}\right)
+Q_{\theta,\tau}(x \mid h, A_t) = softmax\left(\frac{\log P_\theta(x \mid h) + \log \mathbf{1}[x \in A_t(h)]}{\tau}\right)
 ```
 
-with `log 0 = -∞` and normalization restricted to the admissible set.
+with `log 0 = -∞` and normalization restricted to the live admissible set.
 
 Boundary: this is a projection into an admissible candidate space, not a proof of semantic truth.
 
@@ -77,22 +85,22 @@ Boundary: this is a projection into an admissible candidate space, not a proof o
 To make selection deterministic, define a total tie-break order `≺` over tokens. The deterministic next-token operator is:
 
 ```math
-x_t^* = \min_{\prec}\;\arg\max_{x \in C_t(h)} P_\theta(x \mid h)
+x_t^* = \min_{\prec}\;\arg\max_{x \in A_t(h)} P_\theta(x \mid h)
 ```
 
-This is the `τ → 0` limit of the masked distribution when tie-breaking is fixed:
+This is the `τ → 0` limit of the masked distribution when tie-breaking is fixed and `A_t(h)` is non-empty:
 
 ```math
-\lim_{\tau \to 0} Q_{\theta,\tau}(x \mid h, C_t) = \delta_{x_t^*}
+\lim_{\tau \to 0} Q_{\theta,\tau}(x \mid h, A_t) = \delta_{x_t^*}
 ```
 
-If `C_t(h)=∅`, the transition fails closed:
+If `A_t(h)=∅`, the transition fails closed:
 
 ```math
 T(h) =
 \begin{cases}
-  h \circ x_t^*, & C_t(h) \neq \emptyset \\
-  \bot, & C_t(h) = \emptyset
+  h \circ x_t^*, & A_t(h) \neq \emptyset \\
+  \bot, & A_t(h) = \emptyset
 \end{cases}
 ```
 
@@ -117,7 +125,7 @@ and:
 The accepted artifact set is:
 
 ```math
-K = \{S \in X^* \mid Valid_G(S)=1 \land \Phi_{prefix}(S)=1 \land \Phi_{global}(S)=1\}
+K = \{S \in X^* \mid Valid_G(S)=1 \land \forall \phi \in \Phi_{prefix}:\phi(S)=1 \land \forall \psi \in \Phi_{global}:\psi(S)=1\}
 ```
 
 For `CIP-01`, `Φ_global` includes at minimum:
@@ -164,6 +172,9 @@ failure_modes:
   empty_constraint_set:
     result: bottom
     action: backtrack_or_quarantine
+  empty_live_admissible_set:
+    result: bottom
+    action: relax_non_blocker_constraints_or_quarantine
   schema_pass_global_fail:
     result: reject
     action: preserve_as_negative_result_if_informative
@@ -187,7 +198,7 @@ failure_modes:
 ```yaml
 cip_01_inf_01:
   metric: inference_compression_gate
-  pass_condition: accepted candidate passes constrained decoding, schema validation, invariant checks, deterministic tie-break, and external verification
+  pass_condition: promoted artifact passes constrained decoding, schema validation, invariant checks, deterministic tie-break, and external verification
 ```
 
 No `CIP-01` artifact may be promoted from candidate to accepted artifact unless it belongs to `K` or has an explicit `QUARANTINE` state with TTL.
@@ -202,7 +213,8 @@ No `CIP-01` artifact may be promoted from candidate to accepted artifact unless 
 2. a sequence outside `K` is accepted;
 3. a candidate bypasses global verification;
 4. an empty constraint set fails open instead of returning `⊥`;
-5. tie-breaking is ambiguous while the system still claims determinism.
+5. an empty live admissible set fails open instead of returning `⊥`;
+6. tie-breaking is ambiguous while the system still claims determinism.
 
 ---
 
