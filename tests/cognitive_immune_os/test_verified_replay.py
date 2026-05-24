@@ -2,9 +2,23 @@ from __future__ import annotations
 
 import pytest
 
-from cognitive_immune_os.action_catalog import ActionCatalog, ActionClass, ActionDefinition, ActionEffect
-from cognitive_immune_os.evidence_graph import EvidenceGraph, EvidenceKind, EvidenceNode, payload_hash
-from cognitive_immune_os.replay import ReplayExpectation, ReplayMismatchError, replay_verified_decision
+from cognitive_immune_os.action_catalog import (
+    ActionCatalog,
+    ActionClass,
+    ActionDefinition,
+    ActionEffect,
+)
+from cognitive_immune_os.evidence_graph import (
+    EvidenceGraph,
+    EvidenceKind,
+    EvidenceNode,
+    payload_hash,
+)
+from cognitive_immune_os.replay import (
+    ReplayExpectation,
+    ReplayMismatchError,
+    replay_verified_decision,
+)
 from cognitive_immune_os.verified_guardrail import (
     AgentClaim,
     AgentProfile,
@@ -15,7 +29,6 @@ from cognitive_immune_os.verified_guardrail import (
 
 def _evidence() -> EvidenceGraph:
     payload = {
-        "guilt_status": "UNKNOWN",
         "observation_entropy": 0.1,
         "role_symmetry_pass": True,
         "adversarial_pressure": 0.1,
@@ -57,7 +70,7 @@ def _catalog() -> ActionCatalog:
 def _claim() -> AgentClaim:
     return AgentClaim(
         claim_id="claim-replay",
-        actor=AgentProfile(agent_id="agent-a", role="AUTHORITY"),
+        actor=AgentProfile(agent_id="agent-a", role="SYSTEM"),
         target=AgentProfile(agent_id="agent-b", role="OTHER", minimum_value=1.0),
         action_id="temporary_boundary",
         claimed_reason="bounded replay case",
