@@ -1,7 +1,17 @@
 from __future__ import annotations
 
-from cognitive_immune_os.action_catalog import ActionCatalog, ActionClass, ActionDefinition, ActionEffect
-from cognitive_immune_os.evidence_graph import EvidenceGraph, EvidenceKind, EvidenceNode, payload_hash
+from cognitive_immune_os.action_catalog import (
+    ActionCatalog,
+    ActionClass,
+    ActionDefinition,
+    ActionEffect,
+)
+from cognitive_immune_os.evidence_graph import (
+    EvidenceGraph,
+    EvidenceKind,
+    EvidenceNode,
+    payload_hash,
+)
 from cognitive_immune_os.execution_programs import (
     ExecutionProgramId,
     ExecutionStepId,
@@ -32,7 +42,6 @@ def _evidence(role_symmetry: bool = True, entropy: float = 0.1) -> EvidenceGraph
         nodes=(
             _node(
                 {
-                    "guilt_status": "UNKNOWN",
                     "observation_entropy": entropy,
                     "role_symmetry_pass": role_symmetry,
                     "adversarial_pressure": 0.1,
@@ -64,7 +73,7 @@ def _catalog() -> ActionCatalog:
 def _claim() -> AgentClaim:
     return AgentClaim(
         claim_id="claim-program",
-        actor=AgentProfile(agent_id="agent-a", role="AUTHORITY"),
+        actor=AgentProfile(agent_id="agent-a", role="SYSTEM"),
         target=AgentProfile(agent_id="agent-b", role="OTHER"),
         action_id="temporary_boundary",
         claimed_reason="program compilation test",
