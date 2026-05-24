@@ -92,6 +92,7 @@ include = [
     "substrates*",
     "agents*",
     "evl*",
+    "cognitive_immune_os*",
     "evidence",
     "evidence_bundle_v1",
 ]
