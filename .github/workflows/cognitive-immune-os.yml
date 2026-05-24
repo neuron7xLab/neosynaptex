@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install test dependency
-        run: python -m pip install pytest
+      - name: Install test dependencies
+        run: python -m pip install pytest pyyaml
       - name: Run Cognitive Immune OS invariant tests
         run: python -m pytest tests/cognitive_immune_os -q --noconftest -p no:cacheprovider
