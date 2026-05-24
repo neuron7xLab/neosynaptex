@@ -23,6 +23,11 @@ def test_self_contradiction_is_p0_highest_priority() -> None:
     assert ResolutionAction.STATE_DEMOTION in resolve_conflict(conflict)
 
 
+def test_self_contradiction_priority_ignores_caller_supplied_p6() -> None:
+    conflict = _conflict(ConflictType.SELF_CONTRADICTION, ConflictSeverity.P6)
+    assert priority(conflict) == 0
+
+
 def test_invalid_instrument_marks_state_untested() -> None:
     conflict = _conflict(ConflictType.INVALID_INSTRUMENT, ConflictSeverity.P1)
     assert ResolutionAction.UNTESTED_MARKER in resolve_conflict(conflict)
