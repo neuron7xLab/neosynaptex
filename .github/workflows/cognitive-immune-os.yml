@@ -15,6 +15,9 @@ on:
       - 'tests/cognitive_immune_os/**'
       - '.github/workflows/cognitive-immune-os.yml'
 
+permissions:
+  contents: read
+
 jobs:
   cognitive-immune-os:
     runs-on: ubuntu-latest
