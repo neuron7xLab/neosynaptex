@@ -101,7 +101,94 @@ This rule prevents aesthetic novelty from bypassing engineering discipline. Ха
 
 ---
 
-## 4. Falsification Condition
+## 4. Inference Compression Gates
+
+Перехід від стохастичного candidate space до прийнятного артефакту здійснюється через **Hard Constraint Gates**. Ці ворота не роблять саму модель детермінованою в онтологічному сенсі. Вони звужують простір допустимих виходів і дозволяють приймати лише ті варіанти, які проходять зовнішній логічний контроль.
+
+### 4.1 Sampling control
+
+Sampling parameters можуть зменшувати варіативність:
+
+```yaml
+sampling_control:
+  temperature: low
+  top_p: bounded
+  seed: fixed_when_supported
+  beam_search: allowed_when_task_requires_ranked_candidates
+```
+
+Boundary: низька температура або beam search не є доказом істинності. Це лише зменшення генеративної дисперсії. Якщо tie-breaking, seed або backend nondeterminism не контрольовані, output не можна вважати повністю детермінованим.
+
+### 4.2 Constrained decoding
+
+Модель має генерувати кандидат у межах явного формату:
+
+```yaml
+constrained_decoding:
+  accepted_formats:
+    - json_schema
+    - yaml_schema
+    - finite_state_machine
+    - typed_markdown_block
+  reject_if:
+    - schema_violation
+    - missing_required_field
+    - invalid_checklist_id
+    - unsupported_claim_status
+```
+
+Це перетворює вільну мовну генерацію на bounded candidate emission. Вихід, який не проходить schema/FSM gate, не переходить до verification loop.
+
+### 4.3 Verification loop
+
+```text
+candidate → schema gate → invariant gate → external verifier → accept | quarantine | reject
+```
+
+Зовнішній verifier може бути:
+
+- test suite;
+- solver;
+- schema validator;
+- static analyzer;
+- CI job;
+- independent audit script.
+
+LLM може створити candidate або critique, але не може самостійно бути остаточним verifier. Якщо гіпотеза порушує контракт, вона відхиляється незалежно від її стилістичної якості.
+
+### 4.4 Entropy boundary
+
+`CIP-01` не зводить фізичну або модельну ентропію до нуля. Він зводить до мінімуму **accepted-artifact entropy**: невизначеність того, чи може candidate бути інтегрований як перевірюваний артефакт.
+
+```text
+probabilistic generation ≠ deterministic truth
+hard gates + verifier = deterministic acceptance policy
+```
+
+Тому коректна claim boundary така: не “ентропія зведена до нуля”, а “невалідувані варіанти не мають права на інтеграцію”.
+
+### 4.5 Gate invariant
+
+```yaml
+inference_gate:
+  id: CIP-01-INF-01
+  objective: compress_candidate_space_into_validated_artifact_space
+  required_gates:
+    - sampling_control
+    - constrained_decoding
+    - schema_validation
+    - invariant_check
+    - external_verification
+  reject_if:
+    - unconstrained_freeform_output
+    - verifier_missing
+    - schema_pass_without_invariant_pass
+    - elegant_text_without_artifact_validity
+```
+
+---
+
+## 5. Falsification Condition
 
 `CIP-01` спростовується як корисний механізм, якщо захоплений фрагмент не може бути:
 
@@ -115,7 +202,7 @@ This rule prevents aesthetic novelty from bypassing engineering discipline. Ха
 
 ---
 
-## 5. Contract
+## 6. Contract
 
 ### Inputs
 
@@ -148,9 +235,9 @@ linked_ci_run: string|null
 
 ---
 
-## 6. Pipeline
+## 7. Pipeline
 
-### 6.1 Ingestion Phase — Stochastic Capture
+### 7.1 Ingestion Phase — Stochastic Capture
 
 **Goal:** capture the smallest meaningful external signal without pretending that the transcript is already knowledge.
 
@@ -166,7 +253,7 @@ Voice / Audio → Raw Transcript → Candidate Segment
 - Do not treat transcript text as verified fact.
 - Do not import long copyrighted passages; summarize and cite/record source metadata where available.
 
-### 6.2 Distillation Phase — Semantic Filtering
+### 7.2 Distillation Phase — Semantic Filtering
 
 Each captured segment is compressed into a falsifiable hypothesis using two mandatory prompts:
 
@@ -186,7 +273,7 @@ The result must map to at least one of:
 
 If no mapping exists, mark as `ENTROPY`.
 
-### 6.3 Protocol Alignment Gate
+### 7.3 Protocol Alignment Gate
 
 ```text
 IF violates FP-01 Contract-before-implementation → REJECT
@@ -197,7 +284,7 @@ IF useful but not actionable now → QUARANTINE with TTL
 
 A model may propose the mapping, but the operator remains the final gate. LLM consensus is not falsification evidence.
 
-### 6.4 Persistence & TTL
+### 7.4 Persistence & TTL
 
 - `ACCEPT`: integrate into a target artifact with provenance.
 - `QUARANTINE`: store temporarily with TTL and reason.
@@ -214,7 +301,7 @@ If a quarantined item is not linked to a PR, issue, CI trace, or accepted resear
 
 ---
 
-## 7. Invariants
+## 8. Invariants
 
 ```yaml
 invariants:
@@ -229,6 +316,10 @@ invariants:
   - id: CIP-01-NOV-01
     metric: chaos_to_deterministic_closure
     pass_condition: chaotic_candidate_mutation reaches validation_plan and falsification_boundary before integration
+
+  - id: CIP-01-INF-01
+    metric: inference_compression_gate
+    pass_condition: accepted candidate passes constrained decoding, schema validation, invariant checks, and external verification
 
   - id: CIP-01-GOV-01
     metric: human_gate_preserved
@@ -245,7 +336,7 @@ invariants:
 
 ---
 
-## 8. Implementation Logic
+## 9. Implementation Logic
 
 ```python
 def ingest_cognition(audio_stream, source_context, operator_intent):
@@ -262,6 +353,9 @@ def ingest_cognition(audio_stream, source_context, operator_intent):
 
     if not hypothesis.has_falsification_condition:
         return mark("ENTROPY", reason="missing_PRE_01")
+
+    if not passes_inference_gate(hypothesis, gate_id="CIP-01-INF-01"):
+        return mark("QUARANTINE", reason="missing_hard_constraint_gate")
 
     mapping = map_to_protocol(hypothesis, targets=["PRE-01", "SEM-01", "ARCH-01", "VAL-01", "GOV-03"])
     if not mapping:
@@ -287,7 +381,7 @@ def ingest_cognition(audio_stream, source_context, operator_intent):
 
 ---
 
-## 9. Validation Plan
+## 10. Validation Plan
 
 ### Positive test
 
@@ -296,7 +390,8 @@ Given a captured transcript fragment that contains a clear engineering insight, 
 - one falsifiable hypothesis;
 - one protocol/checklist mapping;
 - one proposed artifact destination;
-- one provenance record.
+- one provenance record;
+- one passed hard-constraint gate result before integration.
 
 ### Negative controls
 
@@ -308,7 +403,8 @@ The pipeline must reject or mark as `ENTROPY`:
 - model-generated agreement without external grounding;
 - transcript noise with no artifact destination;
 - novelty without validation path;
-- elegant mutation without contract artifact.
+- elegant mutation without contract artifact;
+- unconstrained free-form output without schema validation.
 
 ### Adversarial cases
 
@@ -317,13 +413,14 @@ The pipeline must reject or mark as `ENTROPY`:
 - transcript contains copyrighted long-form text;
 - transcript maps to multiple checklist IDs but no concrete artifact;
 - LLM proposes acceptance without falsification;
-- a novel idea appears useful but has no implementation path.
+- a novel idea appears useful but has no implementation path;
+- candidate passes schema but fails invariant check.
 
 Expected behavior: `QUARANTINE` or `REJECT`, never silent integration.
 
 ---
 
-## 10. Integration Targets
+## 11. Integration Targets
 
 `CIP-01` may write into:
 
@@ -337,7 +434,7 @@ Expected behavior: `QUARANTINE` or `REJECT`, never silent integration.
 
 ---
 
-## 11. Governance
+## 12. Governance
 
 - Human operator remains the final decision gate.
 - LLM output is candidate inference, not authority.
@@ -345,6 +442,7 @@ Expected behavior: `QUARANTINE` or `REJECT`, never silent integration.
 - No transcript becomes evidence without provenance.
 - No quarantined note survives past TTL without PR/CI/artifact linkage.
 - No novel mutation bypasses deterministic closure.
+- No accepted artifact bypasses hard-constraint inference gates.
 
 Rollback path:
 
@@ -354,12 +452,12 @@ Remove CIP-01 artifact → remove associated generated notes/reports → revert 
 
 ---
 
-## 12. Summary
+## 13. Summary
 
 `CIP-01` converts ambient learning into a bounded engineering loop. It does not claim that hearing equals understanding or that transcription equals knowledge. It enforces a stricter rule:
 
 ```text
-captured signal → candidate mutation → falsifiable hypothesis → protocol mapping → deterministic closure → artifact or pruning
+captured signal → candidate mutation → constrained candidate → falsifiable hypothesis → protocol mapping → deterministic closure → artifact or pruning
 ```
 
 This is the operational form of semantic capture: not hoarding information, but forcing every captured fragment to earn its place in the system.
