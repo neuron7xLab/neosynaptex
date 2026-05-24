@@ -1,0 +1,10 @@
+invariants:
+  - id: PRE-03
+    metric: six_file_presence
+    pass_condition: all_required_files_exist_and_non_empty
+  - id: MATH-01
+    metric: dimensional_consistency_attestation
+    pass_condition: dimension_check_report.status == PASS
+  - id: VAL-01
+    metric: red_green_evidence
+    pass_condition: failing_ci_url_present_and_passing_ci_url_present
