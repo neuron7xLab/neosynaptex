@@ -8,7 +8,7 @@ claim_status: derived
 - **Parent protocols:** `CIP-01`, `DIM-01`, `NEOSYNAPTEX-PROTOCOL-v1.1`
 - **Status:** PROPOSED / INTEGRATION-READY
 - **Scope:** defines the value layer that converts noisy candidate input into bounded research-engineering artifacts.
-- **Non-claim:** neuroeconomic, dual-process, and free-energy language is used as an operational analogy only. This document does not claim biological identity with human cognition.
+- **Non-claim:** neuroeconomic, dual-process, and free-energy language is used as an operational analogy only. This document does not claim biological identity with human cognition or formal proof of the Free Energy Principle.
 
 ---
 
@@ -40,7 +40,7 @@ Where:
 - `lambda` controls entropy aversion.
 - `mu` controls process-cost aversion.
 
-Boundary: increasing `lambda` does not create truth. It makes acceptance more conservative by penalizing uncertainty. Useful uncertain candidates should enter `QUARANTINE`, not silent rejection.
+Boundary: increasing `lambda` does not create truth and does not make the system fully deterministic. It makes acceptance more conservative by penalizing uncertainty. Useful uncertain candidates should enter `QUARANTINE`, not silent rejection.
 
 ---
 
@@ -79,6 +79,8 @@ Omega_valid = {x in Omega | Phi(x)=1}
 x* = argmin_{x in Omega_valid} [D(x,target) + alpha C(x) + beta H(x)]
 ```
 
+If `Omega_valid` is empty, the system must return `NO_ACCEPTED_ARTIFACT` or `QUARANTINE`; it must not select the least-bad invalid candidate.
+
 Boundary: this selects the best accepted candidate under declared constraints. It does not prove global truth.
 
 ---
@@ -113,6 +115,12 @@ def cognitive_inference(raw_data, intent, constraints):
     return external_verify_or_quarantine(best)
 ```
 
+This algorithm separates three operations that must not be collapsed:
+
+1. **Generation:** proposes candidates.
+2. **Selection:** ranks only valid candidates.
+3. **Promotion:** requires verifier or quarantine state.
+
 ---
 
 ## 6. Invariants
@@ -124,8 +132,8 @@ invariants:
     pass_condition: reward, entropy_penalty, and cost_penalty are declared
 
   - id: CIP-01-NEDP-02
-    metric: generation_verification_separation
-    pass_condition: candidate generation is separated from verification and acceptance
+    metric: generation_selection_promotion_separation
+    pass_condition: candidate generation is separated from utility selection and artifact promotion
 
   - id: CIP-01-NEDP-03
     metric: hard_constraint_priority
@@ -164,7 +172,8 @@ Reject or quarantine:
 - high salience with no artifact destination;
 - low-cost candidate that violates invariants;
 - high-reward candidate with missing provenance;
-- model agreement with no external verifier.
+- model agreement with no external verifier;
+- empty valid candidate set.
 
 ---
 
