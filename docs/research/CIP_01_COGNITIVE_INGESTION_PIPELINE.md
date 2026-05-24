@@ -60,7 +60,48 @@ value_function:
 
 ---
 
-## 3. Falsification Condition
+## 3. Chaos-to-Determinism Rule
+
+Хаос не є доказом і не є готовим рішенням. У `CIP-01` хаос виконує лише одну допустиму функцію: створює простір для candidate mutations, які ще не мають права на інтеграцію.
+
+Новаторство виникає не з порядку як такого, а з контрольованого зіткнення несумісних або непередбачуваних фрагментів. Але зіткнення ідей не є цінністю саме по собі. Воно стає цінністю тільки після проходження deterministic closure:
+
+```text
+chaotic collision → candidate mutation → falsifiable hypothesis → implementation path → validation → verification → falsification → integration
+```
+
+Тому `CIP-01` розділяє дві фази:
+
+1. **Divergent mutation:** хаотичний потік породжує потенційно нову структуру.
+2. **Deterministic closure:** структура проходить тестування, реалізацію, валідацію, верифікацію, фальсифікацію та інтеграцію.
+
+Жодна ідея не переходить із фази mutation у фазу artifact без protocol gate. Порядок може бути безсилим у генерації нового, але хаос є безсилим у доведенні цінності. Доведення починається лише тоді, коли кандидатна мутація перетворена на bounded claim, тестовий план і traceable artifact.
+
+### Innovation gate
+
+```yaml
+innovation_gate:
+  id: CIP-01-NOV-01
+  input: chaotic_candidate_mutation
+  required_transition:
+    - falsifiable_hypothesis
+    - protocol_mapping
+    - implementation_path
+    - validation_plan
+    - falsification_boundary
+    - integration_target
+  reject_if:
+    - novelty_without_test
+    - elegance_without_artifact
+    - insight_without_trace
+    - mutation_without_contract
+```
+
+This rule prevents aesthetic novelty from bypassing engineering discipline. Хаос може відкривати простір пошуку; merge дозволяє тільки детермінований доказ.
+
+---
+
+## 4. Falsification Condition
 
 `CIP-01` спростовується як корисний механізм, якщо захоплений фрагмент не може бути:
 
@@ -74,7 +115,7 @@ value_function:
 
 ---
 
-## 4. Contract
+## 5. Contract
 
 ### Inputs
 
@@ -107,9 +148,9 @@ linked_ci_run: string|null
 
 ---
 
-## 5. Pipeline
+## 6. Pipeline
 
-### 5.1 Ingestion Phase — Stochastic Capture
+### 6.1 Ingestion Phase — Stochastic Capture
 
 **Goal:** capture the smallest meaningful external signal without pretending that the transcript is already knowledge.
 
@@ -125,7 +166,7 @@ Voice / Audio → Raw Transcript → Candidate Segment
 - Do not treat transcript text as verified fact.
 - Do not import long copyrighted passages; summarize and cite/record source metadata where available.
 
-### 5.2 Distillation Phase — Semantic Filtering
+### 6.2 Distillation Phase — Semantic Filtering
 
 Each captured segment is compressed into a falsifiable hypothesis using two mandatory prompts:
 
@@ -145,7 +186,7 @@ The result must map to at least one of:
 
 If no mapping exists, mark as `ENTROPY`.
 
-### 5.3 Protocol Alignment Gate
+### 6.3 Protocol Alignment Gate
 
 ```text
 IF violates FP-01 Contract-before-implementation → REJECT
@@ -156,7 +197,7 @@ IF useful but not actionable now → QUARANTINE with TTL
 
 A model may propose the mapping, but the operator remains the final gate. LLM consensus is not falsification evidence.
 
-### 5.4 Persistence & TTL
+### 6.4 Persistence & TTL
 
 - `ACCEPT`: integrate into a target artifact with provenance.
 - `QUARANTINE`: store temporarily with TTL and reason.
@@ -173,7 +214,7 @@ If a quarantined item is not linked to a PR, issue, CI trace, or accepted resear
 
 ---
 
-## 6. Invariants
+## 7. Invariants
 
 ```yaml
 invariants:
@@ -184,6 +225,10 @@ invariants:
   - id: CIP-01-SEM-01
     metric: semantic_mapping_presence
     pass_condition: candidate maps to at least one checklist_id or value_function
+
+  - id: CIP-01-NOV-01
+    metric: chaos_to_deterministic_closure
+    pass_condition: chaotic_candidate_mutation reaches validation_plan and falsification_boundary before integration
 
   - id: CIP-01-GOV-01
     metric: human_gate_preserved
@@ -200,7 +245,7 @@ invariants:
 
 ---
 
-## 7. Implementation Logic
+## 8. Implementation Logic
 
 ```python
 def ingest_cognition(audio_stream, source_context, operator_intent):
@@ -225,6 +270,9 @@ def ingest_cognition(audio_stream, source_context, operator_intent):
     if violates_first_principle(hypothesis, "FP-01"):
         return mark("REJECT", reason="contract_before_implementation_violation")
 
+    if is_novel_mutation(hypothesis) and not has_deterministic_closure_plan(hypothesis):
+        return mark("QUARANTINE", reason="missing_CIP_01_NOV_01")
+
     artifact = propose_artifact(hypothesis, mapping)
     decision = operator_gate(artifact)
 
@@ -239,7 +287,7 @@ def ingest_cognition(audio_stream, source_context, operator_intent):
 
 ---
 
-## 8. Validation Plan
+## 9. Validation Plan
 
 ### Positive test
 
@@ -258,7 +306,9 @@ The pipeline must reject or mark as `ENTROPY`:
 - quotes without system relevance;
 - claims with no falsification condition;
 - model-generated agreement without external grounding;
-- transcript noise with no artifact destination.
+- transcript noise with no artifact destination;
+- novelty without validation path;
+- elegant mutation without contract artifact.
 
 ### Adversarial cases
 
@@ -266,13 +316,14 @@ The pipeline must reject or mark as `ENTROPY`:
 - transcript contains private/sensitive content;
 - transcript contains copyrighted long-form text;
 - transcript maps to multiple checklist IDs but no concrete artifact;
-- LLM proposes acceptance without falsification.
+- LLM proposes acceptance without falsification;
+- a novel idea appears useful but has no implementation path.
 
 Expected behavior: `QUARANTINE` or `REJECT`, never silent integration.
 
 ---
 
-## 9. Integration Targets
+## 10. Integration Targets
 
 `CIP-01` may write into:
 
@@ -286,13 +337,14 @@ Expected behavior: `QUARANTINE` or `REJECT`, never silent integration.
 
 ---
 
-## 10. Governance
+## 11. Governance
 
 - Human operator remains the final decision gate.
 - LLM output is candidate inference, not authority.
 - No artifact is promoted without falsification boundary.
 - No transcript becomes evidence without provenance.
 - No quarantined note survives past TTL without PR/CI/artifact linkage.
+- No novel mutation bypasses deterministic closure.
 
 Rollback path:
 
@@ -302,12 +354,12 @@ Remove CIP-01 artifact → remove associated generated notes/reports → revert 
 
 ---
 
-## 11. Summary
+## 12. Summary
 
 `CIP-01` converts ambient learning into a bounded engineering loop. It does not claim that hearing equals understanding or that transcription equals knowledge. It enforces a stricter rule:
 
 ```text
-captured signal → falsifiable hypothesis → protocol mapping → human gate → artifact or pruning
+captured signal → candidate mutation → falsifiable hypothesis → protocol mapping → deterministic closure → artifact or pruning
 ```
 
 This is the operational form of semantic capture: not hoarding information, but forcing every captured fragment to earn its place in the system.
