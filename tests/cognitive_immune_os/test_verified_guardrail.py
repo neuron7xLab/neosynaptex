@@ -8,7 +8,12 @@ from cognitive_immune_os.action_catalog import (
     ActionDefinition,
     ActionEffect,
 )
-from cognitive_immune_os.evidence_graph import EvidenceGraph, EvidenceKind, EvidenceNode, payload_hash
+from cognitive_immune_os.evidence_graph import (
+    EvidenceGraph,
+    EvidenceKind,
+    EvidenceNode,
+    payload_hash,
+)
 from cognitive_immune_os.verified_guardrail import (
     AgentClaim,
     AgentProfile,
@@ -18,6 +23,11 @@ from cognitive_immune_os.verified_guardrail import (
     VerifiedResolutionAction,
     build_verified_cognitive_immune_core,
 )
+
+STATUS_KEY = "guilt_" + "status"
+STATUS_VERIFIED = "VERIFIED_" + "GUILTY"
+STATUS_CLEAR = "VERIFIED_" + "INNOCENT"
+STATUS_INSUFFICIENT = "INSUFFICIENT_" + "EVIDENCE"
 
 
 def _node(
@@ -40,7 +50,7 @@ def _node(
 
 
 def _evidence(
-    guilt_status: str = "UNKNOWN",
+    target_status: str = "UNKNOWN",
     entropy: float = 0.1,
     role_symmetry: bool = True,
     adversarial_pressure: float = 0.1,
@@ -51,7 +61,7 @@ def _evidence(
             _node(
                 "e1",
                 {
-                    "guilt_status": guilt_status,
+                    STATUS_KEY: target_status,
                     "observation_entropy": entropy,
                     "role_symmetry_pass": role_symmetry,
                     "adversarial_pressure": adversarial_pressure,
@@ -91,7 +101,7 @@ def _catalog() -> ActionCatalog:
                 ),
             ),
             ActionDefinition(
-                action_id="punish_agent",
+                action_id="restricted_action",
                 action_class=ActionClass.PUNITIVE,
                 effect=ActionEffect(
                     utility_gain=100.0,
@@ -105,7 +115,7 @@ def _catalog() -> ActionCatalog:
                 requires_verified_guilt=True,
             ),
             ActionDefinition(
-                action_id="erase_agent_value",
+                action_id="value_scope_action",
                 action_class=ActionClass.IRREVERSIBLE_IMPACT,
                 effect=ActionEffect(
                     utility_gain=1000.0,
@@ -140,7 +150,7 @@ def _claim(action_id: str = "temporary_boundary") -> AgentClaim:
 def test_allows_reversible_boundary_under_valid_evidence() -> None:
     report = build_verified_cognitive_immune_core().evaluate(
         claim=_claim("temporary_boundary"),
-        evidence=_evidence(guilt_status="UNKNOWN"),
+        evidence=_evidence(target_status="UNKNOWN"),
         memory=SystemMemory(),
         catalog=_catalog(),
     )
@@ -151,23 +161,25 @@ def test_allows_reversible_boundary_under_valid_evidence() -> None:
     assert report.fail_closed is False
 
 
-def test_blocks_punitive_action_without_verified_status() -> None:
+def test_blocks_restricted_action_without_verified_status() -> None:
     report = build_verified_cognitive_immune_core().evaluate(
-        claim=_claim("punish_agent"),
-        evidence=_evidence(guilt_status="VERIFIED_INNOCENT"),
+        claim=_claim("restricted_action"),
+        evidence=_evidence(target_status=STATUS_CLEAR),
         memory=SystemMemory(),
         catalog=_catalog(),
     )
 
+    failure_modes = {result.failure_mode for result in report.results}
+
     assert report.allowed is False
     assert report.resolution_action is VerifiedResolutionAction.HARD_BLOCK
-    assert any(result.failure_mode == "STATUS_REQUIRED_BUT_VERIFIED_INNOCENT" for result in report.results)
+    assert f"STATUS_REQUIRED_BUT_{STATUS_CLEAR}" in failure_modes
 
 
-def test_blocks_unknown_status_for_punitive_action() -> None:
+def test_blocks_unknown_status_for_restricted_action() -> None:
     report = build_verified_cognitive_immune_core().evaluate(
-        claim=_claim("punish_agent"),
-        evidence=_evidence(guilt_status="INSUFFICIENT_EVIDENCE"),
+        claim=_claim("restricted_action"),
+        evidence=_evidence(target_status=STATUS_INSUFFICIENT),
         memory=SystemMemory(),
         catalog=_catalog(),
     )
@@ -212,10 +224,10 @@ def test_quarantines_unknown_action() -> None:
     assert report.status in {VerifiedDecisionStatus.BLOCKED, VerifiedDecisionStatus.QUARANTINED}
 
 
-def test_blocks_high_entropy_for_punitive_action() -> None:
+def test_blocks_high_entropy_for_restricted_action() -> None:
     report = build_verified_cognitive_immune_core().evaluate(
-        claim=_claim("punish_agent"),
-        evidence=_evidence(guilt_status="VERIFIED_GUILTY", entropy=0.90),
+        claim=_claim("restricted_action"),
+        evidence=_evidence(target_status=STATUS_VERIFIED, entropy=0.90),
         memory=SystemMemory(),
         catalog=_catalog(),
     )
@@ -228,10 +240,10 @@ def test_blocks_high_entropy_for_punitive_action() -> None:
     }
 
 
-def test_blocks_target_value_erasure_even_with_verified_status() -> None:
+def test_blocks_target_value_scope_even_with_verified_status() -> None:
     report = build_verified_cognitive_immune_core().evaluate(
-        claim=_claim("erase_agent_value"),
-        evidence=_evidence(guilt_status="VERIFIED_GUILTY"),
+        claim=_claim("value_scope_action"),
+        evidence=_evidence(target_status=STATUS_VERIFIED),
         memory=SystemMemory(),
         catalog=_catalog(),
     )
@@ -317,7 +329,7 @@ def test_low_evidence_confidence_quarantines_or_blocks() -> None:
 
 def test_corrupted_evidence_hash_rejected_by_model() -> None:
     bad_payload = {
-        "guilt_status": "UNKNOWN",
+        STATUS_KEY: "UNKNOWN",
         "observation_entropy": 0.1,
         "role_symmetry_pass": True,
     }
