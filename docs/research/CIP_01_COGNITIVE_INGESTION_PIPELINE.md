@@ -6,6 +6,7 @@ claim_status: derived
 
 - **Protocol ID:** `CIP-01`
 - **Parent protocol:** `NEOSYNAPTEX-PROTOCOL-v1.1`
+- **Related mechanisms:** `DIM-01`, `CIP-01-NEDP`.
 - **Status:** PROPOSED / INTEGRATION-READY
 - **Scope:** перетворення зовнішнього аудіо/текстового потоку на перевірювані research-engineering артефакти.
 - **Non-claim:** цей документ не стверджує біологічну тотожність із нейропластичністю або синаптичним прунінгом. Ці терміни використовуються як операційна аналогія для routing, retention і pruning у людсько-LLM контурі.
@@ -14,7 +15,11 @@ claim_status: derived
 
 ## 1. Problem
 
-Стохастичні потоки знання з подкастів, лекцій, діалогів і голосових фрагментів швидко втрачаються або перетворюються на шум, якщо не проходять через явний контур: capture → hypothesis → protocol gate → artifact → CI trace.
+Стохастичні потоки знання з подкастів, лекцій, діалогів і голосових фрагментів швидко втрачаються або перетворюються на шум, якщо не проходять через явний контур:
+
+```text
+capture → candidate → hypothesis → protocol gate → artifact → CI trace
+```
 
 ---
 
@@ -56,7 +61,7 @@ value_function:
 
 ### Boundary
 
-`CIP-01` does not crystallize truth directly. It crystallizes **testable claims and bounded artifacts**. Truth enters only after validation, falsification, or CI-backed evidence. Without that boundary, the pipeline is just a faster way to manufacture confident noise, and civilization has already automated enough of that nonsense.
+`CIP-01` does not crystallize truth directly. It crystallizes **testable claims and bounded artifacts**. Evidence enters only after validation, falsification, or CI-backed checks. Without that boundary, the pipeline only accelerates unverified text production.
 
 ---
 
@@ -105,7 +110,22 @@ This rule prevents aesthetic novelty from bypassing engineering discipline. Ха
 
 Перехід від стохастичного candidate space до прийнятного артефакту здійснюється через **Hard Constraint Gates**. Ці ворота не роблять саму модель детермінованою в онтологічному сенсі. Вони звужують простір допустимих виходів і дозволяють приймати лише ті варіанти, які проходять зовнішній логічний контроль.
 
-### 4.1 Sampling control
+`DIM-01` є формальним визначенням цього механізму: constrained projection, deterministic tie-break і sequence-level verification.
+
+### 4.1 Gate ordering
+
+`CIP-01-INF-01` складається з двох послідовних рівнів, які не можна змішувати:
+
+```text
+candidate emission gate → protocol mapping → artifact proposal → promotion gate
+```
+
+- **Candidate emission gate:** перевіряє формат, schema/FSM, required fields і базову синтаксичну валідність кандидата.
+- **Promotion gate:** перевіряє інваріанти, provenance, mapping, deterministic tie-break policy і зовнішню верифікацію перед інтеграцією.
+
+Цей порядок потрібен тому, що зовнішня верифікація не може бути коректно виконана до появи candidate artifact і protocol mapping.
+
+### 4.2 Sampling control
 
 Sampling parameters можуть зменшувати варіативність:
 
@@ -119,7 +139,7 @@ sampling_control:
 
 Boundary: низька температура або beam search не є доказом істинності. Це лише зменшення генеративної дисперсії. Якщо tie-breaking, seed або backend nondeterminism не контрольовані, output не можна вважати повністю детермінованим.
 
-### 4.2 Constrained decoding
+### 4.3 Constrained decoding
 
 Модель має генерувати кандидат у межах явного формату:
 
@@ -137,12 +157,12 @@ constrained_decoding:
     - unsupported_claim_status
 ```
 
-Це перетворює вільну мовну генерацію на bounded candidate emission. Вихід, який не проходить schema/FSM gate, не переходить до verification loop.
+Це перетворює вільну мовну генерацію на bounded candidate emission. Вихід, який не проходить schema/FSM gate, не переходить до protocol mapping.
 
-### 4.3 Verification loop
+### 4.4 Verification loop
 
 ```text
-candidate → schema gate → invariant gate → external verifier → accept | quarantine | reject
+candidate → schema gate → protocol mapping → invariant gate → external verifier → accept | quarantine | reject
 ```
 
 Зовнішній verifier може бути:
@@ -156,7 +176,7 @@ candidate → schema gate → invariant gate → external verifier → accept | 
 
 LLM може створити candidate або critique, але не може самостійно бути остаточним verifier. Якщо гіпотеза порушує контракт, вона відхиляється незалежно від її стилістичної якості.
 
-### 4.4 Entropy boundary
+### 4.5 Entropy boundary
 
 `CIP-01` не зводить фізичну або модельну ентропію до нуля. Він зводить до мінімуму **accepted-artifact entropy**: невизначеність того, чи може candidate бути інтегрований як перевірюваний артефакт.
 
@@ -167,21 +187,23 @@ hard gates + verifier = deterministic acceptance policy
 
 Тому коректна claim boundary така: не “ентропія зведена до нуля”, а “невалідувані варіанти не мають права на інтеграцію”.
 
-### 4.5 Gate invariant
+### 4.6 Gate invariant
 
 ```yaml
 inference_gate:
   id: CIP-01-INF-01
+  formal_definition: DIM-01
   objective: compress_candidate_space_into_validated_artifact_space
   required_gates:
-    - sampling_control
-    - constrained_decoding
+    - candidate_emission_gate
+    - protocol_mapping
     - schema_validation
     - invariant_check
-    - external_verification
+    - deterministic_tie_break
+    - external_verification_for_promotion
   reject_if:
     - unconstrained_freeform_output
-    - verifier_missing
+    - verifier_missing_for_promotion
     - schema_pass_without_invariant_pass
     - elegant_text_without_artifact_validity
 ```
@@ -319,7 +341,8 @@ invariants:
 
   - id: CIP-01-INF-01
     metric: inference_compression_gate
-    pass_condition: accepted candidate passes constrained decoding, schema validation, invariant checks, and external verification
+    formal_definition: DIM-01
+    pass_condition: promoted artifact passes candidate emission gate, protocol mapping, schema validation, invariant checks, deterministic tie-break policy, and external verification
 
   - id: CIP-01-GOV-01
     metric: human_gate_preserved
@@ -343,8 +366,12 @@ def ingest_cognition(audio_stream, source_context, operator_intent):
     raw_text = transcribe(audio_stream)
     segment = extract_candidate_segment(raw_text)
 
+    candidate = apply_candidate_emission_gate(segment)
+    if candidate.status == "REJECT":
+        return mark("ENTROPY", reason="candidate_emission_gate_failed")
+
     hypothesis = distill(
-        segment,
+        candidate,
         prompts=[
             "Which system invariant or value function does this strengthen?",
             "How would we prove this fragment has no engineering value?",
@@ -353,9 +380,6 @@ def ingest_cognition(audio_stream, source_context, operator_intent):
 
     if not hypothesis.has_falsification_condition:
         return mark("ENTROPY", reason="missing_PRE_01")
-
-    if not passes_inference_gate(hypothesis, gate_id="CIP-01-INF-01"):
-        return mark("QUARANTINE", reason="missing_hard_constraint_gate")
 
     mapping = map_to_protocol(hypothesis, targets=["PRE-01", "SEM-01", "ARCH-01", "VAL-01", "GOV-03"])
     if not mapping:
@@ -368,6 +392,9 @@ def ingest_cognition(audio_stream, source_context, operator_intent):
         return mark("QUARANTINE", reason="missing_CIP_01_NOV_01")
 
     artifact = propose_artifact(hypothesis, mapping)
+    if not passes_promotion_gate(artifact, gate_id="CIP-01-INF-01"):
+        return persist_with_ttl(artifact, ttl_hours=48)
+
     decision = operator_gate(artifact)
 
     if decision == "ACCEPT":
