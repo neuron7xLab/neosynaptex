@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from cognitive_immune_os.conflict_object import ConflictObject
+from cognitive_immune_os.conflict_object import ConflictObject, ConflictType
 from cognitive_immune_os.conflict_resolver import ResolutionAction, resolve_conflict
 from cognitive_immune_os.state_model import StateChange, StateStatus, VerifiedState
 
+
+PolicyMap = dict[ConflictType | str, tuple[ResolutionAction, ...]]
 
 _ACTION_TO_STATUS: dict[ResolutionAction, StateStatus] = {
     ResolutionAction.STATE_DEMOTION: StateStatus.DEMOTED,
@@ -29,12 +31,20 @@ def dependent_state_ids(state_id: str, states: dict[str, VerifiedState]) -> tupl
     return tuple(sorted(seen))
 
 
+def _actions_for(conflict: ConflictObject, policy: PolicyMap | None) -> tuple[ResolutionAction, ...]:
+    if policy is None:
+        return resolve_conflict(conflict)
+    if conflict.conflict_type in policy:
+        return policy[conflict.conflict_type]
+    return policy[conflict.conflict_type.value]
+
+
 def execute_conflict(
     conflict: ConflictObject,
     states: dict[str, VerifiedState],
-    policy: dict[str, tuple[ResolutionAction, ...]] | None = None,
+    policy: PolicyMap | None = None,
 ) -> tuple[dict[str, VerifiedState], tuple[StateChange, ...]]:
-    actions = policy.get(conflict.conflict_type.value) if policy else resolve_conflict(conflict)
+    actions = _actions_for(conflict, policy)
     if not actions:
         raise RuntimeError("empty conflict execution")
 
