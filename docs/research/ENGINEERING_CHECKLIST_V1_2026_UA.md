@@ -5,6 +5,7 @@
 - **Protocol ID:** `NEOSYNAPTEX-PROTOCOL-v1.1`
 - **Status:** ACTIVE
 - **Призначення:** операційний і machine-readable сумісний governance-чеклист для PR/CI.
+- Canonical JSON для CI-інтеграції винесено в `docs/research/NEOSYNAPTEX_PROTOCOL_V1_1.json`.
 
 ---
 

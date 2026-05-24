@@ -1,0 +1,9 @@
+{
+  "protocol_id": "NEOSYNAPTEX-PROTOCOL-v1.1",
+  "status": "ACTIVE",
+  "source": "docs/research/ENGINEERING_CHECKLIST_V1_2026_UA.md",
+  "notes": "Canonical machine-readable payload extracted from checklist document for CI tooling.",
+  "execution_rules": {
+    "CI_FAILURE_PROTOCOL": "Step 1: Halt on CI failure (exit code != 0). Step 2: Map failure to checklist_id and severity. Step 3: For high-impact changes, attach Six-File Evidence paths. Step 4: Do not apply fixes until violated invariant is identified. Step 5: Merge only when all BLOCKER checks pass."
+  }
+}
