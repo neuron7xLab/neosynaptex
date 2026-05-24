@@ -92,9 +92,9 @@ jobs:
           tar -xzf "/tmp/${GITLEAKS_TARBALL}" -C /usr/local/bin gitleaks
           gitleaks version
       - name: Run gitleaks
-        # Explicit tree scan: do not rely on git history when the job performs a
-        # shallow checkout. This preserves the intended fast required gate.
-        run: gitleaks dir --source . --redact --report-format sarif --report-path gitleaks.sarif
+        # gitleaks dir takes the scan path as a positional argument; --source is
+        # only valid for the detect command. Yes, one flag ate the whole gate.
+        run: gitleaks dir . --redact --report-format sarif --report-path gitleaks.sarif
       - name: Upload gitleaks report
         if: always()
         uses: actions/upload-artifact@v4
