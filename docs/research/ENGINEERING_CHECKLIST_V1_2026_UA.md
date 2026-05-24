@@ -376,6 +376,18 @@ Six-File Evidence:
 }
 ```
 
+## 8) Semantic anti-bullshit gate (content quality)
+
+Щоб уникнути «ілюзії детермінізму» (коли непорожній файл проходить CI без змістовної цінності), вводиться `SEM-01`:
+
+- Скрипт: `tools/audit/check_six_file_semantics.py`
+- Репорт: `artifacts/audit/six_file_semantics_report.json`
+- Правило: `SEM-01` має бути `PASS` для merge-ready статусу BLOCKER-контурів.
+
+`SEM-01` перевіряє не лише наявність, а мінімальну змістову валідність: falsification section, contract keys, invariant pass-conditions, red/green evidence fields, governance mapping, і структурований change plan.
+
+---
+
 ## 8) First-principles & value-function alignment
 
 Щоб PR-архітектура не деградувала в формалізм, зміни мають бути прив’язані до першопринципів і функцій цінності ядра системи.
