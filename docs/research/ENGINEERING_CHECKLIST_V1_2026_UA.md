@@ -375,3 +375,16 @@ Six-File Evidence:
   }
 }
 ```
+
+## 8) First-principles & value-function alignment
+
+Щоб PR-архітектура не деградувала в формалізм, зміни мають бути прив’язані до першопринципів і функцій цінності ядра системи.
+
+- Специфікація: `docs/research/07_first_principles_value_function.yaml`
+- Аудит-скрипт: `tools/audit/check_value_architecture_mapping.py`
+- Audit-репорт: `artifacts/audit/value_architecture_report.json`
+
+`ARCH-01` = PASS є обов’язковою ознакою того, що структура PR узгоджена з ціннісною логікою системи.
+
+---
+
