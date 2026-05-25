@@ -45,9 +45,16 @@ def _check_i1(changed: list[str], allowed_top_level: list[str]) -> None:
             raise InvariantError(f"I1 fail: disallowed path '{path}'")
 
 
-def _check_i2(changed: list[str], forbidden_patterns: list[str]) -> None:
+def _check_i2(
+    changed: list[str],
+    forbidden_patterns: list[str],
+    ignored_paths: list[str] | None = None,
+) -> None:
+    ignored = ignored_paths or []
     regexes = [re.compile(p) for p in forbidden_patterns]
     for path in changed:
+        if _is_allowed_path(path, ignored):
+            continue
         p = Path(path)
         if not p.exists() or p.is_dir():
             continue
@@ -144,7 +151,11 @@ def main() -> int:
     changed = _changed_files(args.base_ref)
 
     _check_i1(changed, cfg["i1_top_level_allowlist"]["allowed_top_level"])
-    _check_i2(changed, cfg["i2_token_signature_regex"]["forbidden_patterns"])
+    _check_i2(
+        changed,
+        cfg["i2_token_signature_regex"]["forbidden_patterns"],
+        [args.config],
+    )
     _check_i6(
         changed,
         cfg["i6_semantic_compression"]["min_verified_edges"],
