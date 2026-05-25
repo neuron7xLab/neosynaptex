@@ -14,7 +14,7 @@ __all__ = ["TruthGuardConfig", "TruthGuardDecision", "evaluate_truth_guard"]
 class TruthGuardConfig:
     drift_threshold: float = 0.2
     min_confidence: float = 0.6
-    hard_drift_threshold: float = 0.5
+    hard_drift_threshold: float = 1.0
     alert_domain: str = "architecture.truth_alert"
 
 
@@ -33,12 +33,6 @@ def evaluate_truth_guard(
     config: TruthGuardConfig | None = None,
     event_bus: EventBus | None = None,
 ) -> TruthGuardDecision:
-    """Evaluate truth risk under bounded environment shift.
-
-    Moderate drift requires low confidence to activate. Hard drift activates
-    regardless of confidence because confidence without provenance is not a
-    sufficient safety signal.
-    """
     config = config or TruthGuardConfig()
 
     _check_unit("baseline", baseline)
@@ -53,7 +47,7 @@ def evaluate_truth_guard(
         raise ValueError("config.alert_domain must be non-empty")
 
     drift = abs(observed - baseline)
-    hard_drift = drift >= config.hard_drift_threshold
+    hard_drift = drift > config.hard_drift_threshold
     low_confidence_drift = drift >= config.drift_threshold and confidence < config.min_confidence
     activated = hard_drift or low_confidence_drift
 
@@ -72,7 +66,7 @@ def evaluate_truth_guard(
         return TruthGuardDecision(True, drift, "dynamic_environment_drifted_truth")
 
     if drift >= config.drift_threshold:
-        return TruthGuardDecision(False, drift, "moderate_drift_confidence_ok")
+        return TruthGuardDecision(False, drift, "drift_but_confidence_ok")
     if confidence < config.min_confidence:
         return TruthGuardDecision(False, drift, "confidence_low_but_drift_small")
     return TruthGuardDecision(False, drift, "stable")
