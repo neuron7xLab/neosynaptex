@@ -43,7 +43,7 @@ def test_compile_divergence_convergence(tmp_path: Path) -> None:
 def test_compile_fallback_action_when_plan_missing(tmp_path: Path) -> None:
     src = tmp_path / "report_missing_plan.json"
     src.write_text(
-        json.dumps({"verdict": "FAIL", "capital_index": 0.1, "unresolved_by_section": {"MATH": 1}}),
+        json.dumps({"verdict": "FAIL", "capital_index": 0.1, "unresolved_by_section": {"MATH": 1}, "action_plan": {}}),
         encoding="utf-8",
     )
     out = tmp_path / "artifact_missing_plan.json"
@@ -59,3 +59,20 @@ def test_compile_fallback_action_when_plan_missing(tmp_path: Path) -> None:
     assert proc.returncode == 0
     payload = json.loads(out.read_text(encoding="utf-8"))
     assert payload["divergence"][0]["action"].startswith("Resolve unresolved items")
+
+
+def test_compile_fails_on_missing_contract_keys(tmp_path: Path) -> None:
+    src = tmp_path / "bad_report.json"
+    src.write_text(json.dumps({"verdict": "FAIL"}), encoding="utf-8")
+    out = tmp_path / "artifact_bad.json"
+    cmd = [
+        sys.executable,
+        "substrates/bn_syn/scripts/compile_thinking_artifact.py",
+        "--report-json",
+        str(src),
+        "--out-json",
+        str(out),
+    ]
+    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    assert proc.returncode != 0
+    assert "missing required keys" in (proc.stderr + proc.stdout)
