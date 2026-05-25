@@ -44,5 +44,18 @@ def test_deliberation_acceptance_uses_full_validator_set_when_trace_is_truncated
         config=DeliberationConfig(max_steps=1),
     )
     assert len(trace.steps) == 1
-    assert trace.steps[0].name == "truth_guard"
+    assert trace.steps[0].name == "dre"
+    assert trace.steps[0].passed is False
+    assert trace.accepted is False
+
+
+def test_deliberation_truncated_trace_keeps_first_failure_visible() -> None:
+    trace = build_deliberation_trace(
+        truth_guard=TruthGuardDecision(False, 0.0, "stable"),
+        value_gate=ValueGateDecision(False, -1.0, "blocked:value_below_threshold"),
+        dre_decisions=(DREDecision(False, "blocked:input_kl_drift", 1.0, 0.2, False),),
+        config=DeliberationConfig(max_steps=2),
+    )
+    assert [step.name for step in trace.steps] == ["truth_guard", "value_gate"]
+    assert trace.steps[-1].passed is False
     assert trace.accepted is False
