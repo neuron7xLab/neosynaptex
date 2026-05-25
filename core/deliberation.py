@@ -34,6 +34,24 @@ class DeliberationTrace:
     steps: tuple[DeliberationStep, ...]
 
 
+def _bounded_trace_steps(
+    steps: list[DeliberationStep],
+    *,
+    max_steps: int,
+    accepted: bool,
+) -> tuple[DeliberationStep, ...]:
+    bounded = steps[:max_steps]
+    if accepted or any(not step.passed for step in bounded):
+        return tuple(bounded)
+
+    first_failure = next((step for step in steps if not step.passed), None)
+    if first_failure is None:
+        return tuple(bounded)
+    if max_steps == 1:
+        return (first_failure,)
+    return tuple([*bounded[:-1], first_failure])
+
+
 def build_deliberation_trace(
     *,
     truth_guard: TruthGuardDecision,
@@ -43,9 +61,9 @@ def build_deliberation_trace(
 ) -> DeliberationTrace:
     """Build deterministic decision trace from gate outcomes.
 
-    ``accepted`` is computed from the full validator set. Only the emitted
-    trace is bounded by ``max_steps`` so logging-size controls cannot hide
-    a failing validator behind trace truncation.
+    ``accepted`` is computed from the full validator set. The emitted trace is
+    bounded by ``max_steps``, but a failing validator is preserved inside the
+    bounded trace so log-size controls cannot hide the failure path.
     """
     cfg = config or DeliberationConfig()
     if cfg.max_steps < 1:
@@ -64,5 +82,5 @@ def build_deliberation_trace(
     steps.append(DeliberationStep("dre", dre_pass, dre_reason))
 
     accepted = all(step.passed for step in steps)
-    bounded = tuple(steps[: cfg.max_steps])
+    bounded = _bounded_trace_steps(steps, max_steps=cfg.max_steps, accepted=accepted)
     return DeliberationTrace(accepted=accepted, steps=bounded)
