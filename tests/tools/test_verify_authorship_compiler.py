@@ -21,7 +21,25 @@ def test_i2_rejects_forbidden_pattern(tmp_path: Path) -> None:
 
         os.chdir(tmp_path)
         with pytest.raises(vac.InvariantError):
-            vac._check_i2(["a.md"], ["(?i)seamless integration"])
+            vac._check_i2(["a.md"], ["seamless integration"])
+    finally:
+        os.chdir(cwd)
+
+
+def test_i2_skips_authorship_policy_file_during_pattern_scan(tmp_path: Path) -> None:
+    policy = tmp_path / ".repo" / "authorship_compiler.yaml"
+    policy.parent.mkdir(parents=True)
+    policy.write_text("forbidden_patterns: ['policy sentinel']\n", encoding="utf-8")
+    cwd = Path.cwd()
+    try:
+        import os
+
+        os.chdir(tmp_path)
+        vac._check_i2(
+            [".repo/authorship_compiler.yaml"],
+            ["policy sentinel"],
+            ignored_paths=[".repo/authorship_compiler.yaml"],
+        )
     finally:
         os.chdir(cwd)
 
