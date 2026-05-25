@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -74,5 +75,72 @@ def test_i7_passes_when_no_runtime_changes(tmp_path: Path) -> None:
 
         os.chdir(tmp_path)
         vac._check_i7(["README.md"], ".repo/public_symbols.sha256", ["core/"], ["README.md"])
+    finally:
+        os.chdir(cwd)
+
+
+def test_i7_rejects_ack_that_omits_changed_runtime_file(tmp_path: Path) -> None:
+    core_file = tmp_path / "core" / "dre.py"
+    core_file.parent.mkdir(parents=True)
+    core_file.write_text("runtime", encoding="utf-8")
+    repo = tmp_path / ".repo"
+    repo.mkdir()
+    (repo / "public_symbols.sha256").write_text("stale", encoding="utf-8")
+    (repo / "runtime_api_change_ack.json").write_text(
+        json.dumps(
+            {
+                "ack_id": "ACK-1",
+                "runtime_surface": ["core/other.py"],
+                "reason": "Intentional runtime API change under explicit review boundary.",
+                "claim_status": "derived",
+            }
+        ),
+        encoding="utf-8",
+    )
+    cwd = Path.cwd()
+    try:
+        import os
+
+        os.chdir(tmp_path)
+        with pytest.raises(vac.InvariantError, match="omits changed runtime files"):
+            vac._check_i7(
+                ["core/dre.py", "tests/test_dre.py", ".repo/runtime_api_change_ack.json"],
+                ".repo/public_symbols.sha256",
+                ["core/"],
+                ["README.md", "docs/", ".github/"],
+            )
+    finally:
+        os.chdir(cwd)
+
+
+def test_i7_accepts_substantive_ack_covering_changed_runtime_file(tmp_path: Path) -> None:
+    core_file = tmp_path / "core" / "dre.py"
+    core_file.parent.mkdir(parents=True)
+    core_file.write_text("runtime", encoding="utf-8")
+    repo = tmp_path / ".repo"
+    repo.mkdir()
+    (repo / "public_symbols.sha256").write_text("stale", encoding="utf-8")
+    (repo / "runtime_api_change_ack.json").write_text(
+        json.dumps(
+            {
+                "ack_id": "ACK-1",
+                "runtime_surface": ["core/dre.py"],
+                "reason": "Intentional runtime API change under explicit review boundary.",
+                "claim_status": "derived",
+            }
+        ),
+        encoding="utf-8",
+    )
+    cwd = Path.cwd()
+    try:
+        import os
+
+        os.chdir(tmp_path)
+        vac._check_i7(
+            ["core/dre.py", "tests/test_dre.py", ".repo/runtime_api_change_ack.json"],
+            ".repo/public_symbols.sha256",
+            ["core/"],
+            ["README.md", "docs/", ".github/"],
+        )
     finally:
         os.chdir(cwd)
