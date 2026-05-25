@@ -34,3 +34,15 @@ def test_deliberation_respects_step_bound() -> None:
         config=DeliberationConfig(max_steps=2),
     )
     assert len(trace.steps) == 2
+
+
+def test_deliberation_acceptance_uses_full_validator_set_when_trace_is_truncated() -> None:
+    trace = build_deliberation_trace(
+        truth_guard=TruthGuardDecision(False, 0.0, "stable"),
+        value_gate=ValueGateDecision(True, 1.0, "accepted"),
+        dre_decisions=(DREDecision(False, "blocked:input_kl_drift", 1.0, 0.2, False),),
+        config=DeliberationConfig(max_steps=1),
+    )
+    assert len(trace.steps) == 1
+    assert trace.steps[0].name == "truth_guard"
+    assert trace.accepted is False
