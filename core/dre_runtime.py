@@ -1,7 +1,4 @@
-"""Operational integration layer for DRE + TruthGuard.
-
-Single-call API for production loops.
-"""
+"""Operational integration layer for DRE and TruthGuard."""
 
 from __future__ import annotations
 
@@ -27,11 +24,7 @@ class IntegratedCycleResult:
 
 
 def _blocked_state(start_day_index: int) -> DREState:
-    return DREState(
-        day_index=start_day_index,
-        ktb=(),
-        phase_transition_triggered=False,
-    )
+    return DREState(day_index=start_day_index, ktb=(), phase_transition_triggered=False)
 
 
 async def run_integrated_cycle_async(
@@ -48,10 +41,6 @@ async def run_integrated_cycle_async(
     value_gate_input: ValueGateInput | None = None,
     value_gate_config: ValueGateConfig | None = None,
 ) -> IntegratedCycleResult:
-    """Run truth pre-gate + value gate + DRE in an async-safe integrated cycle.
-
-    If truth guard activates, all DRE events are skipped (fail-closed pause).
-    """
     truth_guard_config = truth_guard_config or TruthGuardConfig()
     value_gate_config = value_gate_config or ValueGateConfig()
 
@@ -63,7 +52,7 @@ async def run_integrated_cycle_async(
         event_bus=event_bus,
     )
     if tg.activated:
-        vg_block = ValueGateDecision(False, float("-inf"), "blocked:truth_guard")
+        vg_block = ValueGateDecision(False, 0.0, "blocked:truth_guard")
         return IntegratedCycleResult(
             truth_guard=tg,
             value_gate=vg_block,
@@ -76,14 +65,21 @@ async def run_integrated_cycle_async(
             ),
         )
 
-    vg_inp = value_gate_input or ValueGateInput(
-        utility=1.0,
-        risk=0.0,
-        uncertainty=0.0,
-        kl_drift=0.0,
-        counterfactual_score=-1.0,
-    )
-    vg = evaluate_value_gate(vg_inp, value_gate_config)
+    if value_gate_input is None:
+        vg_missing = ValueGateDecision(False, 0.0, "blocked:missing_value_gate_input")
+        return IntegratedCycleResult(
+            truth_guard=tg,
+            value_gate=vg_missing,
+            dre_decisions=(),
+            dre_state=_blocked_state(start_day_index),
+            deliberation=build_deliberation_trace(
+                truth_guard=tg,
+                value_gate=vg_missing,
+                dre_decisions=(),
+            ),
+        )
+
+    vg = evaluate_value_gate(value_gate_input, value_gate_config)
     if not vg.accepted:
         return IntegratedCycleResult(
             truth_guard=tg,
@@ -131,12 +127,6 @@ def run_integrated_cycle(
     value_gate_input: ValueGateInput | None = None,
     value_gate_config: ValueGateConfig | None = None,
 ) -> IntegratedCycleResult:
-    """Synchronous wrapper for non-async callers.
-
-    Async callers must use :func:`run_integrated_cycle_async`; this wrapper
-    refuses to call ``asyncio.run`` from an active event loop so it fails
-    closed without creating an unawaited coroutine.
-    """
     try:
         asyncio.get_running_loop()
     except RuntimeError:
@@ -155,8 +145,4 @@ def run_integrated_cycle(
                 value_gate_config=value_gate_config,
             )
         )
-
-    raise RuntimeError(
-        "run_integrated_cycle() cannot be called from a running event loop; "
-        "await run_integrated_cycle_async() instead"
-    )
+    raise RuntimeError("use run_integrated_cycle_async from an active event loop")
