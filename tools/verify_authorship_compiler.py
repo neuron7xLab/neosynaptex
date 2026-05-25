@@ -64,9 +64,12 @@ def _check_i2(
                 raise InvariantError(f"I2 fail: forbidden pattern '{rgx.pattern}' in {path}")
 
 
-def _count_public_tokens(changed: list[str]) -> int:
+def _count_public_tokens(changed: list[str], exclude_paths: list[str] | None = None) -> int:
+    excluded = exclude_paths or []
     total = 0
     for path in changed:
+        if _is_allowed_path(path, excluded):
+            continue
         p = Path(path)
         if not p.exists() or p.is_dir():
             continue
@@ -76,7 +79,6 @@ def _count_public_tokens(changed: list[str]) -> int:
 
 
 def _count_verified_edges(changed: list[str]) -> int:
-    # Proxy metric: explicit test references (assert/pytest) in changed tests.
     count = 0
     for path in changed:
         if not path.startswith("tests/"):
@@ -89,8 +91,13 @@ def _count_verified_edges(changed: list[str]) -> int:
     return count
 
 
-def _check_i6(changed: list[str], min_verified_edges: int, max_public_tokens: int) -> None:
-    public_tokens = _count_public_tokens(changed)
+def _check_i6(
+    changed: list[str],
+    min_verified_edges: int,
+    max_public_tokens: int,
+    public_token_exclude_paths: list[str] | None = None,
+) -> None:
+    public_tokens = _count_public_tokens(changed, public_token_exclude_paths)
     verified_edges = _count_verified_edges(changed)
     if public_tokens > max_public_tokens:
         raise InvariantError(f"I6 fail: public_tokens={public_tokens} > {max_public_tokens}")
@@ -149,7 +156,6 @@ def _check_i7(
     runtime_changed = [p for p in changed if _is_allowed_path(p, runtime_risk_paths)]
     if not runtime_changed:
         return
-    # if runtime changed, require at least one non-hygiene file changed too (tests/code), else fail.
     non_hygiene = [p for p in changed if not _is_allowed_path(p, hygiene_allowed_paths)]
     if not non_hygiene:
         raise InvariantError("I7 fail: runtime change hidden in hygiene-only PR")
@@ -161,7 +167,6 @@ def _check_i7(
     actual = _snapshot_hash_for(runtime_changed)
     if expected == actual:
         return
-    # mismatch may be legitimate only with explicit runtime API change acknowledgement.
     marker = Path(".repo/runtime_api_change_ack.json")
     if not marker.exists():
         raise InvariantError(
@@ -179,6 +184,7 @@ def main() -> int:
 
     cfg = _load_config(Path(args.config))["invariants"]
     changed = _changed_files(args.base_ref)
+    i6_cfg = cfg["i6_semantic_compression"]
 
     _check_i1(changed, cfg["i1_top_level_allowlist"]["allowed_top_level"])
     _check_i2(
@@ -188,8 +194,9 @@ def main() -> int:
     )
     _check_i6(
         changed,
-        cfg["i6_semantic_compression"]["min_verified_edges"],
-        cfg["i6_semantic_compression"]["max_public_tokens"],
+        i6_cfg["min_verified_edges"],
+        i6_cfg["max_public_tokens"],
+        i6_cfg.get("public_token_exclude_paths", []),
     )
     _check_i7(
         changed,
