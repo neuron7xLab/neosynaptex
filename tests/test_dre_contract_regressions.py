@@ -38,6 +38,9 @@ def test_ktb_records_accepted_events_not_only_failures() -> None:
     )
     assert [decision.accepted for decision in decisions] == [True, True]
     assert len(state.ktb) == 2
+    assert [row.accepted for row in state.ktb] == [True, True]
+    assert [row.decision_reason for row in state.ktb] == ["accepted", "accepted"]
+    assert all(0.0 <= float(row.overlap_score) <= 1.0 for row in state.ktb)
 
 
 def test_phase_transition_is_not_triggered_by_single_old_failure() -> None:
@@ -51,3 +54,20 @@ def test_phase_transition_is_not_triggered_by_single_old_failure() -> None:
         )
     )
     assert state.phase_transition_triggered is False
+
+
+def test_phase_transition_uses_configured_failure_ratio_window() -> None:
+    events = [
+        _event(timestamp_ns=1, efferent_copy=(0.0, 0.0)),
+        _event(timestamp_ns=2, efferent_copy=(0.0, 0.0)),
+        _event(timestamp_ns=3),
+        _event(timestamp_ns=4),
+    ]
+    _, state = asyncio.run(
+        run_dre_loop(
+            events,
+            config=DREConfig(phase_transition_days=4, phase_failure_ratio_threshold=0.5),
+            invariant=ConstitutionInvariant(("allow",), 1.0),
+        )
+    )
+    assert state.phase_transition_triggered is True
