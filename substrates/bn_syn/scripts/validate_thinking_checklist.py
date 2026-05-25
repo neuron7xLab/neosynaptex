@@ -11,12 +11,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import re
-import yaml
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
@@ -26,6 +27,7 @@ from substrates.bn_syn.scripts.mt_contract import CANONICAL_SECTIONS, SECTION_WE
 
 CHECK_PATTERN = re.compile(r"^\s*(?:[-*+]\s+)?\[(?P<mark>[ xX])\]\s+(?P<item>.+?)\s*$")
 SECTION_PATTERN = re.compile(r"^\s*##\s+(?P<section>[^#].*?)\s*$")
+
 
 @dataclass(frozen=True)
 class Finding:
@@ -87,7 +89,7 @@ def _compute_capital_index(completion_ratio: float, value_score: float, structur
 
     Formula (bounded 0..1):
       0.5 * value_score + 0.3 * completion_ratio + 0.2 * structure_bonus
-    where structure_bonus is 1 when canonical structure is satisfied, else 0.
+    where structure_bonus is 1 only when canonical structure was evaluated and satisfied.
     """
     structure_bonus = 1.0 if structure_ok else 0.0
     score = 0.5 * value_score + 0.3 * completion_ratio + 0.2 * structure_bonus
@@ -106,8 +108,6 @@ def _intention_hints(unresolved_by_section: dict[str, int], top_k: int = 3) -> l
     return hints
 
 
-
-
 def _load_intent_map() -> dict[str, Any]:
     path = Path(__file__).resolve().parents[1] / "docs" / "MACHINE_THINKING_INTENT_MAP.yaml"
     if not path.exists():
@@ -119,6 +119,7 @@ def _section_actions(section: str, intent_map: dict[str, Any]) -> list[str]:
     cfg = (intent_map.get("intent_to_action", {}) or {}).get(section, {})
     actions = cfg.get("actions", [])
     return [str(a) for a in actions]
+
 
 def validate_file(path: Path, profile: str, min_completion: float, min_capital_index: float) -> dict[str, Any]:
     checked, unchecked, section_counts = parse_checklist(path.read_text(encoding="utf-8"))
@@ -139,7 +140,7 @@ def validate_file(path: Path, profile: str, min_completion: float, min_capital_i
 
     completion_ratio = (len(checked) / total_items) if total_items else 0.0
     value_score = _compute_weighted_score(checked, unchecked)
-    structure_ok = not structure_errors
+    structure_ok = profile == "research_v1" and not structure_errors
     capital_index = _compute_capital_index(completion_ratio, value_score, structure_ok)
 
     intent_map = _load_intent_map()
