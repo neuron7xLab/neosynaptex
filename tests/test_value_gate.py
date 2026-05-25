@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import pytest
 
 from core.value_gate import ValueGateConfig, ValueGateInput, evaluate_value_gate
@@ -57,3 +59,53 @@ def test_rejects_negative_inputs() -> None:
             ),
             ValueGateConfig(),
         )
+
+
+@pytest.mark.parametrize(
+    ("inp", "cfg"),
+    [
+        (
+            ValueGateInput(
+                utility=math.nan,
+                risk=0.0,
+                uncertainty=0.0,
+                kl_drift=0.0,
+                counterfactual_score=0.0,
+            ),
+            ValueGateConfig(),
+        ),
+        (
+            ValueGateInput(
+                utility=1.0,
+                risk=math.inf,
+                uncertainty=0.0,
+                kl_drift=0.0,
+                counterfactual_score=0.0,
+            ),
+            ValueGateConfig(),
+        ),
+        (
+            ValueGateInput(
+                utility=1.0,
+                risk=0.0,
+                uncertainty=0.0,
+                kl_drift=0.0,
+                counterfactual_score=math.nan,
+            ),
+            ValueGateConfig(),
+        ),
+        (
+            ValueGateInput(
+                utility=1.0,
+                risk=0.0,
+                uncertainty=0.0,
+                kl_drift=0.0,
+                counterfactual_score=0.0,
+            ),
+            ValueGateConfig(lambda_risk=math.inf),
+        ),
+    ],
+)
+def test_rejects_non_finite_inputs(inp: ValueGateInput, cfg: ValueGateConfig) -> None:
+    with pytest.raises(ValueError, match="finite"):
+        evaluate_value_gate(inp, cfg)
