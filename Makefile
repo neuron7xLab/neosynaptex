@@ -117,7 +117,7 @@ package_scan:
 
 thinking_product_report:
 	python substrates/bn_syn/scripts/generate_thinking_product_report.py \
-  --checklist substrates/bn_syn/docs/MACHINE_THINKING_SHOWCASE_CHECKLIST.md \
+	  --checklist substrates/bn_syn/docs/MACHINE_THINKING_SHOWCASE_CHECKLIST.md \
 	  --profile research_v1 \
 	  --min-capital-index 0.9 \
 	  --out-dir proof_bundle/reports
@@ -142,7 +142,7 @@ test_thinking_pipeline:
 
 thinking_world_class_artifact:
 	python substrates/bn_syn/scripts/generate_thinking_product_report.py \
-  --checklist substrates/bn_syn/docs/MACHINE_THINKING_SHOWCASE_CHECKLIST.md \
+	  --checklist substrates/bn_syn/docs/MACHINE_THINKING_SHOWCASE_CHECKLIST.md \
 	  --profile research_v1 \
 	  --min-capital-index 0.9 \
 	  --out-dir proof_bundle/reports
