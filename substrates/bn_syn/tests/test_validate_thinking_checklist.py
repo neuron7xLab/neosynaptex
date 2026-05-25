@@ -49,6 +49,16 @@ def test_basic_profile_can_use_threshold(tmp_path: Path) -> None:
     assert report["completion_ratio"] == 0.5
 
 
+def test_basic_profile_does_not_receive_structure_bonus(tmp_path: Path) -> None:
+    p = _write(tmp_path, "no_bonus.md", "- [x] one\n- [ ] two\n")
+    report = validate_file(p, profile="basic", min_completion=0.5, min_capital_index=0.6)
+
+    assert report["completion_ratio"] == 0.5
+    assert report["value_score"] == 0.5
+    assert report["capital_index"] == 0.4
+    assert report["verdict"] == "FAIL"
+
+
 def test_value_score_penalizes_falsification_gap(tmp_path: Path) -> None:
     text = "## FALSIFICATION\n- [ ] unresolved\n## ARTIFACT\n- [x] done\n"
     p = _write(tmp_path, "score.md", text)
