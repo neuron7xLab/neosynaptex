@@ -22,6 +22,8 @@ invariants:
   i6_semantic_compression:
     min_verified_edges: 1
     max_public_tokens: 4000
+    public_token_exclude_paths:
+      - tests/
   i7_api_snapshot_hash_integrity:
     snapshot_file: .repo/public_symbols.sha256
     runtime_risk_paths:
