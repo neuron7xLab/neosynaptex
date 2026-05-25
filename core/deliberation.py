@@ -43,7 +43,9 @@ def build_deliberation_trace(
 ) -> DeliberationTrace:
     """Build deterministic decision trace from gate outcomes.
 
-    The trace is bounded by ``max_steps`` and contains only validator outcomes.
+    ``accepted`` is computed from the full validator set. Only the emitted
+    trace is bounded by ``max_steps`` so logging-size controls cannot hide
+    a failing validator behind trace truncation.
     """
     cfg = config or DeliberationConfig()
     if cfg.max_steps < 1:
@@ -61,6 +63,6 @@ def build_deliberation_trace(
     dre_reason = "accepted" if dre_pass else "blocked:dre_gate"
     steps.append(DeliberationStep("dre", dre_pass, dre_reason))
 
+    accepted = all(step.passed for step in steps)
     bounded = tuple(steps[: cfg.max_steps])
-    accepted = all(step.passed for step in bounded)
     return DeliberationTrace(accepted=accepted, steps=bounded)
