@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import math
 
 import numpy as np
 import pytest
@@ -33,6 +34,22 @@ def _inp(**overrides: object) -> DREInput:
 
 def test_kl_divergence_zero_on_equal_distributions() -> None:
     assert kl_divergence((0.5, 0.5), (0.5, 0.5)) == pytest.approx(0.0, abs=1e-9)
+
+
+@pytest.mark.parametrize(
+    ("model_other", "model_self"),
+    [
+        ((math.nan, 1.0), (0.5, 0.5)),
+        ((math.inf, 1.0), (0.5, 0.5)),
+        ((0.0, 0.0), (0.5, 0.5)),
+        ((0.5, 0.5), (0.0, 0.0)),
+    ],
+)
+def test_kl_divergence_rejects_non_finite_or_zero_mass_vectors(
+    model_other: tuple[float, ...], model_self: tuple[float, ...]
+) -> None:
+    with pytest.raises(ValueError):
+        kl_divergence(model_other, model_self)
 
 
 def test_quarantine_external_when_mask_is_zero() -> None:
@@ -82,3 +99,36 @@ def test_fail_closed_risk_gate() -> None:
     inv = ConstitutionInvariant(("allow",), 1.0)
     out, _ = asyncio.run(run_dre_loop([_inp(expected_free_energy=0.2)], config=cfg, invariant=inv))
     assert out[0].reason == "blocked:fail_closed_risk_gate"
+
+
+@pytest.mark.parametrize(
+    "bad_event",
+    [
+        _inp(timestamp_ns=-1),
+        _inp(state_id=-1),
+        _inp(expected_free_energy=math.nan),
+        _inp(action_magnitude=math.inf),
+        _inp(execution_velocity=math.nan),
+        _inp(efferent_copy=(math.nan, 0.0)),
+    ],
+)
+def test_run_dre_loop_rejects_non_finite_or_unsigned_wrap_inputs(bad_event: DREInput) -> None:
+    with pytest.raises(ValueError):
+        asyncio.run(
+            run_dre_loop(
+                [bad_event],
+                config=DREConfig(),
+                invariant=ConstitutionInvariant(("allow",), 1.0),
+            )
+        )
+
+
+def test_run_dre_loop_rejects_invalid_config() -> None:
+    with pytest.raises(ValueError, match="friction_gain"):
+        asyncio.run(
+            run_dre_loop(
+                [_inp()],
+                config=DREConfig(friction_gain=math.nan),
+                invariant=ConstitutionInvariant(("allow",), 1.0),
+            )
+        )
