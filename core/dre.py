@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 import numpy as np
+from numpy.typing import NDArray
 
 __all__ = [
     "BehavioralStateVector",
@@ -22,13 +23,14 @@ __all__ = [
 
 _EPS = 1e-12
 _J_SHAPE = (7, 7)
+FloatArray = NDArray[np.float64]
 
 
 class BehavioralStateVector(NamedTuple):
     timestamp_ns: np.uint64
     state_id: np.uint32
     friction_coefficient: np.float32
-    trajectory_jacobian: np.ndarray
+    trajectory_jacobian: FloatArray
     execution_velocity: np.float32
 
 
@@ -115,7 +117,7 @@ def _make_behavior_vector(
     friction: float,
     kl_value: float,
 ) -> BehavioralStateVector:
-    jac = np.eye(_J_SHAPE[0], dtype=np.float32) * np.float32(min(1.0, kl_value + friction))
+    jac: FloatArray = np.eye(_J_SHAPE[0], dtype=np.float64) * min(1.0, kl_value + friction)
     return BehavioralStateVector(
         timestamp_ns=np.uint64(inp.timestamp_ns),
         state_id=np.uint32(inp.state_id),
@@ -156,7 +158,7 @@ def _push_ktb(
     ktb.append(event)
 
 
-def compute_forcing_vector(ktb: Sequence[BehavioralStateVector]) -> np.ndarray:
+def compute_forcing_vector(ktb: Sequence[BehavioralStateVector]) -> FloatArray:
     """Compute environment forcing vector F_env from KTB jacobians via SVD."""
     if not ktb:
         return np.zeros(_J_SHAPE[0], dtype=np.float64)
@@ -165,7 +167,7 @@ def compute_forcing_vector(ktb: Sequence[BehavioralStateVector]) -> np.ndarray:
     _, s, vt = np.linalg.svd(j_behav, full_matrices=False)
     inv_s = np.diag(1.0 / (s + _EPS))
     forcing = vt.T @ inv_s
-    return forcing[:, 0]
+    return cast(FloatArray, forcing[:, 0])
 
 
 async def run_dre_loop(
