@@ -79,8 +79,8 @@ _DEPENDABOT_TITLE_PATTERN = re.compile(
     r"(?i)^(?:deps|build|ci)(?:\([^)]*\))?:\s+bump\s+.+\s+(?:from\s+.+\s+to\s+.+|with\s+\d+\s+updates?)"
 )
 _DEPENDABOT_BODY_PATTERN = re.compile(
-    r"(?is)\bBumps\b.+\bfrom\b.+\bto\b.+\bDependabot\b|"
-    r"(?is)\bBumps the .+ group\b.+\bUpdates\b.+\bfrom\b.+\bto\b.+\bDependabot\b"
+    r"(?is)(?:\bBumps\b.+\bfrom\b.+\bto\b.+\bDependabot\b|"
+    r"\bBumps the .+ group\b.+\bUpdates\b.+\bfrom\b.+\bto\b.+\bDependabot\b)"
 )
 _DEPENDABOT_HEAD_PATTERN = re.compile(r"(?i)^dependabot/")
 
