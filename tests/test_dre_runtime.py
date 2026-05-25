@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import pytest
+
 from core.dre import ConstitutionInvariant, DREConfig, DREInput
-from core.dre_runtime import run_integrated_cycle
+from core.dre_runtime import run_integrated_cycle, run_integrated_cycle_async
 from core.event_bus import EventBus
 from core.value_gate import ValueGateInput
 
@@ -53,6 +55,34 @@ def test_integrated_cycle_runs_dre_when_truth_guard_stable() -> None:
     assert out.dre_decisions[0].accepted is True
     assert out.dre_state.day_index == 1
     assert out.deliberation.accepted is True
+
+
+@pytest.mark.asyncio
+async def test_integrated_cycle_async_runs_inside_existing_event_loop() -> None:
+    out = await run_integrated_cycle_async(
+        baseline=0.4,
+        observed=0.45,
+        confidence=0.9,
+        dre_events=(_event(),),
+        dre_config=DREConfig(),
+        invariant=ConstitutionInvariant(("allow",), 1.0),
+    )
+    assert out.truth_guard.activated is False
+    assert len(out.dre_decisions) == 1
+    assert out.deliberation.accepted is True
+
+
+@pytest.mark.asyncio
+async def test_sync_integrated_cycle_fails_closed_inside_existing_event_loop() -> None:
+    with pytest.raises(RuntimeError, match="run_integrated_cycle_async"):
+        run_integrated_cycle(
+            baseline=0.4,
+            observed=0.45,
+            confidence=0.9,
+            dre_events=(_event(),),
+            dre_config=DREConfig(),
+            invariant=ConstitutionInvariant(("allow",), 1.0),
+        )
 
 
 def test_integrated_cycle_skips_dre_when_value_gate_blocks() -> None:
