@@ -7,7 +7,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -27,7 +27,12 @@ def _changed_files(base_ref: str) -> list[str]:
 
 
 def _load_config(path: Path) -> dict[str, Any]:
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    raw: object = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        raise InvariantError(f"config root must be a mapping: {path}")
+    return cast(dict[str, Any], raw)
 
 
 def _is_allowed_path(path: str, allowed: list[str]) -> bool:
