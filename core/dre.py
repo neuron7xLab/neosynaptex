@@ -1,4 +1,4 @@
-"""Deterministic Reflex Engine (DRE) with calibrated behavioral telemetry."""
+"""Deterministic Reflex Engine with calibrated behavioral telemetry."""
 
 from __future__ import annotations
 
@@ -23,9 +23,10 @@ __all__ = [
 ]
 
 _EPS = 1e-12
-_J_SHAPE = (7, 7)
-_UINT32_MAX = np.iinfo(np.uint32).max
-_UINT64_MAX = np.iinfo(np.uint64).max
+_DIM = 7
+_SHAPE = (_DIM, _DIM)
+_U32 = np.iinfo(np.uint32).max
+_U64 = np.iinfo(np.uint64).max
 FloatArray = NDArray[np.float64]
 
 
@@ -86,25 +87,25 @@ class DREState:
     phase_transition_triggered: bool
 
 
-def _check_finite(name: str, value: float) -> None:
+def _finite(name: str, value: float) -> None:
     if not math.isfinite(value):
         raise ValueError(f"{name} must be finite")
 
 
-def _check_non_negative_finite(name: str, value: float) -> None:
-    _check_finite(name, value)
+def _non_negative(name: str, value: float) -> None:
+    _finite(name, value)
     if value < 0.0:
         raise ValueError(f"{name} must be >= 0")
 
 
-def _check_unit_interval(name: str, value: float) -> None:
-    _check_finite(name, value)
-    if not (0.0 <= value <= 1.0):
+def _unit(name: str, value: float) -> None:
+    _finite(name, value)
+    if not 0.0 <= value <= 1.0:
         raise ValueError(f"{name} must be in [0, 1]")
 
 
-def _as_finite_distribution(name: str, model: Sequence[float]) -> FloatArray:
-    arr = np.asarray(model, dtype=np.float64)
+def _distribution(name: str, values: Sequence[float]) -> FloatArray:
+    arr = np.asarray(values, dtype=np.float64)
     if arr.ndim != 1 or arr.size == 0:
         raise ValueError(f"{name} must be a non-empty 1D vector")
     if not np.all(np.isfinite(arr)):
@@ -117,31 +118,31 @@ def _as_finite_distribution(name: str, model: Sequence[float]) -> FloatArray:
     return cast(FloatArray, arr / total)
 
 
-def _validate_config(config: DREConfig) -> None:
-    _check_non_negative_finite("config.kl_threshold", config.kl_threshold)
-    _check_non_negative_finite("config.risk_threshold_tau", config.risk_threshold_tau)
-    _check_non_negative_finite("config.friction_gain", config.friction_gain)
-    _check_unit_interval("config.overlap_threshold", config.overlap_threshold)
-    _check_unit_interval("config.phase_failure_ratio_threshold", config.phase_failure_ratio_threshold)
-    if config.phase_transition_days < 1:
+def _validate_config(cfg: DREConfig) -> None:
+    _non_negative("config.kl_threshold", cfg.kl_threshold)
+    _non_negative("config.risk_threshold_tau", cfg.risk_threshold_tau)
+    _non_negative("config.friction_gain", cfg.friction_gain)
+    _unit("config.overlap_threshold", cfg.overlap_threshold)
+    _unit("config.phase_failure_ratio_threshold", cfg.phase_failure_ratio_threshold)
+    if cfg.phase_transition_days < 1:
         raise ValueError("phase_transition_days must be >= 1")
-    if config.max_ktb_events < 1:
+    if cfg.max_ktb_events < 1:
         raise ValueError("max_ktb_events must be >= 1")
 
 
 def _validate_input(inp: DREInput) -> None:
-    _check_non_negative_finite("expected_free_energy", inp.expected_free_energy)
-    _check_non_negative_finite("action_magnitude", inp.action_magnitude)
-    _check_finite("execution_velocity", inp.execution_velocity)
-    if not (0 <= inp.timestamp_ns <= _UINT64_MAX):
+    _non_negative("expected_free_energy", inp.expected_free_energy)
+    _non_negative("action_magnitude", inp.action_magnitude)
+    _finite("execution_velocity", inp.execution_velocity)
+    if not 0 <= inp.timestamp_ns <= _U64:
         raise ValueError("timestamp_ns must fit uint64 without wraparound")
-    if not (0 <= inp.state_id <= _UINT32_MAX):
+    if not 0 <= inp.state_id <= _U32:
         raise ValueError("state_id must fit uint32 without wraparound")
 
 
 def kl_divergence(model_other: Sequence[float], model_self: Sequence[float]) -> float:
-    q = _as_finite_distribution("model_other", model_other)
-    p = _as_finite_distribution("model_self", model_self)
+    q = _distribution("model_other", model_other)
+    p = _distribution("model_self", model_self)
     if q.size != p.size:
         raise ValueError("model vectors must have equal length")
     value = float(np.sum(q * (np.log(q + _EPS) - np.log(p + _EPS))))
@@ -150,21 +151,13 @@ def kl_divergence(model_other: Sequence[float], model_self: Sequence[float]) -> 
     return value
 
 
-def _validate_constitution(
-    action: str,
-    magnitude: float,
-    invariant: ConstitutionInvariant,
-) -> bool:
-    _check_non_negative_finite("invariant.max_action_magnitude", invariant.max_action_magnitude)
-    return (
-        magnitude >= 0.0
-        and action in invariant.allowed_actions
-        and magnitude <= invariant.max_action_magnitude
-    )
+def _constitution_ok(action: str, magnitude: float, inv: ConstitutionInvariant) -> bool:
+    _non_negative("invariant.max_action_magnitude", inv.max_action_magnitude)
+    return action in inv.allowed_actions and 0.0 <= magnitude <= inv.max_action_magnitude
 
 
-def _external_overlap_score(v_ext: Sequence[float], efferent_copy: Sequence[float]) -> float:
-    ext = np.asarray(v_ext, dtype=np.float64)
+def _overlap_score(model_other: Sequence[float], efferent_copy: Sequence[float]) -> float:
+    ext = np.asarray(model_other, dtype=np.float64)
     eff = np.asarray(efferent_copy, dtype=np.float64)
     if ext.ndim != 1 or eff.ndim != 1:
         raise ValueError("model_other and efferent_copy must be 1D vectors")
@@ -182,18 +175,17 @@ def _external_overlap_score(v_ext: Sequence[float], efferent_copy: Sequence[floa
 
 
 def _feature(value: float) -> float:
-    _check_finite("feature", value)
+    _finite("feature", value)
     return math.tanh(value)
 
 
-def _make_behavior_vector(
-    *,
+def _behavior_vector(
     inp: DREInput,
     decision: DREDecision,
-    overlap_score: float,
+    overlap: float,
 ) -> BehavioralStateVector:
     _validate_input(inp)
-    _check_unit_interval("overlap_score", overlap_score)
+    _unit("overlap_score", overlap)
     features = np.asarray(
         [
             _feature(decision.kl_value),
@@ -201,44 +193,55 @@ def _make_behavior_vector(
             min(1.0, inp.expected_free_energy),
             _feature(inp.action_magnitude),
             _feature(inp.execution_velocity),
-            overlap_score,
+            overlap,
             1.0 if decision.accepted else 0.0,
         ],
         dtype=np.float64,
     )
-    if features.shape != (7,) or not np.all(np.isfinite(features)):
+    if features.shape != (_DIM,) or not np.all(np.isfinite(features)):
         raise ValueError("behavior features must be finite 7D vectors")
     jac = cast(FloatArray, np.outer(features, features))
     return BehavioralStateVector(
-        timestamp_ns=np.uint64(inp.timestamp_ns),
-        state_id=np.uint32(inp.state_id),
-        friction_coefficient=np.float32(decision.friction),
-        trajectory_jacobian=jac,
-        execution_velocity=np.float32(inp.execution_velocity),
-        accepted=decision.accepted,
-        decision_reason=decision.reason,
-        overlap_score=np.float32(overlap_score),
+        np.uint64(inp.timestamp_ns),
+        np.uint32(inp.state_id),
+        np.float32(decision.friction),
+        jac,
+        np.float32(inp.execution_velocity),
+        decision.accepted,
+        decision.reason,
+        np.float32(overlap),
     )
+
+
+def _decision(
+    accepted: bool,
+    reason: str,
+    kl_value: float,
+    friction: float,
+    quarantine_external: bool,
+) -> DREDecision:
+    return DREDecision(accepted, reason, kl_value, friction, quarantine_external)
 
 
 def _evaluate_atom(
     inp: DREInput,
-    config: DREConfig,
-    invariant: ConstitutionInvariant,
+    cfg: DREConfig,
+    inv: ConstitutionInvariant,
 ) -> tuple[DREDecision, float]:
     _validate_input(inp)
     kl_value = kl_divergence(inp.model_other, inp.model_self)
-    friction = min(1.0, config.friction_gain * (1.0 + kl_value))
-    overlap_score = _external_overlap_score(inp.model_other, inp.efferent_copy)
-    if overlap_score <= config.overlap_threshold:
-        return DREDecision(False, "blocked:quarantine_external", kl_value, friction, True), overlap_score
-    if kl_value > config.kl_threshold:
-        return DREDecision(False, "blocked:input_kl_drift", kl_value, friction, False), overlap_score
-    if inp.expected_free_energy >= config.risk_threshold_tau:
-        return DREDecision(False, "blocked:fail_closed_risk_gate", kl_value, friction, False), overlap_score
-    if not _validate_constitution(inp.action, inp.action_magnitude, invariant):
-        return DREDecision(False, "blocked:dlpfc_invariant", kl_value, friction, False), overlap_score
-    return DREDecision(True, "accepted", kl_value, friction, False), overlap_score
+    friction = min(1.0, cfg.friction_gain * (1.0 + kl_value))
+    overlap = _overlap_score(inp.model_other, inp.efferent_copy)
+    if overlap <= cfg.overlap_threshold:
+        return _decision(False, "blocked:quarantine_external", kl_value, friction, True), overlap
+    if kl_value > cfg.kl_threshold:
+        return _decision(False, "blocked:input_kl_drift", kl_value, friction, False), overlap
+    if inp.expected_free_energy >= cfg.risk_threshold_tau:
+        reason = "blocked:fail_closed_risk_gate"
+        return _decision(False, reason, kl_value, friction, False), overlap
+    if not _constitution_ok(inp.action, inp.action_magnitude, inv):
+        return _decision(False, "blocked:dlpfc_invariant", kl_value, friction, False), overlap
+    return _decision(True, "accepted", kl_value, friction, False), overlap
 
 
 def _push_ktb(
@@ -254,30 +257,28 @@ def _push_ktb(
 
 
 def compute_forcing_vector(ktb: Sequence[BehavioralStateVector]) -> FloatArray:
-    """Compute bounded behavioral forcing proxy from KTB jacobians via SVD."""
+    """Compute a bounded behavioral forcing proxy from KTB jacobians."""
     if not ktb:
-        return np.zeros(_J_SHAPE[0], dtype=np.float64)
+        return np.zeros(_SHAPE[0], dtype=np.float64)
     mats = np.stack([row.trajectory_jacobian.astype(np.float64) for row in ktb], axis=0)
-    if mats.shape[1:] != _J_SHAPE:
-        raise ValueError(f"trajectory_jacobian must have shape {_J_SHAPE}")
+    if mats.shape[1:] != _SHAPE:
+        raise ValueError(f"trajectory_jacobian must have shape {_SHAPE}")
     if not np.all(np.isfinite(mats)):
         raise ValueError("trajectory_jacobian must contain only finite values")
-    j_behav = np.mean(mats, axis=0)
-    u, s, _ = np.linalg.svd(j_behav, full_matrices=False)
+    u, s, _ = np.linalg.svd(np.mean(mats, axis=0), full_matrices=False)
     if not np.all(np.isfinite(s)):
         raise ValueError("singular values must be finite")
     if float(s[0]) <= _EPS:
-        return np.zeros(_J_SHAPE[0], dtype=np.float64)
-    forcing = u[:, 0] * min(1.0, float(s[0]))
-    return cast(FloatArray, forcing.astype(np.float64))
+        return np.zeros(_SHAPE[0], dtype=np.float64)
+    return cast(FloatArray, (u[:, 0] * min(1.0, float(s[0]))).astype(np.float64))
 
 
-def _phase_transition_triggered(ktb: Sequence[BehavioralStateVector], config: DREConfig) -> bool:
-    if len(ktb) < config.phase_transition_days:
+def _phase_transition(ktb: Sequence[BehavioralStateVector], cfg: DREConfig) -> bool:
+    if len(ktb) < cfg.phase_transition_days:
         return False
-    window = ktb[-config.phase_transition_days :]
+    window = ktb[-cfg.phase_transition_days :]
     failure_ratio = sum(not row.accepted for row in window) / len(window)
-    return failure_ratio >= config.phase_failure_ratio_threshold
+    return failure_ratio >= cfg.phase_failure_ratio_threshold
 
 
 async def run_dre_loop(
@@ -295,15 +296,8 @@ async def run_dre_loop(
     day_index = start_day_index
     for item in stream:
         day_index += 1
-        decision, overlap_score = _evaluate_atom(item, config, invariant)
+        decision, overlap = _evaluate_atom(item, config, invariant)
         decisions.append(decision)
-        _push_ktb(
-            ktb,
-            _make_behavior_vector(inp=item, decision=decision, overlap_score=overlap_score),
-            config.max_ktb_events,
-        )
-    return decisions, DREState(
-        day_index=day_index,
-        ktb=tuple(ktb),
-        phase_transition_triggered=_phase_transition_triggered(ktb, config),
-    )
+        _push_ktb(ktb, _behavior_vector(item, decision, overlap), config.max_ktb_events)
+    state = DREState(day_index, tuple(ktb), _phase_transition(ktb, config))
+    return decisions, state
