@@ -1,0 +1,36 @@
+name: dre-production-gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  dre-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ruff mypy pytest pyyaml
+
+      - name: Lint (ruff)
+        run: ruff check core tests tools
+
+      - name: Type-check (mypy strict)
+        run: mypy core tools --strict --config-file pyproject.toml
+
+      - name: Unit tests (DRE stack)
+        run: pytest -q tests/test_dre.py tests/test_truth_guard.py tests/test_value_gate.py tests/test_dre_runtime.py tests/tools/test_verify_authorship_compiler.py
+
+      - name: Authorship compiler gate
+        run: python tools/verify_authorship_compiler.py --base-ref origin/main
