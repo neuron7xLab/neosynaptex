@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 __all__ = ["ValueGateConfig", "ValueGateInput", "ValueGateDecision", "evaluate_value_gate"]
@@ -31,17 +32,27 @@ class ValueGateDecision:
     reason: str
 
 
+def _check_finite(name: str, value: float) -> None:
+    if not math.isfinite(value):
+        raise ValueError(f"{name} must be finite")
+
+
+def _check_non_negative(name: str, value: float) -> None:
+    _check_finite(name, value)
+    if value < 0.0:
+        raise ValueError(f"{name} must be >= 0")
+
+
 def evaluate_value_gate(inp: ValueGateInput, cfg: ValueGateConfig) -> ValueGateDecision:
-    for name, value in {
-        "risk": inp.risk,
-        "uncertainty": inp.uncertainty,
-        "kl_drift": inp.kl_drift,
-        "lambda_risk": cfg.lambda_risk,
-        "lambda_uncertainty": cfg.lambda_uncertainty,
-        "lambda_drift": cfg.lambda_drift,
-    }.items():
-        if value < 0.0:
-            raise ValueError(f"{name} must be >= 0")
+    _check_finite("utility", inp.utility)
+    _check_non_negative("risk", inp.risk)
+    _check_non_negative("uncertainty", inp.uncertainty)
+    _check_non_negative("kl_drift", inp.kl_drift)
+    _check_finite("counterfactual_score", inp.counterfactual_score)
+    _check_non_negative("lambda_risk", cfg.lambda_risk)
+    _check_non_negative("lambda_uncertainty", cfg.lambda_uncertainty)
+    _check_non_negative("lambda_drift", cfg.lambda_drift)
+    _check_finite("min_value_score", cfg.min_value_score)
 
     score = (
         inp.utility
@@ -49,6 +60,8 @@ def evaluate_value_gate(inp: ValueGateInput, cfg: ValueGateConfig) -> ValueGateD
         - cfg.lambda_uncertainty * inp.uncertainty
         - cfg.lambda_drift * inp.kl_drift
     )
+    if not math.isfinite(score):
+        raise ValueError("score must be finite")
     if score < cfg.min_value_score:
         return ValueGateDecision(False, score, "blocked:value_below_threshold")
     if score < inp.counterfactual_score:
