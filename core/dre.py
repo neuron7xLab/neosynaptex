@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from typing import NamedTuple, cast
@@ -23,6 +24,8 @@ __all__ = [
 
 _EPS = 1e-12
 _J_SHAPE = (7, 7)
+_UINT32_MAX = np.iinfo(np.uint32).max
+_UINT64_MAX = np.iinfo(np.uint64).max
 FloatArray = NDArray[np.float64]
 
 
@@ -78,16 +81,60 @@ class DREState:
     phase_transition_triggered: bool
 
 
-def kl_divergence(model_other: Sequence[float], model_self: Sequence[float]) -> float:
-    q = np.asarray(model_other, dtype=np.float64)
-    p = np.asarray(model_self, dtype=np.float64)
-    if q.ndim != 1 or p.ndim != 1 or q.size == 0 or p.size == 0 or q.size != p.size:
-        raise ValueError("model vectors must be non-empty 1D vectors with equal length")
-    if np.any(q < 0.0) or np.any(p < 0.0):
+def _check_finite(name: str, value: float) -> None:
+    if not math.isfinite(value):
+        raise ValueError(f"{name} must be finite")
+
+
+def _check_non_negative_finite(name: str, value: float) -> None:
+    _check_finite(name, value)
+    if value < 0.0:
+        raise ValueError(f"{name} must be >= 0")
+
+
+def _as_finite_distribution(name: str, model: Sequence[float]) -> FloatArray:
+    arr = np.asarray(model, dtype=np.float64)
+    if arr.ndim != 1 or arr.size == 0:
+        raise ValueError(f"{name} must be a non-empty 1D vector")
+    if not np.all(np.isfinite(arr)):
+        raise ValueError(f"{name} must contain only finite values")
+    if np.any(arr < 0.0):
         raise ValueError("model distributions must be non-negative")
-    q = q / max(float(np.sum(q)), _EPS)
-    p = p / max(float(np.sum(p)), _EPS)
-    return float(np.sum(q * (np.log(q + _EPS) - np.log(p + _EPS))))
+    total = float(np.sum(arr))
+    if not math.isfinite(total) or total <= 0.0:
+        raise ValueError(f"{name} must have positive finite mass")
+    return cast(FloatArray, arr / total)
+
+
+def _validate_config(config: DREConfig) -> None:
+    _check_non_negative_finite("config.kl_threshold", config.kl_threshold)
+    _check_non_negative_finite("config.risk_threshold_tau", config.risk_threshold_tau)
+    _check_non_negative_finite("config.friction_gain", config.friction_gain)
+    if config.phase_transition_days < 1:
+        raise ValueError("phase_transition_days must be >= 1")
+    if config.max_ktb_events < 1:
+        raise ValueError("max_ktb_events must be >= 1")
+
+
+def _validate_input(inp: DREInput) -> None:
+    _check_non_negative_finite("expected_free_energy", inp.expected_free_energy)
+    _check_non_negative_finite("action_magnitude", inp.action_magnitude)
+    _check_finite("execution_velocity", inp.execution_velocity)
+    if not (0 <= inp.timestamp_ns <= _UINT64_MAX):
+        raise ValueError("timestamp_ns must fit uint64 without wraparound")
+    if not (0 <= inp.state_id <= _UINT32_MAX):
+        raise ValueError("state_id must fit uint32 without wraparound")
+
+
+def kl_divergence(model_other: Sequence[float], model_self: Sequence[float]) -> float:
+    q = _as_finite_distribution("model_other", model_other)
+    p = _as_finite_distribution("model_self", model_self)
+    if q.size != p.size:
+        raise ValueError("model vectors must have equal length")
+    value = float(np.sum(q * (np.log(q + _EPS) - np.log(p + _EPS))))
+    if not math.isfinite(value):
+        raise ValueError("kl_divergence result must be finite")
+    return value
 
 
 def _validate_constitution(
@@ -95,6 +142,7 @@ def _validate_constitution(
     magnitude: float,
     invariant: ConstitutionInvariant,
 ) -> bool:
+    _check_non_negative_finite("invariant.max_action_magnitude", invariant.max_action_magnitude)
     return (
         magnitude >= 0.0
         and action in invariant.allowed_actions
@@ -105,8 +153,12 @@ def _validate_constitution(
 def _ast_segmentation_mask(v_ext: Sequence[float], efferent_copy: Sequence[float]) -> bool:
     ext = np.asarray(v_ext, dtype=np.float64)
     eff = np.asarray(efferent_copy, dtype=np.float64)
+    if ext.ndim != 1 or eff.ndim != 1:
+        raise ValueError("model_other and efferent_copy must be 1D vectors")
     if ext.shape != eff.shape:
         raise ValueError("efferent_copy shape must match model_other shape")
+    if not np.all(np.isfinite(ext)) or not np.all(np.isfinite(eff)):
+        raise ValueError("model_other and efferent_copy must contain only finite values")
     mask = ext * eff
     return bool(np.any(np.abs(mask) > 0.0))
 
@@ -117,6 +169,9 @@ def _make_behavior_vector(
     friction: float,
     kl_value: float,
 ) -> BehavioralStateVector:
+    _validate_input(inp)
+    _check_non_negative_finite("friction", friction)
+    _check_non_negative_finite("kl_value", kl_value)
     jac: FloatArray = np.eye(_J_SHAPE[0], dtype=np.float64) * min(1.0, kl_value + friction)
     return BehavioralStateVector(
         timestamp_ns=np.uint64(inp.timestamp_ns),
@@ -132,6 +187,7 @@ def _evaluate_atom(
     config: DREConfig,
     invariant: ConstitutionInvariant,
 ) -> DREDecision:
+    _validate_input(inp)
     kl_value = kl_divergence(inp.model_other, inp.model_self)
     friction = min(1.0, config.friction_gain * (1.0 + kl_value))
 
@@ -163,6 +219,10 @@ def compute_forcing_vector(ktb: Sequence[BehavioralStateVector]) -> FloatArray:
     if not ktb:
         return np.zeros(_J_SHAPE[0], dtype=np.float64)
     mats = np.stack([row.trajectory_jacobian.astype(np.float64) for row in ktb], axis=0)
+    if mats.shape[1:] != _J_SHAPE:
+        raise ValueError(f"trajectory_jacobian must have shape {_J_SHAPE}")
+    if not np.all(np.isfinite(mats)):
+        raise ValueError("trajectory_jacobian must contain only finite values")
     j_behav = np.mean(mats, axis=0)
     _, s, vt = np.linalg.svd(j_behav, full_matrices=False)
     inv_s = np.diag(1.0 / (s + _EPS))
@@ -177,8 +237,9 @@ async def run_dre_loop(
     invariant: ConstitutionInvariant,
     start_day_index: int = 0,
 ) -> tuple[list[DREDecision], DREState]:
-    if config.phase_transition_days < 1:
-        raise ValueError("phase_transition_days must be >= 1")
+    _validate_config(config)
+    if start_day_index < 0:
+        raise ValueError("start_day_index must be >= 0")
 
     decisions: list[DREDecision] = []
     ktb: list[BehavioralStateVector] = []
