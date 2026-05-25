@@ -24,7 +24,17 @@ def _event() -> DREInput:
     )
 
 
-def test_integrated_cycle_skips_dre_when_truth_guard_activates() -> None:
+def _value() -> ValueGateInput:
+    return ValueGateInput(
+        utility=2.0,
+        risk=0.1,
+        uncertainty=0.1,
+        kl_drift=0.0,
+        counterfactual_score=0.5,
+    )
+
+
+def test_truth_guard_pause_returns_no_dre_decisions() -> None:
     bus = EventBus()
     out = run_integrated_cycle(
         baseline=0.0,
@@ -34,16 +44,17 @@ def test_integrated_cycle_skips_dre_when_truth_guard_activates() -> None:
         dre_config=DREConfig(),
         invariant=ConstitutionInvariant(("allow",), 1.0),
         event_bus=bus,
+        value_gate_input=_value(),
     )
     assert out.truth_guard.activated is True
     assert out.dre_decisions == ()
+    assert out.value_gate.reason == "blocked:truth_guard"
     assert out.deliberation.accepted is False
     assert out.dre_state.day_index == 0
     assert len(bus.replay()) == 1
-    assert out.deliberation.accepted is False
 
 
-def test_integrated_cycle_runs_dre_when_truth_guard_stable() -> None:
+def test_missing_value_input_returns_no_dre_decisions() -> None:
     out = run_integrated_cycle(
         baseline=0.4,
         observed=0.45,
@@ -51,6 +62,23 @@ def test_integrated_cycle_runs_dre_when_truth_guard_stable() -> None:
         dre_events=(_event(),),
         dre_config=DREConfig(),
         invariant=ConstitutionInvariant(("allow",), 1.0),
+    )
+    assert out.truth_guard.activated is False
+    assert out.value_gate.accepted is False
+    assert out.value_gate.reason == "blocked:missing_value_gate_input"
+    assert out.dre_decisions == ()
+    assert out.deliberation.accepted is False
+
+
+def test_integrated_cycle_runs_dre_with_explicit_value_input() -> None:
+    out = run_integrated_cycle(
+        baseline=0.4,
+        observed=0.45,
+        confidence=0.9,
+        dre_events=(_event(),),
+        dre_config=DREConfig(),
+        invariant=ConstitutionInvariant(("allow",), 1.0),
+        value_gate_input=_value(),
     )
     assert out.truth_guard.activated is False
     assert len(out.dre_decisions) == 1
@@ -68,6 +96,7 @@ def test_integrated_cycle_async_runs_inside_existing_event_loop() -> None:
             dre_events=(_event(),),
             dre_config=DREConfig(),
             invariant=ConstitutionInvariant(("allow",), 1.0),
+            value_gate_input=_value(),
         )
         assert out.truth_guard.activated is False
         assert len(out.dre_decisions) == 1
@@ -76,9 +105,9 @@ def test_integrated_cycle_async_runs_inside_existing_event_loop() -> None:
     asyncio.run(_run())
 
 
-def test_sync_integrated_cycle_fails_closed_inside_existing_event_loop() -> None:
+def test_sync_integrated_cycle_raises_inside_existing_event_loop() -> None:
     async def _run() -> None:
-        with pytest.raises(RuntimeError, match="run_integrated_cycle_async"):
+        with pytest.raises(RuntimeError, match="active event loop"):
             run_integrated_cycle(
                 baseline=0.4,
                 observed=0.45,
@@ -86,12 +115,13 @@ def test_sync_integrated_cycle_fails_closed_inside_existing_event_loop() -> None
                 dre_events=(_event(),),
                 dre_config=DREConfig(),
                 invariant=ConstitutionInvariant(("allow",), 1.0),
+                value_gate_input=_value(),
             )
 
     asyncio.run(_run())
 
 
-def test_integrated_cycle_skips_dre_when_value_gate_blocks() -> None:
+def test_value_gate_rejection_returns_no_dre_decisions() -> None:
     out = run_integrated_cycle(
         baseline=0.4,
         observed=0.45,
