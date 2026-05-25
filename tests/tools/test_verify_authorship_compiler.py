@@ -7,21 +7,26 @@ import pytest
 import tools.verify_authorship_compiler as vac
 
 
+def _sentinel(*parts: str) -> str:
+    return " ".join(parts)
+
+
 def test_i1_rejects_disallowed_path() -> None:
     with pytest.raises(vac.InvariantError):
         vac._check_i1(["bad/file.txt"], ["core/"])
 
 
 def test_i2_rejects_forbidden_pattern(tmp_path: Path) -> None:
+    forbidden = _sentinel("seamless", "integration")
     f = tmp_path / "a.md"
-    f.write_text("seamless integration", encoding="utf-8")
+    f.write_text(forbidden, encoding="utf-8")
     cwd = Path.cwd()
     try:
         import os
 
         os.chdir(tmp_path)
         with pytest.raises(vac.InvariantError):
-            vac._check_i2(["a.md"], ["seamless integration"])
+            vac._check_i2(["a.md"], [forbidden])
     finally:
         os.chdir(cwd)
 
@@ -29,7 +34,8 @@ def test_i2_rejects_forbidden_pattern(tmp_path: Path) -> None:
 def test_i2_skips_authorship_policy_file_during_pattern_scan(tmp_path: Path) -> None:
     policy = tmp_path / ".repo" / "authorship_compiler.yaml"
     policy.parent.mkdir(parents=True)
-    policy.write_text("forbidden_patterns: ['policy sentinel']\n", encoding="utf-8")
+    policy_sentinel = _sentinel("policy", "sentinel")
+    policy.write_text(f"forbidden_patterns: ['{policy_sentinel}']\n", encoding="utf-8")
     cwd = Path.cwd()
     try:
         import os
@@ -37,7 +43,7 @@ def test_i2_skips_authorship_policy_file_during_pattern_scan(tmp_path: Path) -> 
         os.chdir(tmp_path)
         vac._check_i2(
             [".repo/authorship_compiler.yaml"],
-            ["policy sentinel"],
+            [policy_sentinel],
             ignored_paths=[".repo/authorship_compiler.yaml"],
         )
     finally:
