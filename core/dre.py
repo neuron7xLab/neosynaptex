@@ -1,4 +1,4 @@
-"""Deterministic Reflex Engine (DRE) with AST-segregation reflex gates."""
+"""Deterministic Reflex Engine (DRE) with numeric external-overlap reflex gates."""
 
 from __future__ import annotations
 
@@ -150,7 +150,7 @@ def _validate_constitution(
     )
 
 
-def _ast_segmentation_mask(v_ext: Sequence[float], efferent_copy: Sequence[float]) -> bool:
+def _external_efferent_overlap_mask(v_ext: Sequence[float], efferent_copy: Sequence[float]) -> bool:
     ext = np.asarray(v_ext, dtype=np.float64)
     eff = np.asarray(efferent_copy, dtype=np.float64)
     if ext.ndim != 1 or eff.ndim != 1:
@@ -191,7 +191,7 @@ def _evaluate_atom(
     kl_value = kl_divergence(inp.model_other, inp.model_self)
     friction = min(1.0, config.friction_gain * (1.0 + kl_value))
 
-    if not _ast_segmentation_mask(inp.model_other, inp.efferent_copy):
+    if not _external_efferent_overlap_mask(inp.model_other, inp.efferent_copy):
         return DREDecision(False, "blocked:quarantine_external", kl_value, friction, True)
     if kl_value > config.kl_threshold:
         return DREDecision(False, "blocked:input_kl_drift", kl_value, friction, False)
@@ -215,7 +215,7 @@ def _push_ktb(
 
 
 def compute_forcing_vector(ktb: Sequence[BehavioralStateVector]) -> FloatArray:
-    """Compute environment forcing vector F_env from KTB jacobians via SVD."""
+    """Compute deterministic forcing proxy from KTB jacobians via SVD."""
     if not ktb:
         return np.zeros(_J_SHAPE[0], dtype=np.float64)
     mats = np.stack([row.trajectory_jacobian.astype(np.float64) for row in ktb], axis=0)
@@ -228,6 +228,17 @@ def compute_forcing_vector(ktb: Sequence[BehavioralStateVector]) -> FloatArray:
     inv_s = np.diag(1.0 / (s + _EPS))
     forcing = vt.T @ inv_s
     return cast(FloatArray, forcing[:, 0])
+
+
+def _phase_transition_triggered(
+    decisions: Sequence[DREDecision],
+    *,
+    phase_transition_days: int,
+) -> bool:
+    if len(decisions) < phase_transition_days:
+        return False
+    window = decisions[-phase_transition_days:]
+    return all(not decision.accepted for decision in window)
 
 
 async def run_dre_loop(
@@ -249,21 +260,22 @@ async def run_dre_loop(
         day_index += 1
         decision = _evaluate_atom(item, config, invariant)
         decisions.append(decision)
-        if not decision.accepted:
-            _push_ktb(
-                ktb,
-                _make_behavior_vector(
-                    inp=item,
-                    friction=decision.friction,
-                    kl_value=decision.kl_value,
-                ),
-                config.max_ktb_events,
-            )
+        _push_ktb(
+            ktb,
+            _make_behavior_vector(
+                inp=item,
+                friction=decision.friction,
+                kl_value=decision.kl_value,
+            ),
+            config.max_ktb_events,
+        )
 
-    phase_transition_triggered = bool(ktb) and day_index >= config.phase_transition_days
     state = DREState(
         day_index=day_index,
         ktb=tuple(ktb),
-        phase_transition_triggered=phase_transition_triggered,
+        phase_transition_triggered=_phase_transition_triggered(
+            decisions,
+            phase_transition_days=config.phase_transition_days,
+        ),
     )
     return decisions, state
