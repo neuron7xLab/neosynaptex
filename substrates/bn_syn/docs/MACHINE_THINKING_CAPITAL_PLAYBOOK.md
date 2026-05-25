@@ -25,7 +25,7 @@ Transform checklist discipline into **engineering capital**: reusable reliabilit
 ## One-command usage
 ```bash
 python substrates/bn_syn/scripts/validate_thinking_checklist.py \
-  --checklist substrates/bn_syn/docs/MACHINE_THINKING_CHECKLIST_TEMPLATE.md \
+  --checklist substrates/bn_syn/docs/MACHINE_THINKING_SHOWCASE_CHECKLIST.md \
   --profile research_v1 \
   --min-capital-index 0.9 \
   --json-out proof_bundle/reports/thinking_capital_report.json
@@ -38,4 +38,4 @@ python substrates/bn_syn/scripts/validate_thinking_checklist.py \
 make thinking_product_report
 ```
 
-This command creates both machine JSON and executive Markdown artifacts in `proof_bundle/reports/` for immediate governance use.
+This command is fail-closed and creates both machine JSON and executive Markdown artifacts in `proof_bundle/reports/` for immediate governance use.
