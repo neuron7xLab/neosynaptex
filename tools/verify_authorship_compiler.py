@@ -111,6 +111,35 @@ def _snapshot_hash_for(paths: list[str]) -> str:
     return digest.hexdigest()
 
 
+def _load_runtime_ack(marker: Path, runtime_changed: list[str]) -> None:
+    try:
+        raw: object = json.loads(marker.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise InvariantError("I7 fail: runtime API acknowledgement is not valid JSON") from exc
+    if not isinstance(raw, dict):
+        raise InvariantError("I7 fail: runtime API acknowledgement root must be an object")
+
+    ack_id = raw.get("ack_id")
+    reason = raw.get("reason")
+    claim_status = raw.get("claim_status")
+    surface = raw.get("runtime_surface")
+    if not isinstance(ack_id, str) or not ack_id.strip():
+        raise InvariantError("I7 fail: runtime API acknowledgement requires non-empty ack_id")
+    if not isinstance(reason, str) or len(reason.strip()) < 24:
+        raise InvariantError("I7 fail: runtime API acknowledgement requires substantive reason")
+    if claim_status != "derived":
+        raise InvariantError("I7 fail: runtime API acknowledgement must set claim_status='derived'")
+    if not isinstance(surface, list) or not all(isinstance(item, str) for item in surface):
+        raise InvariantError("I7 fail: runtime_surface must be a list of paths")
+
+    missing = sorted(set(runtime_changed) - set(surface))
+    if missing:
+        raise InvariantError(
+            "I7 fail: runtime API acknowledgement omits changed runtime files: "
+            + ", ".join(missing)
+        )
+
+
 def _check_i7(
     changed: list[str],
     snapshot_file: str,
@@ -139,6 +168,7 @@ def _check_i7(
             "I7 fail: runtime API hash changed without "
             ".repo/runtime_api_change_ack.json"
         )
+    _load_runtime_ack(marker, runtime_changed)
 
 
 def main() -> int:
