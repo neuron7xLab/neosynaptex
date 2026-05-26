@@ -20,7 +20,9 @@ Contract
   all match Dependabot's machine-generated dependency-update shape.
   These PRs are treated as ``claim_status: measured`` because the claim
   is only a dependency metadata update, not a scientific or product
-  claim. Human-authored PRs never receive this exception.
+  claim. Human-authored PRs never receive this exception. An explicit
+  non-canonical ``claim_status`` line is always rejected before this
+  exception is considered.
 * **Failure.** Exit 2 in either of two cases:
 
   1. No ``claim_status:`` line is present — the PR has not applied the
@@ -114,6 +116,21 @@ def _is_dependabot_dependency_pr(text: str, context: ValidationContext | None) -
     return bool(_DEPENDABOT_BODY_PATTERN.search(text))
 
 
+def _unknown_claim_status_reason(text: str) -> str | None:
+    any_lines = [m.group(1).strip() for m in _PR_BODY_ANY_LABEL_LINE.finditer(text)]
+    if not any_lines:
+        return None
+    unknown = sorted({v.lower() for v in any_lines})
+    return (
+        "claim_status block is present but its label(s) are outside the "
+        "canonical taxonomy: "
+        + ", ".join(repr(u) for u in unknown)
+        + ". Valid labels: "
+        + ", ".join(CANONICAL_LABELS)
+        + ". See docs/SYSTEM_PROTOCOL.md §Barrier rule (item 4)."
+    )
+
+
 def validate(text: str, context: ValidationContext | None = None) -> tuple[bool, str]:
     """Return ``(ok, reason)`` for a PR body text blob.
 
@@ -128,22 +145,14 @@ def validate(text: str, context: ValidationContext | None = None) -> tuple[bool,
             + ", ".join(sorted(set(canonical_hits)))
         )
 
+    unknown_reason = _unknown_claim_status_reason(text)
+    if unknown_reason is not None:
+        return False, unknown_reason
+
     if _is_dependabot_dependency_pr(text, context):
         return True, (
             "dependency-only Dependabot PR accepted as claim_status: measured "
             "under the narrow machine-generated dependency-update exception"
-        )
-
-    any_lines = [m.group(1).strip() for m in _PR_BODY_ANY_LABEL_LINE.finditer(text)]
-    if any_lines:
-        unknown = sorted({v.lower() for v in any_lines})
-        return False, (
-            "claim_status block is present but its label(s) are outside the "
-            "canonical taxonomy: "
-            + ", ".join(repr(u) for u in unknown)
-            + ". Valid labels: "
-            + ", ".join(CANONICAL_LABELS)
-            + ". See docs/SYSTEM_PROTOCOL.md §Barrier rule (item 4)."
         )
 
     return False, (
