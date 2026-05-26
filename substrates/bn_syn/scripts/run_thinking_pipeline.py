@@ -9,8 +9,18 @@ import sys
 from pathlib import Path
 
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
+SCRIPTS_DIR = REPO_ROOT / "substrates" / "bn_syn" / "scripts"
+
+
 def run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(cmd, text=True, capture_output=True, check=False)
+    return subprocess.run(
+        cmd,
+        text=True,
+        capture_output=True,
+        check=False,
+        cwd=REPO_ROOT,
+    )
 
 
 def main() -> int:
@@ -28,7 +38,7 @@ def main() -> int:
 
     gen_cmd = [
         sys.executable,
-        "substrates/bn_syn/scripts/generate_thinking_product_report.py",
+        str(SCRIPTS_DIR / "generate_thinking_product_report.py"),
         "--checklist",
         str(args.checklist),
         "--profile",
@@ -45,7 +55,7 @@ def main() -> int:
 
     comp_cmd = [
         sys.executable,
-        "substrates/bn_syn/scripts/compile_thinking_artifact.py",
+        str(SCRIPTS_DIR / "compile_thinking_artifact.py"),
         "--report-json",
         str(report_json),
         "--out-json",
