@@ -18,7 +18,11 @@ def test_dependabot_dependency_pr_passes_without_claim_status() -> None:
 
 
 def test_dependabot_dependency_pr_rejects_invalid_claim_status() -> None:
-    body = "claim_status: confirmed\n\nBumps pkg from 1.0.0 to 1.0.1.\n\nDependabot will resolve conflicts.\n"
+    body = (
+        "claim_status: confirmed\n\n"
+        "Bumps pkg from 1.0.0 to 1.0.1.\n\n"
+        "Dependabot will resolve conflicts.\n"
+    )
     context = ValidationContext(
         actor=DEPENDABOT_ACTOR,
         title="deps: bump pkg from 1.0.0 to 1.0.1",
