@@ -21,7 +21,7 @@ crate-type = ["cdylib", "rlib"]
 # `PyString::from_object`); the advisory is patched in 0.24.1+. We
 # align numpy + pyo3 + pyo3-build-config on the same 0.28 line since
 # PyO3 versions itself across the trio in lockstep.
-numpy = "0.28"
+numpy = "0.29"
 pyo3 = { version = "0.28", features = ["extension-module"] }
 
 [dev-dependencies]
