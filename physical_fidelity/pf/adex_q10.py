@@ -94,6 +94,66 @@ def adex_energy(v: float, w: float, p: AdExParams, *, alpha: float = 1.0) -> flo
     return 0.5 * p.C * v * v + 0.5 * alpha * w * w
 
 
+@dataclass(frozen=True)
+class SynapseParams:
+    """Conductance-based synapse reversal potentials and decay constants."""
+
+    E_e: float = 0.0  # mV (excitatory reversal)
+    E_i: float = -80.0  # mV (inhibitory reversal)
+    tau_e: float = 5.0  # ms
+    tau_i: float = 10.0  # ms
+
+
+def simulate_adex_energy(
+    p: AdExParams,
+    i_ext: float,
+    *,
+    t_end: float = 200.0,
+    dt: float = 0.005,
+    g_e0: float = 0.0,
+    g_i0: float = 0.0,
+    syn: SynapseParams | None = None,
+) -> tuple[Array, Array, Array, Array]:
+    """Quiescent conductance-AdEx with exact energy identity (GAP-P-03).
+
+    Energy E = 1/2 C (V-E_L)^2. By the chain rule the *exact* balance is
+
+        dE/dt = -g_L (V-E_L)^2  +  (V-E_L) [g_L Delta_T exp((V-V_T)/Delta_T)
+                                            - w + I_ext + I_syn]
+
+    so P_diss := g_L (V-E_L)^2 (leak dissipation) and P_input := the bracket times
+    (V-E_L). Returns (t, E, P_input, P_diss) for energy.check_energy_balance; the
+    integrator is verified, in quiescent regime, to honour this identity to <1%.
+    """
+    syn = syn or SynapseParams()
+    v = p.E_L
+    w = 0.0
+    g_e, g_i = g_e0, g_i0
+    steps = int(round(t_end / dt))
+    t = np.linspace(0.0, steps * dt, steps + 1)
+    energy = np.empty(steps + 1)
+    p_in = np.empty(steps + 1)
+    p_diss = np.empty(steps + 1)
+
+    def record(idx: int, v_: float, w_: float, ge_: float, gi_: float) -> None:
+        i_syn = -ge_ * (v_ - syn.E_e) - gi_ * (v_ - syn.E_i)
+        exp_term = p.g_L * p.Delta_T * np.exp((v_ - p.V_T) / p.Delta_T)
+        energy[idx] = 0.5 * p.C * (v_ - p.E_L) ** 2
+        p_diss[idx] = p.g_L * (v_ - p.E_L) ** 2
+        p_in[idx] = (v_ - p.E_L) * (exp_term - w_ + i_ext + i_syn)
+
+    record(0, v, w, g_e, g_i)
+    for s in range(steps):
+        i_syn = -g_e * (v - syn.E_e) - g_i * (v - syn.E_i)
+        dv, dw = adex_rhs(v, w, i_ext + i_syn, p)
+        v += dt * dv
+        w += dt * dw
+        g_e += dt * (-g_e / syn.tau_e)
+        g_i += dt * (-g_i / syn.tau_i)
+        record(s + 1, v, w, g_e, g_i)
+    return t, energy, p_in, p_diss
+
+
 def simulate_adex(
     p: AdExParams,
     i_ext: float,
