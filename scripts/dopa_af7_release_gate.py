@@ -32,7 +32,10 @@ def main() -> None:
     output = Path(args.out)
     output.parent.mkdir(parents=True, exist_ok=True)
     payload = result_to_jsonable(result)
-    output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    output.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     print(json.dumps(payload, indent=2, sort_keys=True))
     if args.require_ready and not result.academy_fellow_ready:
         raise SystemExit(1)
