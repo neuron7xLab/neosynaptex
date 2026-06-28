@@ -65,11 +65,12 @@ def evaluate_af7_evidence(evidence: DopaAF7Evidence) -> DopaAF7GateResult:
     calibrated signal that buys independently verified closure under equal budget.
     """
 
+    b2_pass_rate = _ratio(evidence.b2_seeds_passing, evidence.b2_seeds_total)
     task_passes = {
         "construct_freeze_gate": evidence.dnca_signal_executable
         and evidence.signed_vrpe_field_present,
         "calibrated_vrpe_estimator": evidence.value_estimator_calibrated
-        and _ratio(evidence.b2_seeds_passing, evidence.b2_seeds_total) >= 10.0 / 12.0,
+        and b2_pass_rate >= 10.0 / 12.0,
         "verified_closure_corpus": evidence.verifier_beats_majority
         and evidence.verifier_beats_random
         and evidence.verified_closure_distinct_from_accuracy,
@@ -118,7 +119,7 @@ def evaluate_af7_evidence(evidence: DopaAF7Evidence) -> DopaAF7GateResult:
 
 
 def evidence_from_dopa_validity_result(path: str | Path) -> DopaAF7Evidence:
-    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    payload: dict[str, Any] = json.loads(Path(path).read_text(encoding="utf-8"))
     verifier = payload.get("verifier_admissibility", {})
     if not isinstance(verifier, dict):
         verifier = {}
@@ -141,7 +142,7 @@ def evidence_from_dopa_validity_result(path: str | Path) -> DopaAF7Evidence:
         b2_seeds_total=b2_total,
         verifier_beats_majority=bool(verifier.get("beats_majority", False)),
         verifier_beats_random=bool(verifier.get("beats_random", False)),
-        verified_closure_distinct_from_accuracy="accuracy" not in str(
+        verified_closure_distinct_from_accuracy="distinct from" in str(
             payload.get("verified_closure_definition", "")
         ).lower(),
         budget_router_integrated=isinstance(policy_scores, dict)
