@@ -34,7 +34,7 @@ jobs:
           - synthetic_power_law
           - synthetic_constant
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version-file: .python-version
@@ -75,7 +75,7 @@ jobs:
         substrate:
           - serotonergic_kuramoto
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version-file: .python-version

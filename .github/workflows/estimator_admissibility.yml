@@ -85,7 +85,7 @@ jobs:
           - bootstrap_median_slope
           - odr_log_log
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version-file: .python-version
@@ -145,7 +145,7 @@ jobs:
           - quantile_pivoted_slope
           - odr_log_log
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version-file: .python-version
@@ -183,7 +183,7 @@ jobs:
           - subwindow_bagged_theil_sen
           - bootstrap_median_slope
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version-file: .python-version
